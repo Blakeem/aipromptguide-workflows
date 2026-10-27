@@ -4362,6 +4362,16 @@ section('the developer confirms each review finding, suggested fix and Fix line 
     'the instruction to follow a Fix line is subject to that check');
 }
 
+section('the fix developer and fix acceptance are told an entry carries the evidence a review confirmed');
+// debug's verifier removes its probe directory, so the entry's Evidence line is the only record of what it confirmed.
+{
+  const fixRun = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE);
+  const dev = flat(fixRun.prompt('develop fix-a r1'));
+  ok(dev.includes('each with its own `- decision:` line, a **Fix:** instruction and, from a review, an **Evidence:** line.'), 'the developer\'s inventory line names the Evidence line');
+  ok(dev.includes("An entry's **Evidence:** line names the input, probe or document a review confirmed it with. It is a claim to re-check, never proof."), 'VERIFY-FIRST treats it as a claim to re-check');
+  ok(flat(fixRun.prompt('acceptance fix-a r1')).includes('each with a `- decision:` line, a **Fix:** instruction and, from a review, an **Evidence:** line with what the review confirmed.'), 'fix acceptance names it too');
+}
+
 section('every reviewer gives a fix direction it checked against the code');
 {
   const DIRECTION = 'a fix direction you checked against the code it would change';

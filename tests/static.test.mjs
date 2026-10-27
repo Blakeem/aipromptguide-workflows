@@ -155,10 +155,10 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
 // sat unread in review.mjs until 2026-08-01. Both look like enforcement and enforce nothing.
 //
 // TOP-LEVEL ONLY, and that scoping is load-bearing rather than a convenience. A nested item field is
-// legitimately consumed by returning or routing its CONTAINER wholesale — REFINE_SCHEMA's gap
-// title/evidence/suggestion go into a file the engine never opens, review.mjs's per-finding fields are
-// copied through `item.f`. Measured 2026-08-01: an all-depth rule flags 36 fields of which 33 are false
-// positives; the top-level rule flags exactly 3, and all 3 were real.
+// legitimately left unread — review.mjs's VERIFY_SCHEMA `matrix` fields are the verifier's routing
+// scaffold, the source of each issue entry's `- size:` line, and no harness line reads them. Measured
+// 2026-08-01: an all-depth rule flags 36 fields of which 33 are false positives; the top-level rule flags
+// exactly 3, and all 3 were real.
 //
 // Source-level on purpose, and it does NOT contradict the run-it-don't-grep rule the numeric sweep
 // learned (below). That rule bites when you grep for the SHAPE OF A FIX and cannot tell it is wired to the
@@ -254,7 +254,7 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
   const evalSchema = (expr, unknown) => {
     const scope = new Proxy({}, { has: (t, k) => typeof k === 'string' && !(k in globalThis), get: () => unknown });
     let v = new Function('__s', 'with (__s) { return (' + expr + '); }')(scope);
-    if (typeof v === 'function') v = v();     // review.mjs builds its reviewer schema from the unit's lens
+    if (typeof v === 'function') v = v();     // develop-cycle.mjs builds developSchema(mode, closing) and others from args
     return v;
   };
 
@@ -324,9 +324,9 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
   /**
    * Every schema an agent() call is handed, ONE RECORD PER SITE — never a flattened per-engine field set,
    * which is what let two schemas' same-named fields cover for each other.
-   * Driven off `schema:` sites rather than `*_SCHEMA` consts on purpose: review.mjs passes
-   * `reviewSchema(lens.categories)`, and review.mjs is the engine the motivating `wrote_file` defect lived
-   * in — an extractor blind to a function-built schema would miss the very file it exists for.
+   * Driven off `schema:` sites rather than `*_SCHEMA` consts on purpose: develop-cycle.mjs passes
+   * `developSchema(mode, closing)`, and an extractor blind to a function-built schema would miss every
+   * field of the developer's return.
    * @returns {{sites:Array<{line:number,name:string,recv:string[],recvKind:string,keys:string[]}>,
    *            scan:string, errors:string[]}} `scan` is the masked source with the schema declarations
    *          themselves blanked, i.e. where a CONSUMER must appear.
@@ -436,15 +436,15 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
     ok(unread.length === 0,
       `${rel} — no attestation theater${unread.length ? ` — declared but never read THROUGH ITS OWN RECEIVER: ${unread.join(', ')}. Consume each (a guard, or surface it in the log line) or delete it from the schema AND the prompt text demanding it` : ''}`);
   }
-  // The function-built schema specifically. `wrote_clean_marker` is reachable ONLY through
-  // reviewSchema(categories), so this is what fails if the extractor ever regresses to `*_SCHEMA` consts —
+  // The function-built schema specifically. `baseline_dirty_files` is reachable ONLY through
+  // developSchema(mode, closing), so this is what fails if the extractor ever regresses to `*_SCHEMA` consts —
   // silently, since every const-declared schema would still resolve and the sweep would look green. Asserted
   // on the SITE, not on a per-engine union: a union would still pass if some other schema grew that name.
   {
-    const s = readSchemas(readFileSync(join(REPO_ROOT, 'workflows/debug/review.mjs'), 'utf8'));
-    const site = s.sites.find((x) => x.name === 'reviewSchema');
-    ok(!!site && site.keys.includes('wrote_clean_marker'),
-      `the extractor reads FUNCTION-BUILT schemas too — review.mjs's reviewSchema(categories) SITE contributed wrote_clean_marker${site ? '' : ' — no reviewSchema site was found at all'}`);
+    const s = readSchemas(readFileSync(join(REPO_ROOT, 'workflows/develop/develop-cycle.mjs'), 'utf8'));
+    const site = s.sites.find((x) => x.name === 'developSchema');
+    ok(!!site && site.keys.includes('baseline_dirty_files'),
+      `the extractor reads FUNCTION-BUILT schemas too — develop-cycle.mjs's developSchema(mode, closing) SITE contributed baseline_dirty_files${site ? '' : ' — no developSchema site was found at all'}`);
   }
   // Cannot-rot: a FALLBACK entry whose site is gone, or whose return is bound to a variable now, is a
   // permanent excuse for coverage nobody is missing anymore.
@@ -520,6 +520,16 @@ section('no guide tells the operator to clear run-state');
     const verdict = hits.length ? `tells the operator to clear run-state: "${hits.join('", "')}"` : 'never tells the operator to clear run-state';
     ok(hits.length === 0, `${rel} ${verdict}`);
   }
+}
+
+section('debug guide advises one unit with a lens array for a small codebase');
+// The advice replaced per-lens units, which spawn a verifier and an issue file per lens with no fold across lenses.
+{
+  const guide = readFileSync(join(REPO_ROOT, 'workflows', 'debug', 'CLAUDE.md'), 'utf8').replace(/\s+/g, ' ');
+  const engine = readFileSync(join(REPO_ROOT, 'workflows', 'debug', 'review.mjs'), 'utf8').replace(/\s+/g, ' ');
+  ok(guide.includes('**For a small codebase, pass its files as ONE unit with a lens array**'), 'debug guide advises ONE unit with a lens array for a small codebase');
+  ok(!guide.includes('Fan out by lens instead of file-slice'), 'debug guide no longer advises fanning out by lens instead of file-slice');
+  ok(!engine.includes('pass the same files as N units'), 'review.mjs no longer advises passing the same files as N units');
 }
 
 section('every README that counts the principles states the count WORKFLOW-PRINCIPLES.md holds');

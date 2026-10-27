@@ -416,6 +416,26 @@ section('the round budget runs out carrying the LAST round\'s gaps and critique 
   ], 'rounds-exhausted');
 }
 
+section('conventionFiles reach the critic and the editor, and a bad value throws');
+// The distilled conventions line is an index, so both roles read the target's own instruction files in full.
+{
+  const HEAD = "CONVENTION FILES (the target's own rules, which the CONVENTIONS line above indexes. Read each one in full):";
+  const none = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK });
+  ok(!none.prompt('plan-critic').includes('CONVENTION FILES') && !none.prompt('plan-editor').includes('CONVENTION FILES'), 'without the arg, no prompt carries the section');
+  const set = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK }, { ...baseArgs, conventionFiles: [' CLAUDE.md', ' E:/home/.claude/CLAUDE.md '] });
+  for (const role of ['plan-critic', 'plan-editor']) {
+    ok(set.prompt(role).includes(`${HEAD}
+  - E:/repo/CLAUDE.md
+  - E:/home/.claude/CLAUDE.md
+`), `the ${role} prompt lists each file trimmed, a relative one resolved against target.repo`);
+  }
+  for (const bad of ['CLAUDE.md', [' '], [null]]) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, conventionFiles: bad } });
+    ok(msg.startsWith('Invalid args.conventionFiles: it must be an array of file paths') && msg.includes(JSON.stringify(bad)),
+      `conventionFiles ${JSON.stringify(bad)} throws naming the value: ${msg.slice(0, 120)}`);
+  }
+}
+
 section('a launch without blockTool throws, naming the pre-launch command that runs the tool');
 // An installed plugin keeps run-state (root) apart from tools/, so no path derived from root names the tool.
 {

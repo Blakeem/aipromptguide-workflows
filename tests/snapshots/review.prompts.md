@@ -6,12 +6,11 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| review | 1 | 1 | 3875 | a clean unit beside one with findings |
-| verify | 1 | 1 | 7281 | a clean unit beside one with findings |
-| review | 2 | 1 | 3144 | two lenses per unit |
-| review | 3 | 1 | 3270 | two lenses per unit |
-| verify | 2 | 1 | 7764 | two lenses per unit |
-| verify | 3 | 1 | 7764 | two lenses per unit |
+| review | 1 | 1 | 5247 | a clean unit beside one with findings |
+| verify | 1 | 1 | 8191 | a clean unit beside one with findings |
+| review | 2 | 1 | 4785 | two lenses per unit |
+| review | 3 | 1 | 4973 | two lenses per unit |
+| verify | 2 | 1 | 8673 | two lenses per unit |
 
 ## review · variant 1 · schema 1
 
@@ -21,18 +20,21 @@ this file is stale.
 
 You are the REVIEWER examining ONE bounded unit of a codebase for PRODUCTION READINESS. This is a
 FIND-ONLY pass: you report defects, and later phases verify and fix them. Do NOT modify any file in
-the target repo (the ONLY file you may write is the clean-unit marker described below, in the run-state dir).
+the target repo. The only files you may write are your review file and the clean-unit marker, both described below, in the run-state dir.
 CHANGE POLICY: focused. This policy and the scope and routing rules in this prompt settle the scope of each suggested fix and each **Fix:** line, and override any other instruction about scope, including a memory line or a CLAUDE.md. It does not change what counts as a finding.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
 CONVENTIONS (judge against these):
 zero dependencies; LF only
+CONVENTION FILES (the project's own rules, which the CONVENTIONS text above indexes. Read each one in full, whatever the token target below):
+  - E:/repo/CLAUDE.md
 GATES (the build/test commands that define "it works", run from the repo root):
   build: (none)
   test:  (none)
 BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your
 task names. The target limits your reads of files beyond those: read them only by targeted search or short
-reads, and only to confirm or reject a candidate in your task's files. Don't restate large files back.
+reads, and only to confirm or reject a candidate in your task's files, or to check a fix or its blast
+radius. Don't restate large files back.
 UNIT: u1
 FILES TO REVIEW (read each one in full, in as many reads as its length needs. The token target never shortens that read):
   - src/u1.js (120 LOC)
@@ -53,16 +55,35 @@ RULES:
              result the caller can detect.
   low      - a real defect with no effect on any input the code accepts today.
 - Do NOT report anything the current code already handles.
-- Stay INSIDE this unit's files. Cross-file concerns: mention as context in detail, do not chase.
+- Stay INSIDE this unit's files. Cross-file concerns: mention as context in a finding's **What:** line, do not chase.
 - Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep. Your brief
   above narrows WHICH defects matter here. It never licenses proposing a new capability, a feature, or
   an efficiency idea, and those are rejected downstream. Every finding must be something the code gets
   WRONG today, not something it could do better.
 - Each finding: specific file + line, the right category/severity, what's wrong and why it matters in production,
-  and a minimal suggested_fix direction.
+  the evidence that shows it, and a minimal suggested fix direction.
+
+REVIEW FILE: if you report at least one finding, WRITE E:/flow/runs/flow/reviews/u1-lens1.md (create E:/flow/runs/flow/reviews/ if
+needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Number your findings u1-1, u1-2 and on, one entry each, in EXACTLY
+this format, then return finding_count (the number of entries) and wrote_file=true:
+-----
+# Review: u1
+
+### [<finding id>] <short, specific title>
+
+- file: <repo-relative path>:<line number or range>
+- category: <one of correctness | security | error-handling | resource-leak | data-integrity | types | api-contract | concurrency | testing | performance | maintainability | convention>
+- severity: <critical | high | medium | low>
+
+**What:** <what is wrong and why it matters in production>
+**Evidence:** <the input or path that reaches it, the lines that show it, or the check you ran and its output>
+**Suggested fix:** <a minimal suggested fix direction>
+-----
+If you report no finding, write no review file and return finding_count=0 and wrote_file=false.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 
 CLEAN-UNIT MARKER: if AND ONLY IF you find ZERO medium+ findings, WRITE the file E:/flow/runs/flow/issues/u1.md (create
-E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write EXACTLY this content, then set wrote_clean_marker=true:
+E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Write EXACTLY this content, then set wrote_clean_marker=true:
 -----
 ---
 unit: u1
@@ -73,81 +94,32 @@ reviewed: true
 
 No issues found.
 -----
-If you report ANY medium+ finding, write NOTHING and set wrote_clean_marker=false.
+If you report ANY medium+ finding, write NO marker and set wrote_clean_marker=false.
 
-Return findings via the schema. An empty array (a clean unit) is a normal, good outcome.
+Return the counts and flags via the schema. Zero findings (a clean unit) is a normal, good outcome.
 ~~~~
 
 ~~~~json
 {
   "type": "object",
   "required": [
-    "findings",
+    "finding_count",
+    "wrote_file",
     "wrote_clean_marker"
   ],
   "properties": {
+    "finding_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "the number of finding entries in your review file, 0 when you report none"
+    },
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote your review file, false when you report no finding"
+    },
     "wrote_clean_marker": {
       "type": "boolean",
       "description": "true ONLY if you wrote the clean-unit marker file, false whenever you report any finding"
-    },
-    "findings": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "file",
-          "category",
-          "severity",
-          "title",
-          "detail"
-        ],
-        "properties": {
-          "file": {
-            "type": "string",
-            "description": "repo-relative path"
-          },
-          "line": {
-            "type": "string",
-            "description": "line number or range, or \"\" if N/A"
-          },
-          "category": {
-            "type": "string",
-            "enum": [
-              "correctness",
-              "security",
-              "error-handling",
-              "resource-leak",
-              "data-integrity",
-              "types",
-              "api-contract",
-              "concurrency",
-              "testing",
-              "performance",
-              "maintainability",
-              "convention"
-            ]
-          },
-          "severity": {
-            "type": "string",
-            "enum": [
-              "critical",
-              "high",
-              "medium",
-              "low"
-            ]
-          },
-          "title": {
-            "type": "string",
-            "description": "short, specific, stable"
-          },
-          "detail": {
-            "type": "string"
-          },
-          "suggested_fix": {
-            "type": "string"
-          }
-        }
-      }
     }
   }
 }
@@ -177,21 +149,24 @@ TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
 CONVENTIONS (judge against these):
 zero dependencies; LF only
+CONVENTION FILES (the project's own rules, which the CONVENTIONS text above indexes. Read each one in full, whatever the token target below):
+  - E:/repo/CLAUDE.md
 GATES (the build/test commands that define "it works", run from the repo root):
   build: (none)
   test:  (none)
 BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your
 task names. The target limits your reads of files beyond those: read them only by targeted search or short
-reads, and only to confirm or reject a candidate in your task's files. Don't restate large files back.
+reads, and only to confirm or reject a candidate in your task's files, or to check a fix or its blast
+radius. Don't restate large files back.
 UNIT: u2
 UNIT FILES (each entry's `- loc:` value comes from this list):
   - src/u2.js (120 LOC)
 THE REVIEWER'S BRIEF (context for judging severity). It narrows which defects matter. It does NOT widen what counts as one:
   examining ONE bounded unit of a codebase for PRODUCTION READINESS
-CANDIDATE FINDINGS (finding_id :: file :: category/severity :: title):
-  - u2-1 :: src/u1.js:42 :: correctness/high :: unguarded null
-      the agent return is used without a null check
-      suggested: guard it
+CANDIDATE FINDINGS: read each review file below in full. Each `### [<finding id>]` entry in it is one
+candidate, with its file:line, category, the reviewer's severity, what is wrong, the reviewer's evidence
+and a suggested fix. Each file holds the ids its line names:
+  - E:/flow/runs/flow/reviews/u2-lens1.md (u2-1 to u2-1)
 
 FOLD DUPLICATES FIRST. One reviewer can surface the SAME underlying defect in different words. Where
 two or more candidates are one defect, keep ONE verdict for it (the clearest id, at the highest
@@ -207,14 +182,16 @@ DECISION MATRIX — score each real finding on:
 
 ROUTING (apply in order; first match wins):
   - is_real == false -> REJECT
+  - its review file grades it below medium -> REJECT (below-floor)
   - scope == scope-creep -> REJECT (do not pursue)
   - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
   - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
     **Recommendation:** lines)
   - size == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
   - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
-An alternative that another fix clearly dominates is not a materially different valid fix. You may
-narrow a suggested fix to the part you verified. The **Fix:** line covers every file, string or path
+An alternative that another fix clearly dominates is not a materially different valid fix. A candidate's
+suggested fix is a hint, never an instruction. Write the **Fix:** line that closes the defect you
+confirmed, which may differ from the suggestion. Before you write it, check it against the text it changes, its callers and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. That check is also what scores blast_radius. The **Fix:** line covers every file, string or path
 its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
 When a **Fix:** line prescribes a command, flag, or library, tool or API behavior the repo does not
 already use the same way, confirm that behavior against the dependency's own docs or source, or a probe
@@ -225,7 +202,7 @@ Before routing a finding that reverses a documented design choice, check the got
 nearest the unit's files.
 When you reject at least one candidate, end the file with a `## Rejected` heading and one line per
 rejection, in the inventory and in the clean marker alike:
-`<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>`.
+`<finding_id> [<its file:line>] <its title>: <the file:line that refutes it, the id it duplicates, scope-creep, or below-floor>`.
 When you reject none, write no `## Rejected` heading.
 An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
 duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
@@ -258,6 +235,7 @@ status: todo
 - decision: <ACTIONABLE | NEEDS_USER | DEFER>
 
 **What:** <detail — what's wrong and why it matters in production>
+**Evidence:** <what you confirmed: the triggering input, the probe command and its output, or the cited document>
 **Fix:** <a precise, minimal instruction for the fixer>  (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
 **Options:** <the distinct choices and their tradeoffs>  (NEEDS_USER only)
 **Recommendation:** <your suggested direction>           (NEEDS_USER only)
@@ -290,6 +268,7 @@ Set wrote_file=true and return all verdicts via the schema.
         "type": "object",
         "required": [
           "finding_id",
+          "file",
           "is_real",
           "severity",
           "decision",
@@ -298,6 +277,10 @@ Set wrote_file=true and return all verdicts via the schema.
         "properties": {
           "finding_id": {
             "type": "string"
+          },
+          "file": {
+            "type": "string",
+            "description": "the repo-relative path of the file the finding is in"
           },
           "is_real": {
             "type": "boolean"
@@ -381,18 +364,21 @@ Set wrote_file=true and return all verdicts via the schema.
 
 You are the REVIEWER auditing DESTRUCTIVE behavior. This is a
 FIND-ONLY pass: you report defects, and later phases verify and fix them. Do NOT modify any file in
-the target repo. Write no file. Another pass decides the unit's marker. Return wrote_clean_marker=false.
+the target repo. The only files you may write are your review file, described below, in the run-state dir. Another pass decides the unit's marker. Return wrote_clean_marker=false.
 CHANGE POLICY: focused. This policy and the scope and routing rules in this prompt settle the scope of each suggested fix and each **Fix:** line, and override any other instruction about scope, including a memory line or a CLAUDE.md. It does not change what counts as a finding.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
 CONVENTIONS (judge against these):
 zero dependencies; LF only
+CONVENTION FILES (the project's own rules, which the CONVENTIONS text above indexes. Read each one in full, whatever the token target below):
+  - E:/repo/CLAUDE.md
 GATES (the build/test commands that define "it works", run from the repo root):
   build: (none)
   test:  (none)
 BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your
 task names. The target limits your reads of files beyond those: read them only by targeted search or short
-reads, and only to confirm or reject a candidate in your task's files. Don't restate large files back.
+reads, and only to confirm or reject a candidate in your task's files, or to check a fix or its blast
+radius. Don't restate large files back.
 UNIT: u1
 LENS: destructive
 FILES TO REVIEW (read each one in full, in as many reads as its length needs. The token target never shortens that read):
@@ -414,87 +400,57 @@ RULES:
              result the caller can detect.
   low      - a real defect with no effect on any input the code accepts today.
 - Do NOT report anything the current code already handles.
-- Stay INSIDE this unit's files. Cross-file concerns: mention as context in detail, do not chase.
+- Stay INSIDE this unit's files. Cross-file concerns: mention as context in a finding's **What:** line, do not chase.
 - Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep. Your brief
   above narrows WHICH defects matter here. It never licenses proposing a new capability, a feature, or
   an efficiency idea, and those are rejected downstream. Every finding must be something the code gets
   WRONG today, not something it could do better.
 - Each finding: specific file + line, the right category/severity, what's wrong and why it matters in production,
-  and a minimal suggested_fix direction.
+  the evidence that shows it, and a minimal suggested fix direction.
 
-Return findings via the schema. An empty array (a clean unit) is a normal, good outcome.
+REVIEW FILE: if you report at least one finding, WRITE E:/flow/runs/flow/reviews/u1-destructive.md (create E:/flow/runs/flow/reviews/ if
+needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Number your findings u1-a1, u1-a2 and on, one entry each, in EXACTLY
+this format, then return finding_count (the number of entries) and wrote_file=true:
+-----
+# Review: u1 / destructive
+
+### [<finding id>] <short, specific title>
+
+- file: <repo-relative path>:<line number or range>
+- category: <one of correctness | security | error-handling | resource-leak | data-integrity | types | api-contract | concurrency | testing | performance | maintainability | convention>
+- severity: <critical | high | medium | low>
+
+**What:** <what is wrong and why it matters in production>
+**Evidence:** <the input or path that reaches it, the lines that show it, or the check you ran and its output>
+**Suggested fix:** <a minimal suggested fix direction>
+-----
+If you report no finding, write no review file and return finding_count=0 and wrote_file=false.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+
+Return the counts and flags via the schema. Zero findings (a clean unit) is a normal, good outcome.
 ~~~~
 
 ~~~~json
 {
   "type": "object",
   "required": [
-    "findings",
+    "finding_count",
+    "wrote_file",
     "wrote_clean_marker"
   ],
   "properties": {
+    "finding_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "the number of finding entries in your review file, 0 when you report none"
+    },
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote your review file, false when you report no finding"
+    },
     "wrote_clean_marker": {
       "type": "boolean",
       "description": "true ONLY if you wrote the clean-unit marker file, false whenever you report any finding"
-    },
-    "findings": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "file",
-          "category",
-          "severity",
-          "title",
-          "detail"
-        ],
-        "properties": {
-          "file": {
-            "type": "string",
-            "description": "repo-relative path"
-          },
-          "line": {
-            "type": "string",
-            "description": "line number or range, or \"\" if N/A"
-          },
-          "category": {
-            "type": "string",
-            "enum": [
-              "correctness",
-              "security",
-              "error-handling",
-              "resource-leak",
-              "data-integrity",
-              "types",
-              "api-contract",
-              "concurrency",
-              "testing",
-              "performance",
-              "maintainability",
-              "convention"
-            ]
-          },
-          "severity": {
-            "type": "string",
-            "enum": [
-              "critical",
-              "high",
-              "medium",
-              "low"
-            ]
-          },
-          "title": {
-            "type": "string",
-            "description": "short, specific, stable"
-          },
-          "detail": {
-            "type": "string"
-          },
-          "suggested_fix": {
-            "type": "string"
-          }
-        }
-      }
     }
   }
 }
@@ -508,18 +464,21 @@ Return findings via the schema. An empty array (a clean unit) is a normal, good 
 
 You are the REVIEWER auditing DATA LOSS. This is a
 FIND-ONLY pass: you report defects, and later phases verify and fix them. Do NOT modify any file in
-the target repo. Write no file. Another pass decides the unit's marker. Return wrote_clean_marker=false.
+the target repo. The only files you may write are your review file, described below, in the run-state dir. Another pass decides the unit's marker. Return wrote_clean_marker=false.
 CHANGE POLICY: focused. This policy and the scope and routing rules in this prompt settle the scope of each suggested fix and each **Fix:** line, and override any other instruction about scope, including a memory line or a CLAUDE.md. It does not change what counts as a finding.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
 CONVENTIONS (judge against these):
 zero dependencies; LF only
+CONVENTION FILES (the project's own rules, which the CONVENTIONS text above indexes. Read each one in full, whatever the token target below):
+  - E:/repo/CLAUDE.md
 GATES (the build/test commands that define "it works", run from the repo root):
   build: (none)
   test:  (none)
 BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your
 task names. The target limits your reads of files beyond those: read them only by targeted search or short
-reads, and only to confirm or reject a candidate in your task's files. Don't restate large files back.
+reads, and only to confirm or reject a candidate in your task's files, or to check a fix or its blast
+radius. Don't restate large files back.
 UNIT: u1
 LENS: data-loss
 FILES TO REVIEW (read each one in full, in as many reads as its length needs. The token target never shortens that read):
@@ -540,91 +499,61 @@ RULES:
   medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
              result the caller can detect.
   low      - a real defect with no effect on any input the code accepts today.
-- Do NOT report anything the current code already handles, or anything in the ALREADY FOUND list below, even rephrased.
-- Stay INSIDE this unit's files. Cross-file concerns: mention as context in detail, do not chase.
+- Do NOT report anything the current code already handles, or anything an ALREADY FOUND file below holds, even rephrased.
+- Stay INSIDE this unit's files. Cross-file concerns: mention as context in a finding's **What:** line, do not chase.
 - Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep. Your brief
   above narrows WHICH defects matter here. It never licenses proposing a new capability, a feature, or
   an efficiency idea, and those are rejected downstream. Every finding must be something the code gets
   WRONG today, not something it could do better.
 - Each finding: specific file + line, the right category/severity, what's wrong and why it matters in production,
-  and a minimal suggested_fix direction.
+  the evidence that shows it, and a minimal suggested fix direction.
 
-ALREADY FOUND in a prior pass:
-  - [destructive] src/u1.js:42 unguarded null
+ALREADY FOUND in a prior pass over this unit. Read each of these review files:
+  - [destructive] E:/flow/runs/flow/reviews/u1-destructive.md
 
-Return findings via the schema. An empty array (a clean unit) is a normal, good outcome.
+REVIEW FILE: if you report at least one finding, WRITE E:/flow/runs/flow/reviews/u1-data_loss.md (create E:/flow/runs/flow/reviews/ if
+needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Number your findings u1-b1, u1-b2 and on, one entry each, in EXACTLY
+this format, then return finding_count (the number of entries) and wrote_file=true:
+-----
+# Review: u1 / data-loss
+
+### [<finding id>] <short, specific title>
+
+- file: <repo-relative path>:<line number or range>
+- category: <one of correctness | security | error-handling | resource-leak | data-integrity | types | api-contract | concurrency | testing | performance | maintainability | convention>
+- severity: <critical | high | medium | low>
+
+**What:** <what is wrong and why it matters in production>
+**Evidence:** <the input or path that reaches it, the lines that show it, or the check you ran and its output>
+**Suggested fix:** <a minimal suggested fix direction>
+-----
+If you report no finding, write no review file and return finding_count=0 and wrote_file=false.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+
+Return the counts and flags via the schema. Zero findings (a clean unit) is a normal, good outcome.
 ~~~~
 
 ~~~~json
 {
   "type": "object",
   "required": [
-    "findings",
+    "finding_count",
+    "wrote_file",
     "wrote_clean_marker"
   ],
   "properties": {
+    "finding_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "the number of finding entries in your review file, 0 when you report none"
+    },
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote your review file, false when you report no finding"
+    },
     "wrote_clean_marker": {
       "type": "boolean",
       "description": "true ONLY if you wrote the clean-unit marker file, false whenever you report any finding"
-    },
-    "findings": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "file",
-          "category",
-          "severity",
-          "title",
-          "detail"
-        ],
-        "properties": {
-          "file": {
-            "type": "string",
-            "description": "repo-relative path"
-          },
-          "line": {
-            "type": "string",
-            "description": "line number or range, or \"\" if N/A"
-          },
-          "category": {
-            "type": "string",
-            "enum": [
-              "correctness",
-              "security",
-              "error-handling",
-              "resource-leak",
-              "data-integrity",
-              "types",
-              "api-contract",
-              "concurrency",
-              "testing",
-              "performance",
-              "maintainability",
-              "convention"
-            ]
-          },
-          "severity": {
-            "type": "string",
-            "enum": [
-              "critical",
-              "high",
-              "medium",
-              "low"
-            ]
-          },
-          "title": {
-            "type": "string",
-            "description": "short, specific, stable"
-          },
-          "detail": {
-            "type": "string"
-          },
-          "suggested_fix": {
-            "type": "string"
-          }
-        }
-      }
     }
   }
 }
@@ -654,26 +583,27 @@ TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
 CONVENTIONS (judge against these):
 zero dependencies; LF only
+CONVENTION FILES (the project's own rules, which the CONVENTIONS text above indexes. Read each one in full, whatever the token target below):
+  - E:/repo/CLAUDE.md
 GATES (the build/test commands that define "it works", run from the repo root):
   build: (none)
   test:  (none)
 BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your
 task names. The target limits your reads of files beyond those: read them only by targeted search or short
-reads, and only to confirm or reject a candidate in your task's files. Don't restate large files back.
+reads, and only to confirm or reject a candidate in your task's files, or to check a fix or its blast
+radius. Don't restate large files back.
 UNIT: u1
 UNIT FILES (each entry's `- loc:` value comes from this list):
   - src/u1.js (120 LOC)
 THE REVIEWERS' BRIEFS (context for judging severity). 2 reviewers each swept these files under a DIFFERENT brief. Judge each candidate against
-the brief named on its line below. A brief narrows which defects matter. It does NOT widen what counts as one.
+the brief of the review file that holds it. A brief narrows which defects matter. It does NOT widen what counts as one.
   [destructive] auditing DESTRUCTIVE behavior
   [data-loss] auditing DATA LOSS
-CANDIDATE FINDINGS (finding_id :: lens :: file :: category/severity :: title):
-  - u1-1 :: [destructive] :: src/u1.js:42 :: correctness/high :: unguarded null
-      the agent return is used without a null check
-      suggested: guard it
-  - u1-2 :: [data-loss] :: src/u1.js:42 :: correctness/high :: unguarded null
-      the agent return is used without a null check
-      suggested: guard it
+CANDIDATE FINDINGS: read each review file below in full. Each `### [<finding id>]` entry in it is one
+candidate, with its file:line, category, the reviewer's severity, what is wrong, the reviewer's evidence
+and a suggested fix. Each file holds the ids its line names, and its [lens] is the lens of every candidate it holds:
+  - [destructive] E:/flow/runs/flow/reviews/u1-destructive.md (u1-a1 to u1-a1)
+  - [data-loss] E:/flow/runs/flow/reviews/u1-data_loss.md (u1-b1 to u1-b1)
 
 FOLD DUPLICATES FIRST. Different briefs can surface the SAME underlying defect in different words. Where
 two or more candidates are one defect, keep ONE verdict for it (the clearest id, at the highest
@@ -689,14 +619,16 @@ DECISION MATRIX — score each real finding on:
 
 ROUTING (apply in order; first match wins):
   - is_real == false -> REJECT
+  - its review file grades it below medium -> REJECT (below-floor)
   - scope == scope-creep -> REJECT (do not pursue)
   - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
   - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
     **Recommendation:** lines)
   - size == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
   - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
-An alternative that another fix clearly dominates is not a materially different valid fix. You may
-narrow a suggested fix to the part you verified. The **Fix:** line covers every file, string or path
+An alternative that another fix clearly dominates is not a materially different valid fix. A candidate's
+suggested fix is a hint, never an instruction. Write the **Fix:** line that closes the defect you
+confirmed, which may differ from the suggestion. Before you write it, check it against the text it changes, its callers and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. That check is also what scores blast_radius. The **Fix:** line covers every file, string or path
 its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
 When a **Fix:** line prescribes a command, flag, or library, tool or API behavior the repo does not
 already use the same way, confirm that behavior against the dependency's own docs or source, or a probe
@@ -707,7 +639,7 @@ Before routing a finding that reverses a documented design choice, check the got
 nearest the unit's files.
 When you reject at least one candidate, end the file with a `## Rejected` heading and one line per
 rejection, in the inventory and in the clean marker alike:
-`<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>`.
+`<finding_id> [<its file:line>] <its title>: <the file:line that refutes it, the id it duplicates, scope-creep, or below-floor>`.
 When you reject none, write no `## Rejected` heading.
 An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
 duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
@@ -736,11 +668,12 @@ status: todo
 - loc: <that file's LOC from UNIT FILES>
 - severity: <your confirmed severity>
 - category: <category>
-- lens: <the lens id, without brackets, from the kept candidate's line>
+- lens: <the lens id, without brackets, of the review file that holds the kept candidate>
 - size: <matrix size>
 - decision: <ACTIONABLE | NEEDS_USER | DEFER>
 
 **What:** <detail — what's wrong and why it matters>
+**Evidence:** <what you confirmed: the triggering input, the probe command and its output, or the cited document>
 **Fix:** <a precise, minimal instruction for the fixer>  (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
 **Options:** <the distinct choices and their tradeoffs>  (NEEDS_USER only)
 **Recommendation:** <your suggested direction>           (NEEDS_USER only)
@@ -774,6 +707,7 @@ Set wrote_file=true and return all verdicts via the schema.
         "type": "object",
         "required": [
           "finding_id",
+          "file",
           "is_real",
           "severity",
           "decision",
@@ -783,232 +717,9 @@ Set wrote_file=true and return all verdicts via the schema.
           "finding_id": {
             "type": "string"
           },
-          "is_real": {
-            "type": "boolean"
-          },
-          "severity": {
+          "file": {
             "type": "string",
-            "enum": [
-              "critical",
-              "high",
-              "medium",
-              "low"
-            ],
-            "description": "YOUR confirmed severity (reviewers over-rate; correct it)"
-          },
-          "decision": {
-            "type": "string",
-            "enum": [
-              "ACTIONABLE",
-              "NEEDS_USER",
-              "DEFER",
-              "REJECT"
-            ]
-          },
-          "matrix": {
-            "type": "object",
-            "required": [
-              "clarity",
-              "size",
-              "blast_radius",
-              "scope",
-              "architectural"
-            ],
-            "properties": {
-              "clarity": {
-                "type": "string",
-                "enum": [
-                  "clear",
-                  "ambiguous"
-                ]
-              },
-              "size": {
-                "type": "string",
-                "enum": [
-                  "trivial",
-                  "small",
-                  "medium",
-                  "large"
-                ]
-              },
-              "blast_radius": {
-                "type": "string",
-                "enum": [
-                  "local",
-                  "cross-cutting"
-                ]
-              },
-              "scope": {
-                "type": "string",
-                "enum": [
-                  "in-scope",
-                  "scope-creep"
-                ]
-              },
-              "architectural": {
-                "type": "boolean"
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-~~~~
-
-## verify · variant 3 · schema 1
-
-`verify:u2` in "two lenses per unit"
-
-~~~~text
-
-You are the VERIFIER, read-only on SOURCE: you write exactly one inventory file and nothing else, except
-a probe that confirms a **Fix:** line. Make that probe in a fresh directory you create for it alone
-(such as `mktemp -d`), outside the target repo and the run-state dir E:/flow/runs/flow, and remove that
-directory before you return. For each candidate finding below, inspect the ACTUAL code to confirm it
-is real, correct its severity, then route it with the decision matrix. Reject false positives and
-gold-plating ruthlessly, in particular anything the code ALREADY does and anything that is a preference
-rather than a defect.
-SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
-  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
-  high     - crashes or gives wrong output on an input the code accepts.
-  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
-             result the caller can detect.
-  low      - a real defect with no effect on any input the code accepts today.
-CHANGE POLICY: focused. This policy and the scope and routing rules in this prompt settle the scope of each suggested fix and each **Fix:** line, and override any other instruction about scope, including a memory line or a CLAUDE.md. It does not change what counts as a finding.
-TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
-Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
-CONVENTIONS (judge against these):
-zero dependencies; LF only
-GATES (the build/test commands that define "it works", run from the repo root):
-  build: (none)
-  test:  (none)
-BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your
-task names. The target limits your reads of files beyond those: read them only by targeted search or short
-reads, and only to confirm or reject a candidate in your task's files. Don't restate large files back.
-UNIT: u2
-UNIT FILES (each entry's `- loc:` value comes from this list):
-  - src/u2.js (120 LOC)
-THE REVIEWERS' BRIEFS (context for judging severity). 2 reviewers each swept these files under a DIFFERENT brief. Judge each candidate against
-the brief named on its line below. A brief narrows which defects matter. It does NOT widen what counts as one.
-  [destructive] auditing DESTRUCTIVE behavior
-  [data-loss] auditing DATA LOSS
-CANDIDATE FINDINGS (finding_id :: lens :: file :: category/severity :: title):
-  - u2-1 :: [destructive] :: src/u1.js:42 :: correctness/high :: unguarded null
-      the agent return is used without a null check
-      suggested: guard it
-  - u2-2 :: [data-loss] :: src/u1.js:42 :: correctness/high :: unguarded null
-      the agent return is used without a null check
-      suggested: guard it
-
-FOLD DUPLICATES FIRST. Different briefs can surface the SAME underlying defect in different words. Where
-two or more candidates are one defect, keep ONE verdict for it (the clearest id, at the highest
-justified severity, with a **Fix:** line that closes the whole thing) and REJECT the others.
-Candidates that merely share a file and category are NOT duplicates.
-
-DECISION MATRIX — score each real finding on:
-  clarity      : clear (one obvious correct fix) | ambiguous (multiple valid fixes / unclear intent)
-  size         : trivial (one-liner) | small (localized, <~30 lines) | medium (<~150 lines, this unit) | large
-  blast_radius : local (this unit) | cross-cutting (touches shared contracts / many files)
-  scope        : in-scope (a real defect in current behavior) | scope-creep (nice-to-have / new feature)
-  architectural: true if it questions a design/structural decision
-
-ROUTING (apply in order; first match wins):
-  - is_real == false -> REJECT
-  - scope == scope-creep -> REJECT (do not pursue)
-  - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
-  - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
-    **Recommendation:** lines)
-  - size == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
-  - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
-An alternative that another fix clearly dominates is not a materially different valid fix. You may
-narrow a suggested fix to the part you verified. The **Fix:** line covers every file, string or path
-its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
-When a **Fix:** line prescribes a command, flag, or library, tool or API behavior the repo does not
-already use the same way, confirm that behavior against the dependency's own docs or source, or a probe
-in a temporary directory outside the repo, before you write it. Never prescribe a behavior you did not
-confirm. An otherwise ACTIONABLE finding whose fix rests on a behavior you cannot confirm is NEEDS_USER.
-Its **Options:** line names that behavior and the check that would settle it.
-Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
-nearest the unit's files.
-When you reject at least one candidate, end the file with a `## Rejected` heading and one line per
-rejection, in the inventory and in the clean marker alike:
-`<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>`.
-When you reject none, write no `## Rejected` heading.
-An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
-duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
-would settle it.
-
-WRITE the inventory file E:/flow/runs/flow/issues/u2.md (create E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Its format is EXACTLY this:
------
----
-unit: u2
-hash: hash-u2
-reviewed: true
----
-
-## Plan: u2 - review findings
-
-mode: fix
-gate: green
-status: todo
-
-(for EACH kept verdict — ACTIONABLE, NEEDS_USER, or DEFER, in that order — one entry:)
-### [<finding_id>] <title>
-
-- id: <finding_id>
-- status: open
-- file: <file>:<line>
-- loc: <that file's LOC from UNIT FILES>
-- severity: <your confirmed severity>
-- category: <category>
-- lens: <the lens id, without brackets, from the kept candidate's line>
-- size: <matrix size>
-- decision: <ACTIONABLE | NEEDS_USER | DEFER>
-
-**What:** <detail — what's wrong and why it matters>
-**Fix:** <a precise, minimal instruction for the fixer>  (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
-**Options:** <the distinct choices and their tradeoffs>  (NEEDS_USER only)
-**Recommendation:** <your suggested direction>           (NEEDS_USER only)
------
-The `## Plan:` line, the three preamble lines under it, and every entry's `- status: open` are
-REQUIRED: without them the file is not a plan the fixer can build. Write the header id exactly as shown. It is
-the slug of the unit id, not the unit id.
-The `- file:` line takes ONE line number. For a range or a list ("840-842, 880"), write its first line (840).
-A fold across lenses lists each folded candidate's lens id on its `- lens:` line, comma-separated.
-If there are NO kept verdicts, write NO `## Plan:` header at all — the file is the clean marker instead:
-the frontmatter above, then `# Review: u2`, then the single line "No issues found."
-The `## Rejected` section follows that line when you rejected anything.
-Set wrote_file=true and return all verdicts via the schema.
-~~~~
-
-~~~~json
-{
-  "type": "object",
-  "required": [
-    "verdicts",
-    "wrote_file"
-  ],
-  "properties": {
-    "wrote_file": {
-      "type": "boolean",
-      "description": "true if you wrote the unit issue file (always required, even when clean)"
-    },
-    "verdicts": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "finding_id",
-          "is_real",
-          "severity",
-          "decision",
-          "matrix"
-        ],
-        "properties": {
-          "finding_id": {
-            "type": "string"
+            "description": "the repo-relative path of the file the finding is in"
           },
           "is_real": {
             "type": "boolean"

@@ -13,7 +13,8 @@ flowchart TD
   a2["verify · opus<br/>×2 concurrent"]
   t1(["inventory written (the clean unit never reached verify)"])
   t2(["no inventory (a reviewer died: unit reported in failed, re-review it)"])
-  t3(["inventory written (both lenses merged behind one verifier)"])
+  t3(["no inventory (the findings are on no confirmed file: unit reported in failed, re-review it)"])
+  t4(["inventory written (both lenses merged behind one verifier)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args must include at least { runId, root, target, conventions, units }"/]
   x3[/"throw: args.root is required"/]
@@ -23,9 +24,10 @@ flowchart TD
   x7[/"throw: Invalid role map"/]
   x8[/"throw: Unknown role key in a role map"/]
   x9[/"throw: Illegal role value in a role map"/]
-  x10[/"throw: review requires a non-empty args.units array"/]
-  x11[/"throw: Issue file collision"/]
-  x12[/"throw: Plan id collision"/]
+  x10[/"throw: Invalid args.conventionFiles"/]
+  x11[/"throw: review requires a non-empty args.units array"/]
+  x12[/"throw: Issue file collision"/]
+  x13[/"throw: Plan id collision"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -39,20 +41,22 @@ flowchart TD
   S0 --> x10
   S0 --> x11
   S0 --> x12
+  S0 --> x13
   a1 -.->|"L1 ×2"| a1
   a1 --> a2
   a1 --> t1
   a1 --> t2
+  a1 --> t3
   a2 --> t1
-  a2 --> t3
+  a2 --> t4
 ```
 
 ## Phases
 
 | Phase | What happens |
 |---|---|
-| Review | Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only); when it finds nothing it writes the clean issues/&lt;unit&gt;.md marker itself. |
-| Verify | Spawned ONLY for units with findings: confirms each against real code, corrects severity, routes via the decision matrix, and WRITES runs/&lt;runId&gt;/issues/&lt;unit&gt;.md verbatim (the inventory). Returns a slim verdict index. |
+| Review | Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only) and writes them, with the evidence for each, to reviews/&lt;unit&gt;-&lt;lens&gt;.md, returning only their count; when it finds nothing it writes the clean issues/&lt;unit&gt;.md marker itself. |
+| Verify | Spawned ONLY for units with findings: reads the review files by path, confirms each finding against real code, corrects severity, checks the Fix line it writes against the code it changes, routes via the decision matrix, and WRITES runs/&lt;runId&gt;/issues/&lt;unit&gt;.md verbatim (the inventory). Returns a slim verdict index. |
 
 ## Loops
 
@@ -66,6 +70,7 @@ flowchart TD
 |---|---|---|
 | inventory written (the clean unit never reached verify) | one unit is clean, the other has findings | declared |
 | no inventory (a reviewer died: unit reported in failed, re-review it) | a reviewer dies (its unit is reported in failed, unmarked) | declared |
+| no inventory (the findings are on no confirmed file: unit reported in failed, re-review it) | a reviewer reports findings but did not confirm writing its review file | declared |
 | inventory written (both lenses merged behind one verifier) | each unit is swept once per lens | declared |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 24) |
 | throw: args must include at least { runId, root, target, conventions, units } | args carry no runId | throw (line 27) |
@@ -73,13 +78,14 @@ flowchart TD
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 38) |
 | throw: reviewSeverity "..." is not one of low\|medium\|high\|critical | args.reviewSeverity is not a known severity | throw (line 54) |
 | throw: Invalid args.changePolicy | args.changePolicy is outside focused \| proactive | throw (line 60) |
-| throw: Invalid role map | models is an array in place of an object | throw (line 135) |
-| throw: Unknown role key in a role map | models carries a key outside review \| verify | throw (line 140) |
-| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 143) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 442) |
-| throw: Issue file collision | two unit ids map to one issue file | throw (line 452) |
-| throw: Plan id collision | two unit ids map to one plan id | throw (line 453) |
+| throw: Invalid role map | models is an array in place of an object | throw (line 134) |
+| throw: Unknown role key in a role map | models carries a key outside review \| verify | throw (line 139) |
+| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 142) |
+| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 167) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 487) |
+| throw: Issue file collision | two unit ids map to one issue file | throw (line 497) |
+| throw: Plan id collision | two unit ids map to one plan id | throw (line 498) |
 
 ## Coverage
 
-16 scenarios · 2/2 roles · 12/12 throw sites · 0/0 halt statuses · 15 terminal states.
+18 scenarios · 2/2 roles · 13/13 throw sites · 0/0 halt statuses · 17 terminal states.

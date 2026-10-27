@@ -112,6 +112,17 @@ const norm        = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs         = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
 
 const REPO        = abs(TARGET.repo);
+// `conventions` is a distilled index, so both roles also read the target's own instruction files in full.
+// Copy of debug review.mjs's conventionFilesOf, since an engine cannot import: a test pins the copies equal.
+// Static lead clause: gen-flows labels the throw node from it.
+const conventionFilesOf = (value) => {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || !value.every((p) => typeof p === 'string' && p.trim())) {
+    throw new Error(`Invalid args.conventionFiles: it must be an array of file paths, each absolute or relative to target.repo; got ${JSON.stringify(value)}.`);
+  }
+  return value.map((p) => { const n = norm(p.trim()); return /^([a-zA-Z]:)?\//.test(n) ? n : `${REPO}/${n}`; });
+};
+const CONVENTION_FILES = conventionFilesOf(A.conventionFiles);
 const PLAN_PATH   = abs(A.planPath);
 const REFERENCE_P = REFERENCE ? abs(REFERENCE) : '';
 // The `-refine` suffix is the MECHANISM that keeps this loop's state out of develop-cycle's. The house
@@ -186,7 +197,9 @@ const EDITOR_SCHEMA = {
 const ENV = `THE PLAN FILE (read it VERBATIM): ${PLAN_PATH}
 THE TARGET REPO (read-only - grep it): ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})
 CONVENTIONS the plan must fit: ${CONVENTIONS}
-${REFERENCE_P ? `REFERENCE - a completed example the plan should mirror: ${REFERENCE_P}\n` : ''}`;
+${CONVENTION_FILES.length ? `CONVENTION FILES (the target's own rules, which the CONVENTIONS line above indexes. Read each one in full):
+${CONVENTION_FILES.map((p) => `  - ${p}`).join('\n')}
+` : ''}${REFERENCE_P ? `REFERENCE - a completed example the plan should mirror: ${REFERENCE_P}\n` : ''}`;
 
 // A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite
 // a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.

@@ -6,8 +6,8 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| plan-critic | 1 | 1 | 9177 | a clean first round |
-| plan-editor | 1 | 1 | 3722 | gaps folded, then a clean round |
+| plan-critic | 1 | 1 | 9307 | a clean first round |
+| plan-editor | 1 | 1 | 3852 | gaps folded, then a clean round |
 
 ## plan-critic · variant 1 · schema 1
 
@@ -23,6 +23,8 @@ repo and find plan text that is wrong. An EMPTY result is a GOOD outcome and end
 THE PLAN FILE (read it VERBATIM): E:/flow/plans/bus.md
 THE TARGET REPO (read-only - grep it): E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS the plan must fit: (none supplied - infer from the surrounding code)
+CONVENTION FILES (the target's own rules, which the CONVENTIONS line above indexes. Read each one in full):
+  - E:/repo/CLAUDE.md
 
 THE DEFECT BAR - the plan states what the user wants. Judge only whether what it SAYS is correct. A gap
 names plan text that is wrong. Exactly four classes qualify:
@@ -160,6 +162,8 @@ You are the PLAN EDITOR. Fold this round's gaps into the plan file.
 THE PLAN FILE (read it VERBATIM): E:/flow/plans/bus.md
 THE TARGET REPO (read-only - grep it): E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS the plan must fit: (none supplied - infer from the surrounding code)
+CONVENTION FILES (the target's own rules, which the CONVENTIONS line above indexes. Read each one in full):
+  - E:/repo/CLAUDE.md
 
 THE GAPS TO FOLD (read it verbatim): E:/flow/runs/flow-refine/plan-critique-1.md
 This is round 1 of at most 4.

@@ -193,8 +193,9 @@ against (halt); an unreachable feature does not (flag).
 
 - **Duplication between sibling engines.** Deliberate: each is standalone and copyable. Never extract a
   shared module or import across workflows. (#11 governs *facts*, not code across independent tools.)
-  One copy is pinned: `role-map-copies.test.mjs` fails when an engine's `roleMap` or its two value sets
-  differ from develop's, so change all eight together.
+  Two copies are pinned. `role-map-copies.test.mjs` fails when an engine's `roleMap` or its two value sets
+  differ from develop's, so change all eight together. `convention-files-copies.test.mjs` fails when
+  refine's `conventionFilesOf` differs from debug's, so change both together.
 - **WHY comments.** A one or two line comment stating a constraint the code cannot show is the house
   style. A long one, a history note or a restated guide is a #13 finding, not a defect: it belongs to an
   enhance conciseness pass, never to debug.

@@ -157,6 +157,13 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-26
 
+- **debug's verifier checks the fix it writes, and each finding travels as a file.** Each reviewer
+  writes its findings and their evidence to a review file that the verifier reads. The verifier checks
+  each fix it writes against the code that calls it, and each issue records the evidence that confirmed
+  it. A rejected finding keeps its id, location and title. Debug and refine take `conventionFiles`, the
+  paths of the target's CLAUDE.md files, and their agents read each one. gen-units merges a unit under a
+  third of `--unit-loc` into a neighbor. With a lens array, each lens numbers its findings under its
+  own letter, such as `u1-a1` and `u1-b1`.
 - **develop hands each later agent what an earlier agent settled.** A park entry names its block's
   declined findings and plan amendments, and the fix block built from it reads both. A later round of a
   fix block starts from the statuses the developer last reported. A gate that runs in the background is

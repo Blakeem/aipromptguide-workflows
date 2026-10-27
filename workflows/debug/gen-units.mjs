@@ -6,11 +6,12 @@
 //   - any single file > --unit-loc LOC becomes its own unit
 //   - a direct-file group over --unit-loc LOC or --cap-files files is split into sequential chunks
 //   - subdirectories recurse into their own units
-// Then a bin-packing pass merges adjacent (path-sorted) base units first-fit-greedy up to --unit-loc
+// Then a bin-packing pass merges adjacent (path-sorted) base units next-fit up to --unit-loc
 // LOC each (default 3500, see AIM_LOC), because walk() never merges sibling dirs on
-// its own. A base unit already at/over the target stays solo; merged units get a `<common-dir>#p<n>` id
-// and a recomputed hash. The pass checks no file count, so --cap-files caps a unit only under --no-pack,
-// which disables the pass (old per-directory units).
+// its own. The pass then folds a leftover group under a third of --unit-loc into its smaller neighbor while the
+// sum stays at or under 1.15x --unit-loc. A base unit already at/over the target stays solo; merged
+// units get a `<common-dir>#p<n>` id and a recomputed hash. The pass checks no file count, so
+// --cap-files caps a unit only under --no-pack, which disables the pass (old per-directory units).
 // Output is stable (sorted) so the same tree always yields the same manifest, and each unit
 // carries a content hash so the engine re-reviews only units whose files changed.
 //
@@ -28,6 +29,7 @@
 //                       dependency/build dirs across ecosystems)
 //   --unit-loc <n>      the one LOC bound (default: 3500): a file over it is reviewed alone, a
 //                       directory's files split at it, and the packing pass merges units up to it
+//                       (a leftover group under a third of it may join a neighbor up to 1.15x it)
 //   --cap-files <n>     max files per directory chunk (default: 24). Packing ignores it, so it caps a
 //                       unit only under --no-pack
 //   --no-pack           disable the bin-packing pass → old per-directory units
@@ -87,8 +89,8 @@ const SRC_DIRS  = (opt.src ?? 'src').split(',').map((s) => s.trim()).filter(Bool
 const EXTS      = (opt.ext ?? '.ts,.tsx,.js,.jsx,.mjs,.cjs,.py,.go,.rs,.java,.kt,.rb,.php,.cs,.cpp,.cc,.c,.h,.hpp,.swift,.scala').split(',').map((s) => s.trim()).filter(Boolean);
 const SKIP_RE   = new RegExp(opt.skip ?? String.raw`\.d\.ts$|\.min\.`);
 const EXCLUDES  = new Set((opt.exclude ?? 'node_modules,dist,build,out,vendor,coverage,.git,target,__pycache__,.venv,venv,.tox,.gradle').split(',').map((s) => s.trim()));
-// Review context measured a median 123k tokens at 2000 lines per unit. This default aims at about 200k,
-// and a unit past it warns.
+// Review context measured a median 123k tokens at 2000 lines per unit. This default aims at about 200k.
+// A single-file unit past it warns, and so does a multi-file unit past it when --unit-loc is set above it.
 const AIM_LOC   = 3500;
 const UNIT_LOC  = num(opt['unit-loc'], 'unit-loc', 1, AIM_LOC);
 const CAP_FILES = num(opt['cap-files'], 'cap-files', 1, 24);
@@ -194,10 +196,35 @@ function commonDirPrefix(group) {
   return parts.join('/') || '_root';
 }
 
-// Bin-packing pass: merge adjacent (already path-sorted) base units first-fit-greedy up to UNIT_LOC LOC
-// per unit. Singleton groups pass through UNCHANGED (stable id + hash); a base unit already at/over the
-// target stays solo. Merged units rebuild abs paths and reuse makeUnit, so the merged hash is the
-// existing hashFiles over the merged set. --no-pack disables the pass.
+// A leftover group this small pays a reviewer's fixed context cost for little code, so it joins a neighbor
+// at a bounded overrun of the limit.
+const SMALL_LOC = UNIT_LOC / 3;
+const MERGE_LOC = UNIT_LOC * 1.15;
+const sumLoc = (group) => group.reduce((s, u) => s + u.loc, 0);
+
+// Merges each group under SMALL_LOC into its smaller adjacent group when the sum stays at or under
+// MERGE_LOC. A base unit at/over UNIT_LOC stays solo, so it is never a merge target.
+function mergeSmall(groups) {
+  const out = groups.map((g) => [...g]);
+  const target = (g) => g && !(g.length === 1 && g[0].loc >= UNIT_LOC);
+  for (let i = 0; i < out.length; i++) {
+    const loc = sumLoc(out[i]);
+    if (loc >= SMALL_LOC) continue;
+    const near = [i - 1, i + 1].filter((j) => target(out[j])).sort((a, b) => sumLoc(out[a]) - sumLoc(out[b]))[0];
+    if (near === undefined || loc + sumLoc(out[near]) > MERGE_LOC) continue;
+    if (near < i) out[near].push(...out[i]);
+    else out[near].unshift(...out[i]);
+    out.splice(i, 1);
+    i--;
+  }
+  return out;
+}
+
+// Bin-packing pass: merge adjacent (already path-sorted) base units next-fit up to UNIT_LOC LOC per unit,
+// then fold each small leftover group into a neighbor (mergeSmall). Singleton groups pass through
+// UNCHANGED (stable id + hash); a base unit already at/over the target stays solo. Merged units rebuild
+// abs paths and reuse makeUnit, so the merged hash is the existing hashFiles over the merged set.
+// --no-pack disables the pass.
 function pack(baseUnits) {
   if (!PACK) return baseUnits;
   const groups = [];
@@ -214,7 +241,7 @@ function pack(baseUnits) {
 
   // Null prototype, so a directory named `constructor` or `__proto__` counts from 0 like any other.
   const counters = Object.create(null);
-  return groups.map((g) => {
+  return mergeSmall(groups).map((g) => {
     if (g.length === 1) return g[0];
     const absPaths = g.flatMap((u) => u.files.map((f) => join(REPO, f.path)));
     const prefix = commonDirPrefix(g);
@@ -257,8 +284,11 @@ if (!units.length) {
   process.exit(1);
 }
 
+// Under a --unit-loc at or below the aim, a multi-file unit passes the aim only by mergeSmall's bounded
+// overrun, which the pass chose on purpose, so it draws no warning.
 for (const u of units) {
-  if (u.loc > AIM_LOC) console.error(`warning: unit ${u.id} is ${u.loc} LOC, past the ${AIM_LOC}-line default that aims at about 200k tokens of review context (measured median: 123k at 2000 lines); ${u.fileCount === 1 ? 'split the file' : 'lower --unit-loc'}`);
+  const pastAim = u.loc > AIM_LOC && (u.fileCount === 1 || UNIT_LOC > AIM_LOC);
+  if (pastAim) console.error(`warning: unit ${u.id} is ${u.loc} LOC, past the ${AIM_LOC}-line default that aims at about 200k tokens of review context (measured median: 123k at 2000 lines); ${u.fileCount === 1 ? 'split the file' : 'lower --unit-loc'}`);
 }
 
 if (ISSUES) for (const u of units) u.state = stateOf(u);

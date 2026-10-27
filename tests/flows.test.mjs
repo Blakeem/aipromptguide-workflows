@@ -23,7 +23,6 @@ const edgeBetween = (g, from, to) => {
 const errorFrom = async (fn) => { try { await fn(); return ''; } catch (e) { return e.message; } };
 
 const unit = (id, extra = {}) => ({ id, hash: 'h', files: [{ path: `${id}.js`, loc: 10 }], ...extra });
-const FINDING = { file: 'a.js', line: '1', category: 'correctness', severity: 'high', title: 'T', detail: 'd' };
 // review.mjs returns no `status`, so every scenario over it needs a declared terminal.
 const reviewSpec = (units) => ({
   engine: 'workflows/debug/review.mjs',
@@ -33,7 +32,7 @@ const reviewSpec = (units) => ({
     name: 'units with findings',
     when: 'every unit has findings',
     args: { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units },
-    respond: { review: { wrote_clean_marker: false, findings: [FINDING] }, verify: { wrote_file: true, verdicts: [] } },
+    respond: { review: { finding_count: 1, wrote_file: true, wrote_clean_marker: false }, verify: { wrote_file: true, verdicts: [] } },
     terminal: 'inventory written',
   }],
 });

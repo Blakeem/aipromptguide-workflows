@@ -48,19 +48,19 @@ this file is stale.
 | develop-closing | 4 | 1 | 31139 | an ordered run stops at a parked block |
 | acceptance | 21 | 4 | 21791 | an ordered run stops at a parked block |
 | park | 2 | 1 | 10774 | an ordered run stops at a parked block |
-| develop | 12 | 3 | 37625 | a fix block closes its issues |
-| acceptance | 22 | 6 | 23604 | a fix block closes its issues |
+| develop | 12 | 3 | 37800 | a fix block closes its issues |
+| acceptance | 22 | 6 | 23674 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 4442 | a fix block closes its issues |
-| develop | 13 | 4 | 41092 | a fix block closes its issues under the proactive policy |
-| acceptance | 23 | 7 | 25111 | a fix block closes its issues under the proactive policy |
-| acceptance | 24 | 7 | 25125 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 14 | 4 | 33935 | a proactive fix block starts round 2 from the statuses it last reported |
-| acceptance | 25 | 7 | 24924 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 15 | 3 | 38045 | a pass of two fix blocks closes its issues |
-| acceptance | 26 | 6 | 24030 | a pass of two fix blocks closes its issues |
+| develop | 13 | 4 | 41267 | a fix block closes its issues under the proactive policy |
+| acceptance | 23 | 7 | 25181 | a fix block closes its issues under the proactive policy |
+| acceptance | 24 | 7 | 25195 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 14 | 4 | 34110 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 25 | 7 | 24994 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 15 | 3 | 38220 | a pass of two fix blocks closes its issues |
+| acceptance | 26 | 6 | 24100 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 4472 | a pass of two fix blocks closes its issues |
-| acceptance | 27 | 6 | 23603 | every issue is already fixed |
-| develop | 16 | 3 | 37607 | an ordered run stops on a fix block that closes nothing |
+| acceptance | 27 | 6 | 23673 | every issue is already fixed |
+| develop | 16 | 3 | 37782 | an ordered run stops on a fix block that closes nothing |
 | park | 3 | 1 | 11077 | passed with a regression, not staged |
 | park | 4 | 1 | 10369 | acceptance stages a rejected block |
 | park | 5 | 1 | 10930 | the quality reviewer fails a block without its file |
@@ -74,7 +74,7 @@ this file is stale.
 | park | 13 | 1 | 10675 | the acceptance verifier dies |
 | park | 14 | 1 | 10000 | developer escalates |
 | park | 15 | 1 | 9990 | developer escalates in an ordered run |
-| acceptance | 28 | 6 | 26057 | log line cap before the sweep |
+| acceptance | 28 | 6 | 26127 | log line cap before the sweep |
 | acceptance | 29 | 4 | 21577 | a closing acceptance lands the block |
 | develop-closing | 5 | 1 | 31527 | a closing acceptance lands the block |
 | acceptance | 30 | 5 | 21858 | a closing acceptance lands the block |
@@ -90,8 +90,8 @@ this file is stale.
 | develop | 18 | 5 | 31020 | every block commits first time |
 | acceptance | 36 | 9 | 18088 | every block commits first time |
 | final-sweep | 5 | 1 | 4763 | every block commits first time |
-| develop | 19 | 6 | 37827 | a fix block commits |
-| acceptance | 37 | 10 | 25360 | a fix block commits |
+| develop | 19 | 6 | 38002 | a fix block commits |
+| acceptance | 37 | 10 | 25430 | a fix block commits |
 | final-sweep | 6 | 1 | 4670 | a fix block commits |
 | park | 18 | 1 | 10375 | acceptance commits a rejected block |
 
@@ -12179,8 +12179,8 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
-"## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
-a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+"## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -12290,7 +12290,8 @@ code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
-   isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
+   isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
+   with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
    verified. Once you confirm an entry's issue exists, read its **Fix:** line as a suggested fix.
    Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. A **Fix:** line you verify is defective goes
@@ -12685,8 +12686,8 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
-E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
-instruction. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -13083,8 +13084,8 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
-"## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
-a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+"## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: proactive. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -13221,7 +13222,8 @@ code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
-   isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
+   isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
+   with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
    verified. Once you confirm an entry's issue exists, read its **Fix:** line as a suggested fix.
    Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. A **Fix:** line you verify is defective goes
@@ -13647,8 +13649,8 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
-E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
-instruction. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -14006,8 +14008,8 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
-E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
-instruction. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -14364,8 +14366,8 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
-"## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
-a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+"## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: proactive. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -14425,7 +14427,8 @@ code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
-   isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
+   isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
+   with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
    verified. Once you confirm an entry's issue exists, read its **Fix:** line as a suggested fix.
    Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. A **Fix:** line you verify is defective goes
@@ -14859,8 +14862,8 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
-E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
-instruction. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -15217,8 +15220,8 @@ Run every one, each redirected to its own file under E:/flow/runs/flow/scratch/ 
 inside the target repo or E:/flow/runs/flow/gate/, and read those files, since the Bash display cuts long output.
 Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP: never
 guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: a
-"## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
-a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+"## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -15328,7 +15331,8 @@ code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
-   isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
+   isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
+   with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
    verified. Once you confirm an entry's issue exists, read its **Fix:** line as a suggested fix.
    Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. A **Fix:** line you verify is defective goes
@@ -15726,8 +15730,8 @@ change since the block's last blind review low risk, which your RISK AUDIT check
 Run every one, each redirected to its own file under E:/flow/runs/flow/scratch/ (create it if needed), never
 inside the target repo or E:/flow/runs/flow/gate/, and read those files, since the Bash display cuts long output.
 Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP: never
-guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
-instruction. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -16129,8 +16133,8 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
-E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
-instruction. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -16450,8 +16454,8 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
-"## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
-a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+"## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -16561,7 +16565,8 @@ code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
-   isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
+   isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
+   with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
    verified. Once you confirm an entry's issue exists, read its **Fix:** line as a suggested fix.
    Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. A **Fix:** line you verify is defective goes
@@ -18737,8 +18742,8 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
-E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
-instruction. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -23295,8 +23300,8 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
-"## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
-a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+"## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -23407,7 +23412,8 @@ code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
-   isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
+   isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
+   with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
    verified. Once you confirm an entry's issue exists, read its **Fix:** line as a suggested fix.
    Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. A **Fix:** line you verify is defective goes
@@ -23807,8 +23813,8 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
-E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
-instruction. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)

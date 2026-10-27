@@ -60,7 +60,7 @@ section('valid caps reach the manifest, and --no-pack is recorded as PACK false'
   }
 }
 
-section('the --unit-loc default is 3500, and only a unit past it warns, citing the measured review context');
+section('the --unit-loc default is 3500, and only a single-file unit past it warns, citing the measured review context');
 {
   const dir = mkdtempSync(join(tmpdir(), 'aipg-gen-units-default-'));
   const out = join(dir, 'manifest.json');
@@ -178,7 +178,7 @@ section('--unit-loc bounds the big-file split, the directory split and packing')
 
     const packed = unitsFor(['--unit-loc', '20']);
     const over = packed.filter((u) => u.loc > 20).map((u) => u.files.map((f) => f.path));
-    eq(JSON.stringify(over), JSON.stringify([['src/big.mjs']]), 'packing merges no unit past 20 LOC, and only the big file is over it');
+    eq(JSON.stringify(over), JSON.stringify([['src/big.mjs']]), 'next-fit packing leaves no group under a third of 20 LOC here, so only the big file is over 20 LOC');
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -202,6 +202,42 @@ section('a packed group under a directory named like an Object member is numbere
     eq(r.code, 0, `the run succeeds: ${r.stderr.split('\n')[0]}`);
     const ids = JSON.parse(readFileSync(out, 'utf8')).units.map((u) => u.id).sort();
     eq(JSON.stringify(ids), JSON.stringify(['__proto__#p1', 'constructor#p1']), 'each prefix gets #p1 for its first packed group');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+section('packing is next-fit, then a leftover group under a third of --unit-loc joins its smaller neighbor up to 1.15x');
+// Next-fit alone left 3400/200/3400 as three units, so one reviewer paid its full context cost for 200 lines.
+{
+  const dir = mkdtempSync(join(tmpdir(), 'aipg-gen-units-small-'));
+  const out = join(dir, 'manifest.json');
+  const exactly = (n) => 'x\n'.repeat(n - 1) + 'x';
+  // spawnSync keeps a successful run's stderr, where a warning goes.
+  const run = (sizes, flags = []) => {
+    rmSync(join(dir, 'src'), { recursive: true, force: true });
+    sizes.forEach((n, i) => {
+      mkdirSync(join(dir, 'src', `d${i}`), { recursive: true });
+      writeFileSync(join(dir, 'src', `d${i}`, 'f.mjs'), exactly(n));
+    });
+    const r = spawnSync(process.execPath, [SCRIPT, '--repo', dir, '--src', 'src', '--ext', '.mjs', '--out', out, ...flags], { encoding: 'utf8' });
+    eq(r.status, 0, `${sizes.join('/')} succeeds: ${r.stderr.split('\n')[0]}`);
+    const units = r.status === 0 ? JSON.parse(readFileSync(out, 'utf8')).units.map((u) => u.files.map((f) => f.path.split('/')[1]).join('+')).sort().join(', ') : '';
+    return { units, stderr: r.stderr };
+  };
+  try {
+    const merged = run([3400, 200, 3400]);
+    eq(merged.units, 'd0+d1, d2', '3400/200/3400: the 200-line group joins a neighbor, since 3600 stays under 1.15x');
+    // The overrun is the merge's own choice, so advising a lower --unit-loc would shrink every unit for nothing.
+    eq(merged.stderr.includes('warning:'), false, `the 3600-line merge under the default draws no warning: ${merged.stderr.trim()}`);
+    eq(run([3400, 200, 3350]).units, 'd0, d1+d2', '3400/200/3350: it joins the smaller neighbor');
+    eq(run([3400, 1100, 3400]).units, 'd0, d1, d2', '3400/1100/3400: no merge, since 4500 passes 1.15x');
+    eq(run([3400, 1200, 3400]).units, 'd0, d1, d2', '3400/1200/3400: no merge, since 1200 is not under a third');
+    eq(run([3600, 200]).units, 'd0, d1', '3600/200: no merge, since a single file at or over --unit-loc is never a merge target');
+    const raised = run([3500, 200, 3500], ['--unit-loc', '3600']);
+    eq(raised.units, 'd0+d1, d2', 'under --unit-loc 3600, the 200-line group joins a neighbor');
+    ok(raised.stderr.includes('warning: unit src#p1 is 3700 LOC') && raised.stderr.includes('lower --unit-loc'),
+      `a merge past the 3500-line aim warns when --unit-loc is set above the aim: ${raised.stderr.trim()}`);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

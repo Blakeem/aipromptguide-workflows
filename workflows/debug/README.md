@@ -106,8 +106,8 @@ to check cost and quality before letting the rest go.
 The fix loop doesn't require the review pass. It only needs the issue files. When the findings come
 from somewhere other than a code review (a **live testing session**, a bug bash, user reports, or a
 symptom you diagnosed yourself), tell Claude to feed them into the debug workflow's fix loop. Claude writes
-the per-unit issue files itself in the verifier's format (each finding anchored to `file:line` with a
-precise fix instruction, and anything you decline recorded as a SKIP so the triage is on file), then
+the per-unit issue files itself in the verifier's format (each finding anchored to `file:line` with the
+evidence that confirmed it and a precise fix instruction, and anything you decline recorded as a SKIP so the triage is on file), then
 runs develop on them as normal. Every safeguard still applies. Each issue is re-confirmed against the
 current code before it is touched, every fix goes through the same two-stage review, and accepted work
 lands the same way. Every entry marked ACTIONABLE is fixed, whatever
@@ -120,11 +120,13 @@ its severity.
 Each is a fresh, throwaway context that does one job and returns one decision:
 
 - **Reviewer** (review pass): reads one unit's files and reports production defects at or above your
-  severity floor. Returns findings. When the unit is clean it writes that unit's clean-marker issue
-  file, otherwise nothing.
+  severity floor. It writes each finding and its evidence to a review file that the verifier reads.
+  When the unit is clean, it writes that unit's clean-marker issue file instead.
 - **Verifier** (review pass): confirms each finding against the real code, corrects inflated
-  severity, routes it (actionable, needs-your-decision, defer, or reject), and writes the unit's issue
-  file. That file is both the inventory and your triage document.
+  severity, and routes it (actionable, needs-your-decision, defer, or reject). It checks each fix it
+  writes against the code that calls it and every place with the same rule. Then it writes the unit's
+  issue file, where each issue records the evidence that confirmed it. That file is both the inventory
+  and your triage document.
 The fix loop is [develop](../develop/)'s, in fix mode. Its developer re-confirms each issue still
 exists (stale ones are skipped, never re-fixed) and fixes only ACTIONABLE entries. A blind critic then
 reviews the first fix and each later change the developer judges risky. An acceptance verifier

@@ -112,7 +112,10 @@ Full schema + defaults: the Config block atop `refine-cycle.mjs` (the canonical 
   **Throws** when missing or blank, and the message names the pre-launch command. Pre-allowlist
   `Bash(node '<blockTool>':*)`).
 - **Optional:** `critiqueSeverity` (`blocking|major|minor`, default `major`; illegal values
-  **throw**) · `maxRounds` (default 4, 1–50, garbage **throws**) · `conventions` · `reference` ·
+  **throw**) · `maxRounds` (default 4, 1–50, garbage **throws**) · `conventions` (the target's CLAUDE.md
+  distilled, an index into `conventionFiles`) · `conventionFiles` (the paths of the target's CLAUDE.md
+  files, each absolute or relative to `target.repo`, which the critic and the editor read in full. A
+  value that is not an array of non-empty paths **throws**) · `reference` ·
   `models`/`efforts`/`agentTypes` (`models` and `efforts` map a role key to a value. The role keys
   are `critic` and `editor`. A model is `opus | sonnet | haiku | fable` and an effort is
   `low | medium | high | xhigh | max`. Both roles default to opus, and every role defaults to

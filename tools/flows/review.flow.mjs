@@ -16,6 +16,7 @@ const base = {
   root: 'E:/flow',
   target: { repo: 'E:/repo', lang: 'JavaScript', framework: 'none' },
   conventions: 'zero dependencies; LF only',
+  conventionFiles: ['CLAUDE.md'],
 };
 
 const unit = (id, extra = {}) => ({ id, hash: `hash-${id}`, files: [{ path: `src/${id}.js`, loc: 120 }], ...extra });
@@ -25,17 +26,19 @@ const LENSES = [
   { id: 'data-loss', mandate: 'auditing DATA LOSS' },
 ];
 
-const FINDING = { file: 'src/u1.js', line: '42', category: 'correctness', severity: 'high', title: 'unguarded null', detail: 'the agent return is used without a null check', suggested_fix: 'guard it' };
-const FOUND = { wrote_clean_marker: false, findings: [FINDING] };
-const CLEAN = { wrote_clean_marker: true, findings: [] };
+// A reviewer returns counts only: its findings travel to the verifier in its review file.
+const FOUND = { finding_count: 1, wrote_file: true, wrote_clean_marker: false };
+const CLEAN = { finding_count: 0, wrote_file: false, wrote_clean_marker: true };
 
-// Verdicts are keyed back to the ids the ENGINE minted (`<slug(unit)>-<n>`), derived from the label
+// Verdicts are keyed back to the ids the ENGINE minted (`<slug(unit)>-<suffix>`), derived from the label
 // rather than hard-coded: an unknown id is dropped by the engine's own guard, so hard-coding one would
-// quietly stop exercising the return-building code the trace runs through.
-const verifier = (perUnit) => (label) => ({
+// quietly stop exercising the return-building code the trace runs through. A multi-lens unit's suffixes
+// carry each lens's letter tag.
+const verifier = (suffixes) => (label) => ({
   wrote_file: true,
-  verdicts: Array.from({ length: perUnit }, (_, i) => ({
-    finding_id: `${label.replace(/^verify:/, '')}-${i + 1}`,
+  verdicts: suffixes.map((suffix) => ({
+    finding_id: `${label.replace(/^verify:/, '')}-${suffix}`,
+    file: 'src/u1.js',
     is_real: true,
     severity: 'high',
     decision: 'ACTIONABLE',
@@ -55,7 +58,7 @@ export default {
       name: 'a clean unit beside one with findings',
       when: 'one unit is clean, the other has findings',
       args: { ...base, units: [unit('u1'), unit('u2')] },
-      respond: { 'review:u1': CLEAN, review: FOUND, verify: verifier(1) },
+      respond: { 'review:u1': CLEAN, review: FOUND, verify: verifier(['1']) },
       terminal: 'inventory written (the clean unit never reached verify)',
     },
     {
@@ -70,6 +73,15 @@ export default {
       terminal: 'no inventory (a reviewer died: unit reported in failed, re-review it)',
     },
     {
+      // Findings the reviewer did not confirm on file count like a dead lens: `failed` names the lens with the
+      // count and attestation it returned, and no verifier is handed a path that may hold nothing or an earlier launch's text.
+      name: 'a reviewer whose findings are on no confirmed file',
+      when: 'a reviewer reports findings but did not confirm writing its review file',
+      args: { ...base, units: [unit('u1')] },
+      respond: { review: { finding_count: 1, wrote_file: false, wrote_clean_marker: false } },
+      terminal: 'no inventory (the findings are on no confirmed file: unit reported in failed, re-review it)',
+    },
+    {
       // 2 units x 2 lenses = 4 calls in ONE pipeline stage (review.mjs runs the lens loop INSIDE the per-unit
       // stage): two CONCURRENT lanes, each running its lenses SEQUENTIALLY. Expected rendering is one
       // `review` node annotated concurrent, plus a SELF-LOOP for the next lens — and no review → review
@@ -77,11 +89,11 @@ export default {
       name: 'two lenses per unit',
       when: 'each unit is swept once per lens',
       args: { ...base, units: [unit('u1', { lens: LENSES }), unit('u2', { lens: LENSES })] },
-      respond: { review: FOUND, verify: verifier(2) },
+      respond: { review: FOUND, verify: verifier(['a1', 'b1']) },
       terminal: 'inventory written (both lenses merged behind one verifier)',
     },
 
-    // ---- the twelve throw sites, in the order the engine checks them ------------------------------
+    // ---- the thirteen throw sites, in the order the engine checks them ------------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
@@ -96,6 +108,8 @@ export default {
     { name: 'models names an unknown role', when: 'models carries a key outside review | verify', args: { ...base, models: { planner: 'opus' } } },
     { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { review: 'gpt' } } },
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { review: 'ultra' } } },
+    // A coerced path list would hand every agent a file that is not there, or none of the project's rules.
+    { name: 'conventionFiles is not a path list', when: 'args.conventionFiles is not an array of non-empty paths', args: { ...base, conventionFiles: 'CLAUDE.md', units: [unit('u1')] } },
     { name: 'no units', when: 'args.units is empty', args: { ...base, units: [] } },
     { name: 'issue-file collision', when: 'two unit ids map to one issue file', args: { ...base, units: [unit('src/foo-bar'), unit('src/foo_bar')] } },
     { name: 'plan-id collision', when: 'two unit ids map to one plan id', args: { ...base, units: [unit('src/a'), unit('src/a/')] } },

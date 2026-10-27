@@ -20,7 +20,6 @@ const srcOf = (rel) => readFileSync(`${REPO_ROOT}/${rel}`, 'utf8');
 const invArgs = { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/criteria.md', priorRounds: 0 };
 const unit = (id, extra = {}) => ({ id, hash: 'h', files: [{ path: `${id}.js`, loc: 10 }], ...extra });
 const reviewArgs = (units) => ({ runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units });
-const FINDING = { file: 'a.js', line: '1', category: 'correctness', severity: 'high', title: 'T', detail: 'd' };
 
 section('a throw AFTER an agent call keeps every call the run had already made');
 // THE case for the never-throws contract. Build it the other way — let execute() throw and catch in
@@ -78,7 +77,7 @@ section('pipeline: stages are numbered, and a call outside any fan-out has group
   const t = await runTrace(REVIEW, {
     args: reviewArgs([unit('u1'), unit('u2')]),
     respond: {
-      'review': { wrote_clean_marker: false, findings: [FINDING] },
+      'review': { finding_count: 1, wrote_file: true, wrote_clean_marker: false },
       'verify': { wrote_file: true, verdicts: [] },
     },
   });
@@ -104,7 +103,7 @@ section('several calls may share ONE (id,item,stage) triple — review loops its
   const lens = [{ id: 'x', mandate: 'auditing X' }, { id: 'y', mandate: 'auditing Y' }];
   const t = await runTrace(REVIEW, {
     args: reviewArgs([unit('u1', { lens }), unit('u2', { lens })]),
-    respond: { 'review': { wrote_clean_marker: false, findings: [] } },
+    respond: { 'review': { finding_count: 0, wrote_file: false, wrote_clean_marker: false } },
   });
   const stage0 = t.calls.filter((c) => c.group.stage === 0);
   eq(stage0.length, 4, 'two units x two lenses');
@@ -138,7 +137,7 @@ section('an EMPTY phases list is a CORRECT result, not a tracing failure');
 {
   const t = await runTrace(REVIEW, {
     args: reviewArgs([unit('u1')]),
-    respond: { 'review': { wrote_clean_marker: true, findings: [] } },
+    respond: { 'review': { finding_count: 0, wrote_file: false, wrote_clean_marker: true } },
   });
   eq(t.phases.length, 0, 'review.mjs calls phase() zero times');
   eq(t.calls[0].opts.phase, 'Review', 'the phase is on the agent call instead');

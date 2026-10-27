@@ -105,7 +105,8 @@ This bounds the loop and keeps a wrongly dismissed real defect from being suppre
 The numbered, stage-named review files (`quality-review-N.md`, `acceptance-review-N.md`) are the
 reviewers' messages. They also form the progress trail, since the count of each file shows how many
 times each loop ran. develop's numbered `risk-<id>-rN.md` is the developer's message to acceptance,
-which holds its risk answers for round N (#5).
+which holds its risk answers for round N (#5). debug's `reviews/<unit>-<lens>.md` is a reviewer's
+message to its unit's verifier and later lenses, which holds its findings and the evidence for each.
 
 Narration about the run is forbidden, such as status files, run summaries, progress logs, and "what I
 did" reports. A run writes only three kinds of file. These are the inter-agent messages, numbered by
@@ -491,7 +492,8 @@ Use these as yes/no checks when reviewing any workflow.
 - [ ] Must an unbiased code review pass before the plan-aware acceptance review runs, on a block's
       first build, on each change judged as needing review and on the next change after the acceptance
       review finds a risk answer wrong? (#5)
-- [ ] Are the only files written the numbered inter-agent reviews and develop's risk files, the developer's terse
+- [ ] Are the only files written the numbered inter-agent reviews, develop's risk files and debug's
+      `reviews/<unit>-<lens>.md` reviewer messages, the developer's terse
       `DISMISSED-<id>.md` ledger and `AMENDED-<id>.md` (or investigate's `DISQUALIFIED.md` and
       `SEARCHED.md`), the full user-facing `NEEDS-USER.md` and develop's `question-<id>.md`, `DECISIONS.md`, and the workflow's own
       product (`issues/`, `proposals/`, `variations/`, `lenses/`, decision files, investigate's `options/`

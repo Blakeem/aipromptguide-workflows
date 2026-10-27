@@ -41,17 +41,31 @@ triaged files to develop, and land the result and report it at the end.
 ## Roles (2)
 
 **`review.mjs` (read-only; units run CONCURRENTLY via `pipeline`):**
-- **Reviewer** (opus) — finds production defects in ONE unit's files through ONE lens; returns findings.
-  When it finds NOTHING it writes the clean `issues/<unit>.md` marker itself (frontmatter + "No issues
-  found." + unit hash — what makes hash-based resume work); with findings it writes nothing and hands off
-  to the verifier. With a lens ARRAY the unit gets one reviewer per lens, and only the LAST may write the
-  marker (the unit is clean only if every lens found nothing).
+- **Reviewer** (opus) — finds production defects in ONE unit's files through ONE lens. It writes its
+  findings, with the evidence for each, to `reviews/<unit>-<lens>.md` and returns only their count and
+  whether it wrote that file. `<unit>` and `<lens>` are the unit id and the lens id (`lens1` when no
+  lens is set) in file-safe form: lowercase, each run of other characters than letters and digits
+  replaced by `_`. A lens whose id shares its file-safe form with an earlier lens of the unit gets a
+  `-<n>` suffix, its position in the unit's lens array. With a lens array, each lens numbers its
+  findings under its own letter tag, such as `<unit>-a1` and `<unit>-b1`. A reviewer whose count or
+  file attestation is unusable counts as a lens with no coverage, as a dead one does.
+  When it finds NOTHING it writes no review file and writes the clean `issues/<unit>.md` marker itself
+  (frontmatter + "No issues found." + unit hash — what makes hash-based resume work). With a lens ARRAY
+  the unit gets one reviewer per lens, each later lens reads the earlier lenses' review files as its
+  ALREADY FOUND list, and only the LAST may write the marker (the unit is clean only if every lens found
+  nothing).
 - **Verifier** (opus) — spawned ONLY for units with findings; **ONE per unit regardless of lens count**.
-  Confirms each against the real code, corrects inflated severity, folds duplicates (across lenses or within one), routes via
-  the decision matrix, and **writes `issues/<unit>.md`** verbatim (the inventory AND triage doc). Clean
+  Reads the unit's review files by path, confirms each finding against the real code, corrects inflated
+  severity, folds duplicates (across lenses or within one), routes via the decision matrix, and **writes
+  `issues/<unit>.md`** verbatim (the inventory AND triage doc). Each entry's `**Evidence:**` line holds
+  what it confirmed: the triggering input, the probe command and its output, or the cited document.
+  It treats a reviewer's suggested fix as a hint, and checks the `**Fix:**` line it writes against the
+  text it changes, its callers and every other place with the same string or rule. It rejects a
+  finding its review file grades below the floor as `below-floor`. Clean
   units never reach it — the reviewer already wrote their marker. When it rejects a finding, it ends
-  the file with a `## Rejected` heading and one line per rejected finding with what refutes it, and
-  with no rejection it writes no such heading. It routes a finding it can
+  the file with a `## Rejected` heading and one line per rejected finding,
+  `<finding_id> [<file:line>] <title>: <refutation>`, and with no rejection it writes no such heading.
+  It routes a finding it can
   neither confirm nor refute to NEEDS_USER. Before a **Fix:** line prescribes a command, flag or API
   behavior the repo does not already use the same way, it confirms that behavior in the dependency's docs
   or source, or with a probe in a fresh temporary directory outside the repo and the run-state dir, which
@@ -63,7 +77,9 @@ Fixing roles (developer, blind quality, acceptance, park) are develop's, in `../
 
 - **`review.mjs` is read-only.** One writer per unit file — the reviewer writes it when the unit is
   clean, the verifier when it has findings; never both, only ever its own unit's file (parallel-safe).
-  The verifier's one other write is its own temporary probe directory, outside the repo and run-state.
+  Each reviewer also writes its own `reviews/<unit>-<lens>.md` when it has findings, and nothing else
+  writes that file. The verifier's one other write is its own temporary probe directory, outside the
+  repo and run-state.
   Review-phase needs-decision items live INSIDE each unit file (a shared file written by concurrent
   verifiers would race). `NEEDS-USER.md` and `question-<id>.md` are only for develop's fix-phase escalations, which one agent writes at a time (develop guide §5).
 - **The inventory is CLOSED after `review.mjs`.** develop's fix mode never re-reviews — it only works the
@@ -93,8 +109,8 @@ Unset, the reviewer hunts production defects generally; every existing call is u
 aim it at a narrower class — a destructiveness audit, a data-loss sweep, a compliance pass, a
 document/drawing review. Fields (all optional, each falls back to the defect-hunting default):
 `{ id, mandate, criteria, categories, findingNoun, matters }` — `mandate` replaces the reviewer's one-line
-charter, `criteria` its assessment list, `categories` the finding enum, and `findingNoun`/`matters` the
-floor wording.
+charter, `criteria` its assessment list, `categories` the category list in its review-file template
+(nothing validates a reviewer's category), and `findingNoun`/`matters` the floor wording.
 
 - **`args.lens`** sets the default for every unit; **`unit.lens`** REPLACES it for that unit (it does not
   merge — element-wise merging of arrays is unpredictable; per-field defaults still apply). An **empty
@@ -107,8 +123,9 @@ floor wording.
 - **Each entry from a lensed run records the lens that found it** on a `- lens:` line after
   `- category:`. A fold across lenses lists each lens id, comma-separated. Unset, an entry has no lens line.
   A set lens with no `id` records its default `lens<N>`, so give each lens an `id`.
-- **Fan out by lens instead of file-slice** for a small codebase: pass the same files as N units with
-  distinct ids and a different `unit.lens` each → one issue file per lens, reviewed concurrently.
+- **For a small codebase, pass its files as ONE unit with a lens array**, not as one unit per lens. One
+  unit per lens spawns a verifier and writes an issue file per lens, and no verifier folds a defect two
+  lenses both found.
 - Agent ceiling per unit: one reviewer per lens + at most one verifier. It's logged at run start.
 
 (`reviewPasses` is **gone**. It re-ran an identical prompt, so pass 2 re-hunted pass 1's ground at full
@@ -120,16 +137,19 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    (`gen-units.mjs` sits beside this guide — `workflows/debug/` in a checkout, the path the skill
    resolves from the installed plugin; the `--out` base is `root`, never your cwd). `--unit-loc`
    (default 3500, which aims at about 200k tokens of review context per agent, since the measured
-   median was 123k at 2000 lines, and a unit past it warns) is the one LOC bound: a file over it
-   is its own unit, a directory's files split at it, and a bin-packing pass merges adjacent units up to
-   it. `--no-pack` keeps per-directory units. `--cap-files` (default 24) caps files per unit only under
+   median was 123k at 2000 lines) is the one LOC bound: a file over it
+   is its own unit, a directory's files split at it, and a next-fit packing pass merges adjacent units
+   up to it. The pass then merges a leftover group under a third of it into its smaller neighbor while
+   the sum stays at or under 1.15 times it. A single-file unit past 3500 lines warns, and so does a
+   multi-file unit past 3500 lines when `--unit-loc` is set above 3500. `--no-pack` keeps per-directory units. `--cap-files` (default 24) caps files per unit only under
    `--no-pack`, since packing checks no file count. Show the user the printed unit list; tune
    `--unit-loc` if units look lopsided. `gen-units.mjs` skips symlinks and junctions, as git does, so
    code reached only through a link is in no unit.
 2. **Read the manifest yourself** and pass its `units` array in `args`. Also pass `root` (this checkout
    — or, from the installed aipg plugin, the persistent data dir the skill resolves, never the
    version-swapped install dir — so run-state lands outside the target repo), `target.repo` (absolute),
-   `gates`, and `conventions` (the project's CLAUDE.md distilled to ~10 lines — the reviewer's rubric).
+   `gates`, `conventions` (the project's CLAUDE.md distilled to ~10 lines, an index into those files)
+   and `conventionFiles` (the paths of the project's CLAUDE.md files, which every agent reads in full).
    Choose `changePolicy` as `../develop/CLAUDE.md` §4 "Choosing the change policy" says, which settles
    `auto` into `focused` or `proactive` for the run, and pass it.
 3. **Run `review.mjs`** (`scriptPath` = its absolute path) from a notification turn (root `CLAUDE.md`,
@@ -149,7 +169,7 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    - Run the resume before any triage edit and before develop. A re-review rewrites each re-reviewed
      unit's issue file from scratch, and develop's fixes make every fixed unit read `changed`.
    - `staleUnits` carries gen-units ids and no `unit.lens`. If the run set `unit.lens`, re-attach each
-     unit's lens before passing it. For a lens fan-out, pass your own lens units instead, each with its
+     unit's lens before passing it. For a run that passed the same files as one unit per lens, pass your own lens units instead, each with its
      unit's current gen-units hash, and keep only those whose `issues/<fileSafe(id)>.md` is missing or
      whose `hash:` line differs from that hash, `incomplete` included.
 5. **Triage by EDITING the issue files** (`runs/<runId>/issues/*.md` — the single source of truth):
@@ -193,8 +213,8 @@ When findings come from somewhere other than the code review — live/manual tes
 reports, or a symptom YOU diagnosed first (Bug Hunt & Repro) — develop's fix mode works unchanged,
 since it depends on `review.mjs` only through the issue files. You act as the verifier:
 hand-author the inventory in the exact verifier format — the `## Plan: <id>` fix-block header with
-its preamble, then `### [<id>]` blocks with the `- ` header lines (including `- status: open`) and a
-precise `**Fix:**` — anchoring each behavior-level finding to `file:line` yourself, and record
+its preamble, then `### [<id>]` blocks with the `- ` header lines (including `- status: open`), an
+`**Evidence:**` line with what confirmed the finding, and a precise `**Fix:**` — anchoring each behavior-level finding to `file:line` yourself, and record
 skipped findings with `- decision: SKIP` so the triage is on file. Check it parses:
 `node <plan-block.mjs> <file> --list`. Then playbook step 6 (Build the triaged files with develop).
 
@@ -224,9 +244,11 @@ Verify-first makes loose anchors safe — the fixer re-confirms each issue again
 
 ## State files (`runs/<runId>/`, outside every repo)
 
-`manifest.json` (units; from `gen-units.mjs`, read by YOU) · `issues/<unit>.md` (per-unit inventory +
-triage doc, verifier-written, user-editable, a fix-mode plan file). The fix loop's files (reviews,
-ledgers) land in develop's state dir, a parked block's work on a branch of the repo, listed in `../develop/CLAUDE.md`.
+`manifest.json` (units; from `gen-units.mjs`, read by YOU) · `reviews/<unit>-<lens>.md` (each
+reviewer's findings with their evidence, the message its verifier and the unit's later lenses read) ·
+`issues/<unit>.md` (per-unit inventory + triage doc, verifier-written, user-editable, a fix-mode plan
+file). The fix loop's files (develop's quality and
+acceptance reviews, ledgers) land in develop's state dir, a parked block's work on a branch of the repo, listed in `../develop/CLAUDE.md`.
 
 A review that starts over takes a new `runId`, since a `review.mjs` re-run rewrites each unit file it
 re-reviews, triage edits included. The resume in playbook step 4 keeps the `runId`, so it re-reviews
@@ -238,8 +260,10 @@ Full schema + defaults: the Config block atop `review.mjs` (the canonical source
 with `units` from `gen-units.mjs`.
 
 **`review.mjs`:**
-- **Required:** `runId` · `root` · `target.repo` · `units` (from `gen-units.mjs`). `conventions` is
-  strongly recommended, not enforced — omitted, the reviewer runs on a placeholder rubric; supply it.
+- **Required:** `runId` · `root` · `target.repo` · `units` (from `gen-units.mjs`). `conventions` and
+  `conventionFiles` are strongly recommended, not enforced — omitted, the reviewer runs on a
+  placeholder rubric; supply them. `conventionFiles` is an array of paths, each absolute or relative to
+  `target.repo`, and a value that is not an array of non-empty paths **throws**.
   `gates` is informational context for the reviewer here. Missing `runId`, `root`, `target.repo` or
   `units` **throws** — `target.repo` has no default, so a bogus inventory can't be built against `.`.
 - **Optional tuning:** `reviewSeverity` (inventory floor, default medium; a name outside
@@ -258,7 +282,11 @@ with `units` from `gen-units.mjs`.
   effort).
 - **Returns** `inventory` counts, `hottest` areas, `needsUserFiles`, and `failed`. The first three cover
   only the units this run reviewed, so after a resume they leave out the other units' issue files.
-  `failed` holds every dead reviewer `{ id, stage: 'review', lens }`, every clean unit whose reviewer
+  `failed` holds every dead reviewer `{ id, stage: 'review', lens }`, every reviewer whose count is
+  not a whole number at or above 0, or whose count and `wrote_file` disagree (findings with no
+  confirmed review file, or a confirmed review file with a zero count),
+  `{ id, stage: 'review', lens, finding_count, wrote_file }` with the values it returned (`null` when
+  missing), every clean unit whose reviewer
   did not attest its marker `{ id, stage: 'review', marker: false }`, every verifier that did not
   attest its write `{ id, stage: 'verify' }`, and every verifier whose verdicts miss or miscopy a
   finding id `{ id, stage: 'verify', unmatched, unverdicted }`. Each `id` is the unit id.

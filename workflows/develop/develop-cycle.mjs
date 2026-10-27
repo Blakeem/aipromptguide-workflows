@@ -1220,8 +1220,8 @@ const pulledLine = (ids) => `Pulled: ${ids}, whose work this entry's branch hold
 const reportedLines = (pairs, none) => pairs.map(([id, status]) => `     - ${id}: ${status}`).join('\n') || `     (${none})`;
 const fixDevelop = (p, round, { opening, ledgerNote, zones, staging, rework, launch, lastFix }) => `
 You are the FIXER. Resolve the verified issues in ${blockRef(p)}. Each block printed IS an inventory: a
-"## Plan:" header followed by one "### [<id>]" entry per issue, each with its own \`- decision:\` line and
-a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+"## Plan:" header followed by one "### [<id>]" entry per issue, each with its own \`- decision:\` line,
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. ${PULLED_ENTRY_RULE} ${SCOPE_LINE.fix}.
 ${POLICY_LINE}
 ${ENV}
@@ -1236,7 +1236,8 @@ PROCEDURE: VERIFY-FIRST, then ${PHASES}.
 ${PHASE_NOTES}
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
-   isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
+   isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
+   with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
    verified. Once you confirm an entry's issue exists, read its **Fix:** line as a suggested fix.
    Before you apply any part of it, ${SUGGESTION_CHECK} A **Fix:** line you verify is defective goes
@@ -1705,8 +1706,8 @@ const ACCEPTANCE_CHECK_RULE = `Any command that writes nothing in the repo, such
 // the entry may have under-scoped the defect.
 const fixAcceptance = (p, round, { claimedFixed, claimedStale, reportedSkipped, reportedFailed, unreportedIssues, earlierReviews, riskRounds, riskSnapshots, closingRecorded, pulledReported, indexTree }) => `
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks.
-${reviewStatus(round)} Read ${blockRef(p)}. Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a \`- decision:\` line and a **Fix:**
-instruction. You judge the work against it; you never implement it. ${PULLED_ENTRY_RULE}
+${reviewStatus(round)} Read ${blockRef(p)}. Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a \`- decision:\` line, a **Fix:**
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. ${PULLED_ENTRY_RULE}
 ${ENV}
 BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
 ${ROUND_NOTE(round)}

@@ -14,7 +14,7 @@ The goal of every workflow is the simplest, lowest-friction path to the outcome,
 agents. The harness only routes control signals (paths, counts, booleans) and never re-interprets
 content. Agents exchange full content verbatim through files. Reviews are staged and escalating (blind
 pure-code review, then plan-aware acceptance), agents stay stateless and unanchored, and the only
-files written are numbered inter-agent messages, ledgers, user notes, and the workflow's own product.
+files written are inter-agent messages, ledgers, user notes, and the workflow's own product.
 Read [`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md) for the full set.
 
 ## Using them

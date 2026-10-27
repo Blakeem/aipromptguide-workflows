@@ -3,8 +3,8 @@ export const meta = {
   description: 'Read-only fan-out review, lean/file-bus design. Fans out over bounded units (reviewer, then a verifier only where findings exist) READ-ONLY and writes one verbatim issue file per unit (the inventory + your triage doc), then STOPS. A clean unit is written by the reviewer itself; a unit with findings goes to a verifier — one writer per file. You triage the files; develop-cycle.mjs in fix mode then builds each triaged issue file as a fix-mode block behind a two-stage review. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
   whenToUse: 'Review a whole codebase (or subsystem) as a planned campaign. The main agent runs gen-units.mjs and passes the units in args. This pass is read-only and concurrent: each unit gets a reviewer; clean units get their runs/<runId>/issues/<unit>.md marker from the reviewer, units with findings get a verifier that writes that file (a parseable, human-triage-ready inventory). It then STOPS. You triage by editing those files (flip a decision to SKIP, answer a NEEDS_USER by writing the chosen option into its Fix line). An OPTIONAL lens (args.lens, or per-unit unit.lens) narrows WHICH defects a unit hunts — a destructiveness audit, a data-loss sweep, a compliance pass. Pass an ARRAY of lenses to sweep the same files from several genuinely different angles: each unit is reviewed once per lens and the results merge into that unit\'s single issue file behind ONE verifier. A lens never widens the pass into proposing improvements or features: this is defect-hunting only, because the inventory feeds an autonomous fixer. Then run develop-cycle.mjs in fix mode, one plans entry per triaged issue file with findings, which fixes each file behind a two-stage review, staging accepted work, or committing it in develop\'s commit mode.',
   phases: [
-    { title: 'Review', detail: 'Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only); when it finds nothing it writes the clean issues/<unit>.md marker itself.' },
-    { title: 'Verify', detail: 'Spawned ONLY for units with findings: confirms each against real code, corrects severity, routes via the decision matrix, and WRITES runs/<runId>/issues/<unit>.md verbatim (the inventory). Returns a slim verdict index.' },
+    { title: 'Review', detail: 'Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only) and writes them, with the evidence for each, to reviews/<unit>-<lens>.md, returning only their count; when it finds nothing it writes the clean issues/<unit>.md marker itself.' },
+    { title: 'Verify', detail: 'Spawned ONLY for units with findings: reads the review files by path, confirms each finding against real code, corrects severity, checks the Fix line it writes against the code it changes, routes via the decision matrix, and WRITES runs/<runId>/issues/<unit>.md verbatim (the inventory). Returns a slim verdict index.' },
   ],
 };
 
@@ -72,7 +72,8 @@ const SEVERITY_SCALE = `SEVERITY - grade by impact, never by the size of the fix
 // existing call is unaffected. Set it to aim the same machinery at a narrower class of defect (a
 // destructive-behavior audit, a data-loss sweep, a compliance pass, a document/drawing review):
 // `mandate` replaces the reviewer's one-line charter, `criteria` its assessment list, `categories` the
-// finding enum, `findingNoun`/`matters` the floor wording.
+// category list in its review-file template (nothing validates a reviewer's category), `findingNoun`/
+// `matters` the floor wording.
 //
 // A lens NEVER licenses proposing new capability. "Report DEFECTS, not redesigns" and the verifier's
 // `scope-creep -> REJECT` are UNCONDITIONAL and must stay that way: this inventory feeds
@@ -81,9 +82,7 @@ const SEVERITY_SCALE = `SEVERITY - grade by impact, never by the size of the fix
 // (there is always another improvement), which is what the CLOSED-inventory contract depends on.
 // Improvement/feature hunting is a DIFFERENT workflow.
 //
-// args.lens sets the default for every unit; a unit may override it with `unit.lens` (same shape). That
-// lets a SMALL codebase fan out by LENS instead of by file-slice: pass the same files as N units with
-// distinct ids and a different `unit.lens` each — one issue file per lens, reviewed concurrently.
+// args.lens sets the default for every unit; a unit may override it with `unit.lens` (same shape).
 // `lens` may be ONE lens or an ARRAY of them. An array reviews each unit once per lens and merges the
 // results into that unit's SINGLE issue file behind ONE verifier — genuinely different angles over the
 // same files, which is what the old `reviewPasses` arg was reaching for and never achieved (it re-ran
@@ -158,6 +157,18 @@ const abs       = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//
 const REPO      = abs(TARGET.repo);
 const STATE_DIR = abs(A.stateDir ?? `runs/${RUN_ID}`);
 const ISSUES_DIR = `${STATE_DIR}/issues`;
+const REVIEWS_DIR = `${STATE_DIR}/reviews`;
+// `conventions` is a distilled index, so each agent also reads the project's own instruction files in full.
+// refine-cycle.mjs holds a copy, since an engine cannot import: a test pins the copies equal.
+// Static lead clause: gen-flows labels the throw node from it.
+const conventionFilesOf = (value) => {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || !value.every((p) => typeof p === 'string' && p.trim())) {
+    throw new Error(`Invalid args.conventionFiles: it must be an array of file paths, each absolute or relative to target.repo; got ${JSON.stringify(value)}.`);
+  }
+  return value.map((p) => { const n = norm(p.trim()); return /^([a-zA-Z]:)?\//.test(n) ? n : `${REPO}/${n}`; });
+};
+const CONVENTION_FILES = conventionFilesOf(A.conventionFiles);
 // Windows folds case in a drive or UNC path, so E:/Repo/x lies inside e:/repo there.
 // A POSIX path keeps its case, so a macOS spelling in another case draws no warning.
 const pathKey    = (p) => (/^(?:[a-zA-Z]:\/|\/\/)/.test(p) ? p.toLowerCase() : p);
@@ -185,34 +196,36 @@ const fileSafe = (id) => String(id).replace(/[^a-z0-9]+/gi, '_').toLowerCase();
 // The issue-file path scheme runs/<runId>/issues/<fileSafe(unit)>.md is the user's triage surface and
 // the planPath each develop fix-mode entry is handed, so a moved scheme points the fixer at missing files.
 const issueFile      = (unitId) => `${ISSUES_DIR}/${fileSafe(unitId)}.md`;
+// One review file per lens of a unit. fileSafe never emits `-`, so the unit part cannot collide across
+// units, and a lens whose id shares its file-safe form with an earlier lens of the unit takes its position
+// as a suffix.
+const reviewFiles = (unit, lenses) => {
+  const taken = new Set();
+  return lenses.map((L, p) => {
+    const base = `${fileSafe(unit.id)}-${fileSafe(L.id)}`;
+    const name = taken.has(base) ? `${base}-${p + 1}` : base;
+    taken.add(name);
+    return `${REVIEWS_DIR}/${name}.md`;
+  });
+};
+// Each lens of a multi-lens unit numbers under its own letter tag (a, b, ..., z, aa), so no lens's ids
+// rest on another reviewer's self-reported count, and a miscount surfaces as an unmatched verdict.
+const lensTag = (p) => (p >= 26 ? lensTag(Math.floor(p / 26) - 1) : '') + String.fromCharCode(97 + (p % 26));
+// The tag holds no `-`, so the id minus its last `-` segment is always the unit slug.
+const findingId = (unit, n, tag = '') => `${slug(unit.id)}-${tag}${n}`;
 
 // =============================================================================
 // Structured-output schemas — DECISIONS ONLY (control plane). All prose/content lives in files.
 // =============================================================================
-// Per-unit: the category enum comes from that unit's lens (units may carry different lenses).
-const reviewSchema = (categories) => ({
+const REVIEW_SCHEMA = {
   type: 'object',
-  required: ['findings', 'wrote_clean_marker'],
+  required: ['finding_count', 'wrote_file', 'wrote_clean_marker'],
   properties: {
+    finding_count: { type: 'integer', minimum: 0, description: 'the number of finding entries in your review file, 0 when you report none' },
+    wrote_file: { type: 'boolean', description: 'true ONLY if you wrote your review file, false when you report no finding' },
     wrote_clean_marker: { type: 'boolean', description: 'true ONLY if you wrote the clean-unit marker file, false whenever you report any finding' },
-    findings: {
-      type: 'array',
-      items: {
-        type: 'object',
-        required: ['file', 'category', 'severity', 'title', 'detail'],
-        properties: {
-          file: { type: 'string', description: 'repo-relative path' },
-          line: { type: 'string', description: 'line number or range, or "" if N/A' },
-          category: { type: 'string', enum: categories },
-          severity: { type: 'string', enum: ['critical', 'high', 'medium', 'low'] },
-          title: { type: 'string', description: 'short, specific, stable' },
-          detail: { type: 'string' },
-          suggested_fix: { type: 'string' },
-        },
-      },
-    },
   },
-});
+};
 
 const VERIFY_SCHEMA = {
   type: 'object',
@@ -223,9 +236,10 @@ const VERIFY_SCHEMA = {
       type: 'array',
       items: {
         type: 'object',
-        required: ['finding_id', 'is_real', 'severity', 'decision', 'matrix'],
+        required: ['finding_id', 'file', 'is_real', 'severity', 'decision', 'matrix'],
         properties: {
           finding_id: { type: 'string' },
+          file: { type: 'string', description: 'the repo-relative path of the file the finding is in' },
           is_real: { type: 'boolean' },
           severity: { type: 'string', enum: ['critical', 'high', 'medium', 'low'], description: 'YOUR confirmed severity (reviewers over-rate; correct it)' },
           decision: { type: 'string', enum: ['ACTIONABLE', 'NEEDS_USER', 'DEFER', 'REJECT'] },
@@ -254,18 +268,23 @@ const ENV = `TARGET REPO: ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARG
 Source paths are RELATIVE TO THIS REPO. Use \`git -C ${REPO} …\` for git.
 CONVENTIONS (judge against these):
 ${CONVENTIONS}
-GATES (the build/test commands that define "it works", run from the repo root):
+${CONVENTION_FILES.length ? `CONVENTION FILES (the project's own rules, which the CONVENTIONS text above indexes. Read each one in full, whatever the token target below):
+${CONVENTION_FILES.map((p) => `  - ${p}`).join('\n')}
+` : ''}GATES (the build/test commands that define "it works", run from the repo root):
   build: ${GATES.build ?? '(none)'}
   test:  ${GATES.test ?? '(none)'}${GATES.testSetup ? `\n  test setup: ${GATES.testSetup}` : ''}
 BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your
 task names. The target limits your reads of files beyond those: read them only by targeted search or short
-reads, and only to confirm or reject a candidate in your task's files. Don't restate large files back.`;
+reads, and only to confirm or reject a candidate in your task's files, or to check a fix or its blast
+radius. Don't restate large files back.`;
 
 // Every agent also loads the user's CLAUDE.md and auto memory, which may set fix scope another way.
 // The prompt's own scope and routing rules carry the policy out, so they are not "other".
 const POLICY_LINE = `CHANGE POLICY: ${CHANGE_POLICY}. This policy and the scope and routing rules in this prompt settle the scope of each suggested fix and each **Fix:** line, and override any other instruction about scope, including a memory line or a CLAUDE.md. It does not change what counts as a finding.`;
 const BEST_FIX = 'the best long-term result: correct, simple, maintainable and consistent with the repo';
-const FIX_DIRECTION = PROACTIVE ? `a suggested_fix direction with ${BEST_FIX}` : 'a minimal suggested_fix direction';
+const FIX_DIRECTION = PROACTIVE ? `a suggested fix direction with ${BEST_FIX}` : 'a minimal suggested fix direction';
+// develop's SUGGESTION_CHECK wording, aimed at the Fix line the verifier writes from a reviewer's hint.
+const FIX_CHECK = 'check it against the text it changes, its callers and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. That check is also what scores blast_radius.';
 const ROUTED_FIX_LINE = PROACTIVE ? `a precise **Fix:** line that prescribes the fix with ${BEST_FIX}` : 'a precise, minimal **Fix:** line';
 const TEMPLATE_FIX_LINE = PROACTIVE ? `a precise instruction for the fixer that prescribes the fix with ${BEST_FIX}` : 'a precise, minimal instruction for the fixer';
 // A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite
@@ -276,12 +295,13 @@ const WROTE_NOTE = 'A write the tool rejected has not written the file, so repor
 // =============================================================================
 // Review-phase prompts
 // =============================================================================
-const reviewPrompt = (unit, L, handled, cleanEligible) => `
+// `prior` lists the review files of this unit's earlier lenses that hold findings, each { lens, path }.
+const reviewPrompt = (unit, L, { reviewFile, tag, prior, cleanEligible }) => `
 You are the REVIEWER ${L.mandate}. This is a
 FIND-ONLY pass: you report defects, and later phases verify and fix them. Do NOT modify any file in
-the target repo${cleanEligible
-    ? ' (the ONLY file you may write is the clean-unit marker described below, in the run-state dir).'
-    : '. Write no file. Another pass decides the unit\'s marker. Return wrote_clean_marker=false.'}
+the target repo. The only files you may write are your review file${cleanEligible
+    ? ' and the clean-unit marker, both described below, in the run-state dir.'
+    : ', described below, in the run-state dir. Another pass decides the unit\'s marker. Return wrote_clean_marker=false.'}
 ${POLICY_LINE}
 ${ENV}
 UNIT: ${unit.id}${L.isSet ? `\nLENS: ${L.id}` : ''}
@@ -295,17 +315,36 @@ RULES:
 - SEVERITY FLOOR: report ONLY ${REVIEW_SEV_NAME}+ ${L.findingNoun}. Do NOT report below-floor,
   stylistic, or speculative "could be more defensive" suggestions. If in doubt it's below the floor, omit it.
 - ${SEVERITY_SCALE}
-- Do NOT report anything the current code already handles${handled.length ? ', or anything in the ALREADY FOUND list below, even rephrased' : ''}.
-- Stay INSIDE this unit's files. Cross-file concerns: mention as context in detail, do not chase.
+- Do NOT report anything the current code already handles${prior.length ? ', or anything an ALREADY FOUND file below holds, even rephrased' : ''}.
+- Stay INSIDE this unit's files. Cross-file concerns: mention as context in a finding's **What:** line, do not chase.
 - Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep. Your brief
   above narrows WHICH defects matter here. It never licenses proposing a new capability, a feature, or
   an efficiency idea, and those are rejected downstream. Every finding must be something the code gets
   WRONG today, not something it could do better.
 - Each finding: specific file + line, the right category/severity, what's wrong and why it matters${L.matters},
-  and ${FIX_DIRECTION}.${handled.length ? `\n\nALREADY FOUND in a prior pass:\n${handled.map((t) => `  - ${t}`).join('\n')}` : ''}
+  the evidence that shows it, and ${FIX_DIRECTION}.${prior.length ? `\n\nALREADY FOUND in a prior pass over this unit. Read each of these review files:\n${prior.map((f) => `  - [${f.lens}] ${f.path}`).join('\n')}` : ''}
+
+REVIEW FILE: if you report at least one finding, WRITE ${reviewFile} (create ${REVIEWS_DIR}/ if
+needed). ${REPLACE_NOTE} Number your findings ${findingId(unit, 1, tag)}, ${findingId(unit, 2, tag)} and on, one entry each, in EXACTLY
+this format, then return finding_count (the number of entries) and wrote_file=true:
+-----
+# Review: ${unit.id}${L.isSet ? ` / ${L.id}` : ''}
+
+### [<finding id>] <short, specific title>
+
+- file: <repo-relative path>:<line number or range>
+- category: <one of ${L.categories.join(' | ')}>
+- severity: <critical | high | medium | low>
+
+**What:** <what is wrong and why it matters${L.matters}>
+**Evidence:** <the input or path that reaches it, the lines that show it, or the check you ran and its output>
+**Suggested fix:** <${FIX_DIRECTION}>
+-----
+If you report no finding, write no review file and return finding_count=0 and wrote_file=false.
+${WROTE_NOTE}
 ${cleanEligible ? `
 CLEAN-UNIT MARKER: if AND ONLY IF you find ZERO ${REVIEW_SEV_NAME}+ findings, WRITE the file ${issueFile(unit.id)} (create
-${ISSUES_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Write EXACTLY this content, then set wrote_clean_marker=true:
+${ISSUES_DIR}/ if needed). ${REPLACE_NOTE} Write EXACTLY this content, then set wrote_clean_marker=true:
 -----
 ---
 unit: ${unit.id}
@@ -316,9 +355,9 @@ reviewed: true
 
 No issues found.
 -----
-If you report ANY ${REVIEW_SEV_NAME}+ finding, write NOTHING and set wrote_clean_marker=false.
+If you report ANY ${REVIEW_SEV_NAME}+ finding, write NO marker and set wrote_clean_marker=false.
 ` : ''}
-Return findings via the schema. An empty array (a clean unit) is a normal, good outcome.`;
+Return the counts and flags via the schema. Zero findings (a clean unit) is a normal, good outcome.`;
 
 // CONTRACT with develop's fix mode — change both together. The issue-file BLOCK FORMAT the verifier writes
 // below (frontmatter unit/hash/reviewed; a `## Plan: <slug(unit.id)>` header with its mode/gate/status
@@ -326,10 +365,11 @@ Return findings via the schema. An empty array (a clean unit) is a normal, good 
 // `**Fix:**` line) is a plan-bus fix-mode plan file that develop's fixer + acceptance read through
 // tools/plan-block.mjs and tools/plan-edit.mjs args writes statuses back into.
 // `lensDied` stamps `hash: incomplete`, which gen-units reads as `changed`, so resume re-runs the dead lens.
-const verifyPrompt = (unit, items, lensDied) => {
+// `sources` lists the review files that hold findings, each { lens, path, tag, count }.
+const verifyPrompt = (unit, sources, lensDied) => {
   const lenses = lensesOf(unit);
   const multi = lenses.length > 1;
-  const lensLine = !lenses[0].isSet ? '' : `- lens: ${multi ? "<the lens id, without brackets, from the kept candidate's line>" : lenses[0].id}\n`;
+  const lensLine = !lenses[0].isSet ? '' : `- lens: ${multi ? '<the lens id, without brackets, of the review file that holds the kept candidate>' : lenses[0].id}\n`;
   return `
 You are the VERIFIER, read-only on SOURCE: you write exactly one inventory file and nothing else, except
 a probe that confirms a **Fix:** line. Make that probe in a fresh directory you create for it alone
@@ -346,12 +386,14 @@ UNIT FILES (each entry's \`- loc:\` value comes from this list):
 ${(unit.files || []).map((f) => `  - ${f.path} (${f.loc} LOC)`).join('\n')}
 THE REVIEWER${multi ? "S'" : "'S"} BRIEF${multi ? 'S' : ''} (context for judging severity). ${multi
     ? `${lenses.length} reviewers each swept these files under a DIFFERENT brief. Judge each candidate against
-the brief named on its line below. A brief narrows which defects matter. It does NOT widen what counts as one.
+the brief of the review file that holds it. A brief narrows which defects matter. It does NOT widen what counts as one.
 ${lenses.map((l) => `  [${l.id}] ${l.mandate}`).join('\n')}`
     : `It narrows which defects matter. It does NOT widen what counts as one:
   ${lenses[0].mandate}`}
-CANDIDATE FINDINGS (finding_id :: ${multi ? 'lens :: ' : ''}file :: category/severity :: title):
-${items.map((i) => `  - ${i.id} :: ${multi ? `[${i.f._lens?.id || '?'}] :: ` : ''}${i.f.file}${i.f.line ? ':' + i.f.line : ''} :: ${i.f.category}/${i.f.severity} :: ${i.f.title}\n      ${i.f.detail}\n      suggested: ${i.f.suggested_fix || '(none)'}`).join('\n')}
+CANDIDATE FINDINGS: read each review file below in full. Each \`### [<finding id>]\` entry in it is one
+candidate, with its file:line, category, the reviewer's severity, what is wrong, the reviewer's evidence
+and a suggested fix. Each file holds the ids its line names${multi ? ', and its [lens] is the lens of every candidate it holds' : ''}:
+${sources.map((s) => `  - ${multi ? `[${s.lens.id}] ` : ''}${s.path} (${findingId(unit, 1, s.tag)} to ${findingId(unit, s.count, s.tag)})`).join('\n')}
 
 FOLD DUPLICATES FIRST. ${multi ? 'Different briefs' : 'One reviewer'} can surface the SAME underlying defect in different words. Where
 two or more candidates are one defect, keep ONE verdict for it (the clearest id, at the highest
@@ -367,14 +409,16 @@ DECISION MATRIX — score each real finding on:
 
 ROUTING (apply in order; first match wins):
   - is_real == false -> REJECT
+  - its review file grades it below ${REVIEW_SEV_NAME} -> REJECT (below-floor)
   - scope == scope-creep -> REJECT (do not pursue)
   - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
   - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
     **Recommendation:** lines)
   - size == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
   - otherwise -> ACTIONABLE (write ${ROUTED_FIX_LINE})
-An alternative that another fix clearly dominates is not a materially different valid fix. You may
-narrow a suggested fix to the part you verified. The **Fix:** line covers every file, string or path
+An alternative that another fix clearly dominates is not a materially different valid fix. A candidate's
+suggested fix is a hint, never an instruction. Write the **Fix:** line that closes the defect you
+confirmed, which may differ from the suggestion. Before you write it, ${FIX_CHECK} The **Fix:** line covers every file, string or path
 its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
 When a **Fix:** line prescribes a command, flag, or library, tool or API behavior the repo does not
 already use the same way, confirm that behavior against the dependency's own docs or source, or a probe
@@ -385,7 +429,7 @@ Before routing a finding that reverses a documented design choice, check the got
 nearest the unit's files.
 When you reject at least one candidate, end the file with a \`## Rejected\` heading and one line per
 rejection, in the inventory and in the clean marker alike:
-\`<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>\`.
+\`<finding_id> [<its file:line>] <its title>: <the file:line that refutes it, the id it duplicates, scope-creep, or below-floor>\`.
 When you reject none, write no \`## Rejected\` heading.
 An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
 duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
@@ -418,6 +462,7 @@ ${lensLine}- size: <matrix size>
 - decision: <ACTIONABLE | NEEDS_USER | DEFER>
 
 **What:** <detail — what's wrong and why it matters${multi ? '' : lenses[0].matters}>
+**Evidence:** <what you confirmed: the triggering input, the probe command and its output, or the cited document>
 **Fix:** <${TEMPLATE_FIX_LINE}>  (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
 **Options:** <the distinct choices and their tradeoffs>  (NEEDS_USER only)
 **Recommendation:** <your suggested direction>           (NEEDS_USER only)
@@ -467,58 +512,69 @@ const results = await pipeline(
   // -- Review: one pass per lens, merged into this unit's single finding set --------------------
   async (unit) => {
     const lenses = lensesOf(unit);
-    const found = [];
-    const handled = [];
+    const paths = reviewFiles(unit, lenses);
+    const tags = lenses.map((_, p) => (lenses.length > 1 ? lensTag(p) : ''));
+    const sources = [];
+    let total = 0;
     let markerWritten = false;
     let lensDied = false;
     for (let p = 0; p < lenses.length; p++) {
       const lens = lenses[p];
+      const where = `${unit.id}${lenses.length > 1 ? `/${lens.id}` : ''}`;
       // Only the FINAL lens, with no prior finding and no dead sibling, may write the clean marker: an
       // earlier clean pass that wrote it could be left as the terminal on-disk state if a later pass throws
       // or the run is cut before verify overwrites, and a marker after a dead lens stamps the real hash on
       // a unit that lens never looked at. Resume trusts either file and skips the unit.
-      const cleanEligible = handled.length === 0 && p === lenses.length - 1 && !lensDied;
+      const cleanEligible = total === 0 && p === lenses.length - 1 && !lensDied;
       // `rev`, not `r`: the attestation sweep in tests/static.test.mjs scopes each schema's consumer check
       // to the variable its agent return lands in, and `r` is bound five times in this file.
-      const rev = await agent(reviewPrompt(unit, lens, handled, cleanEligible), roleOpts('review', {
-        schema: reviewSchema(lens.categories), phase: 'Review',
-        label: `review:${unit.id}${lenses.length > 1 ? `/${lens.id}` : ''}`,
-      }));
-      // A DEAD reviewer is not a clean lens. `rev?.findings || []` would make the two identical — zero
-      // findings from this lens, while a surviving sibling lens keeps `items.length > 0`, so the unit
-      // goes to verify and is logged as normally processed.
+      const rev = await agent(reviewPrompt(unit, lens, {
+        reviewFile: paths[p], tag: tags[p], prior: sources.map((s) => ({ lens: s.lens.id, path: s.path })), cleanEligible,
+      }), roleOpts('review', { schema: REVIEW_SCHEMA, phase: 'Review', label: `review:${where}` }));
+      // A DEAD reviewer is not a clean lens: zero findings from it while a surviving sibling lens has some
+      // would send the unit to verify and log it as normally processed.
       if (!rev) {
-        log(`  ⚠ ${unit.id}${lenses.length > 1 ? `/${lens.id}` : ''}: reviewer returned nothing (agent died or produced no output) — this lens contributed NO coverage; re-review this unit`);
+        log(`  ⚠ ${where}: reviewer returned nothing (agent died or produced no output) — this lens contributed NO coverage; re-review this unit`);
         lensDied = true;
         failed.push({ id: unit.id, stage: 'review', lens: lens.id });
         continue;
       }
-      if (cleanEligible && rev?.wrote_clean_marker) markerWritten = true;   // only the final clean pass writes it
+      // A count with no confirmed file hands the verifier nothing, or an earlier launch's file at that path.
+      // A confirmed file with a zero count holds findings that no verifier would be handed.
+      const count = rev.finding_count;
+      if (!Number.isInteger(count) || count < 0 || (count > 0) !== (rev.wrote_file === true)) {
+        log(`  ⚠ ${where}: reviewer returned finding_count ${JSON.stringify(count)} with wrote_file ${JSON.stringify(rev.wrote_file)}, so its count and its review file ${paths[p]} disagree — this lens contributed NO coverage; re-review this unit`);
+        // That marker carries the real unit hash, so gen-units --issues-dir reads the unit as unchanged.
+        if (cleanEligible && rev.wrote_clean_marker === true) log(`  ⚠ ${where}: the reviewer also says it wrote the clean marker ${issueFile(unit.id)} — resume reads a unit with that marker as unchanged, so pass this unit to the re-review yourself, which replaces the marker`);
+        lensDied = true;
+        failed.push({ id: unit.id, stage: 'review', lens: lens.id, finding_count: count ?? null, wrote_file: rev.wrote_file ?? null });
+        continue;
+      }
+      if (cleanEligible && rev.wrote_clean_marker) markerWritten = true;   // only the final clean pass writes it
       // No dedup here: a file:category key dropped distinct real defects from a CLOSED inventory. The
-      // ALREADY FOUND list steers repeat passes, and the verifier folds true duplicates.
-      for (const f of (rev?.findings || [])) {
-        if ((sevRank(f.severity) ?? 1) < REVIEW_SEV) continue;
-        handled.push(`[${lens.id}] ${f.file}${f.line ? ':' + f.line : ''} ${f.title}`);
-        found.push({ ...f, _lens: lens });
+      // ALREADY FOUND files steer repeat passes, and the verifier folds true duplicates.
+      if (count > 0) {
+        sources.push({ lens, path: paths[p], tag: tags[p], count });
+        total += count;
       }
     }
-    return { unit, findings: found, markerWritten, lensDied };
+    return { unit, sources, total, markerWritten, lensDied };
   },
   // -- Verify + write the unit inventory file — ONLY when the unit has findings -------------------
   async (r) => {
-    const { unit, findings, markerWritten, lensDied } = r;
-    const items = findings.map((f, i) => ({ id: `${slug(unit.id)}-${i + 1}`, f }));
+    const { unit, sources, total, markerWritten, lensDied } = r;
+    const ids = sources.flatMap((s) => Array.from({ length: s.count }, (_, i) => findingId(unit, i + 1, s.tag)));
     // Clean unit: no findings ⇒ NO verify spawn. The reviewer already wrote issues/<unit>.md itself.
-    if (items.length === 0) {
+    if (total === 0) {
       if (markerWritten) log(`  ✓ ${unit.id}: clean (0 findings) — reviewer wrote the marker, verify skipped`);
-      else if (lensDied) log(`  ⚠ ${unit.id}: no findings, but a reviewer died — no marker written, resume will re-review it`);
+      else if (lensDied) log(`  ⚠ ${unit.id}: no confirmed findings, but a lens contributed no coverage (logged above) — re-review this unit`);
       else {
         log(`  ⚠ ${unit.id}: clean but the reviewer did NOT write ${issueFile(unit.id)} — resume will re-review it`);
         failed.push({ id: unit.id, stage: 'review', marker: false });
       }
       return { unit: unit.id, file: markerWritten ? issueFile(unit.id) : null, counts: { found: 0, actionable: 0, needs_user: 0, deferred: 0, rejected: 0 }, kept: [] };
     }
-    const verify = await agent(verifyPrompt(unit, items, lensDied), roleOpts('verify', {
+    const verify = await agent(verifyPrompt(unit, sources, lensDied), roleOpts('verify', {
       schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${unit.id}`,
     }));
     // `wrote_file` is REQUIRED by VERIFY_SCHEMA and instructed in the prompt — read it, or two failures
@@ -528,27 +584,27 @@ const results = await pipeline(
     // Same guard as enhance-cycle.mjs's verifier.
     const verifyWrote = verify?.wrote_file === true;
     if (!verifyWrote) {
-      log(`  ⚠ ${unit.id}: verifier did NOT confirm writing ${issueFile(unit.id)} (${verify ? 'no wrote_file' : `agent returned nothing — its ${findings.length} finding(s) were DROPPED`}) — check the file before triaging and re-review this unit`);
+      log(`  ⚠ ${unit.id}: verifier did NOT confirm writing ${issueFile(unit.id)} (${verify ? 'no wrote_file' : `agent returned nothing — its ${total} finding(s) were DROPPED`}) — check the file before triaging and re-review this unit`);
       failed.push({ id: unit.id, stage: 'verify' });
     }
-    const byId = new Map(items.map((x) => [x.id, x]));
-    const counts = { found: findings.length, actionable: 0, needs_user: 0, deferred: 0, rejected: 0 };
+    const known = new Set(ids);
+    const counts = { found: total, actionable: 0, needs_user: 0, deferred: 0, rejected: 0 };
     const kept = [];
     const unmatched = [];
     const verdicted = new Set();
     for (const v of (verify?.verdicts || [])) {
-      const item = byId.get(v.finding_id);
-      if (!item) { unmatched.push(String(v.finding_id)); continue; }
-      verdicted.add(item.id);
+      // A repeated verdict id is a miscopy of some other id, and counting it twice inflates the totals.
+      if (!known.has(v.finding_id) || verdicted.has(v.finding_id)) { unmatched.push(String(v.finding_id)); continue; }
+      verdicted.add(v.finding_id);
       if (!v.is_real || v.decision === 'REJECT') { counts.rejected++; continue; }
       if (v.decision === 'ACTIONABLE') counts.actionable++;
       else if (v.decision === 'NEEDS_USER') counts.needs_user++;
       else counts.deferred++;
-      kept.push({ file: item.f.file, severity: v.severity || item.f.severity, decision: v.decision });
+      kept.push({ file: String(v.file ?? ''), severity: v.severity, decision: v.decision });
     }
     // A dead verifier is already recorded above. A live one that misses or mis-copies an id leaves a kept
     // finding out of the returned totals, though the issue file still holds it.
-    const unverdicted = verify ? items.filter((x) => !verdicted.has(x.id)).map((x) => x.id) : [];
+    const unverdicted = verify ? ids.filter((id) => !verdicted.has(id)) : [];
     if (unmatched.length || unverdicted.length) {
       log(`  ⚠ ${unit.id}: verifier verdicts do not cover the findings (unmatched: ${unmatched.join(', ') || 'none'}, no verdict: ${unverdicted.join(', ') || 'none'}) — the returned totals are incomplete; read ${issueFile(unit.id)}`);
       failed.push({ id: unit.id, stage: 'verify', unmatched, unverdicted });
