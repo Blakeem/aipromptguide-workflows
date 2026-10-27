@@ -128,6 +128,9 @@ count. develop's park carries one for its backlog entry, and its commit is attes
 `commit_sha` it returns. Two replace sites add a guard after `REPLACE_NOTE`: the investigator's options files and
 docs' gatherer capture files. Each engine's test counts both notes in each such
 prompt through `pinWriteNotes`, so a new write site needs a row there.
+In every engine but develop, `WROTE_NOTE` is followed by `FILE_WRITE_NOTE`, which tells the agent to
+write file content with the file-editing tool, and `pinFileWriteNote` counts it in the same rows.
+Docs' scrubber carries `FILE_WRITE_NOTE` without `WROTE_NOTE`, so docs' test gives it its own row.
 
 **Prose-sniffing for control flow.** `status = haltReason.includes('needs user') ? … : …` silently
 reports the wrong thing the moment someone adds a halt reason. Set an explicit `haltKind` at every halt

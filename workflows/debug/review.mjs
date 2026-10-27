@@ -310,6 +310,8 @@ const TEMPLATE_FIX_LINE = PROACTIVE ? `a precise instruction for the fixer that 
 // a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
 const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
+// Agents that wrote files through a shell heredoc lost backslashes and backticks.
+const FILE_WRITE_NOTE = 'Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.';
 
 // =============================================================================
 // Review-phase prompts
@@ -360,7 +362,7 @@ this format, then return finding_count (the number of entries) and wrote_file=tr
 **Suggested fix:** <${FIX_DIRECTION}>
 -----
 If you report no finding, write no review file and return finding_count=0 and wrote_file=false.
-${WROTE_NOTE}
+${WROTE_NOTE} ${FILE_WRITE_NOTE}
 ${cleanEligible ? `
 CLEAN-UNIT MARKER: if AND ONLY IF you find ZERO ${REVIEW_SEV_NAME}+ findings, WRITE the file ${issueFile(unit.id)} (create
 ${ISSUES_DIR}/ if needed). ${REPLACE_NOTE} Write EXACTLY this content, then set wrote_clean_marker=true:
@@ -454,7 +456,7 @@ An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICA
 duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
 would settle it.
 
-WRITE the inventory file ${issueFile(unit.id)} (create ${ISSUES_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Its format is EXACTLY this:
+WRITE the inventory file ${issueFile(unit.id)} (create ${ISSUES_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Its format is EXACTLY this:
 -----
 ---
 unit: ${unit.id}

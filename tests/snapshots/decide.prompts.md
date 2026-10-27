@@ -6,19 +6,19 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| analyst | 1 | 1 | 2007 | reviewer agrees |
-| decide | 1 | 1 | 3608 | reviewer agrees |
-| review r1 | 1 | 1 | 4797 | reviewer agrees |
-| review r1 | 2 | 1 | 4418 | reviewer agrees |
-| review r1 | 3 | 1 | 4597 | reviewer agrees |
-| decide | 2 | 1 | 5632 | gaps to the round budget |
-| review | 1 | 1 | 5316 | gaps to the round budget |
-| decide | 3 | 1 | 5517 | gaps to the round budget |
-| review | 2 | 1 | 5994 | gaps to the round budget |
-| decide | 4 | 1 | 3545 | one lens dies |
-| review r1 | 4 | 1 | 4757 | one lens dies |
-| review r1 | 5 | 1 | 4378 | one lens dies |
-| review r1 | 6 | 1 | 4557 | one lens dies |
+| analyst | 1 | 1 | 2113 | reviewer agrees |
+| decide | 1 | 1 | 3714 | reviewer agrees |
+| review r1 | 1 | 1 | 4903 | reviewer agrees |
+| review r1 | 2 | 1 | 4524 | reviewer agrees |
+| review r1 | 3 | 1 | 4703 | reviewer agrees |
+| decide | 2 | 1 | 5738 | gaps to the round budget |
+| review | 1 | 1 | 5422 | gaps to the round budget |
+| decide | 3 | 1 | 5623 | gaps to the round budget |
+| review | 2 | 1 | 6100 | gaps to the round budget |
+| decide | 4 | 1 | 3651 | one lens dies |
+| review r1 | 4 | 1 | 4863 | one lens dies |
+| review r1 | 5 | 1 | 4484 | one lens dies |
+| review r1 | 6 | 1 | 4663 | one lens dies |
 
 ## analyst · variant 1 · schema 1
 
@@ -41,7 +41,7 @@ PROCEDURE:
 2. Score each option 0–10 FROM YOUR LENS (a non-negotiable violation = 0).
 3. Recommend the one option your lens favours, say what it gives up against your runner-up, and name
    the ELEMENTS of it worth keeping even if another option wins (so the decider can build a hybrid).
-WRITE E:/flow/runs/flow/lenses/efficiency.md (create E:/flow/runs/flow/lenses/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write a short block with title,
+WRITE E:/flow/runs/flow/lenses/efficiency.md (create E:/flow/runs/flow/lenses/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Per option, write a short block with title,
 description, and your 0–10 lens score + why. For your pick, add the keep-worthy elements. Be concrete and
 terse. Cite each factual claim: a file:line, a measurement (the exact command and its result), a source URL,
 or "own judgment" where you have none. The choice reviewer re-checks the source behind
@@ -108,7 +108,7 @@ PROCEDURE:
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it.
-WRITE E:/flow/runs/flow/decision-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write the matrix (table), the chosen conclusion
+WRITE E:/flow/runs/flow/decision-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, and any
 open questions. Do NOT modify any repo, stage, or commit.
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
@@ -207,7 +207,7 @@ check, a breach reachable only through operator action or non-default configurat
 judgment the requirements leave open. A caveat never blocks agree.
 EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
 requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
-WRITE E:/flow/runs/flow/decision-review-r1-choice.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. The file has a `## Blocking` section and a
+WRITE E:/flow/runs/flow/decision-review-r1-choice.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. The file has a `## Blocking` section and a
 `## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
 that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
 caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
@@ -301,7 +301,7 @@ check, a breach reachable only through operator action or non-default configurat
 judgment the requirements leave open. A caveat never blocks agree.
 EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
 requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
-WRITE E:/flow/runs/flow/decision-review-r1-requirements.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. The file has a `## Blocking` section and a
+WRITE E:/flow/runs/flow/decision-review-r1-requirements.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. The file has a `## Blocking` section and a
 `## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
 that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
 caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
@@ -397,7 +397,7 @@ check, a breach reachable only through operator action or non-default configurat
 judgment the requirements leave open. A caveat never blocks agree.
 EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
 requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
-WRITE E:/flow/runs/flow/decision-review-r1-design.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. The file has a `## Blocking` section and a
+WRITE E:/flow/runs/flow/decision-review-r1-design.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. The file has a `## Blocking` section and a
 `## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
 that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
 caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
@@ -512,7 +512,7 @@ PROCEDURE:
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it.
-WRITE E:/flow/runs/flow/decision-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write the matrix (table), the chosen conclusion
+WRITE E:/flow/runs/flow/decision-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, and any
 open questions. Do NOT modify any repo, stage, or commit.
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
@@ -621,7 +621,7 @@ check, a breach reachable only through operator action or non-default configurat
 judgment the requirements leave open. A caveat never blocks agree.
 EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
 requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
-WRITE E:/flow/runs/flow/decision-review-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. The file has a `## Blocking` section and a
+WRITE E:/flow/runs/flow/decision-review-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. The file has a `## Blocking` section and a
 `## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
 that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
 caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
@@ -734,7 +734,7 @@ PROCEDURE:
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it.
-WRITE E:/flow/runs/flow/decision-r3.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write the matrix (table), the chosen conclusion
+WRITE E:/flow/runs/flow/decision-r3.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, and any
 open questions. Do NOT modify any repo, stage, or commit.
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
@@ -843,7 +843,7 @@ check, a breach reachable only through operator action or non-default configurat
 judgment the requirements leave open. A caveat never blocks agree.
 EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
 requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
-WRITE E:/flow/runs/flow/decision-review-r3.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. The file has a `## Blocking` section and a
+WRITE E:/flow/runs/flow/decision-review-r3.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. The file has a `## Blocking` section and a
 `## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
 that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
 caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
@@ -938,7 +938,7 @@ PROCEDURE:
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it.
-WRITE E:/flow/runs/flow/decision-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write the matrix (table), the chosen conclusion
+WRITE E:/flow/runs/flow/decision-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, and any
 open questions. Do NOT modify any repo, stage, or commit.
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
@@ -1037,7 +1037,7 @@ check, a breach reachable only through operator action or non-default configurat
 judgment the requirements leave open. A caveat never blocks agree.
 EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
 requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
-WRITE E:/flow/runs/flow/decision-review-r1-choice.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. The file has a `## Blocking` section and a
+WRITE E:/flow/runs/flow/decision-review-r1-choice.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. The file has a `## Blocking` section and a
 `## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
 that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
 caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
@@ -1131,7 +1131,7 @@ check, a breach reachable only through operator action or non-default configurat
 judgment the requirements leave open. A caveat never blocks agree.
 EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
 requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
-WRITE E:/flow/runs/flow/decision-review-r1-requirements.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. The file has a `## Blocking` section and a
+WRITE E:/flow/runs/flow/decision-review-r1-requirements.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. The file has a `## Blocking` section and a
 `## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
 that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
 caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
@@ -1227,7 +1227,7 @@ check, a breach reachable only through operator action or non-default configurat
 judgment the requirements leave open. A caveat never blocks agree.
 EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
 requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
-WRITE E:/flow/runs/flow/decision-review-r1-design.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. The file has a `## Blocking` section and a
+WRITE E:/flow/runs/flow/decision-review-r1-design.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. The file has a `## Blocking` section and a
 `## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
 that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
 caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.

@@ -6,9 +6,9 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| find | 1 | 1 | 5582 | two lenses propose |
-| find | 2 | 1 | 5618 | two lenses propose |
-| verify | 1 | 1 | 8614 | two lenses propose |
+| find | 1 | 1 | 5688 | two lenses propose |
+| find | 2 | 1 | 5724 | two lenses propose |
+| verify | 1 | 1 | 8720 | two lenses propose |
 
 ## find · variant 1 · schema 1
 
@@ -104,7 +104,7 @@ reviewed: true
 No enhancements found above the moderate impact floor.
 -----
 If you report ANY candidate, write no marker.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 Return the ids and the two flags via the schema. A clean lens is a normal, good outcome.
 ~~~~
 
@@ -230,7 +230,7 @@ reviewed: true
 No enhancements found above the moderate impact floor.
 -----
 If you report ANY candidate, write no marker.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 Return the ids and the two flags via the schema. A clean lens is a normal, good outcome.
 ~~~~
 
@@ -352,7 +352,7 @@ ROUTING (apply in order; first match wins):
 Set a short `theme` keyword per verdict.
 
 WRITE each lens's proposal file at the path listed with that lens (create E:/flow/runs/flow/proposals/ if needed).
-It holds that lens's candidates only. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Its format is EXACTLY this:
+It holds that lens's candidates only. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Its format is EXACTLY this:
 -----
 ---
 lens: <the lens id>

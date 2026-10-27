@@ -204,6 +204,8 @@ const REVIEW_SCHEMA = {
 // a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
 const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
+// Agents that wrote files through a shell heredoc lost backslashes and backticks.
+const FILE_WRITE_NOTE = 'Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.';
 
 // =============================================================================
 // Shared prompt fragment
@@ -232,7 +234,7 @@ PROCEDURE:
 2. Score each option 0–10 FROM YOUR LENS (a non-negotiable violation = 0).
 3. Recommend the one option your lens favours, say what it gives up against your runner-up, and name
    the ELEMENTS of it worth keeping even if another option wins (so the decider can build a hybrid).
-WRITE ${lensFile(lens.id)} (create ${LENS_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Per option, write a short block with title,
+WRITE ${lensFile(lens.id)} (create ${LENS_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Per option, write a short block with title,
 description, and your 0–10 lens score + why. For your pick, add the keep-worthy elements. Be concrete and
 terse. Cite each factual claim: a file:line, a measurement (the exact command and its result), a source URL,
 or "own judgment" where you have none. The ${RANKED ? 'order' : 'choice'} reviewer re-checks the source behind
@@ -294,7 +296,7 @@ ${RANKED
    swaps them. Grade the rank-1 position: DOMINANT when rank 1 is at least as good as rank 2 on every
    criterion, ROBUST when the smallest swap is larger than the uncertainty of the input it moves, FRAGILE
    when it is not.
-WRITE ${decisionFile(round)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Write the matrix (table, all candidates scored),
+WRITE ${decisionFile(round)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Write the matrix (table, all candidates scored),
 then the RANKED SHORTLIST (one block per option: what it BUYS, what it COSTS, and why it sits above the one
 below it), then a "Combine / exclude" section stating which listed options genuinely COMBINE and which are
 MUTUALLY EXCLUSIVE (a shortlist the user cannot safely mix is a trap), then the flip check, then anything
@@ -311,7 +313,7 @@ stage, or commit.`
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it.
-WRITE ${decisionFile(round)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Write the matrix (table), the chosen conclusion
+WRITE ${decisionFile(round)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a \`## Trade-off\` section, a \`## Flip check\` section, and any
 open questions. Do NOT modify any repo, stage, or commit.`}
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
@@ -409,7 +411,7 @@ new short kebab-case one.
 Otherwise mint a new short kebab-case one.
 `}
 ${SEVERITY}
-WRITE ${decisionReviewFile(round, round === 1 ? focus.id : '')} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} The file has a \`## Blocking\` section and a
+WRITE ${decisionReviewFile(round, round === 1 ? focus.id : '')} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} The file has a \`## Blocking\` section and a
 \`## Caveats\` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
 that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
 caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.

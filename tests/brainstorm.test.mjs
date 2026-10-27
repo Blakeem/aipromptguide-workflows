@@ -1,7 +1,7 @@
 // brainstorm/brainstorm-cycle.mjs: the concurrent generator fan-out.
 // Focus: the control plane. Each variation lives in its folder, so the schema and the return carry only its index.
 import { runEngine, section, ok, eq } from './harness.mjs';
-import { pinRoleMaps, pinWriteNotes } from './role-map-pin.mjs';
+import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/brainstorm/brainstorm-cycle.mjs';
 const baseArgs = { runId: 't', root: 'E:/r', brief: 'Design a landing page', lenses: ['minimalist', 'playful'] };
@@ -60,4 +60,5 @@ section("every prompt that writes a file says to Read an earlier launch's file f
   const { prompt } = await runEngine(ENGINE, { args: baseArgs, respond: { generate: GEN } });
   const sites = [["the generator's variation files", prompt('generate'), 1, 1]];
   pinWriteNotes(sites);
+  pinFileWriteNote(sites);
 }

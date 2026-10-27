@@ -7,20 +7,20 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | criteria-critic | 1 | 1 | 1900 | refine the criteria |
-| investigate | 1 | 1 | 7876 | exhaustion agreed |
-| critique | 1 | 1 | 7547 | exhaustion agreed |
-| critique | 2 | 1 | 7560 | no solution verified |
-| investigate | 2 | 1 | 8923 | exhaustion contested |
-| investigate | 3 | 1 | 9288 | exhaustion contested |
-| critique | 3 | 1 | 7855 | saturation agreed |
-| critique | 4 | 1 | 5656 | stalled |
-| investigate | 4 | 1 | 9357 | resumed quiet first round |
-| critique | 5 | 1 | 5896 | resumed quiet first round |
-| investigate | 5 | 1 | 8726 | quiet rounds |
-| investigate | 6 | 1 | 9091 | quiet rounds |
-| critique | 6 | 1 | 6979 | quiet rounds |
-| critique | 7 | 1 | 7787 | resumed search |
-| critique | 8 | 1 | 5643 | investigator escalates |
+| investigate | 1 | 1 | 7982 | exhaustion agreed |
+| critique | 1 | 1 | 7653 | exhaustion agreed |
+| critique | 2 | 1 | 7666 | no solution verified |
+| investigate | 2 | 1 | 9029 | exhaustion contested |
+| investigate | 3 | 1 | 9394 | exhaustion contested |
+| critique | 3 | 1 | 7961 | saturation agreed |
+| critique | 4 | 1 | 5762 | stalled |
+| investigate | 4 | 1 | 9463 | resumed quiet first round |
+| critique | 5 | 1 | 6002 | resumed quiet first round |
+| investigate | 5 | 1 | 8832 | quiet rounds |
+| investigate | 6 | 1 | 9197 | quiet rounds |
+| critique | 6 | 1 | 7085 | quiet rounds |
+| critique | 7 | 1 | 7893 | resumed search |
+| critique | 8 | 1 | 5749 | investigator escalates |
 
 ## criteria-critic · variant 1 · schema 1
 
@@ -224,7 +224,7 @@ PROCEDURE:
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
 append a full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -364,7 +364,7 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
@@ -512,7 +512,7 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
@@ -690,7 +690,7 @@ PROCEDURE:
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
 append a full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -863,7 +863,7 @@ PROCEDURE:
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
 append a full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -1006,7 +1006,7 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
@@ -1136,7 +1136,7 @@ CHECK:
 5. No termination was claimed this round: leave agree and contests_claim false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.
@@ -1319,7 +1319,7 @@ PROCEDURE:
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
 append a full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -1443,7 +1443,7 @@ CHECK:
 5. No termination was claimed this round: leave agree and contests_claim false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
-WRITE E:/flow/runs/flow/acceptance-review-r3.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r3.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.
@@ -1619,7 +1619,7 @@ PROCEDURE:
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
 append a full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -1790,7 +1790,7 @@ PROCEDURE:
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
 append a full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -1924,7 +1924,7 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r5.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r5.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
@@ -2074,7 +2074,7 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r3.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r3.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
@@ -2204,7 +2204,7 @@ CHECK:
 5. No termination was claimed this round: leave agree and contests_claim false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.

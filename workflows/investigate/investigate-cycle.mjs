@@ -228,6 +228,8 @@ const CRITERIA_SCHEMA = {
 // a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
 const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
+// Agents that wrote files through a shell heredoc lost backslashes and backticks.
+const FILE_WRITE_NOTE = 'Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.';
 
 // Both ledger writers share one line shape. The round tag lets a critic find the lines no critic has
 // checked yet, and the locator is what it checks each one against.
@@ -368,7 +370,7 @@ PROCEDURE:
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
 append a full entry to ${NEEDS_USER} and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
-${WROTE_NOTE}
+${WROTE_NOTE} ${FILE_WRITE_NOTE}
 Return via the schema, option_ids included.`;
 
 // NON-BLIND on purpose (#3 guards code-regression anchoring, not evidence checking): the critic must see
@@ -463,7 +465,7 @@ ${det
    determination_defects.`
     : `6. No determination was DUE this round, so do not judge the run on one. Ignore any ${DETERMINATION}
    on disk: it is not this round's output. Set determination_defects to 0.`}
-WRITE ${reviewFile(round)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Per option, write which criteria hold and which
+WRITE ${reviewFile(round)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.${det ? ` Then each correction you made to ${DETERMINATION} and each defect left in it.` : ''}

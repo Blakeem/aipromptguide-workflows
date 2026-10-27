@@ -3,7 +3,7 @@
 // files that carry each reviewer's findings to the verifier, and the issue file the verifier writes, the
 // triaged inventory a develop fix-mode block is built from.
 import { runEngine, runTrace, throwsWith, section, ok, eq } from './harness.mjs';
-import { pinRoleMaps, pinWriteNotes } from './role-map-pin.mjs';
+import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs';
 import { emitList, parseBlocks, parseFileKeys, validate } from '../tools/plan-block.mjs';
 
 const ENGINE = 'workflows/debug/review.mjs';
@@ -880,4 +880,5 @@ section("every prompt that writes a file says to Read an earlier launch's file f
     ["the verifier's inventory file", verified.prompt('verify'), 1, 1],
   ];
   pinWriteNotes(sites);
+  pinFileWriteNote(sites);
 }

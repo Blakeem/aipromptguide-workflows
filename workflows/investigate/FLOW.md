@@ -106,9 +106,9 @@ flowchart TD
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 94) |
 | throw: args.planPath is required | args carry no planPath | throw (line 119) |
 | throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 128) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 509) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 590) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 622) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 511) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 592) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 624) |
 
 ## Coverage
 

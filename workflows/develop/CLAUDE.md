@@ -670,10 +670,10 @@ section. For each function, constant, field, message or rule phrase the round ch
 the search the developer ran and each hit, marked `updated` or `unaffected` with a few words of
 reason, and a changed field, return value, file format or output that other code or prompts read
 lists those readers as hits. A round that changed nothing writes no section. The blind review runs
-in a block's first round with a satisfied gate in a launch, a fix block that restored a parked block's branch
-included. A later round gets one when a round since the block's last blind review returned
-`review_needed` true or no boolean, or an acceptance verdict since then returned
-`risk_misclassified` true. Any other round goes from the developer straight to acceptance.
+in a block's first round with a satisfied gate in a launch, a fix block that restored a parked block's
+branch included. A later round gets one when a round since the block's last blind review returned
+`review_needed` true or no boolean, or an acceptance verdict since then returned `risk_misclassified`
+true. Any other round goes from the developer straight to acceptance.
 Git holds one cumulative unstaged diff, so acceptance reads each audited round's own hunks from two
 snapshots. It runs `git diff <base> <snapshot>`, where `<snapshot>` is the line in that round's risk
 file and `<base>` is the line in the risk file of the round before it. The engine hands acceptance
@@ -713,15 +713,15 @@ gate, an unmet criterion of a feature or section block, an ACTIONABLE entry of a
 cause is not closed, a change made for an entry that is not ACTIONABLE or a change no FIXED claim
 accounts for, a defect at medium severity or higher that the block's diff introduces, a wrong risk
 answer or a sweep line that is missing, leaves out a hit, or disagrees with the change, in changes
-no blind review has read, or a path the tree check finds changed after its round's snapshot. Every other gap is
-not blocking, such as a low or nit finding or a cleanup. A finding the closing blind review
-raises against a dismissal is a gap of either kind by the same rule, unless it contests an
-`ESCALATED:` line acceptance holds. With no blocking gap, the closing acceptance stages the
-block, commits it in commit mode, and appends each gap that is not blocking as one entry in the
-block's backlog file, with a `- decision:` by §10's rule. The block syncs `done`, and its ledger
-status names the count of those entries. With a blocking gap, the block parks, and its park
-entry lists the blocking gaps first and names each entry the closing pass listed. Every
-round before the closing pass keeps the bar where every gap fails acceptance.
+no blind review has read, or a path the tree check finds changed after its round's snapshot. Every other
+gap is not blocking, such as a low or nit finding or a cleanup. A finding the closing blind review raises
+against a dismissal is a gap of either kind by the same rule, unless it contests an `ESCALATED:` line
+acceptance holds. With no blocking gap, the closing acceptance stages the block, commits it in commit
+mode, and appends each gap that is not blocking as one entry in the block's backlog file, with a
+`- decision:` by §10's rule. The block syncs `done`, and its ledger status names the count of those
+entries. With a blocking gap, the block parks, and its park entry lists the blocking gaps first and names
+each entry the closing pass listed. Every round before the closing pass keeps the bar where every gap
+fails acceptance.
 
 Gate semantics per block: `green` = build + the block's verification passed
 (`tests_run_count==0` is a false green) — and when `suite: green`, a reddened existing suite fails it

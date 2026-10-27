@@ -6,8 +6,8 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| generate | 1 | 1 | 1862 | three lenses |
-| generate | 2 | 1 | 1878 | three lenses |
+| generate | 1 | 1 | 1968 | three lenses |
+| generate | 2 | 1 | 1984 | three lenses |
 
 ## generate · variant 1 · schema 1
 
@@ -32,7 +32,7 @@ PROCEDURE:
    the lens's influence obvious and concrete.
 2. WRITE it into E:/flow/runs/flow/variations/minimalist/ (create it): the main artifact at
    E:/flow/runs/flow/variations/minimalist/index.<ext> (the extension the format implies, e.g. .md/.html), any supporting
-   files alongside it. For each file: The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+   files alongside it. For each file: The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 3. LIST every file in E:/flow/runs/flow/variations/minimalist/ in a final "Files in this folder" section of your entry file,
    in that file's own format: one line per file with its path relative to the folder. An earlier run with
    this runId may have left files there, so mark each file you did not write in this run "(earlier run,
@@ -85,7 +85,7 @@ PROCEDURE:
    the lens's influence obvious and concrete.
 2. WRITE it into E:/flow/runs/flow/variations/bold-editorial/ (create it): the main artifact at
    E:/flow/runs/flow/variations/bold-editorial/index.<ext> (the extension the format implies, e.g. .md/.html), any supporting
-   files alongside it. For each file: The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+   files alongside it. For each file: The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 3. LIST every file in E:/flow/runs/flow/variations/bold-editorial/ in a final "Files in this folder" section of your entry file,
    in that file's own format: one line per file with its path relative to the folder. An earlier run with
    this runId may have left files there, so mark each file you did not write in this run "(earlier run,

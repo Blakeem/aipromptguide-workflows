@@ -4,7 +4,7 @@
 // explicit guard per stage (tests/CLAUDE.md §3). `failed` is the operator's one signal that a lens
 // produced nothing because nobody looked — assert it for BOTH stages, or the guards drift apart.
 import { runEngine, section, ok, eq } from './harness.mjs';
-import { pinRoleMaps, pinWriteNotes } from './role-map-pin.mjs';
+import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/enhance/enhance-cycle.mjs';
 const baseArgs = {
@@ -398,4 +398,5 @@ section("every prompt that writes a file says to Read an earlier launch's file f
     ["the verifier's proposal files", verified.prompt('verify'), 1, 1],
   ];
   pinWriteNotes(sites);
+  pinFileWriteNote(sites);
 }

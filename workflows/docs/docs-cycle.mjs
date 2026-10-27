@@ -214,6 +214,8 @@ const CURATE_SCHEMA = {
 // a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
 const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
+// Agents that wrote files through a shell heredoc lost backslashes and backticks.
+const FILE_WRITE_NOTE = 'Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.';
 // Named fragments so the scrubber, which judges no relevance, can take the rules without the brief.
 const BRIEF_LINE = `PROJECT BRIEF (what the docs are FOR, so it decides relevance): ${B_REF}`;
 const VERBATIM_RULE = `VERBATIM RULE: doc content is COPIED, SPLIT, and DELETED — never rewritten, paraphrased, or summarized.
@@ -245,7 +247,7 @@ PROCEDURE:
 2. Copy what you keep VERBATIM into ${OUT_DIR}/${src.id}/ (create it): one kebab-case .md file per
    page/topic, each with its source header. ${REPLACE_NOTE} Replace it only when it
    starts with a source header. Otherwise leave it and write under another name.
-   ${WROTE_NOTE}
+   ${WROTE_NOTE} ${FILE_WRITE_NOTE}
 Return files_written + skipped via the schema.`;
 
 // Shared by the round-1 scrubber and the gap-fill gatherer, which scrubs its own captures.
@@ -257,7 +259,7 @@ the curator judges relevance.`;
 
 const scrubPrompt = (src) => `
 You are a DOC SCRUBBER cleaning freshly captured docs for a coding LLM. Edit every .md file in
-${OUT_DIR}/${src.id}/ IN PLACE.
+${OUT_DIR}/${src.id}/ IN PLACE. ${FILE_WRITE_NOTE}
 ${VERBATIM_RULE}
 ${WRITE_BOUNDARY}
 ${SCRUB_RULES}
@@ -283,7 +285,7 @@ PROCEDURE, for each gap:
    starts with a source header. Otherwise leave it and write under another name.
 3. SCRUB each web capture in place once it is written, under these rules:
 ${SCRUB_RULES}
-${WROTE_NOTE}
+${WROTE_NOTE} ${FILE_WRITE_NOTE}
 Return files_written + skipped via the schema, summed over every gap, and missing_entries.`;
 
 // The Coverage-notes entry a gap travels as. The gap-fill gatherer reads it, and the next curator keeps it.
@@ -328,7 +330,7 @@ JOBS (in order):
 2. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
-3. INDEX — write ${INDEX_FILE}. ${REPLACE_NOTE} ${WROTE_NOTE} It holds one line per file (path — what it covers — when to read it), then a
+3. INDEX — write ${INDEX_FILE}. ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} It holds one line per file (path — what it covers — when to read it), then a
    "Coverage notes" section holding the inconsistencies (with citations) and one entry per open gap, in
    this format (the gap-fill gatherer reads the entry as its directive, so name the source precisely):
 ${gapEntry(round)}

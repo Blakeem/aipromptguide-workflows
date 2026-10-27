@@ -7,7 +7,7 @@
 // cap IS the churn detector), and none of this may move it. Round 1 runs three focused reviewers, later
 // rounds one verifier, and only a BLOCKING gap stops agreement: a caveat reaches the plan via the return.
 import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
-import { pinRoleMaps, pinWriteNotes } from './role-map-pin.mjs';
+import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/decide/decide-cycle.mjs';
 
@@ -652,4 +652,5 @@ section("every prompt that writes a file says to Read an earlier launch's file f
     ['the round 1 review file', single.prompt('review r1'), 1, 1],
   ];
   pinWriteNotes(sites);
+  pinFileWriteNote(sites);
 }

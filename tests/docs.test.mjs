@@ -3,7 +3,7 @@
 // visible in the log instead. Everything else about this engine is held by tools/flows/docs.flow.mjs
 // (its throw sites, both exits of the gap loop, a dead gatherer, a zero-file source).
 import { runEngine, section, ok, eq } from './harness.mjs';
-import { pinRoleMaps, pinWriteNotes } from './role-map-pin.mjs';
+import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/docs/docs-cycle.mjs';
 
@@ -274,4 +274,6 @@ section("every prompt that writes a file says to Read an earlier launch's file f
     ["the curator's index file", prompt('curate'), 1, 1],
   ];
   pinWriteNotes(sites);
+  pinFileWriteNote(sites);
+  pinFileWriteNote([["the scrubber's in-place edits", prompt('scrub:api-reference'), 0, 1]]);
 }

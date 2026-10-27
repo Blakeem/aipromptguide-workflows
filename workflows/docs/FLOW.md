@@ -74,8 +74,8 @@ flowchart TD
 | throw: Provide the brief | neither brief nor planPath | throw (line 130) |
 | throw: args.sources is required | args.sources is empty | throw (line 143) |
 | throw: source ids collide after slugging | two sources slug to one directory | throw (line 147) |
-| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 425) |
-| throw: Curator returned nothing in round ... | the curator dies | throw (line 453) |
+| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 427) |
+| throw: Curator returned nothing in round ... | the curator dies | throw (line 455) |
 
 ## Coverage
 

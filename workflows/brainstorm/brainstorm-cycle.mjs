@@ -134,6 +134,8 @@ const GENERATE_SCHEMA = {
 // a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
 const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
+// Agents that wrote files through a shell heredoc lost backslashes and backticks.
+const FILE_WRITE_NOTE = 'Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.';
 
 // =============================================================================
 // Generator prompt — divergent, fully committed, writes one folder, reviews nothing.
@@ -153,7 +155,7 @@ PROCEDURE:
    the lens's influence obvious and concrete.
 2. WRITE it into ${lensDir(lens.id)}/ (create it): the main artifact at
    ${lensDir(lens.id)}/index.<ext> (the extension the format implies, e.g. .md/.html), any supporting
-   files alongside it. For each file: ${REPLACE_NOTE} ${WROTE_NOTE}
+   files alongside it. For each file: ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE}
 3. LIST every file in ${lensDir(lens.id)}/ in a final "Files in this folder" section of your entry file,
    in that file's own format: one line per file with its path relative to the folder. An earlier run with
    this runId may have left files there, so mark each file you did not write in this run "(earlier run,

@@ -11,7 +11,7 @@
 // ordering those tables cannot see — the throw lands before the first opus critic is ever spawned.
 import { readFileSync } from 'node:fs';
 import { runEngine, runTrace, throwsWith, readMeta, REPO_ROOT, section, ok, eq } from './harness.mjs';
-import { pinRoleMaps, pinWriteNotes } from './role-map-pin.mjs';
+import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/refine/refine-cycle.mjs';
 
@@ -639,4 +639,5 @@ section("every prompt that writes a file says to Read an earlier launch's file f
     ["the editor's plan edits", prompt('plan-editor'), 0, 1],
   ];
   pinWriteNotes(sites);
+  pinFileWriteNote(sites);
 }

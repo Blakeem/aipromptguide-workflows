@@ -88,9 +88,9 @@ flowchart TD
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 163) |
 | throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 183) |
 | throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 202) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 506) |
-| throw: Issue file collision | two unit ids map to one issue file | throw (line 516) |
-| throw: Plan id collision | two unit ids map to one plan id | throw (line 517) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 508) |
+| throw: Issue file collision | two unit ids map to one issue file | throw (line 518) |
+| throw: Plan id collision | two unit ids map to one plan id | throw (line 519) |
 
 ## Coverage
 

@@ -7,7 +7,7 @@
 // prompts actually name.
 import { readFileSync } from 'node:fs';
 import { runEngine, throwsWith, readMeta, REPO_ROOT, section, ok, eq } from './harness.mjs';
-import { pinRoleMaps, pinWriteNotes } from './role-map-pin.mjs';
+import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/investigate/investigate-cycle.mjs';
 
@@ -1112,6 +1112,7 @@ section("every prompt that writes a file says to Read an earlier launch's file f
     ["the critic's review file", prompt('critique r1'), 1, 1],
   ];
   pinWriteNotes(sites);
+  pinFileWriteNote(sites);
   ok(prompt('investigate r1').replace(/\s+/g, ' ').includes('rewriting an unverified file (no verdict line, or one naming round 1 or later) for the same candidate'),
     'the options-file slug rule lets a relaunch rewrite an unverified file of the same candidate');
 }

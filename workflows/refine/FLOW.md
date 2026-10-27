@@ -95,7 +95,7 @@ flowchart TD
 | throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 137) |
 | throw: Missing args.blockTool | blockTool is missing or blank | throw (line 154) |
 | throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 182) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 410) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 412) |
 
 ## Coverage
 

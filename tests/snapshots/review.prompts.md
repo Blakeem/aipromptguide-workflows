@@ -6,11 +6,11 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| review | 1 | 1 | 5247 | a clean unit beside one with findings |
-| verify | 1 | 1 | 8191 | a clean unit beside one with findings |
-| review | 2 | 1 | 4785 | two lenses per unit |
-| review | 3 | 1 | 4973 | two lenses per unit |
-| verify | 2 | 1 | 8673 | two lenses per unit |
+| review | 1 | 1 | 5353 | a clean unit beside one with findings |
+| verify | 1 | 1 | 8297 | a clean unit beside one with findings |
+| review | 2 | 1 | 4891 | two lenses per unit |
+| review | 3 | 1 | 5079 | two lenses per unit |
+| verify | 2 | 1 | 8779 | two lenses per unit |
 
 ## review · variant 1 · schema 1
 
@@ -80,7 +80,7 @@ this format, then return finding_count (the number of entries) and wrote_file=tr
 **Suggested fix:** <a minimal suggested fix direction>
 -----
 If you report no finding, write no review file and return finding_count=0 and wrote_file=false.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 
 CLEAN-UNIT MARKER: if AND ONLY IF you find ZERO medium+ findings, WRITE the file E:/flow/runs/flow/issues/u1.md (create
 E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Write EXACTLY this content, then set wrote_clean_marker=true:
@@ -208,7 +208,7 @@ An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICA
 duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
 would settle it.
 
-WRITE the inventory file E:/flow/runs/flow/issues/u2.md (create E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Its format is EXACTLY this:
+WRITE the inventory file E:/flow/runs/flow/issues/u2.md (create E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Its format is EXACTLY this:
 -----
 ---
 unit: u2
@@ -425,7 +425,7 @@ this format, then return finding_count (the number of entries) and wrote_file=tr
 **Suggested fix:** <a minimal suggested fix direction>
 -----
 If you report no finding, write no review file and return finding_count=0 and wrote_file=false.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 
 Return the counts and flags via the schema. Zero findings (a clean unit) is a normal, good outcome.
 ~~~~
@@ -528,7 +528,7 @@ this format, then return finding_count (the number of entries) and wrote_file=tr
 **Suggested fix:** <a minimal suggested fix direction>
 -----
 If you report no finding, write no review file and return finding_count=0 and wrote_file=false.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 
 Return the counts and flags via the schema. Zero findings (a clean unit) is a normal, good outcome.
 ~~~~
@@ -645,7 +645,7 @@ An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICA
 duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
 would settle it.
 
-WRITE the inventory file E:/flow/runs/flow/issues/u1.md (create E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Its format is EXACTLY this:
+WRITE the inventory file E:/flow/runs/flow/issues/u1.md (create E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Its format is EXACTLY this:
 -----
 ---
 unit: u1
