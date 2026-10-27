@@ -823,6 +823,16 @@ section('--pack groups small fix blocks into passes under the line cap, neighbou
   ok(/packed a, c into a-plus-1 \(2500 lines\)/.test(notes), `a shared file counts once: ${notes.trim()}`);
 }
 
+section('--pack lists only the open ACTIONABLE entries of a member, so a fixed entry stays out of its issues');
+{
+  const dir = tmpDir();
+  const a = inventory(dir, 'a', [{ id: 'a-1', file: 'x.js', loc: 10, status: 'fixed' }, { id: 'a-2', file: 'x.js', loc: 10 }, { id: 'a-3', file: 'x.js', loc: 10, decision: 'NEEDS_USER' }]);
+  const b = inventory(dir, 'b', [{ id: 'b-1', file: 'x.js', loc: 10 }]);
+  const { out, err } = packed(configWith([]), dir, 3000, a, b);
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  eq(JSON.parse(out).plans[0].blocks.map((m) => `${m.id}:${m.issues.join('+')}`).join(','), 'a:a-2,b:b-1', 'a fixed entry and a NEEDS_USER entry are not listed');
+}
+
 section('--pack leaves out what it cannot pack, and reads a file\'s lines when no loc is given');
 {
   const dir = tmpDir();

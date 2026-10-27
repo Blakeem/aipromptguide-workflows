@@ -7,59 +7,59 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | develop | 1 | 1 | 31082 | every block accepts first time |
-| quality | 1 | 1 | 9673 | every block accepts first time |
-| acceptance | 1 | 1 | 16450 | every block accepts first time |
+| quality | 1 | 1 | 9683 | every block accepts first time |
+| acceptance | 1 | 1 | 16460 | every block accepts first time |
 | develop | 2 | 1 | 31507 | every block accepts first time |
-| acceptance | 2 | 2 | 16731 | every block accepts first time |
+| acceptance | 2 | 2 | 16741 | every block accepts first time |
 | final-sweep | 1 | 1 | 4451 | every block accepts first time |
 | develop | 3 | 2 | 34332 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 3 | 17611 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 3 | 17621 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 4442 | a feature block accepts under the proactive policy |
 | develop | 4 | 1 | 30529 | quality flags the first round |
-| acceptance | 4 | 1 | 16449 | quality flags the first round |
+| acceptance | 4 | 1 | 16459 | quality flags the first round |
 | develop | 5 | 1 | 30899 | quality flags the first round |
-| acceptance | 5 | 2 | 16730 | quality flags the first round |
+| acceptance | 5 | 2 | 16740 | quality flags the first round |
 | develop | 6 | 1 | 30525 | acceptance finds gaps, then passes |
-| acceptance | 6 | 1 | 16447 | acceptance finds gaps, then passes |
+| acceptance | 6 | 1 | 16457 | acceptance finds gaps, then passes |
 | develop | 7 | 1 | 30895 | acceptance finds gaps, then passes |
-| acceptance | 7 | 2 | 16728 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 18979 | a later round is judged low risk |
-| acceptance | 9 | 2 | 19260 | a later round is judged low risk |
+| acceptance | 7 | 2 | 16738 | acceptance finds gaps, then passes |
+| acceptance | 8 | 1 | 18989 | a later round is judged low risk |
+| acceptance | 9 | 2 | 19270 | a later round is judged low risk |
 | develop | 8 | 1 | 29215 | the gate never goes green |
 | develop-closing | 1 | 1 | 30746 | the gate never goes green |
-| quality | 2 | 1 | 9733 | the gate never goes green |
-| acceptance | 10 | 4 | 19812 | the gate never goes green |
+| quality | 2 | 1 | 9743 | the gate never goes green |
+| acceptance | 10 | 4 | 19822 | the gate never goes green |
 | park | 1 | 1 | 10762 | the gate never goes green |
 | develop | 9 | 1 | 29640 | the gate never goes green |
 | develop-closing | 2 | 1 | 31116 | the gate never goes green |
-| acceptance | 11 | 5 | 20093 | the gate never goes green |
-| acceptance | 12 | 1 | 16502 | a parked block, and the run carries on |
-| acceptance | 13 | 1 | 16557 | a parked block, and the run carries on |
-| acceptance | 14 | 1 | 16612 | a parked block, and the run carries on |
+| acceptance | 11 | 5 | 20103 | the gate never goes green |
+| acceptance | 12 | 1 | 16512 | a parked block, and the run carries on |
+| acceptance | 13 | 1 | 16567 | a parked block, and the run carries on |
+| acceptance | 14 | 1 | 16622 | a parked block, and the run carries on |
 | develop-closing | 3 | 1 | 31941 | a parked block, and the run carries on |
-| acceptance | 15 | 4 | 22559 | a parked block, and the run carries on |
+| acceptance | 15 | 4 | 22569 | a parked block, and the run carries on |
 | develop | 10 | 1 | 31064 | an ordered run stops at a parked block |
-| acceptance | 16 | 1 | 16444 | an ordered run stops at a parked block |
+| acceptance | 16 | 1 | 16454 | an ordered run stops at a parked block |
 | develop | 11 | 1 | 30507 | an ordered run stops at a parked block |
-| acceptance | 17 | 1 | 16441 | an ordered run stops at a parked block |
-| acceptance | 18 | 1 | 16496 | an ordered run stops at a parked block |
-| acceptance | 19 | 1 | 16551 | an ordered run stops at a parked block |
-| acceptance | 20 | 1 | 16606 | an ordered run stops at a parked block |
+| acceptance | 17 | 1 | 16451 | an ordered run stops at a parked block |
+| acceptance | 18 | 1 | 16506 | an ordered run stops at a parked block |
+| acceptance | 19 | 1 | 16561 | an ordered run stops at a parked block |
+| acceptance | 20 | 1 | 16616 | an ordered run stops at a parked block |
 | develop-closing | 4 | 1 | 31923 | an ordered run stops at a parked block |
-| acceptance | 21 | 4 | 22553 | an ordered run stops at a parked block |
+| acceptance | 21 | 4 | 22563 | an ordered run stops at a parked block |
 | park | 2 | 1 | 10774 | an ordered run stops at a parked block |
 | develop | 12 | 3 | 39848 | a fix block closes its issues |
-| acceptance | 22 | 6 | 23919 | a fix block closes its issues |
+| acceptance | 22 | 6 | 23929 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 4442 | a fix block closes its issues |
 | develop | 13 | 4 | 43315 | a fix block closes its issues under the proactive policy |
-| acceptance | 23 | 7 | 25426 | a fix block closes its issues under the proactive policy |
-| acceptance | 24 | 7 | 25440 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 23 | 7 | 25436 | a fix block closes its issues under the proactive policy |
+| acceptance | 24 | 7 | 25450 | a proactive fix block starts round 2 from the statuses it last reported |
 | develop | 14 | 4 | 34894 | a proactive fix block starts round 2 from the statuses it last reported |
-| acceptance | 25 | 7 | 25239 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 25 | 7 | 25249 | a proactive fix block starts round 2 from the statuses it last reported |
 | develop | 15 | 3 | 40289 | a pass of two fix blocks closes its issues |
-| acceptance | 26 | 6 | 24345 | a pass of two fix blocks closes its issues |
+| acceptance | 26 | 6 | 24355 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 4472 | a pass of two fix blocks closes its issues |
-| acceptance | 27 | 6 | 23918 | every issue is already fixed |
+| acceptance | 27 | 6 | 23928 | every issue is already fixed |
 | develop | 16 | 3 | 39830 | an ordered run stops on a fix block that closes nothing |
 | park | 3 | 1 | 11077 | passed with a regression, not staged |
 | park | 4 | 1 | 10369 | acceptance stages a rejected block |
@@ -74,24 +74,24 @@ this file is stale.
 | park | 13 | 1 | 10675 | the acceptance verifier dies |
 | park | 14 | 1 | 10000 | developer escalates |
 | park | 15 | 1 | 9990 | developer escalates in an ordered run |
-| acceptance | 28 | 6 | 26372 | log line cap before the sweep |
-| acceptance | 29 | 4 | 22339 | a closing acceptance lands the block |
+| acceptance | 28 | 6 | 26382 | log line cap before the sweep |
+| acceptance | 29 | 4 | 22349 | a closing acceptance lands the block |
 | develop-closing | 5 | 1 | 32311 | a closing acceptance lands the block |
-| acceptance | 30 | 5 | 22620 | a closing acceptance lands the block |
-| acceptance | 31 | 4 | 19866 | a closing pass gets a blind review |
-| acceptance | 32 | 5 | 20147 | a closing pass gets a blind review |
-| acceptance | 33 | 4 | 22632 | a closing acceptance finds a blocking gap |
+| acceptance | 30 | 5 | 22630 | a closing acceptance lands the block |
+| acceptance | 31 | 4 | 19876 | a closing pass gets a blind review |
+| acceptance | 32 | 5 | 20157 | a closing pass gets a blind review |
+| acceptance | 33 | 4 | 22642 | a closing acceptance finds a blocking gap |
 | park | 16 | 1 | 10912 | a closing acceptance finds a blocking gap |
-| acceptance | 34 | 5 | 22913 | a closing acceptance finds a blocking gap |
+| acceptance | 34 | 5 | 22923 | a closing acceptance finds a blocking gap |
 | park | 17 | 1 | 10912 | a closing acceptance finds a blocking gap |
 | develop | 17 | 5 | 31253 | every block commits first time |
-| quality | 3 | 1 | 9626 | every block commits first time |
-| acceptance | 35 | 8 | 17989 | every block commits first time |
+| quality | 3 | 1 | 9636 | every block commits first time |
+| acceptance | 35 | 8 | 17999 | every block commits first time |
 | develop | 18 | 5 | 31678 | every block commits first time |
-| acceptance | 36 | 9 | 18270 | every block commits first time |
+| acceptance | 36 | 9 | 18280 | every block commits first time |
 | final-sweep | 5 | 1 | 4763 | every block commits first time |
 | develop | 19 | 6 | 40050 | a fix block commits |
-| acceptance | 37 | 10 | 25675 | a fix block commits |
+| acceptance | 37 | 10 | 25685 | a fix block commits |
 | final-sweep | 6 | 1 | 4670 | a fix block commits |
 | park | 18 | 1 | 10375 | acceptance commits a rejected block |
 
@@ -537,8 +537,8 @@ CONVENTIONS (judge against these): (none supplied — infer from the surrounding
 
 Before reviewing, READ this if it exists. It holds the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files, apart from the overwrite read the WRITE step names. Review the CURRENT
 diff FRESH, catching new or nearby issues.
 Before you skip a listed finding, check its stated reason against the code it cites. When the code
@@ -685,8 +685,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -1339,8 +1339,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-b.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -2128,8 +2128,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's proactive change policy let the developer make, a record. A
@@ -2873,8 +2873,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -3508,8 +3508,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-b.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -4142,8 +4142,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -4777,8 +4777,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-b.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -5012,8 +5012,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -5274,8 +5274,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-b.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -6353,8 +6353,8 @@ CONVENTIONS (judge against these): (none supplied — infer from the surrounding
 
 Before reviewing, READ this if it exists. It holds the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files, apart from the overwrite read the WRITE step names. Review the CURRENT
 diff FRESH, catching new or nearby issues.
 Before you skip a listed finding, check its stated reason against the code it cites. When the code
@@ -6502,8 +6502,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -7737,8 +7737,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-b.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -8009,8 +8009,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -8242,8 +8242,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -8476,8 +8476,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -9134,8 +9134,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -9855,8 +9855,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -10486,8 +10486,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -10718,8 +10718,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -10951,8 +10951,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -11185,8 +11185,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -11843,8 +11843,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -12805,8 +12805,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • each file that the "- ledger:" line of an ACTIONABLE entry of this block names — the findings that the
     developers of the parked block whose work that entry continues declined. The round-1 developer
     re-checked each of its lines against the code and copied each one it kept into E:/flow/runs/flow/gate/DISMISSED-block-c.md,
@@ -13784,8 +13784,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • each file that the "- ledger:" line of an ACTIONABLE entry of this block names — the findings that the
     developers of the parked block whose work that entry continues declined. The round-1 developer
     re-checked each of its lines against the code and copied each one it kept into E:/flow/runs/flow/gate/DISMISSED-block-c.md,
@@ -14144,8 +14144,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • each file that the "- ledger:" line of an ACTIONABLE entry of this block names — the findings that the
     developers of the parked block whose work that entry continues declined. The round-1 developer
     re-checked each of its lines against the code and copied each one it kept into E:/flow/runs/flow/gate/DISMISSED-block-c.md,
@@ -15002,8 +15002,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • each file that the "- ledger:" line of an ACTIONABLE entry of this block names — the findings that the
     developers of the parked block whose work that entry continues declined. The round-1 developer
     re-checked each of its lines against the code and copied each one it kept into E:/flow/runs/flow/gate/DISMISSED-block-c.md,
@@ -15886,8 +15886,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • each file that the "- ledger:" line of an ACTIONABLE entry of this block names — the findings that the
     developers of the parked block whose work that entry continues declined. The round-1 developer
     re-checked each of its lines against the code and copied each one it kept into E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md,
@@ -16290,8 +16290,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • each file that the "- ledger:" line of an ACTIONABLE entry of this block names — the findings that the
     developers of the parked block whose work that entry continues declined. The round-1 developer
     re-checked each of its lines against the code and copied each one it kept into E:/flow/runs/flow/gate/DISMISSED-block-c.md,
@@ -18915,8 +18915,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • each file that the "- ledger:" line of an ACTIONABLE entry of this block names — the findings that the
     developers of the parked block whose work that entry continues declined. The round-1 developer
     re-checked each of its lines against the code and copied each one it kept into E:/flow/runs/flow/gate/DISMISSED-block-c.md,
@@ -19436,8 +19436,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -20162,8 +20162,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-b.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -20465,8 +20465,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -20736,8 +20736,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-b.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -21010,8 +21010,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -21451,8 +21451,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-b.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -22312,8 +22312,8 @@ CONVENTIONS (judge against these): (none supplied — infer from the surrounding
 
 Before reviewing, READ this if it exists. It holds the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files, apart from the overwrite read the WRITE step names. Review the CURRENT
 diff FRESH, catching new or nearby issues.
 Before you skip a listed finding, check its stated reason against the code it cites. When the code
@@ -22460,8 +22460,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -23157,8 +23157,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/question-block-b.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
@@ -24037,8 +24037,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
   • each file that the "- ledger:" line of an ACTIONABLE entry of this block names — the findings that the
     developers of the parked block whose work that entry continues declined. The round-1 developer
     re-checked each of its lines against the code and copied each one it kept into E:/flow/runs/flow/gate/DISMISSED-block-c.md,

@@ -918,10 +918,11 @@ function packPasses(args, folded, repo, cap, note) {
     if (row.mode !== 'fix' || row.status !== 'todo') continue;
     const block = blockOf.get(`${row.planPath}\u0000${row.id}`);
     const files = blockFiles(block, repo);
+    const open = openActionable(block);
     if (!files.size) { note(`not packed: ${row.id} has no open ACTIONABLE entry without a "- pulled:" or "**Parked with:**" line, so it is not a plan to build\n`); continue; }
     // Two parked branches cut from one baseline tend to touch the same lines, so a second restore in one round 1 may not apply.
-    if (openActionable(block).some((e) => keyOf(e, 'branch'))) { note(`not packed: ${row.id} restores an unfinished branch, so it builds alone\n`); continue; }
-    candidates.push({ index, row, files, issues: block.issues.map((e) => e.id), first: [...files.keys()].sort()[0], model: row.model ?? '', effort: row.effort ?? '' });
+    if (open.some((e) => keyOf(e, 'branch'))) { note(`not packed: ${row.id} restores an unfinished branch, so it builds alone\n`); continue; }
+    candidates.push({ index, row, files, issues: open.map((e) => e.id), first: [...files.keys()].sort()[0], model: row.model ?? '', effort: row.effort ?? '' });
   }
   candidates.sort((a, b) => shareRank('model', a.model) - shareRank('model', b.model)
     || shareRank('effort', a.effort) - shareRank('effort', b.effort) || a.first.localeCompare(b.first) || a.index - b.index);

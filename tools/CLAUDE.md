@@ -155,11 +155,13 @@ no line. Blocks are sorted by model and then by effort: a set value other than t
 `max`) first, then the top rank, then no line. Then they sort by the first file they touch. Each block
 joins the first pass it fits, one that stays under `--loc-cap` (default 5000, scaled from resolve's
 3000-line batches of about 150-200k tokens), whose members it can share a developer with, and that holds
-none of its issues. A block opens a new pass only when no pass fits. A block over the cap, one with nothing open and
-ACTIONABLE, or one whose open ACTIONABLE issue carries a `- branch:` line, stays its own row, so two
-unfinished branches never restore in one round 1. A pass row is `{ id: <first>-plus-<n>, mode: fix,
-model?, effort?, blocks: [{ id, planPath, issues }] }`, and develop writes each member's status and each
-issue's into the file that holds it. Packing regroups blocks, so an `ordered: true` file is refused.
+none of its open ACTIONABLE issues. A block opens a new pass only when no pass fits. A block over
+the cap, one with nothing open and ACTIONABLE, or one whose open ACTIONABLE issue carries a
+`- branch:` line, stays its own row, so two unfinished branches never restore in one round 1. A pass
+row is `{ id: <first>-plus-<n>, mode: fix, model?, effort?, blocks: [{ id, planPath, issues }] }`,
+where `issues` lists only the member's open ACTIONABLE entries, and develop writes each member's
+status and each issue's into the file that holds it. Packing regroups blocks, so an `ordered: true`
+file is refused.
 
 ## plan-pull.mjs
 

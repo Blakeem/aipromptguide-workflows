@@ -3160,7 +3160,7 @@ section('the blind reviewer is told the gate commands and which porcelain entrie
   ok(/READ every untracked file \(`\?\?`\)/.test(r1) && !/`\?\?`\/`A`/.test(r1), 'new files are the untracked ?? entries, not a staged A');
   ok(/staged half of an `AM` or `MM` file is baseline/.test(r1), 'an AM/MM file\'s staged half is baseline');
   ok(/diff --stat/.test(r1), 'a large diff starts from --stat');
-  const absentLedger = 'It exists only once the developer has declined something, so a missing file means nothing is settled yet. Do not search for it elsewhere.';
+  const absentLedger = 'It exists only once the developer has declined something, so a missing file or folder means nothing is settled yet. Do not search for it elsewhere.';
   ok(r2 !== '' && flat(r1).includes(absentLedger) && flat(r2).includes(absentLedger), 'every round explains an absent ledger');
   ok(flat(prompt('acceptance block-a')).includes(absentLedger), 'and so does acceptance, which reads the same ledger');
   ok(r2.includes(`${STATE}/gate/DISMISSED-block-a.md`), 'and still points at the ledger');

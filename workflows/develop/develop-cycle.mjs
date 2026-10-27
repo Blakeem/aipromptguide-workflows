@@ -465,8 +465,8 @@ const SPEC_CASES = "the plan prescribes the code, this block's text excludes it,
 // ledgers its park entries name. The blind reviewer reads only this block's ledger, so it sees only the lines copied in.
 const SETTLED = (id, canContest, originLedgers = false) => `Before reviewing, READ ${canContest ? 'this if it exists. It holds' : 'these if they exist. They hold'} the settled decisions:
   • ${dismissedFile(id)} — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.${originLedgers ? `
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.${originLedgers ? `
   • each file that the "- ledger:" line of an ACTIONABLE entry of this block names — the findings that the
     developers of the parked block whose work that entry continues declined. The round-1 developer
     re-checked each of its lines against the code and copied each one it kept into ${dismissedFile(id)},
