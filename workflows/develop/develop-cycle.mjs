@@ -165,6 +165,21 @@ const slug        = (s) => {
 };
 const REFERENCE_P = REFERENCE ? abs(REFERENCE) : '';
 const REPO        = abs(TARGET.repo);                      // absolute path to the target git repo (required)
+// `conventions` is a distilled index, so each agent also reads the project's own instruction files in full.
+// Copy of debug review.mjs's conventionFilesOf, since an engine cannot import: a test pins the copies equal.
+// Static lead clause: gen-flows labels the throw node from it.
+const conventionFilesOf = (value) => {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || !value.every((p) => typeof p === 'string' && p.trim())) {
+    throw new Error(`Invalid args.conventionFiles: it must be an array of file paths, each absolute or relative to target.repo; got ${JSON.stringify(value)}.`);
+  }
+  return value.map((p) => { const n = norm(p.trim()); return /^([a-zA-Z]:)?\//.test(n) ? n : `${REPO}/${n}`; });
+};
+const CONVENTION_FILES = conventionFilesOf(A.conventionFiles);
+// ENV carries it to every agent but the blind reviewer, whose prompt renders it itself.
+const CONVENTION_FILES_BLOCK = CONVENTION_FILES.length ? `CONVENTION FILES (the project's own rules, which the CONVENTIONS text above indexes. Read each one in full, whatever any rule below limits your reads to):
+${CONVENTION_FILES.map((p) => `  - ${p}`).join('\n')}
+` : '';
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}`);   // <root>/runs/<runId> unless overridden
 // Windows folds case in a drive or UNC path, so E:/Repo/x lies inside e:/repo there.
 // A POSIX path keeps its case, so a macOS spelling in another case draws no warning.
@@ -547,7 +562,7 @@ const developSchema = (mode, closing) => ({
     needs_user:        { type: 'boolean', description: 'true ONLY if a HARD blocker / user-only decision stopped you; you wrote a full entry to the question file your prompt names and cannot proceed' },
     // Fix mode only: a branch the round-1 restore could not apply stops the block before any review.
     ...(mode === 'fix' ? {
-      restore_failed: { type: 'string', description: 'ROUND 1 ONLY: the branch whose restore failed and why (missing, or the `git apply` error), or "" when every restore applied or none was due. Report "" on later rounds.' },
+      restore_failed: { type: 'string', description: 'ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or "" when every restore applied or none was due. Report "" on later rounds.' },
       restored_branches: { type: 'integer', description: 'ROUND 1 ONLY: how many branches your restore applied into the tree. 0 when none was due or a restore failed. Report 0 on later rounds.' },
     } : {}),
     dismissed_count:   { type: 'integer', description: 'how many review findings you declined and logged to this block\'s DISMISSED file this round (0 if none)' },
@@ -702,7 +717,7 @@ const SWEEP_SCHEMA = {
 // =============================================================================
 const ENV = `${GOAL ? `GOAL (this run's ONE goal, split into the plan file's blocks): ${GOAL}\n` : ''}TARGET REPO: ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})
 ${REFERENCE_P ? `REFERENCE (a COMPLETED example to mirror for the canonical pattern): ${REFERENCE_P}\n` : ''}CONVENTIONS (match these): ${CONVENTIONS}
-GATES (the commands that define "it works"):
+${CONVENTION_FILES_BLOCK}GATES (the commands that define "it works"):
   build: ${GATES.build ?? '(none)'}
   test:  ${GATES.test ?? '(none)'}${GATES.testSetup ? `\n  test setup: ${GATES.testSetup}` : ''}
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
@@ -1319,23 +1334,35 @@ const ORIGIN_CRITERIA = `every acceptance criterion of each block its "- origin:
 prints a block), and, for a feature or section block, the reachability of its work from real entry points`;
 // A park entry links a branch that holds a parked block's work. The restore follows the clean-baseline
 // check, so the restored diff is the only unstaged work, and both reviewers read it as this block's.
-// Every apply runs before any intent-to-add, so reversing a failed restore leaves the index untouched.
+// A 3-way apply implies --index, so every apply runs on a copy of the index and the real index never changes.
+// Every apply runs before any intent-to-add, so undoing a failed restore leaves the index untouched.
+const restoreIndex = (id) => `${STATE_DIR}/scratch/restore-${slug(id)}.index`;
 // A landed block may hold a FAILED entry's restored work while its branch stays, so step b skips that branch.
 // The blind reviewer reads only this block's ledger, so round 1 copies the origin ledger's kept lines into it.
 const restoreOpening = (p) => `fix this block's entries on top of the accepted
 baseline. First RESTORE unfinished work, once you have read your block and before VERIFY-FIRST.
 The branch of ${BRANCH_ENTRIES} holds a parked block's work.
-  a. Run \`git -C ${REPO} diff --cached --stat\` and keep its output.
+  a. Run \`git -C ${REPO} diff --cached --stat\` and keep its output. Then run
+     \`cp "$(git -C ${REPO} rev-parse --path-format=absolute --git-path index)" "${restoreIndex(p.id)}"\`.
+     Every apply below, and the \`git add\` of a file you resolved, sets GIT_INDEX_FILE to that copy, so the real index never changes.
   b. For each distinct branch those lines name, in turn: when
      \`git -C ${REPO} rev-parse --verify --quiet refs/heads/<branch>\` prints nothing, the branch is missing,
      so the restore FAILS for it (below). When \`git -C ${REPO} diff --stat <branch>^1 <branch>\` prints
      nothing, the branch holds no work, so skip it. When
      \`git -C ${REPO} diff --binary <branch>^1 <branch> | git -C ${REPO} apply -R --check\` succeeds, the
      accepted baseline already holds the branch's work, so skip it. Otherwise restore it with
-     \`git -C ${REPO} diff --binary <branch>^1 <branch> | git -C ${REPO} apply\`, a PLAIN apply, never with
-     \`--3way\`, \`--index\` or \`--cached\`: each of those stages the restored work ${STAGED_HARM}.
-  c. Once every branch has applied, run \`git -C ${REPO} add -N -- <file>\` on each new file the restores
-     created (\`git -C ${REPO} status --porcelain\` lists it as \`??\`).
+     \`git -C ${REPO} diff --binary <branch>^1 <branch> | GIT_INDEX_FILE="${restoreIndex(p.id)}" git -C ${REPO} apply -3\`,
+     a 3-way apply onto the accepted baseline, since a block that landed after the branch was cut may
+     have changed a file the branch touches. Never run it without that GIT_INDEX_FILE, and never with
+     \`--index\` or \`--cached\`: each of those stages the restored work ${STAGED_HARM}. A clean apply needs
+     nothing more. An apply that exits non-zero leaves conflict markers in each file it reports "with
+     conflicts". Resolve each such file only when you confirm the resolution against the accepted
+     baseline and the work the branch holds, then run
+     \`GIT_INDEX_FILE="${restoreIndex(p.id)}" git -C ${REPO} add -- <file>\`, so the next apply sees the
+     resolution. A conflict you cannot confirm FAILS the restore for the branch (below).
+  c. Once every branch has applied and no conflict marker is left, delete that index copy. Then run
+     \`git -C ${REPO} add -N -- <file>\` on each new file the restores created
+     (\`git -C ${REPO} status --porcelain\` lists it as \`??\`).
   d. Confirm \`git -C ${REPO} diff --cached --stat\` is the same as the output step a kept.
 The restored diff is THIS block's own unstaged work, and it is the work of the entry whose branch it is.
 An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished work. On top of its
@@ -1345,12 +1372,14 @@ Those gaps are copied from a review. ${REVIEW_CLAIMS} A gap you refute gets its 
 rule 1. ${RISK_GAPS} takes no fix and no log, since this block's first blind review judges the entire
 restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line
 and the origin criteria hold, never STALE.
-If the restore FAILS for a branch, because it is missing or its \`git apply\` fails, reverse each branch
-step b already restored, the last one first, with
-\`git -C ${REPO} diff --binary <branch>^1 <branch> | git -C ${REPO} apply -R\`. Then confirm
-\`git -C ${REPO} diff\` is empty and that \`git -C ${REPO} status --porcelain\` lists no file the restores
-created (a failed plain \`git apply\` changes nothing). Change nothing else, set restore_failed to the
-branch that failed and why (missing, or the \`git apply\` error), set restored_branches to 0, and STOP.
+If the restore FAILS for a branch, because it is missing, its \`git apply -3\` fails with an error other
+than a conflict, or a conflict stays that you cannot confirm, undo every restore. The unstaged tree was
+empty when you started, so run \`git -C ${REPO} checkout -- <file>\` for each file
+\`git -C ${REPO} diff --name-only\` lists, and \`git -C ${REPO} clean -f -- <file>\` for each \`??\` file
+\`git -C ${REPO} status --porcelain\` lists, then delete the index copy. Then confirm
+\`git -C ${REPO} diff\` is empty and that \`git -C ${REPO} status --porcelain\` lists no file. Change nothing
+else, set restore_failed to the branch that failed and why (missing, the \`git apply\` error, or the
+conflict you could not confirm), set restored_branches to 0, and STOP.
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
@@ -1504,7 +1533,7 @@ Any other command that writes nothing in the repo, such as a tool's check mode, 
 temporary folder outside the repo and outside the folder that holds ${GATE_DIR}/ are allowed.
 ${TOOLS_LINE}
 CONVENTIONS (judge against these): ${CONVENTIONS}
-
+${CONVENTION_FILES_BLOCK}
 ${SETTLED(p.id, true)}
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
@@ -1549,12 +1578,13 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.`;
 const earlierFindingsStep = (p, earlierReviews) => `EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
 ${earlierReviews.map((path) => `     ${path}`).join('\n') || '     (none: no review in this run has flagged this block)'}
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in ${dismissedFile(p.id)} covers, or (b)
    ${dismissedFile(p.id)} holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in ${dismissedFile(p.id)} covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. ${RISK_GAPS} is closed, since the engine runs a blind review
+   that no line in ${dismissedFile(p.id)} covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. ${RISK_GAPS} is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.`;
 

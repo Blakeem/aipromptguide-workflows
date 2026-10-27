@@ -202,7 +202,7 @@ against (halt); an unreachable feature does not (flag).
   shared module or import across workflows. (#11 governs *facts*, not code across independent tools.)
   Three copies are pinned. `role-map-copies.test.mjs` fails when an engine's `roleMap` or its two value sets
   differ from develop's, so change all eight together. `convention-files-copies.test.mjs` fails when
-  refine's `conventionFilesOf` differs from debug's, so change both together. `notes.test.mjs` fails when
+  refine's or develop's `conventionFilesOf` differs from debug's, so change all three together. `notes.test.mjs` fails when
   an engine's exit-survey instruction differs from the test's copy, or when an engine calls `agent(`
   anywhere but inside its `callAgent`, so route every new call site through `callAgent` and change all
   eight instructions together.

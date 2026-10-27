@@ -522,8 +522,8 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   block the accepted baseline already satisfies passes without inventing changes). In fix mode, any
   unstaged or untracked change fails acceptance when no issue is claimed FIXED. Only agent that
   stages, and in commit mode the only agent that commits. It reads every earlier review file of its
-  block and counts an earlier finding as a gap unless the code closes it on every sibling path or
-  the dismissal ledger declines it. A ledger line whose reason starts `SKIPPED:` declines a finding
+  block and counts an earlier finding as a gap unless the code closes it on every sibling path with an edit
+  that breaks nothing, or the dismissal ledger declines it. A ledger line whose reason starts `SKIPPED:` declines a finding
   only when its reason holds. Acceptance checks each such reason against the code it cites, and a
   reason the code contradicts or one that states no checked fact declines nothing, so its finding
   counts as a gap. A `SKIPPED: SPEC:` line declines a finding only when the block's text prescribes
@@ -819,12 +819,16 @@ park halted `park-unsafe`. That halt reason and `nextStep` say where its work is
 place its work continues from, except for a park no fix block can build (§5 Park). Triage that entry
 like any other (§10). Once it is `ACTIONABLE`, build its backlog file in fix mode. That block's
 round-1 developer restores the branch into the unstaged tree after the clean-baseline check, with
-`git diff --binary <branch>^1 <branch> | git apply`, so both reviewers judge the restored work. It
+`git diff --binary <branch>^1 <branch> | git apply -3` on a copy of the index (`GIT_INDEX_FILE`), so
+both reviewers judge the restored work. The 3-way apply carries the branch onto blocks that landed
+after its parent, and the copy keeps the real index unstaged, since `-3` implies `--index`. The
+developer resolves a conflict only when it confirms the resolution against the accepted baseline and
+the branch's work, and reports one it cannot confirm as `restore_failed`. It
 skips a branch whose work the accepted baseline already holds (`git apply -R --check` accepts its
 diff), which a landed block that kept a FAILED entry's restored work leaves. When the block lands,
 acceptance deletes the branch, or in stage delivery `nextStep` says to delete it once the user
-commits the staged work (§5). A branch that is missing or no longer applies leaves the tree clean
-and every branch as it was, and the fix block syncs `blocked`. The user then rebuilds the branch on
+commits the staged work (§5). A branch that is missing, fails to apply or holds a conflict the developer cannot confirm leaves the
+tree clean and every branch as it was, and the fix block syncs `blocked`. The user then rebuilds the branch on
 the accepted baseline, by rebasing or re-committing it so that `git diff <branch>^1 <branch>`
 applies there, and keeps the work on the branch, never in the tree, the index or the baseline, since
 the baseline holds only reviewed work. Or the user skips the entry and deletes the branch. In an
@@ -902,7 +906,9 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   added entry's severity, title and decision to the user. In commit mode it names each committed
   block with its sha. It says nothing is staged when the run did not halt, and otherwise points at
   `git diff --cached --stat`).
-- **Optional:** `conventions` · `reference` · `gates.testSetup` ·
+- **Optional:** `conventions` · `conventionFiles` (an array of the project's CLAUDE.md paths, each
+  absolute or relative to `target.repo`, which every agent reads in full. A value that is not an array
+  of non-empty strings **throws**) · `reference` · `gates.testSetup` ·
   `target.lang`/`framework` · `maxRounds` (1–50, default 5, **throws** on garbage) · `changePolicy`
   (`focused|proactive`, default `focused`, any other value **throws**, and `strict`, the old name of
   `focused`, throws with a message that names the rename. It sets the developer's build aim and

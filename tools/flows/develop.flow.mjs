@@ -128,6 +128,8 @@ export default {
     // One throw site serves every numeric bound. Without it a non-numeric maxRounds coerces to NaN, the
     // per-block round loop never runs, and every block parks having never spawned a developer.
     { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
+    // A coerced path list would hand every agent a file that is not there, or none of the target's rules.
+    { name: 'conventionFiles is not a path list', when: 'args.conventionFiles is not an array of non-empty paths', args: { ...base, conventionFiles: 'CLAUDE.md' } },
     // A coerced policy would silently widen or narrow every developer's diff.
     { name: 'unknown change policy', when: 'changePolicy is outside focused | proactive', args: { ...base, changePolicy: 'lenient' } },
     // The string "true" is truthy, so a coerced commit arg could commit what the operator meant to stage.

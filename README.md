@@ -169,6 +169,12 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   each sweep line, and a missing line or a hit that disagrees with the change is a risk-audit gap.
 - **An [exit survey](#exit-survey) replaces `tools/freeze-notes.mjs`.** A live test of a workflow no
   longer needs a copied engine.
+- **develop restores a parked branch with a 3-way apply.** A park whose parent is older than a block
+  that landed later now restores, and only a conflict the developer cannot confirm blocks the fix
+  block. The apply runs on a copy of the index, so the restored work stays unstaged.
+- **develop takes `conventionFiles`, and its acceptance checks each closing edit.** Every develop agent
+  reads each convention file in full. Acceptance counts an earlier finding as closed only when the edit
+  that closed it breaks nothing.
 
 ### 2026-10-26
 

@@ -8,59 +8,59 @@ this file is stale.
 |---|---|---|---|---|
 | develop | 1 | 1 | 31082 | every block accepts first time |
 | quality | 1 | 1 | 9673 | every block accepts first time |
-| acceptance | 1 | 1 | 16315 | every block accepts first time |
+| acceptance | 1 | 1 | 16450 | every block accepts first time |
 | develop | 2 | 1 | 31507 | every block accepts first time |
-| acceptance | 2 | 2 | 16596 | every block accepts first time |
+| acceptance | 2 | 2 | 16731 | every block accepts first time |
 | final-sweep | 1 | 1 | 4451 | every block accepts first time |
 | develop | 3 | 2 | 34332 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 3 | 17476 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 3 | 17611 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 4442 | a feature block accepts under the proactive policy |
 | develop | 4 | 1 | 30529 | quality flags the first round |
-| acceptance | 4 | 1 | 16314 | quality flags the first round |
+| acceptance | 4 | 1 | 16449 | quality flags the first round |
 | develop | 5 | 1 | 30899 | quality flags the first round |
-| acceptance | 5 | 2 | 16595 | quality flags the first round |
+| acceptance | 5 | 2 | 16730 | quality flags the first round |
 | develop | 6 | 1 | 30525 | acceptance finds gaps, then passes |
-| acceptance | 6 | 1 | 16312 | acceptance finds gaps, then passes |
+| acceptance | 6 | 1 | 16447 | acceptance finds gaps, then passes |
 | develop | 7 | 1 | 30895 | acceptance finds gaps, then passes |
-| acceptance | 7 | 2 | 16593 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 18844 | a later round is judged low risk |
-| acceptance | 9 | 2 | 19125 | a later round is judged low risk |
+| acceptance | 7 | 2 | 16728 | acceptance finds gaps, then passes |
+| acceptance | 8 | 1 | 18979 | a later round is judged low risk |
+| acceptance | 9 | 2 | 19260 | a later round is judged low risk |
 | develop | 8 | 1 | 29215 | the gate never goes green |
 | develop-closing | 1 | 1 | 30746 | the gate never goes green |
 | quality | 2 | 1 | 9733 | the gate never goes green |
-| acceptance | 10 | 4 | 19677 | the gate never goes green |
+| acceptance | 10 | 4 | 19812 | the gate never goes green |
 | park | 1 | 1 | 10762 | the gate never goes green |
 | develop | 9 | 1 | 29640 | the gate never goes green |
 | develop-closing | 2 | 1 | 31116 | the gate never goes green |
-| acceptance | 11 | 5 | 19958 | the gate never goes green |
-| acceptance | 12 | 1 | 16367 | a parked block, and the run carries on |
-| acceptance | 13 | 1 | 16422 | a parked block, and the run carries on |
-| acceptance | 14 | 1 | 16477 | a parked block, and the run carries on |
+| acceptance | 11 | 5 | 20093 | the gate never goes green |
+| acceptance | 12 | 1 | 16502 | a parked block, and the run carries on |
+| acceptance | 13 | 1 | 16557 | a parked block, and the run carries on |
+| acceptance | 14 | 1 | 16612 | a parked block, and the run carries on |
 | develop-closing | 3 | 1 | 31941 | a parked block, and the run carries on |
-| acceptance | 15 | 4 | 22424 | a parked block, and the run carries on |
+| acceptance | 15 | 4 | 22559 | a parked block, and the run carries on |
 | develop | 10 | 1 | 31064 | an ordered run stops at a parked block |
-| acceptance | 16 | 1 | 16309 | an ordered run stops at a parked block |
+| acceptance | 16 | 1 | 16444 | an ordered run stops at a parked block |
 | develop | 11 | 1 | 30507 | an ordered run stops at a parked block |
-| acceptance | 17 | 1 | 16306 | an ordered run stops at a parked block |
-| acceptance | 18 | 1 | 16361 | an ordered run stops at a parked block |
-| acceptance | 19 | 1 | 16416 | an ordered run stops at a parked block |
-| acceptance | 20 | 1 | 16471 | an ordered run stops at a parked block |
+| acceptance | 17 | 1 | 16441 | an ordered run stops at a parked block |
+| acceptance | 18 | 1 | 16496 | an ordered run stops at a parked block |
+| acceptance | 19 | 1 | 16551 | an ordered run stops at a parked block |
+| acceptance | 20 | 1 | 16606 | an ordered run stops at a parked block |
 | develop-closing | 4 | 1 | 31923 | an ordered run stops at a parked block |
-| acceptance | 21 | 4 | 22418 | an ordered run stops at a parked block |
+| acceptance | 21 | 4 | 22553 | an ordered run stops at a parked block |
 | park | 2 | 1 | 10774 | an ordered run stops at a parked block |
-| develop | 12 | 3 | 38584 | a fix block closes its issues |
-| acceptance | 22 | 6 | 23784 | a fix block closes its issues |
+| develop | 12 | 3 | 39848 | a fix block closes its issues |
+| acceptance | 22 | 6 | 23919 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 4442 | a fix block closes its issues |
-| develop | 13 | 4 | 42051 | a fix block closes its issues under the proactive policy |
-| acceptance | 23 | 7 | 25291 | a fix block closes its issues under the proactive policy |
-| acceptance | 24 | 7 | 25305 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 13 | 4 | 43315 | a fix block closes its issues under the proactive policy |
+| acceptance | 23 | 7 | 25426 | a fix block closes its issues under the proactive policy |
+| acceptance | 24 | 7 | 25440 | a proactive fix block starts round 2 from the statuses it last reported |
 | develop | 14 | 4 | 34894 | a proactive fix block starts round 2 from the statuses it last reported |
-| acceptance | 25 | 7 | 25104 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 15 | 3 | 39004 | a pass of two fix blocks closes its issues |
-| acceptance | 26 | 6 | 24210 | a pass of two fix blocks closes its issues |
+| acceptance | 25 | 7 | 25239 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 15 | 3 | 40289 | a pass of two fix blocks closes its issues |
+| acceptance | 26 | 6 | 24345 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 4472 | a pass of two fix blocks closes its issues |
-| acceptance | 27 | 6 | 23783 | every issue is already fixed |
-| develop | 16 | 3 | 38566 | an ordered run stops on a fix block that closes nothing |
+| acceptance | 27 | 6 | 23918 | every issue is already fixed |
+| develop | 16 | 3 | 39830 | an ordered run stops on a fix block that closes nothing |
 | park | 3 | 1 | 11077 | passed with a regression, not staged |
 | park | 4 | 1 | 10369 | acceptance stages a rejected block |
 | park | 5 | 1 | 10930 | the quality reviewer fails a block without its file |
@@ -74,24 +74,24 @@ this file is stale.
 | park | 13 | 1 | 10675 | the acceptance verifier dies |
 | park | 14 | 1 | 10000 | developer escalates |
 | park | 15 | 1 | 9990 | developer escalates in an ordered run |
-| acceptance | 28 | 6 | 26237 | log line cap before the sweep |
-| acceptance | 29 | 4 | 22204 | a closing acceptance lands the block |
+| acceptance | 28 | 6 | 26372 | log line cap before the sweep |
+| acceptance | 29 | 4 | 22339 | a closing acceptance lands the block |
 | develop-closing | 5 | 1 | 32311 | a closing acceptance lands the block |
-| acceptance | 30 | 5 | 22485 | a closing acceptance lands the block |
-| acceptance | 31 | 4 | 19731 | a closing pass gets a blind review |
-| acceptance | 32 | 5 | 20012 | a closing pass gets a blind review |
-| acceptance | 33 | 4 | 22497 | a closing acceptance finds a blocking gap |
+| acceptance | 30 | 5 | 22620 | a closing acceptance lands the block |
+| acceptance | 31 | 4 | 19866 | a closing pass gets a blind review |
+| acceptance | 32 | 5 | 20147 | a closing pass gets a blind review |
+| acceptance | 33 | 4 | 22632 | a closing acceptance finds a blocking gap |
 | park | 16 | 1 | 10912 | a closing acceptance finds a blocking gap |
-| acceptance | 34 | 5 | 22778 | a closing acceptance finds a blocking gap |
+| acceptance | 34 | 5 | 22913 | a closing acceptance finds a blocking gap |
 | park | 17 | 1 | 10912 | a closing acceptance finds a blocking gap |
 | develop | 17 | 5 | 31253 | every block commits first time |
 | quality | 3 | 1 | 9626 | every block commits first time |
-| acceptance | 35 | 8 | 17854 | every block commits first time |
+| acceptance | 35 | 8 | 17989 | every block commits first time |
 | develop | 18 | 5 | 31678 | every block commits first time |
-| acceptance | 36 | 9 | 18135 | every block commits first time |
+| acceptance | 36 | 9 | 18270 | every block commits first time |
 | final-sweep | 5 | 1 | 4763 | every block commits first time |
-| develop | 19 | 6 | 38786 | a fix block commits |
-| acceptance | 37 | 10 | 25540 | a fix block commits |
+| develop | 19 | 6 | 40050 | a fix block commits |
+| acceptance | 37 | 10 | 25675 | a fix block commits |
 | final-sweep | 6 | 1 | 4670 | a fix block commits |
 | park | 18 | 1 | 10375 | acceptance commits a rejected block |
 
@@ -763,12 +763,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -1416,12 +1417,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -2220,12 +2222,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -2948,12 +2951,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/gate/quality-review-block-a-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -3582,12 +3586,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/gate/quality-review-block-b-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -4215,12 +4220,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -4849,12 +4855,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-b-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -5083,12 +5090,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/gate/quality-review-block-a-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -5344,12 +5352,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/gate/quality-review-block-b-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -6580,12 +6589,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -7814,12 +7824,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -8077,12 +8088,13 @@ PROCEDURE:
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -8310,12 +8322,13 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -8544,12 +8557,13 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
      E:/flow/runs/flow/acceptance-review-block-a-r4.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -9211,12 +9225,13 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
      E:/flow/runs/flow/acceptance-review-block-a-r4.md
      E:/flow/runs/flow/acceptance-review-block-a-r5.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -9918,12 +9933,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -10548,12 +10564,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -10780,12 +10797,13 @@ PROCEDURE:
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -11013,12 +11031,13 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -11247,12 +11266,13 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
      E:/flow/runs/flow/acceptance-review-block-a-r4.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -11914,12 +11934,13 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
      E:/flow/runs/flow/acceptance-review-block-a-r4.md
      E:/flow/runs/flow/acceptance-review-block-a-r5.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -12272,17 +12293,27 @@ immediately with that count. The run halts for the operator. If it IS 0, run `gi
 and report the tree id it prints as baseline_index_tree, then fix this block's entries on top of the accepted
 baseline. First RESTORE unfinished work, once you have read your block and before VERIFY-FIRST.
 The branch of each ACTIONABLE entry whose "- status:" is absent, open or needs-attention and that carries a "- branch:" line holds a parked block's work.
-  a. Run `git -C E:/repo diff --cached --stat` and keep its output.
+  a. Run `git -C E:/repo diff --cached --stat` and keep its output. Then run
+     `cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/restore-block-c.index"`.
+     Every apply below, and the `git add` of a file you resolved, sets GIT_INDEX_FILE to that copy, so the real index never changes.
   b. For each distinct branch those lines name, in turn: when
      `git -C E:/repo rev-parse --verify --quiet refs/heads/<branch>` prints nothing, the branch is missing,
      so the restore FAILS for it (below). When `git -C E:/repo diff --stat <branch>^1 <branch>` prints
      nothing, the branch holds no work, so skip it. When
      `git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply -R --check` succeeds, the
      accepted baseline already holds the branch's work, so skip it. Otherwise restore it with
-     `git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply`, a PLAIN apply, never with
-     `--3way`, `--index` or `--cached`: each of those stages the restored work into the accepted baseline.
-  c. Once every branch has applied, run `git -C E:/repo add -N -- <file>` on each new file the restores
-     created (`git -C E:/repo status --porcelain` lists it as `??`).
+     `git -C E:/repo diff --binary <branch>^1 <branch> | GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c.index" git -C E:/repo apply -3`,
+     a 3-way apply onto the accepted baseline, since a block that landed after the branch was cut may
+     have changed a file the branch touches. Never run it without that GIT_INDEX_FILE, and never with
+     `--index` or `--cached`: each of those stages the restored work into the accepted baseline. A clean apply needs
+     nothing more. An apply that exits non-zero leaves conflict markers in each file it reports "with
+     conflicts". Resolve each such file only when you confirm the resolution against the accepted
+     baseline and the work the branch holds, then run
+     `GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c.index" git -C E:/repo add -- <file>`, so the next apply sees the
+     resolution. A conflict you cannot confirm FAILS the restore for the branch (below).
+  c. Once every branch has applied and no conflict marker is left, delete that index copy. Then run
+     `git -C E:/repo add -N -- <file>` on each new file the restores created
+     (`git -C E:/repo status --porcelain` lists it as `??`).
   d. Confirm `git -C E:/repo diff --cached --stat` is the same as the output step a kept.
 The restored diff is THIS block's own unstaged work, and it is the work of the entry whose branch it is.
 An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished work. On top of its
@@ -12293,12 +12324,14 @@ Those gaps are copied from a review. A review is another agent's claim. For each
 rule 1. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire
 restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line
 and the origin criteria hold, never STALE.
-If the restore FAILS for a branch, because it is missing or its `git apply` fails, reverse each branch
-step b already restored, the last one first, with
-`git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply -R`. Then confirm
-`git -C E:/repo diff` is empty and that `git -C E:/repo status --porcelain` lists no file the restores
-created (a failed plain `git apply` changes nothing). Change nothing else, set restore_failed to the
-branch that failed and why (missing, or the `git apply` error), set restored_branches to 0, and STOP.
+If the restore FAILS for a branch, because it is missing, its `git apply -3` fails with an error other
+than a conflict, or a conflict stays that you cannot confirm, undo every restore. The unstaged tree was
+empty when you started, so run `git -C E:/repo checkout -- <file>` for each file
+`git -C E:/repo diff --name-only` lists, and `git -C E:/repo clean -f -- <file>` for each `??` file
+`git -C E:/repo status --porcelain` lists, then delete the index copy. Then confirm
+`git -C E:/repo diff` is empty and that `git -C E:/repo status --porcelain` lists no file. Change nothing
+else, set restore_failed to the branch that failed and why (missing, the `git apply` error, or the
+conflict you could not confirm), set restored_branches to 0, and STOP.
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
@@ -12708,7 +12741,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "restore_failed": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, or the `git apply` error), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
+      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
     },
     "restored_branches": {
       "type": "integer",
@@ -12892,12 +12925,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -13180,17 +13214,27 @@ immediately with that count. The run halts for the operator. If it IS 0, run `gi
 and report the tree id it prints as baseline_index_tree, then fix this block's entries on top of the accepted
 baseline. First RESTORE unfinished work, once you have read your block and before VERIFY-FIRST.
 The branch of each ACTIONABLE entry whose "- status:" is absent, open or needs-attention and that carries a "- branch:" line holds a parked block's work.
-  a. Run `git -C E:/repo diff --cached --stat` and keep its output.
+  a. Run `git -C E:/repo diff --cached --stat` and keep its output. Then run
+     `cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/restore-block-c.index"`.
+     Every apply below, and the `git add` of a file you resolved, sets GIT_INDEX_FILE to that copy, so the real index never changes.
   b. For each distinct branch those lines name, in turn: when
      `git -C E:/repo rev-parse --verify --quiet refs/heads/<branch>` prints nothing, the branch is missing,
      so the restore FAILS for it (below). When `git -C E:/repo diff --stat <branch>^1 <branch>` prints
      nothing, the branch holds no work, so skip it. When
      `git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply -R --check` succeeds, the
      accepted baseline already holds the branch's work, so skip it. Otherwise restore it with
-     `git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply`, a PLAIN apply, never with
-     `--3way`, `--index` or `--cached`: each of those stages the restored work into the accepted baseline.
-  c. Once every branch has applied, run `git -C E:/repo add -N -- <file>` on each new file the restores
-     created (`git -C E:/repo status --porcelain` lists it as `??`).
+     `git -C E:/repo diff --binary <branch>^1 <branch> | GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c.index" git -C E:/repo apply -3`,
+     a 3-way apply onto the accepted baseline, since a block that landed after the branch was cut may
+     have changed a file the branch touches. Never run it without that GIT_INDEX_FILE, and never with
+     `--index` or `--cached`: each of those stages the restored work into the accepted baseline. A clean apply needs
+     nothing more. An apply that exits non-zero leaves conflict markers in each file it reports "with
+     conflicts". Resolve each such file only when you confirm the resolution against the accepted
+     baseline and the work the branch holds, then run
+     `GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c.index" git -C E:/repo add -- <file>`, so the next apply sees the
+     resolution. A conflict you cannot confirm FAILS the restore for the branch (below).
+  c. Once every branch has applied and no conflict marker is left, delete that index copy. Then run
+     `git -C E:/repo add -N -- <file>` on each new file the restores created
+     (`git -C E:/repo status --porcelain` lists it as `??`).
   d. Confirm `git -C E:/repo diff --cached --stat` is the same as the output step a kept.
 The restored diff is THIS block's own unstaged work, and it is the work of the entry whose branch it is.
 An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished work. On top of its
@@ -13201,12 +13245,14 @@ Those gaps are copied from a review. A review is another agent's claim. For each
 rule 1. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire
 restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line
 and the origin criteria hold, never STALE.
-If the restore FAILS for a branch, because it is missing or its `git apply` fails, reverse each branch
-step b already restored, the last one first, with
-`git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply -R`. Then confirm
-`git -C E:/repo diff` is empty and that `git -C E:/repo status --porcelain` lists no file the restores
-created (a failed plain `git apply` changes nothing). Change nothing else, set restore_failed to the
-branch that failed and why (missing, or the `git apply` error), set restored_branches to 0, and STOP.
+If the restore FAILS for a branch, because it is missing, its `git apply -3` fails with an error other
+than a conflict, or a conflict stays that you cannot confirm, undo every restore. The unstaged tree was
+empty when you started, so run `git -C E:/repo checkout -- <file>` for each file
+`git -C E:/repo diff --name-only` lists, and `git -C E:/repo clean -f -- <file>` for each `??` file
+`git -C E:/repo status --porcelain` lists, then delete the index copy. Then confirm
+`git -C E:/repo diff` is empty and that `git -C E:/repo status --porcelain` lists no file. Change nothing
+else, set restore_failed to the branch that failed and why (missing, the `git apply` error, or the
+conflict you could not confirm), set restored_branches to 0, and STOP.
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
@@ -13674,7 +13720,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "restore_failed": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, or the `git apply` error), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
+      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
     },
     "restored_branches": {
       "type": "integer",
@@ -13874,12 +13920,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -14233,12 +14280,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -14890,7 +14938,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "restore_failed": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, or the `git apply` error), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
+      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
     },
     "restored_branches": {
       "type": "integer",
@@ -15090,12 +15138,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-c-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -15322,17 +15371,27 @@ immediately with that count. The run halts for the operator. If it IS 0, run `gi
 and report the tree id it prints as baseline_index_tree, then fix this block's entries on top of the accepted
 baseline. First RESTORE unfinished work, once you have read your block and before VERIFY-FIRST.
 The branch of each ACTIONABLE entry whose "- status:" is absent, open or needs-attention and that carries a "- branch:" line holds a parked block's work.
-  a. Run `git -C E:/repo diff --cached --stat` and keep its output.
+  a. Run `git -C E:/repo diff --cached --stat` and keep its output. Then run
+     `cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/restore-block-c-plus-1.index"`.
+     Every apply below, and the `git add` of a file you resolved, sets GIT_INDEX_FILE to that copy, so the real index never changes.
   b. For each distinct branch those lines name, in turn: when
      `git -C E:/repo rev-parse --verify --quiet refs/heads/<branch>` prints nothing, the branch is missing,
      so the restore FAILS for it (below). When `git -C E:/repo diff --stat <branch>^1 <branch>` prints
      nothing, the branch holds no work, so skip it. When
      `git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply -R --check` succeeds, the
      accepted baseline already holds the branch's work, so skip it. Otherwise restore it with
-     `git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply`, a PLAIN apply, never with
-     `--3way`, `--index` or `--cached`: each of those stages the restored work into the accepted baseline.
-  c. Once every branch has applied, run `git -C E:/repo add -N -- <file>` on each new file the restores
-     created (`git -C E:/repo status --porcelain` lists it as `??`).
+     `git -C E:/repo diff --binary <branch>^1 <branch> | GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c-plus-1.index" git -C E:/repo apply -3`,
+     a 3-way apply onto the accepted baseline, since a block that landed after the branch was cut may
+     have changed a file the branch touches. Never run it without that GIT_INDEX_FILE, and never with
+     `--index` or `--cached`: each of those stages the restored work into the accepted baseline. A clean apply needs
+     nothing more. An apply that exits non-zero leaves conflict markers in each file it reports "with
+     conflicts". Resolve each such file only when you confirm the resolution against the accepted
+     baseline and the work the branch holds, then run
+     `GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c-plus-1.index" git -C E:/repo add -- <file>`, so the next apply sees the
+     resolution. A conflict you cannot confirm FAILS the restore for the branch (below).
+  c. Once every branch has applied and no conflict marker is left, delete that index copy. Then run
+     `git -C E:/repo add -N -- <file>` on each new file the restores created
+     (`git -C E:/repo status --porcelain` lists it as `??`).
   d. Confirm `git -C E:/repo diff --cached --stat` is the same as the output step a kept.
 The restored diff is THIS block's own unstaged work, and it is the work of the entry whose branch it is.
 An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished work. On top of its
@@ -15343,12 +15402,14 @@ Those gaps are copied from a review. A review is another agent's claim. For each
 rule 1. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire
 restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line
 and the origin criteria hold, never STALE.
-If the restore FAILS for a branch, because it is missing or its `git apply` fails, reverse each branch
-step b already restored, the last one first, with
-`git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply -R`. Then confirm
-`git -C E:/repo diff` is empty and that `git -C E:/repo status --porcelain` lists no file the restores
-created (a failed plain `git apply` changes nothing). Change nothing else, set restore_failed to the
-branch that failed and why (missing, or the `git apply` error), set restored_branches to 0, and STOP.
+If the restore FAILS for a branch, because it is missing, its `git apply -3` fails with an error other
+than a conflict, or a conflict stays that you cannot confirm, undo every restore. The unstaged tree was
+empty when you started, so run `git -C E:/repo checkout -- <file>` for each file
+`git -C E:/repo diff --name-only` lists, and `git -C E:/repo clean -f -- <file>` for each `??` file
+`git -C E:/repo status --porcelain` lists, then delete the index copy. Then confirm
+`git -C E:/repo diff` is empty and that `git -C E:/repo status --porcelain` lists no file. Change nothing
+else, set restore_failed to the branch that failed and why (missing, the `git apply` error, or the
+conflict you could not confirm), set restored_branches to 0, and STOP.
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
@@ -15760,7 +15821,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "restore_failed": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, or the `git apply` error), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
+      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
     },
     "restored_branches": {
       "type": "integer",
@@ -15948,12 +16009,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -16348,12 +16410,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -16559,17 +16622,27 @@ immediately with that count. The run halts for the operator. If it IS 0, run `gi
 and report the tree id it prints as baseline_index_tree, then fix this block's entries on top of the accepted
 baseline. First RESTORE unfinished work, once you have read your block and before VERIFY-FIRST.
 The branch of each ACTIONABLE entry whose "- status:" is absent, open or needs-attention and that carries a "- branch:" line holds a parked block's work.
-  a. Run `git -C E:/repo diff --cached --stat` and keep its output.
+  a. Run `git -C E:/repo diff --cached --stat` and keep its output. Then run
+     `cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/restore-block-c.index"`.
+     Every apply below, and the `git add` of a file you resolved, sets GIT_INDEX_FILE to that copy, so the real index never changes.
   b. For each distinct branch those lines name, in turn: when
      `git -C E:/repo rev-parse --verify --quiet refs/heads/<branch>` prints nothing, the branch is missing,
      so the restore FAILS for it (below). When `git -C E:/repo diff --stat <branch>^1 <branch>` prints
      nothing, the branch holds no work, so skip it. When
      `git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply -R --check` succeeds, the
      accepted baseline already holds the branch's work, so skip it. Otherwise restore it with
-     `git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply`, a PLAIN apply, never with
-     `--3way`, `--index` or `--cached`: each of those stages the restored work into the accepted baseline.
-  c. Once every branch has applied, run `git -C E:/repo add -N -- <file>` on each new file the restores
-     created (`git -C E:/repo status --porcelain` lists it as `??`).
+     `git -C E:/repo diff --binary <branch>^1 <branch> | GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c.index" git -C E:/repo apply -3`,
+     a 3-way apply onto the accepted baseline, since a block that landed after the branch was cut may
+     have changed a file the branch touches. Never run it without that GIT_INDEX_FILE, and never with
+     `--index` or `--cached`: each of those stages the restored work into the accepted baseline. A clean apply needs
+     nothing more. An apply that exits non-zero leaves conflict markers in each file it reports "with
+     conflicts". Resolve each such file only when you confirm the resolution against the accepted
+     baseline and the work the branch holds, then run
+     `GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c.index" git -C E:/repo add -- <file>`, so the next apply sees the
+     resolution. A conflict you cannot confirm FAILS the restore for the branch (below).
+  c. Once every branch has applied and no conflict marker is left, delete that index copy. Then run
+     `git -C E:/repo add -N -- <file>` on each new file the restores created
+     (`git -C E:/repo status --porcelain` lists it as `??`).
   d. Confirm `git -C E:/repo diff --cached --stat` is the same as the output step a kept.
 The restored diff is THIS block's own unstaged work, and it is the work of the entry whose branch it is.
 An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished work. On top of its
@@ -16580,12 +16653,14 @@ Those gaps are copied from a review. A review is another agent's claim. For each
 rule 1. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire
 restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line
 and the origin criteria hold, never STALE.
-If the restore FAILS for a branch, because it is missing or its `git apply` fails, reverse each branch
-step b already restored, the last one first, with
-`git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply -R`. Then confirm
-`git -C E:/repo diff` is empty and that `git -C E:/repo status --porcelain` lists no file the restores
-created (a failed plain `git apply` changes nothing). Change nothing else, set restore_failed to the
-branch that failed and why (missing, or the `git apply` error), set restored_branches to 0, and STOP.
+If the restore FAILS for a branch, because it is missing, its `git apply -3` fails with an error other
+than a conflict, or a conflict stays that you cannot confirm, undo every restore. The unstaged tree was
+empty when you started, so run `git -C E:/repo checkout -- <file>` for each file
+`git -C E:/repo diff --name-only` lists, and `git -C E:/repo clean -f -- <file>` for each `??` file
+`git -C E:/repo status --porcelain` lists, then delete the index copy. Then confirm
+`git -C E:/repo diff` is empty and that `git -C E:/repo status --porcelain` lists no file. Change nothing
+else, set restore_failed to the branch that failed and why (missing, the `git apply` error, or the
+conflict you could not confirm), set restored_branches to 0, and STOP.
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
@@ -16995,7 +17070,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "restore_failed": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, or the `git apply` error), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
+      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
     },
     "restored_branches": {
       "type": "integer",
@@ -18960,12 +19035,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -19447,12 +19523,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -20172,12 +20249,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-b-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -20475,12 +20553,13 @@ PROCEDURE:
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
      E:/flow/runs/flow/gate/quality-review-block-a-r2.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -20745,12 +20824,13 @@ PROCEDURE:
    fresh:
      E:/flow/runs/flow/acceptance-review-block-b-r1.md
      E:/flow/runs/flow/gate/quality-review-block-b-r2.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -21021,12 +21101,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -21461,12 +21542,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-b-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -22456,12 +22538,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -23152,12 +23235,13 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -23436,17 +23520,27 @@ return immediately with both counts. The run halts for the operator. If both are
 and report the tree id it prints as baseline_index_tree, then fix this block's entries on top of the accepted
 baseline. First RESTORE unfinished work, once you have read your block and before VERIFY-FIRST.
 The branch of each ACTIONABLE entry whose "- status:" is absent, open or needs-attention and that carries a "- branch:" line holds a parked block's work.
-  a. Run `git -C E:/repo diff --cached --stat` and keep its output.
+  a. Run `git -C E:/repo diff --cached --stat` and keep its output. Then run
+     `cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/restore-block-c.index"`.
+     Every apply below, and the `git add` of a file you resolved, sets GIT_INDEX_FILE to that copy, so the real index never changes.
   b. For each distinct branch those lines name, in turn: when
      `git -C E:/repo rev-parse --verify --quiet refs/heads/<branch>` prints nothing, the branch is missing,
      so the restore FAILS for it (below). When `git -C E:/repo diff --stat <branch>^1 <branch>` prints
      nothing, the branch holds no work, so skip it. When
      `git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply -R --check` succeeds, the
      accepted baseline already holds the branch's work, so skip it. Otherwise restore it with
-     `git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply`, a PLAIN apply, never with
-     `--3way`, `--index` or `--cached`: each of those stages the restored work where no reviewer reads it and the next commit carries it.
-  c. Once every branch has applied, run `git -C E:/repo add -N -- <file>` on each new file the restores
-     created (`git -C E:/repo status --porcelain` lists it as `??`).
+     `git -C E:/repo diff --binary <branch>^1 <branch> | GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c.index" git -C E:/repo apply -3`,
+     a 3-way apply onto the accepted baseline, since a block that landed after the branch was cut may
+     have changed a file the branch touches. Never run it without that GIT_INDEX_FILE, and never with
+     `--index` or `--cached`: each of those stages the restored work where no reviewer reads it and the next commit carries it. A clean apply needs
+     nothing more. An apply that exits non-zero leaves conflict markers in each file it reports "with
+     conflicts". Resolve each such file only when you confirm the resolution against the accepted
+     baseline and the work the branch holds, then run
+     `GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c.index" git -C E:/repo add -- <file>`, so the next apply sees the
+     resolution. A conflict you cannot confirm FAILS the restore for the branch (below).
+  c. Once every branch has applied and no conflict marker is left, delete that index copy. Then run
+     `git -C E:/repo add -N -- <file>` on each new file the restores created
+     (`git -C E:/repo status --porcelain` lists it as `??`).
   d. Confirm `git -C E:/repo diff --cached --stat` is the same as the output step a kept.
 The restored diff is THIS block's own unstaged work, and it is the work of the entry whose branch it is.
 An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished work. On top of its
@@ -23457,12 +23551,14 @@ Those gaps are copied from a review. A review is another agent's claim. For each
 rule 1. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire
 restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line
 and the origin criteria hold, never STALE.
-If the restore FAILS for a branch, because it is missing or its `git apply` fails, reverse each branch
-step b already restored, the last one first, with
-`git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply -R`. Then confirm
-`git -C E:/repo diff` is empty and that `git -C E:/repo status --porcelain` lists no file the restores
-created (a failed plain `git apply` changes nothing). Change nothing else, set restore_failed to the
-branch that failed and why (missing, or the `git apply` error), set restored_branches to 0, and STOP.
+If the restore FAILS for a branch, because it is missing, its `git apply -3` fails with an error other
+than a conflict, or a conflict stays that you cannot confirm, undo every restore. The unstaged tree was
+empty when you started, so run `git -C E:/repo checkout -- <file>` for each file
+`git -C E:/repo diff --name-only` lists, and `git -C E:/repo clean -f -- <file>` for each `??` file
+`git -C E:/repo status --porcelain` lists, then delete the index copy. Then confirm
+`git -C E:/repo diff` is empty and that `git -C E:/repo status --porcelain` lists no file. Change nothing
+else, set restore_failed to the branch that failed and why (missing, the `git apply` error, or the
+conflict you could not confirm), set restored_branches to 0, and STOP.
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
@@ -23877,7 +23973,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "restore_failed": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, or the `git apply` error), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
+      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
     },
     "restored_branches": {
       "type": "integer",
@@ -24061,12 +24157,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, and one neither closed nor declined
-   each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, one closed by an edit that fails the
+   REGRESSION step below, and one neither closed nor declined each count as a gap. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not

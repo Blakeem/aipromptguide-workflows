@@ -1776,7 +1776,8 @@ section('a fix block restores each branch its ACTIONABLE entries link, in round 
     { ...FIX_ONE, maxRounds: 2 });
   const r1 = flat(prompt('develop fix-a r1'));
   const clean = r1.indexOf('CONFIRM THE BASELINE IS CLEAN');
-  const apply = r1.indexOf('Otherwise restore it with `git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply`');
+  const INDEX_COPY = 'E:/r/runs/t/scratch/restore-fix-a.index';
+  const apply = r1.indexOf(`Otherwise restore it with \`git -C E:/repo diff --binary <branch>^1 <branch> | GIT_INDEX_FILE="${INDEX_COPY}" git -C E:/repo apply -3\``);
   ok(clean > -1 && apply > clean, 'round 1 runs the clean-baseline check first, then restores the branch');
   ok(r1.includes(`The branch of ${BRANCH_ENTRIES} holds a parked block's work.`) && r1.includes('b. For each distinct branch those lines name, in turn:'),
     'only an ACTIONABLE entry\'s branch is restored, once per branch');
@@ -1787,15 +1788,23 @@ section('a fix block restores each branch its ACTIONABLE entries link, in round 
   // A missing branch also prints nothing to the diff above, so it is checked first and never read as empty.
   const missing = r1.indexOf('when `git -C E:/repo rev-parse --verify --quiet refs/heads/<branch>` prints nothing, the branch is missing, so the restore FAILS for it (below).');
   ok(missing > -1 && missing < r1.indexOf('When `git -C E:/repo diff --stat <branch>^1 <branch>` prints nothing'), 'a missing branch fails the restore before the empty-diff check');
-  ok(/a PLAIN apply, never with `--3way`, `--index` or `--cached`/.test(r1), 'the restore is never --3way, --index or --cached');
+  // apply -3 implies --index, so the index copy is what keeps the restored work out of the real index.
+  ok(r1.includes('a 3-way apply onto the accepted baseline, since a block that landed after the branch was cut may have changed a file the branch touches.')
+    && r1.includes('Never run it without that GIT_INDEX_FILE, and never with `--index` or `--cached`'), 'the 3-way restore runs on an index copy, never --index or --cached');
+  const copy = r1.indexOf(`cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "${INDEX_COPY}"`);
+  ok(copy > clean && copy < apply, 'it copies the real index after the clean-baseline check and before the first apply');
+  ok(!/a PLAIN apply/.test(r1), 'it no longer restores with a plain apply');
+  ok(r1.includes(`Resolve each such file only when you confirm the resolution against the accepted baseline and the work the branch holds, then run \`GIT_INDEX_FILE="${INDEX_COPY}" git -C E:/repo add -- <file>\``)
+    && r1.includes('A conflict you cannot confirm FAILS the restore for the branch (below).'), 'a conflict is resolved only when confirmed, else the restore fails');
   // Intent-to-add follows every apply, so a reversed restore leaves no index entry behind.
-  ok(r1.indexOf('c. Once every branch has applied, run `git -C E:/repo add -N -- <file>` on each new file the restores created') > apply, 'it marks the restored new files intent-to-add once every branch applied');
+  ok(r1.indexOf('c. Once every branch has applied and no conflict marker is left, delete that index copy. Then run `git -C E:/repo add -N -- <file>` on each new file the restores created') > apply,
+    'it deletes the index copy, then marks the restored new files intent-to-add once every branch applied');
   ok(/Confirm `git -C E:\/repo diff --cached --stat` is the same/.test(r1), 'it confirms the staged index is unchanged');
   ok(r1.includes(`An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished work. On top of its branch's work, which step b restored or the accepted baseline already holds, or on the accepted baseline when it carries no "- branch:" line, close the gaps its **What:** lists and meet ${ORIGIN_CRITERIA}. Those gaps are copied from a review. A review is another agent's claim.`)
     && r1.includes("A gap you refute gets its DISMISSED line under rule 1. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line and the origin criteria hold, never STALE."),
     'every park entry, with a branch or without, meets its origin block\'s criteria and is reported FIXED, never STALE, with no fix or log owed for a listed risk gap');
-  ok(r1.includes('reverse each branch step b already restored, the last one first, with `git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply -R`')
-    && r1.includes('set restore_failed to the branch that failed and why (missing, or the `git apply` error), set restored_branches to 0, and STOP. Every branch stays as it was.')
+  ok(r1.includes('undo every restore. The unstaged tree was empty when you started, so run `git -C E:/repo checkout -- <file>` for each file `git -C E:/repo diff --name-only` lists, and `git -C E:/repo clean -f -- <file>` for each `??` file `git -C E:/repo status --porcelain` lists')
+    && r1.includes('set restore_failed to the branch that failed and why (missing, the `git apply` error, or the conflict you could not confirm), set restored_branches to 0, and STOP. Every branch stays as it was.')
     && r1.includes('Otherwise set restore_failed to "" and restored_branches to the count of branches step b applied.'),
     'a branch that is missing or does not apply undoes the restores and stops');
   ok(!/step 0 below/.test(r1), 'a fix block names no procedure step 0, since its procedure starts at step 1');
@@ -2738,6 +2747,10 @@ section('acceptance re-checks every earlier review file of its block, and only t
       + "That includes this round's blind review, when one ran."),
       `${mode}: the earlier-findings step says a clean blind review found nothing`);
     ok(/an earlier finding that is neither closed\s+nor declined/.test(a), `${mode}: an open earlier finding counts as a gap`);
+    // A closing edit can make a true sentence or record false, so a finding counts as closed only when its edit passes the REGRESSION step.
+    ok(flat(a).includes('(a) the current code closes it, the edit that closes it breaks nothing under the REGRESSION step below, and a grep finds no sibling path')
+      && flat(a).includes('one closed by an edit that fails the REGRESSION step below, and one neither closed nor declined each count as a gap.')
+      && a.indexOf('EARLIER FINDINGS') < a.indexOf('REGRESSION: compare the unstaged diff'), `${mode}: a finding closed by an edit that fails the REGRESSION step is a gap`);
     ok(/the earlier-findings\s+result/.test(a) && /BEFORE step 8/.test(a) && !/BEFORE step [67]/.test(a),
       `${mode}: the WRITE step records it and points at the renumbered DECIDE step`);
     ok(/every earlier finding closed or declined,[^•]*no regression →/.test(flat(a)), `${mode}: the pass branch requires it`);
@@ -3433,6 +3446,26 @@ section('a quality clean:true that carries findings or contests is NOT clean');
     ok(!labels.includes('acceptance block-a r1'), `${what}: no acceptance runs in round 1`);
     ok(byLabel('develop block-a r2')[0]?.prompt.includes('quality-review-block-a-r1.md'), `${what}: the next developer is sent to the quality file`);
     ok(logs.some((l) => /quality returned clean=true with issue_count=\d+ and contested_dismissals=\d+ — self-contradictory/.test(l)), `${what}: the contradiction is logged`);
+  }
+}
+
+section('conventionFiles reach the developer, the blind reviewer and acceptance, and a bad value throws');
+// The distilled conventions text is an index, so each agent reads the project's own instruction files in full.
+{
+  const HEAD = "CONVENTION FILES (the project's own rules, which the CONVENTIONS text above indexes. Read each one in full, whatever any rule below limits your reads to):";
+  const none = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, ONE_BLOCK);
+  for (const label of ['develop block-a', 'quality block-a', 'acceptance block-a']) {
+    ok(!none.prompt(label).includes('CONVENTION FILES'), `without the arg, the ${label} prompt carries no section`);
+  }
+  const set = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, { ...ONE_BLOCK, conventions: 'c', conventionFiles: [' CLAUDE.md', 'src\\CLAUDE.md', ' E:/home/.claude/CLAUDE.md '] });
+  for (const label of ['develop block-a', 'quality block-a', 'acceptance block-a']) {
+    ok(set.prompt(label).includes(`${HEAD}\n  - E:/repo/CLAUDE.md\n  - E:/repo/src/CLAUDE.md\n  - E:/home/.claude/CLAUDE.md\n`),
+      `the ${label} prompt lists each file trimmed, a relative one resolved against target.repo`);
+  }
+  for (const bad of ['CLAUDE.md', [''], ['CLAUDE.md', 3], {}]) {
+    const msg = await throwsWith(ENGINE, { args: { ...ONE_BLOCK, conventionFiles: bad } });
+    ok(msg.startsWith('Invalid args.conventionFiles: it must be an array of file paths') && msg.includes(JSON.stringify(bad)),
+      `conventionFiles ${JSON.stringify(bad)} throws naming the value: ${msg.slice(0, 120)}`);
   }
 }
 
