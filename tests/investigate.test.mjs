@@ -5,7 +5,8 @@
 // reports the wrong one — which is exactly how fatigue would come to masquerade as a proof. After that:
 // the critic gate, dead agents (a dead investigator must never read as an exhausted search), and what the
 // prompts actually name.
-import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
+import { readFileSync } from 'node:fs';
+import { runEngine, throwsWith, readMeta, REPO_ROOT, section, ok, eq } from './harness.mjs';
 import { pinRoleMaps, pinWriteNotes } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/investigate/investigate-cycle.mjs';
@@ -147,7 +148,8 @@ section('an agreed saturation claim is a STOPPED search with its own terminal, n
     'nextStep points at the review, the only place a determination linking a disqualified option is recorded');
   ok(out.determinationDefects === 2, 'the critic\'s determination defects are counted on the return');
   ok(out.nextStep.includes('The critic found 2 defect(s) in the determination'), 'and nextStep states the count');
-  ok(/ANSWER may still link an option the critic disqualified/.test(out.nextStep), 'the disqualified-option warning stays');
+  ok(!/ANSWER may still link an option the critic disqualified/.test(out.nextStep),
+    'no disqualified-option warning: the critic corrects ANSWER to its verdicts, and a failed correction counts as a defect');
   ok(out.nextStep.includes('Offer E:/r/runs/t/DISQUALIFIED.md for what was ruled out and why.'), 'nextStep offers the ledger as an artifact');
 }
 
@@ -220,6 +222,14 @@ section('a round that adds NOTHING stalls the run rather than buying another emp
   ok(/same runId/.test(out.nextStep) && /criteria\/premise/.test(out.nextStep),
     'and offers the two real continuations: resume from the memory, or change the question');
   ok(logs.some((l) => /added NOTHING/.test(l)), 'and the round is called out in the log');
+  ok(!/no critic checked/.test(out.nextStep), 'round 1\'s critic checked every line, so no line is named unchecked (guard)');
+
+  // A critic-less learning round before the stall leaves ledger lines no critic checked.
+  const late = await run({ 'investigate': (label) => (/r[12]$/.test(label) ? LEARN : INV), 'critique': CRIT }, { ...baseArgs, maxRounds: 5 });
+  eq(late.labels.join(), 'investigate r1,critique r1,investigate r2,investigate r3', 'round 2 learns with no critic, and round 3 stalls');
+  ok(String(late.out.nextStep ?? '').includes('(what is already closed, apart from the lines tagged `r2 inv`, which no critic checked and a re-invoke\'s first critic checks)'),
+    'the stalled nextStep names round 2\'s lines as unchecked');
+  ok(late.logs.some((l) => /added NOTHING/.test(l) && /No critic checked the ledger lines tagged `r2 inv`/.test(l)), 'and so does the stall log line');
 }
 
 section('a LEARNING round is not a stall — ruling candidates out is progress');
@@ -543,6 +553,12 @@ section('priorRounds continues the round numbers of a resumed search');
     'the first resumed investigator is pointed at the last run\'s review');
   ok(p4.includes('acceptance-review-r3.md') && !/resumes after/.test(p4) && /round 4 is this run's LAST/.test(p4),
     'the next round reads this run\'s review and owes the determination');
+  const [f3, f4] = [p3, p4].map((p) => p.replace(/\s+/g, ' '));
+  ok(f3.includes('that round ran no critic, and this round\'s critic checks its ledger lines. Change the avenue'),
+    'a missing review on resume means the last round ran no critic, and this round\'s critic checks its lines');
+  ok(f3.includes('gets a FLAG, never a re-proposal, unless the resumed-search rule above makes the line OPEN.')
+    && f4.includes('gets a FLAG, never a re-proposal. APPEND:'),
+  'only the resumed round lets an OPEN line be re-proposed instead of flagged');
   eq(byLabel('critique').map((c) => c.label).join(), 'critique r3,critique r4', 'the critics write r3 and r4, never over r1 or r2');
   eq(out.rounds, 4, 'rounds counts the whole search');
   ok(/priorRounds: 4/.test(out.nextStep), 'nextStep names the priorRounds that continues the search');
@@ -575,8 +591,8 @@ section('the per-round log counts BOTH writers into the ledger');
 }
 
 section('near misses reach the operator through the determination\'s NEAR MISSES section');
-// A count would be per invocation and unverified. The section is cumulative and critic-checked, and the
-// critic's own NEAR-MISS: lines reach it as determination defects.
+// A count would be per invocation and unverified. The section is cumulative and critic-checked. The critic
+// adds its own NEAR-MISS: lines to it and drops each candidate it re-opened.
 {
   const { out: dead } = await run({
     'investigate': { ...INV, claim: 'no_solution' },
@@ -597,8 +613,13 @@ section('near misses reach the operator through the determination\'s NEAR MISSES
     ok(!/\d+ NEAR MISS/i.test(o.nextStep) && !/\d+ near-miss/i.test(o.nextStep), `and quotes no near-miss count`);
   }
 
-  ok(/Its NEAR MISSES lack a `NEAR-MISS:` line you\s+appended to the ledger this round/.test(prompt('critique')),
-    'with a determination due, critic step 6 counts its own unlisted NEAR-MISS: lines as defects');
+  const rule = 'every candidate whose latest FAILS or UNPROVEN ledger line carries `NEAR-MISS:` and that ANSWER does not link';
+  const flatPrompt = (label) => prompt(label).replace(/\s+/g, ' ');
+  ok(flatPrompt('critique').includes(`NEAR MISSES holds ${rule}, your own lines included, less each candidate you re-opened this round,`),
+    'with a determination due, critic step 6 adds its own NEAR-MISS: lines and drops each candidate it re-opened, since no later round re-proposes it on the last one');
+  ok(flatPrompt('investigate').includes(`NEAR MISSES — ${rule}:`),
+    'and the investigator lists the same set, so a FLAG line or a corrected line decides the same way for both');
+  ok(!/Its NEAR MISSES lack a `NEAR-MISS:` line/.test(prompt('critique')), 'instead of counting them as defects for the operator');
 }
 
 section('the LAST round is told to write the determination; earlier rounds are not');
@@ -679,7 +700,7 @@ section('a criterion no source settles is UNPROVEN, not FAILS, and a re-open cos
 // anyone looking for the missing source. A re-open buys a round, so it carries a citation like a contest.
 {
   const flat = (p) => p.replace(/\s+/g, ' ');
-  const UNPROVEN = 'A criterion no checked source settles either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the source that would settle it.';
+  const UNPROVEN = 'A criterion no checked source settles either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator names the sources checked that leave it unsettled and the source that would settle it.';
   const NEAR = 'For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.';
   const NOISE = 'A measured difference smaller than the spread across repeated runs settles nothing: the criterion it bears on is UNPROVEN.';
   const script = { 'investigate': { ...INV, option_ids: ['opt-a'] }, 'critique': { ...CRIT, upheld: ['opt-a'] } };
@@ -688,6 +709,10 @@ section('a criterion no source settles is UNPROVEN, not FAILS, and a re-open cos
   const [inv, crit] = [flat(plain.prompt('investigate')), flat(plain.prompt('critique'))];
   ok(inv.includes(UNPROVEN) && crit.includes(UNPROVEN), 'both roles read the UNPROVEN rule in the shared fragment');
   ok(inv.includes(NEAR) && crit.includes(NEAR), 'and both count an UNPROVEN criterion toward the NEAR-MISS marker');
+  ok(inv.includes("A FAILS line's locator is the exact passage, section, line or command output that shows the failure. An UNPROVEN line's locator follows the UNPROVEN rule above."),
+    'the investigator\'s REJECTS step gives each line kind its own locator rule');
+  ok(crit.includes('confirm it supports the FAILS the line states, or, on an UNPROVEN line, that the sources it cites leave the criterion unsettled.'),
+    'and the critic confirms an UNPROVEN line by the sources leaving the criterion unsettled');
   ok(!inv.includes(NOISE) && !crit.includes(NOISE), 'with no testbed there is no measurement to call noise (guard)');
   ok(flat(bench.prompt('investigate')).includes(NOISE) && flat(bench.prompt('critique')).includes(NOISE),
     'with a testbed, a difference inside the run-to-run spread settles nothing');
@@ -768,10 +793,12 @@ section('the trajectory carries the search\'s shape round by round');
   // Garbage in the control plane must not reach the operator, and must not reach a stop rule reading the
   // trajectory as measurements.
   const { out: junk, logs: junkLogs } = await run({
-    'investigate': { ...INV, rediscovered: -8, next_avenue_confidence: 'pretty sure', claim: 'no_solution' },
+    'investigate': { ...INV, rediscovered: -8, disqualified_added: -3, flagged: -2, next_avenue_confidence: 'pretty sure', claim: 'no_solution' },
     'critique': { ...CRIT, agree: true },
   }, { ...baseArgs, maxRounds: 1 });
   eq(junk.trajectory[0].rediscovered, 0, 'a negative rediscovered count floors at 0');
+  eq(junk.trajectory[0].disqualified, 0, 'so does a negative disqualified_added count');
+  ok(!junkLogs.some((l) => /flagged/.test(l)), 'and a negative flagged count logs as no flag');
   eq(junk.trajectory[0].confidence, '', 'a value outside the enum is taken as NO signal rather than passed through');
   ok(!junkLogs.some((l) => /pretty sure/.test(l)), 'and it is never printed into the round log');
   ok(!junkLogs.some((l) => /next:/.test(l)),
@@ -873,7 +900,7 @@ section('a critic that did not attest its review file halts before its verdict i
     `nextStep names the priorRounds that re-runs r3: ${resumed.nextStep.slice(0, 160)}`);
 }
 
-section('a critic that agrees but flags a candidate for re-opening buys another round');
+section('a critic that agrees but re-opens a candidate buys another round');
 // A written but uncounted re-open finding let an agreed claim end the run as a closed search.
 {
   const { out, labels, logs } = await run({
@@ -881,8 +908,8 @@ section('a critic that agrees but flags a candidate for re-opening buys another 
     'critique': (label) => (/r1$/.test(label) ? { ...CRIT, agree: true, reopened: 1 } : { ...CRIT, agree: true }),
   }, { ...baseArgs, maxRounds: 3 });
   ok(labels.includes('investigate r2'), 'another investigator round ran');
-  ok(logs.some((l) => /termination claim not accepted \(the critic flagged 1 disqualified candidate\(s\) for re-opening\)/.test(l)), 'the log names the re-open count');
-  eq(out.status, 'exhaustive (search closed, critic agreed)', 'round 2 closes once nothing is flagged');
+  ok(logs.some((l) => /termination claim not accepted \(the critic re-opened 1 disqualified candidate\(s\)\)/.test(l)), 'the log names the re-open count');
+  eq(out.status, 'exhaustive (search closed, critic agreed)', 'round 2 closes once nothing is re-opened');
 
   const { labels: missing, logs: missingLogs } = await run({
     'investigate': { ...INV, claim: 'exhausted' },
@@ -909,8 +936,8 @@ section('each option file carries the critic\'s verdict, and the run\'s result c
     'the critic is told the exact verdict line, its round included, and where it goes');
   ok(crit.includes('options/opt-a.md') && /every other file in \S+\/options\/ that is UNVERIFIED/.test(crit),
     'and judges this round\'s ids plus every unverified file in options/');
-  ok(/does not read `verdict: upheld`/.test(crit) && /omits an option whose file reads `verdict: upheld`/.test(crit),
-    'its determination check counts both a link to an option not upheld and an upheld option left unlinked');
+  ok(/ANSWER links every option whose file reads `verdict: upheld` and no other\./.test(crit),
+    'its determination correction removes a link to an option not upheld and adds an upheld option left unlinked');
   const inv = prompt('investigate');
   ok(/Never write\s+a verdict line yourself/.test(inv) && /rewrite its whole file with no verdict line/.test(inv),
     'the investigator reads the verdict lines, never writes one, and re-proposes by rewriting the file');
@@ -1087,4 +1114,101 @@ section("every prompt that writes a file says to Read an earlier launch's file f
   pinWriteNotes(sites);
   ok(prompt('investigate r1').replace(/\s+/g, ' ').includes('rewriting an unverified file (no verdict line, or one naming round 1 or later) for the same candidate'),
     'the options-file slug rule lets a relaunch rewrite an unverified file of the same candidate');
+}
+
+section('every ledger line carries its round, writer and locator, and a critic checks the lines no critic has checked');
+// A learning round runs no critic, so its lines wait for the next critic: the range starts after the last one.
+{
+  const flat = (p) => String(p ?? '').replace(/\s+/g, ' ');
+  const line = (r, w) => `\`r${r} ${w} — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>\``;
+  const { byLabel, labels, logs } = await run({
+    'investigate r1': { ...INV, option_ids: ['opt-a'] }, 'investigate': LEARN, 'critique': CRIT,
+  }, { ...baseArgs, maxRounds: 3 });
+  eq(labels.filter((l) => l.startsWith('critique')).join(), 'critique r1,critique r3', 'round 2 learns with no critic, and round 3 owes a determination');
+  ok(logs.some((l) => /r2: \+0 option\(s\), 1 disqualified, next: low — no critic this round: its ledger lines wait for the next critic/.test(l)),
+    'the critic-less learning round says its lines wait for the next critic');
+  const [i1, i2] = byLabel('investigate').map((c) => flat(c.prompt));
+  const [c1, c3] = byLabel('critique').map((c) => flat(c.prompt));
+  ok(i1.includes(line(1, 'inv')) && i2.includes(line(2, 'inv')), 'the investigator\'s ledger line carries its round, writer and locator');
+  ok(c1.includes(line(1, 'crit')) && c3.includes(line(3, 'crit')), 'and so does the critic\'s');
+  ok(![i1, c1].some((p) => p.includes('`<candidate> — FAILS <criterion>')), 'the untagged line shape is gone');
+  ok(i1.includes('A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate>')
+    && c1.includes('A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate>'),
+  'both writers place the NEAR-MISS marker the same way');
+  ok(i2.includes('`r2 inv — FLAG <candidate> — <criterion> — <why the line is wrong> — <source and locator>`')
+    && i2.includes('The next critic rules on it, and a flag it upholds re-opens the candidate. Return their count as flagged.'),
+  'the investigator flags a line it can contradict, and the next critic rules on it');
+  ok(c1.includes('the ones tagged `r1 inv`. Open each line\'s source at its locator and confirm it supports the FAILS the line states,'),
+    'the round-1 critic checks round 1\'s lines against their locators');
+  ok(c3.includes('the ones tagged `r<K> inv` for K from 2 to 3.'), 'the round-3 critic checks every line since the round-1 critique, the critic-less round 2 included');
+  ok(c1.includes('Rule on each FLAG line among them') && c1.includes('check every `NEAR-MISS: ` line among the lines step 3 checks.'),
+    'the critic rules on each flag and re-checks the near-miss markers among those lines');
+  ok(!c1.includes('line this round added'), 'and no longer only the markers this round added');
+
+  ok(c3.includes('no critic has checked the lines the investigator appended since the last critique,'), 'a fresh run\'s critic checks the lines since the last critique');
+  const { byLabel: resumed } = await run({ 'investigate': { ...INV, option_ids: ['opt-a'] }, 'critique': CRIT }, { ...baseArgs, priorRounds: 3, maxRounds: 1 });
+  const rc = flat(resumed('critique')[0]?.prompt);
+  ok(rc.includes('no critic of this run has checked the lines the investigator appended, the ones tagged `r<K> inv` for K from 1 to 4.'),
+    'a resumed run\'s first critic checks every tagged line, which no critic of this run has checked');
+  ok(!rc.includes('no critic has checked'), 'and is not told that no earlier run\'s critic checked them');
+}
+
+section('a round whose only ledger lines are flags runs its critic and is not a stall');
+// Left to a later critic, a flag dies unruled when the next round stalls.
+{
+  const { out, labels, logs } = await run({
+    'investigate r1': { ...INV, option_ids: ['opt-a'] }, 'investigate r2': { ...INV, flagged: 1 }, 'investigate': INV, 'critique': CRIT,
+  }, { ...baseArgs, maxRounds: 4 });
+  eq(labels.join(), 'investigate r1,critique r1,investigate r2,critique r2,investigate r3', 'the flag\'s own round runs the critic that rules on it');
+  eq(out.status, 'stalled (a round added nothing new and claimed nothing)', 'and only the empty round after it stalls');
+  ok(logs.some((l) => /r2: \+0 option\(s\), 0 disqualified, 1 flagged, next: low \(critic upheld 0\)/.test(l)), 'the round log counts the flag');
+  const gate = readMeta(readFileSync(`${REPO_ROOT}/${ENGINE}`, 'utf8'))?.phases?.find((ph) => ph.title === 'Critique')?.detail ?? '';
+  ok(gate.includes('skipped only in a round that adds no option, flags no ledger line,'), 'the meta names the flag among what runs the critic');
+  const { out: quiet } = await run({ 'investigate r1': { ...INV, option_ids: ['opt-a'] }, 'investigate': INV, 'critique': CRIT }, { ...baseArgs, maxRounds: 3 });
+  eq(quiet.status, 'stalled (a round added nothing new and claimed nothing)', 'a round with no flag still stalls (guard)');
+}
+
+section('the critic corrects the determination to its verdicts and counts only what it leaves');
+{
+  const flat = (p) => String(p ?? '').replace(/\s+/g, ' ');
+  const { prompt } = await run({ 'investigate': { ...INV, option_ids: ['opt-a'], claim: 'exhausted' }, 'critique': { ...CRIT, agree: true } }, { ...baseArgs, maxRounds: 2 });
+  const c = flat(prompt('critique'));
+  for (const s of ['so after your verdict writes and ledger appends, CORRECT these sections in place to match them.',
+    'COMPARISON and WHICH TO PICK WHEN hold a row or line for each ANSWER option and no other, taken from its file.',
+    'When ANSWER links exactly one option, COMPARISON says so and holds no table.',
+    'When it links none, ANSWER says so and the file has no COMPARISON or WHICH TO PICK WHEN.',
+    'Then read it for these defects, which you report and do not correct.',
+    'A correction the tool rejected was not made, so it is a defect too.',
+    'Write each correction and each defect in your review file, and count the defects in determination_defects.']) {
+    ok(c.includes(s), `critic step 6 says "${s.slice(0, 60)}"`);
+  }
+  const phases = readMeta(readFileSync(`${REPO_ROOT}/${ENGINE}`, 'utf8'))?.phases ?? [];
+  const critique = String(phases.find((ph) => ph.title === 'Critique')?.detail ?? '');
+  ok(critique.includes('re-checks every NEAR-MISS marker among those lines') && critique.includes('corrects its ANSWER, COMPARISON, WHICH TO PICK WHEN and NEAR MISSES to match its verdicts'),
+    'the meta describes the near-miss re-check and the correction the critic runs');
+}
+
+section('each criteria gap quotes the criteria line it rests on, and the operator checks it before folding');
+{
+  const GAP = { gaps: [{ title: 'no evidence standard', evidence: 'absent: Evidence Standard' }], questions: [], unfalsifiable: [] };
+  const CHECK = 'Check each gap against the criteria file before you fold it: confirm its quoted evidence line is there and says what the gap claims, or, for an `absent:` gap, that the section is missing, and treat its suggestion as a hint, never as text to paste.';
+  const { out, calls } = await run({ 'criteria-critic': GAP }, { ...baseArgs, phase: 'refine' });
+  const items = calls[0]?.opts?.schema?.properties?.gaps?.items;
+  ok(Array.isArray(items?.required) && items.required.includes('evidence') && typeof items.properties?.evidence?.description === 'string',
+    'the schema requires a quoted evidence line on each gap');
+  ok(calls[0]?.prompt.replace(/\s+/g, ' ').includes('Each gap\'s evidence quotes, verbatim, the line of the criteria file it rests on, or reads "absent: <section>" when the gap is a section the file lacks.'),
+    'and the prompt says what the line is');
+  ok(calls[0]?.prompt.replace(/\s+/g, ' ').includes('a gap with neither a line nor an absent section behind it is not one'),
+    'and an absent-section gap survives the discard rule in the prompt');
+  ok(String(out.nextStep ?? '').startsWith(CHECK) && !out.nextStep.includes('directly'), 'nextStep checks each gap before folding it');
+  ok(!out.nextStep.includes('unfalsifiable'), 'and a gap-only result says nothing about unfalsifiable criteria');
+  const { out: asked } = await run({ 'criteria-critic': { ...GAP, questions: [{ question: 'which runtime?' }] } }, { ...baseArgs, phase: 'refine' });
+  ok(String(asked.nextStep ?? '').includes(`(AskUserQuestion). ${CHECK} Fold the answers + the confirmed gap fixes into the criteria (planPath)`),
+    'beside a question, the gaps are checked before they are folded');
+  const { out: none } = await run({ 'criteria-critic': { gaps: [], questions: [{ question: 'which runtime?' }], unfalsifiable: [] } }, { ...baseArgs, phase: 'refine' });
+  ok(!String(none.nextStep ?? '').includes('Check each gap'), 'no gap, no gap check');
+  const { out: mixed } = await run({ 'criteria-critic': { ...GAP, unfalsifiable: [{ criterion: 'must be popular' }] } }, { ...baseArgs, phase: 'refine' });
+  ok(String(mixed.nextStep ?? '').startsWith(CHECK)
+    && mixed.nextStep.includes('Fold the confirmed gap fixes into the criteria (planPath) and REPLACE every unfalsifiable criterion with one that evidence can settle'),
+    'gaps beside an unfalsifiable criterion with no question: the gaps are checked, then both fixes fold');
 }

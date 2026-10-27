@@ -41,10 +41,11 @@ export default {
       respond: { analyst: ANALYST, decide: DECIDE, review: AGREE, 'review r1 design': { ...AGREE, caveat_ids: ['slug-c'] } },
     },
     {
+      // The round-1 caveat reaches the round-3 verifier as a file path, which the prompt snapshot shows.
       name: 'gaps to the round budget',
       when: 'the reviewers keep finding blocking gaps',
       args: base,
-      respond: { analyst: ANALYST, decide: DECIDE, review: GAPS },
+      respond: { analyst: ANALYST, decide: DECIDE, review: GAPS, 'review r1 design': { ...GAPS, caveat_ids: ['slug-c'] } },
     },
     {
       // The decider's escalation: it breaks BEFORE the reviewers run.

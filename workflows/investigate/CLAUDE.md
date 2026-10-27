@@ -100,25 +100,31 @@ The JS conductor routes only ids, paths + verdicts (#1). Each agent is fresh. Al
 the search is the hard part, the critic re-verifies citations against their sources, and there are few
 agents per run, so a fast tier buys nothing.
 
-- **Criteria Critic** (`criteria` · refine phase only) — reads the criteria, returns `gaps`, `questions`,
-  and **`unfalsifiable`** (its distinctive job: criteria no evidence could settle, or that contradict each
+- **Criteria Critic** (`criteria` · refine phase only) — reads the criteria, returns `gaps` (each with
+  the criteria line it rests on quoted as its `evidence`, or `absent: <section>` for a section the file
+  lacks, which the refine `nextStep` has you check before you fold the gap), `questions`, and **`unfalsifiable`** (its distinctive job: criteria no evidence could settle, or that contradict each
   other). Writes nothing. A dead critic **throws** — "no gaps" and "no critic" must never look alike.
 - **Investigator** (`investigate`) — one per round, sequential. Reads the criteria verbatim, **both memory
   files**, and the last critique; searches; self-checks every candidate against every criterion; writes
-  `options/<id>.md` per qualifier and a ledger line per reject, marking `NEAR-MISS:` the ones that failed
-  **exactly one** criterion; appends the avenues it swept and the one it would try next to `SEARCHED.md`;
+  `options/<id>.md` per qualifier and a ledger line per reject, tagged with its round and carrying the
+  source and locator that show the failure, marking `NEAR-MISS:` the ones that failed **exactly one**
+  criterion; appends a `FLAG` line, never a re-proposal, for a ledger line it can contradict with a
+  citation, so the next critic rules on it; appends the avenues it swept and the one it would try next to `SEARCHED.md`;
   writes `DETERMINATION.md` (§6) on a terminating round **and on the last round the budget allows**. From
   round 2 it also weighs this round's genuinely-new material against the trajectory in `SEARCHED.md` and
   claims **`saturated`** when the yield has collapsed. Escalates a user-only call to `NEEDS-USER.md` —
   **and so may the critic**, for a criteria contradiction; those are two distinct halt paths, not one.
 - **Acceptance Critic** (`critique`) — adversarial, non-blind, **skipped only in a round that adds no
-  option, claims no termination, owes no determination and is not the run's first round**. A run's first
+  option, flags no ledger line, claims no termination, owes no determination and is not the run's first round**. A run's first
   round runs it, fresh or resumed, unless its investigator stops the run first. That catches option files an
   interrupted earlier attempt left unjudged. Verifies each new option and every unverified file in
   `options/` against every criterion and each citation against its source, disqualifies what fails
-  (appending to the same ledger), re-checks every `NEAR-MISS` marker (an over-claimed one poisons the
-  determination), attacks any exhaustion / no-solution / saturation claim, and checks the determination
-  whenever one was written. It writes its verdict as the first line of each option file it judges:
+  (appending to the same ledger), checks every ledger line added since the last critique against its
+  source and locator, re-opens a candidate whose line the source does not support, rules on each `FLAG`
+  among those lines, re-checks every `NEAR-MISS` marker among them (an over-claimed one poisons the
+  determination), and attacks any exhaustion / no-solution / saturation claim. Whenever a determination
+  was written, it corrects its ANSWER, COMPARISON, WHICH TO PICK WHEN and NEAR MISSES in place to match
+  its verdicts, and reports any other defect. It writes its verdict as the first line of each option file it judges:
   `verdict: upheld rN` or `verdict: disqualified rN`. Only options whose file reads `verdict: upheld` reach
   the caller. A resumed run's first critic instead judges every file in `options/` against the criteria
   as they read now, whatever its verdict line, and re-opens every ledger line whose named failing
@@ -145,9 +151,9 @@ Every round **starts with the investigator**.
   another round. That contest is what makes "these are all of them" worth anything — and it **costs a
   citation**: the contest must name the missed avenue with a source and locator connecting it to the
   criterion or search-space bound it puts back in play. A bare "you missed something" fits any search that
-  ever ended, so it settles nothing and still buys a round. A reopen flag buys a round too, so it costs a
+  ever ended, so it settles nothing and still buys a round. A re-open buys a round too, so it costs a
   citation of the misread passage, or, on a resumed search, of the criterion as it reads now. While the
-  critic flags a ledger candidate for reopening (`reopened` above 0) or returns no count, no termination
+  critic re-opens a ledger candidate (`reopened` above 0) or returns no count, no termination
   claim ends the run, even with `agree` set.
 - **Saturation is a STOP, not a close — and it never dresses as one.** From round 2 the investigator must
   actively check for diminishing returns against its own trajectory: nothing genuinely new this round, or
@@ -158,7 +164,7 @@ Every round **starts with the investigator**.
   prompt tells it to claim exhaustion or no-solution instead whenever it can evidence either.
   `exhaustive` stays **false**.
 - **A round whose investigator adds *nothing* stops the run.** The investigator adds no option, no ledger
-  line, no claim and no escalation, and no determination is owed → `stalled`, immediately, round 1
+  line (a `FLAG` line counts as one), no claim and no escalation, and no determination is owed → `stalled`, immediately, round 1
   included: the next round would have nothing to diverge from. No determination was written. A stall in
   the run's first round comes after its critic judged the files in `options/`. That critic may still
   disqualify files an earlier attempt left and append their ledger lines. The round stalls all the same,
@@ -183,9 +189,9 @@ Every round **starts with the investigator**.
   among hundreds in the ledger is where it would otherwise die. The marker is a **fact** — two failed
   criteria is not a near miss.
   **Both writers mark them**, so an option the critic itself knocks out on one criterion counts too.
-  The critic re-checks the investigator's markers in its review file and the ledger. It counts as a
-  determination defect any `NEAR-MISS:` line it appended that the NEAR MISSES section lacks, so the
-  operator corrects that section before relaying it.
+  The critic re-checks the markers on the ledger lines added since the last critique, appends a
+  corrected line for a wrong one, and adds every near miss, its own included, to the determination's
+  NEAR MISSES section. A candidate it re-opened that round stays out of the section.
 - **Eight terminal states, never folded together.** "Ran out of rounds", "ran out of tokens", "nothing can
   qualify", "the yield collapsed" and "the round produced nothing" are five different facts, and
   collapsing any pair is how a *stopped* search gets reported as a *finished* one:
@@ -230,8 +236,9 @@ Every round **starts with the investigator**.
 Follow the return's `nextStep`. It leads with the terminal state (§6 table) and names the files to
 show, the next launch and every caveat.
 
-The return's `determinationDefects` counts the defects the critic found in the determination it last
-checked. It is null when no critic checked a determination or the critic gave no count, and null never
+The return's `determinationDefects` counts the defects the critic left in the determination it last
+checked, after it corrected the ANSWER, COMPARISON, WHICH TO PICK WHEN and NEAR MISSES sections to its
+verdicts. A correction the tool rejected counts as a defect. It is null when no critic checked a determination or the critic gave no count, and null never
 reads as clean. The defects deliberately do not change `agree`, since a malformed determination is not
 an open search.
 
@@ -289,17 +296,24 @@ inline.
   `verdict: upheld rN` or `verdict: disqualified rN`. Only the critic writes that line. A re-proposed
   option's file is rewritten without one, so it is unverified again. A critic-disqualified option's file
   stays on disk.
-- `DISQUALIFIED.md` — the append-only ledger: one terse line per rejected candidate naming the criterion it
-  fails, with `NEAR-MISS: ` prefixing the ones that failed exactly one. A line reads `UNPROVEN` in place of
-  `FAILS` when no checked source settles the criterion, and names the source that would. **This is the
+- `DISQUALIFIED.md` — the append-only ledger: one terse line per rejected candidate,
+  `r<N> <inv|crit> — <candidate> — FAILS|UNPROVEN <criterion> — <why> — <source and locator>`, with
+  `NEAR-MISS: ` in front of the candidate that failed exactly one criterion. A line reads `UNPROVEN` in
+  place of `FAILS` when no checked source settles the criterion, and names the sources checked and the
+  source that would settle it. An
+  investigator's `r<N> inv — FLAG <candidate> — ...` line disputes an earlier line with a citation, and
+  the next critic rules on it. **This is the
   search's memory** and the reason each round diverges from the last.
 - `SEARCHED.md` — the append-only **avenue** log: an `r<N> SWEPT:` line per avenue swept, carrying the
   search terms used and what it yielded, and exactly one `r<N> NEXT:` line per round naming the most
   promising unswept avenue and the confidence in it. The ledger closes candidates; this closes ground, and
   it is what a resumed run reads to avoid re-running the last round's searches.
-- `acceptance-review-rN.md` — the critic's findings for round N: per-option verdicts, near-miss
-  corrections, any contested termination claim, and any defect in the determination. A run's first round
-  writes one unless its investigator stops the run first. A later round with nothing to check writes none.
+- `acceptance-review-rN.md` — the critic's findings for round N: per-option verdicts, its rulings on the
+  new ledger lines and flags, near-miss corrections, any contested termination claim, and the
+  corrections it made to the determination and any defect left in it. A run's first round
+  writes one unless its investigator stops the run first. A later round that runs no critic writes none,
+  and the next critic checks its ledger lines. When the run stalls before that critic, the stall's log
+  line and `nextStep` name those lines as unchecked.
 - `DETERMINATION.md` — the run's product file, in the fixed shape of §6, linking to `options/<id>.md`
   rather than restating them (#11). Written on a terminating round **and** on the last round the budget
   allows (labelled a partial result when that round claims no termination). **The return names it

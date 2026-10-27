@@ -127,6 +127,48 @@ section('every reviewer is told the severity rules, and the round-2 decider the 
   }
 }
 
+section('the round-2 decider confirms each gap against its source, and the verifier keeps an unverified gap blocking');
+{
+  const CONFIRM = 'A gap is another agent\'s claim. Before you fold a BLOCKING gap, confirm its evidence against its source: open the lens file, file:line, URL or requirements text it cites, and re-run a measurement it cites where you can run it. Treat its smallest change as a hint. Fold the SMALLEST change that closes the confirmed defect, which may differ from the hint, and check it against every passage of your decision that states the same fact.';
+  const UNVERIFIED = 'A gap you can neither confirm nor refute goes under `## Rebuttals` marked unverified, with the check that would settle it.';
+  const KEEP = 'A gap the decider marked unverified stays BLOCKING unless you run the check it names and that check refutes the gap.';
+  for (const [sel, args] of [['single', baseArgs], ['ranked', RANKED]]) {
+    const { byLabel } = await run({
+      analyst: ANALYST, decide: DECIDE,
+      review: (label) => (isR1(label) ? gaps('p99-unproven') : AGREE),
+    }, { ...args, maxRounds: 3 });
+    const d1 = flat(byLabel('decide r1')[0]?.prompt);
+    const d2 = flat(byLabel('decide r2')[0]?.prompt);
+    ok(d2.includes(CONFIRM) && d2.includes(UNVERIFIED), `${sel}: the round-2 decider confirms each gap and treats its change as a hint`);
+    ok(!d2.includes('agreeing with a gap you cannot refute is the honest move'), `${sel}: and no longer folds a gap it cannot refute`);
+    ok(!d1.includes(CONFIRM), `${sel}: round 1 has no gap to confirm`);
+    ok(flat(byLabel('review r2')[0]?.prompt).includes(KEEP), `${sel}: the verifier keeps an unverified gap blocking until its check refutes it`);
+  }
+}
+
+section('the analyst cites each claim, and the matrix reviewer re-checks the source behind each outcome-moving cell');
+{
+  const CITE = 'Cite each factual claim: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.';
+  const SOURCE = { single: 'For each cell that moves the outcome, one the flip check names or one whose error would change the winner, open the source the lens file cites behind it and confirm it says what the cell claims',
+    ranked: 'For each cell that moves the outcome, one the flip check names or one whose error would change the order, open the source the lens file cites behind it and confirm it says what the cell claims' };
+  const RERUN = 'and re-run each testbed command the cell rests on.';
+  for (const [sel, args] of [['single', baseArgs], ['ranked', RANKED]]) {
+    for (const testbed of ['', 'sqlite3 "file:bench.db?mode=ro"']) {
+      const { byLabel } = await run({ analyst: ANALYST, decide: DECIDE, review: AGREE }, testbed ? { ...args, testbed } : args);
+      const tag = `${sel}${testbed ? ' + testbed' : ''}`;
+      ok(promptsOf(byLabel, 'analyst').every((p) => p.includes(CITE)), `${tag}: every analyst cites each factual claim`);
+      const owner = `The ${sel === 'ranked' ? 'order' : 'choice'} reviewer re-checks the source behind each matrix cell that moves the outcome.`;
+      ok(promptsOf(byLabel, 'analyst').every((p) => p.includes(owner)), `${tag}: the analyst is told which reviewer re-checks its sources`);
+      for (const f of FOCUS[sel]) {
+        const p = flat(byLabel(`review r1 ${f}`)[0]?.prompt);
+        const matrixFocus = f === 'choice' || f === 'order';
+        ok(p.includes(SOURCE[sel]) === matrixFocus, `${tag}/${f}: ${matrixFocus ? 're-checks' : 'leaves to the matrix reviewer'} the source behind each outcome-moving cell`);
+        if (matrixFocus) ok(p.includes(RERUN) === Boolean(testbed), `${tag}/${f}: ${testbed ? 're-runs' : 'names no'} testbed command`);
+      }
+    }
+  }
+}
+
 section('the decider writes a flip check in both selections, and a trade-off in single');
 {
   const { byLabel: single } = await run({ analyst: ANALYST, decide: DECIDE, review: AGREE });
@@ -408,20 +450,45 @@ section('a final round of NEW gaps says the folds open new defects or the questi
     'and starts the user at each disagreeing review\'s WHERE NEXT');
 }
 
-section('round 1 carries no slug list; later rounds carry the prior rounds\' slugs, caveats included');
+section('round 1 carries no slug list; later rounds carry the blocking slugs, and round 3 the earlier caveat files');
 {
   const { byLabel } = await run({
     analyst: ANALYST, decide: DECIDE,
-    review: (label) => (isR1(label) ? { ...gaps('p99-unproven'), caveat_ids: ['wording-loose'] } : gaps('p99-unproven', 'cost-axis-missing')),
-  }, { ...baseArgs, maxRounds: 3 });
+    review: (label) => (label === 'review r1 design' ? { ...gaps('p99-unproven'), caveat_ids: ['wording-loose'] }
+      : isR1(label) ? gaps('p99-unproven')
+        : label === 'review r2' ? { ...gaps('p99-unproven', 'cost-axis-missing'), caveat_ids: ['log-noisy'] }
+          : { ...gaps('p99-unproven'), caveat_ids: ['retry-unbounded'] }),
+  }, { ...baseArgs, maxRounds: 4 });
   const [p1] = promptsOf(byLabel, 'review r1');
   const [p2] = promptsOf(byLabel, 'review r2');
   const [p3] = promptsOf(byLabel, 'review r3');
+  const [p4] = promptsOf(byLabel, 'review r4');
   ok(!/AS SLUGS/.test(p1), 'round 1 has no earlier round, so it is given no list at all');
   ok(/AS SLUGS/.test(p2) && /p99-unproven/.test(p2), 'round 2 gets round 1\'s slug');
-  ok(/wording-loose/.test(p2 ?? ''), 'and its caveat slug, so a re-raised caveat reuses it');
   ok(/cost-axis-missing/.test(p3), 'and round 3 gets the ones round 2 added');
+  ok(![p2, p3].some((p) => /wording-loose|log-noisy/.test(p ?? '')), 'no verifier gets a bare caveat slug');
   ok(/reuse its slug verbatim/.test(p2), 'with the instruction that makes a repeat detectable — reuse the slug for the same issue');
+  ok(String(p2).includes('or as a caveat in a review file named above, reuse its slug verbatim'), 'a re-raised caveat reuses the slug its file holds');
+  const OLDER = "Earlier rounds' caveats are under `## Caveats` in these files as well";
+  ok(!String(p2).includes(OLDER), 'round 2 reads every round-1 file already, so it is handed no extra caveat file');
+  ok(String(p3).includes(OLDER) && String(p3).includes('E:/r/runs/t/decision-review-r1-design.md')
+    && !String(p3).includes('decision-review-r1-choice.md'),
+  'round 3 is handed the round-1 file that holds a caveat, and no round-1 file that holds none');
+  const tail4 = String(p4).slice(String(p4).indexOf(OLDER));
+  ok(String(p4).includes(OLDER) && tail4.includes('decision-review-r1-design.md') && tail4.includes('decision-review-r2.md'),
+    'round 4 is handed the caveat files of rounds 1 and 2, the rounds before the one it reviews');
+  ok(!/decision-review-r3\.md/.test(tail4.slice(0, tail4.indexOf('THE DECISION TO REVIEW'))),
+    'and not round 3\'s file, which it reads in full as the previous round');
+
+  // A round-1 disagreement that names only a caveat reaches round 2 with no blocking slug to list.
+  const { byLabel: caveatOnly } = await run({
+    analyst: ANALYST, decide: DECIDE,
+    review: (label) => (label === 'review r1 choice' ? { ...AGREE, agree: false, caveat_ids: ['wording-loose'] } : AGREE),
+  }, { ...baseArgs, maxRounds: 2 });
+  const [c2] = promptsOf(caveatOnly, 'review r2');
+  ok(!/AS SLUGS/.test(c2), 'with no blocking slug, round 2 is given no slug list');
+  ok(String(c2).includes('If a gap you find is the SAME issue as a caveat in a review file named above, reuse its slug verbatim.'),
+    'and still reuses a caveat\'s slug, so a re-raised caveat is not counted twice');
 }
 
 section('the FINAL round is told to write the new WHERE NEXT, and a final verifier to walk every non-negotiable');

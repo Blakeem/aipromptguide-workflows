@@ -6,21 +6,21 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| criteria-critic | 1 | 1 | 1539 | refine the criteria |
-| investigate | 1 | 1 | 7024 | exhaustion agreed |
-| critique | 1 | 1 | 6116 | exhaustion agreed |
-| critique | 2 | 1 | 6129 | no solution verified |
-| investigate | 2 | 1 | 8071 | exhaustion contested |
-| investigate | 3 | 1 | 8436 | exhaustion contested |
-| critique | 3 | 1 | 6424 | saturation agreed |
-| critique | 4 | 1 | 4705 | stalled |
-| investigate | 4 | 1 | 8420 | resumed quiet first round |
-| critique | 5 | 1 | 4937 | resumed quiet first round |
-| investigate | 5 | 1 | 7874 | quiet rounds |
-| investigate | 6 | 1 | 8239 | quiet rounds |
-| critique | 6 | 1 | 5528 | quiet rounds |
-| critique | 7 | 1 | 6348 | resumed search |
-| critique | 8 | 1 | 4692 | investigator escalates |
+| criteria-critic | 1 | 1 | 1900 | refine the criteria |
+| investigate | 1 | 1 | 7876 | exhaustion agreed |
+| critique | 1 | 1 | 7547 | exhaustion agreed |
+| critique | 2 | 1 | 7560 | no solution verified |
+| investigate | 2 | 1 | 8923 | exhaustion contested |
+| investigate | 3 | 1 | 9288 | exhaustion contested |
+| critique | 3 | 1 | 7855 | saturation agreed |
+| critique | 4 | 1 | 5656 | stalled |
+| investigate | 4 | 1 | 9357 | resumed quiet first round |
+| critique | 5 | 1 | 5896 | resumed quiet first round |
+| investigate | 5 | 1 | 8726 | quiet rounds |
+| investigate | 6 | 1 | 9091 | quiet rounds |
+| critique | 6 | 1 | 6979 | quiet rounds |
+| critique | 7 | 1 | 7787 | resumed search |
+| critique | 8 | 1 | 5643 | investigator escalates |
 
 ## criteria-critic · variant 1 · schema 1
 
@@ -35,13 +35,16 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 
 PROCEDURE — three failure modes, and only these:
 1. GAPS: a constraint the question plainly implies but no criterion states, a missing EVIDENCE STANDARD
    (what would count as proof that a criterion is met), or a search space so unbounded that no exhaustion
-   claim over it could ever be evidenced.
+   claim over it could ever be evidenced. Each gap's evidence quotes, verbatim, the line of the criteria
+   file it rests on, or reads "absent: <section>" when the gap is a section the file lacks. The operator
+   checks each gap against that line before folding it, so a gap with neither a line nor an absent section
+   behind it is not one.
 2. UNFALSIFIABLE: a criterion no evidence could settle either way as written ("must be maintainable",
    "should be popular"), or one that CONTRADICTS another so nothing could satisfy both.
 3. QUESTIONS: only what genuinely BLOCKS the search and only the USER can answer.
@@ -64,11 +67,16 @@ Return via the schema.
       "items": {
         "type": "object",
         "required": [
-          "title"
+          "title",
+          "evidence"
         ],
         "properties": {
           "title": {
             "type": "string"
+          },
+          "evidence": {
+            "type": "string",
+            "description": "the line of the criteria file the gap rests on, quoted verbatim, or \"absent: <section>\" when the gap is a section the file lacks"
           },
           "why": {
             "type": "string",
@@ -76,7 +84,7 @@ Return via the schema.
           },
           "suggestion": {
             "type": "string",
-            "description": "how to fix the criteria file"
+            "description": "how to fix the criteria file. The operator checks it against the file first"
           }
         }
       }
@@ -139,11 +147,12 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 SEARCH MEMORY — read ALL THREE before you search:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
-    re-opens it. Do NOT re-walk an avenue it closes.
+    re-opens it: FLAG a line you can contradict with a citation instead (step 5). Do NOT re-walk an
+    avenue it closes.
   • E:/flow/runs/flow/SEARCHED.md — every AVENUE already swept, with its terms and yield. Do not re-run a search recorded
     here with the same terms. Pick up from its last `NEXT:` line, or say what you are doing differently.
   • E:/flow/runs/flow/options/ — one file per option written so far. A critic records its verdict as a file's FIRST
@@ -166,9 +175,15 @@ PROCEDURE:
    same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
    what the option BUYS, what it COSTS, and its sources. Terse and concrete.
 5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
-   `<candidate> — FAILS <criterion> — <≤15-word why> — <source>`
-   A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line `NEAR-MISS: ` and put the
+   `r1 inv — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`
+   A FAILS line's locator is the exact passage, section, line or command output that shows the failure.
+   An UNPROVEN line's locator follows the UNPROVEN rule above. The critic checks the line against it.
+   A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate> and put the
    shortfall in NUMBERS wherever the criterion has any.
+   FLAGS: a line already in the ledger that you can contradict with a citation (a passage showing the
+   candidate meets the criterion the line names) gets a FLAG, never a re-proposal. APPEND:
+   `r1 inv — FLAG <candidate> — <criterion> — <why the line is wrong> — <source and locator>`
+   The next critic rules on it, and a flag it upholds re-opens the candidate. Return their count as flagged.
    Append only: never rewrite, reorder or prune it.
    Do NOT re-append a REDISCOVERED candidate (one the ledger already closed that your search turned up
    again). Return their count as rediscovered.
@@ -195,7 +210,7 @@ PROCEDURE:
      nothing. Exactly one qualifier: say so and omit the table.
    • WHICH TO PICK WHEN — one line per option: the situation it is the right answer for. UNRANKED, since
      qualification is pass/fail.
-   • NEAR MISSES — every `NEAR-MISS:` line in the ledger: the ONE criterion it failed, the shortfall in
+   • NEAR MISSES — every candidate whose latest FAILS or UNPROVEN ledger line carries `NEAR-MISS:` and that ANSWER does not link: the ONE criterion it failed, the shortfall in
      numbers, and whether it is worth doing anyway on its own merits. Say plainly that none is a
      qualifier, even if worth doing.
    • COVERAGE — the avenues you swept, what remains untried, and why what remains cannot hold a qualifier.
@@ -220,6 +235,7 @@ Return via the schema, option_ids included.
     "wrote_files",
     "option_ids",
     "disqualified_added",
+    "flagged",
     "rediscovered",
     "next_avenue_confidence",
     "claim",
@@ -240,6 +256,10 @@ Return via the schema, option_ids included.
     "disqualified_added": {
       "type": "integer",
       "description": "candidates you appended to the DISQUALIFIED ledger this round"
+    },
+    "flagged": {
+      "type": "integer",
+      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 5), 0 if none"
     },
     "rediscovered": {
       "type": "integer",
@@ -286,8 +306,8 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   - E:/flow/runs/flow/options/opt-a.md
 Then every other file in E:/flow/runs/flow/options/ that is UNVERIFIED: its first line is not a verdict line, or its
@@ -301,21 +321,28 @@ left. Read it before you judge any coverage claim. Do not write to it): E:/flow/
 
 CHECK:
 1. Each option you judge against EVERY criterion. On a miss, append its line to E:/flow/runs/flow/DISQUALIFIED.md
-   (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
+   (`r1 crit — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`), write its disqualified verdict line,
    and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
-   this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
-   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
+   this round's new ones in upheld. A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate> and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
    from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
    it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
    merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
-   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
-   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
-   them in reopened.
-4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
-   criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
-   should carry the marker and does not.
+3. THE NEW LEDGER LINES: no critic has checked the lines the investigator appended since the last
+   critique, the ones tagged `r1 inv`. Open each line's source at its locator and confirm
+   it supports the FAILS the line states, or, on an UNPROVEN line, that the sources it cites leave the
+   criterion unsettled. A line it does not support was read wrong: append a
+   corrected `r1 crit` line when you find the passage that does disqualify the candidate, and
+   otherwise re-open the candidate. Rule on each FLAG line among them: open its citation, re-open the
+   candidate when the citation shows it meets the criterion the flagged line names, and otherwise say in
+   your review file why the flag fails.
+   Then check the rest of the ledger for a candidate disqualified on a WRONG reading that should be
+   re-opened. A re-open cites the passage the original reading got wrong, or, on a resumed search, the
+   criterion as it reads now. An uncited re-open is not one. Say so in your review file (the next
+   investigator reads it). Count every re-open in reopened.
+4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line among the lines step 3 checks. One whose candidate
+   fails a second criterion is mismarked: append a corrected `r1 crit` line naming the additional
+   criterion. Append a corrected line for one of those lines that should carry the marker and does not.
 5. ATTACK THE COVERAGE CLAIM, the check that matters most. The investigator says the search is closed.
    Check that first against E:/flow/runs/flow/SEARCHED.md, its record of the ground swept.
    Name ONE avenue, source, phrasing or adjacent domain it did not sweep that could plausibly hold a
@@ -323,18 +350,24 @@ CHECK:
    that source puts back in play. An UNCITED contest is not a contest. Set contests_claim=true only
    with that citation written into your review file. Set agree=true ONLY when you have genuinely tried
    and cannot: agreeing asserts nothing else is there.
-6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. Read it for these defects. Its
-   ANSWER links an option whose file, after your own verdict writes, does not read `verdict: upheld`.
-   Its ANSWER omits an option whose file reads `verdict: upheld` after your verdict writes. Its
-   COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
-   not match the marked ledger lines, or read as answers. Its NEAR MISSES lack a `NEAR-MISS:` line you
-   appended to the ledger this round: the investigator wrote the determination before you appended, so
-   each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
-   round), its WHERE NEXT is missing or empty. This does NOT change agree.
-   Write each defect in your review file and count them in determination_defects.
+6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. The investigator wrote it before your
+   verdicts, so after your verdict writes and ledger appends, CORRECT these sections in place to match them.
+   ANSWER links every option whose file reads `verdict: upheld` and no other. COMPARISON and WHICH TO PICK
+   WHEN hold a row or line for each ANSWER option and no other, taken from its file. When ANSWER links
+   exactly one option, COMPARISON says so and holds no table. When it links none, ANSWER says so and the
+   file has no COMPARISON or WHICH TO PICK WHEN. NEAR MISSES holds every candidate whose latest FAILS or UNPROVEN ledger line carries `NEAR-MISS:` and that ANSWER does not link,
+   your own lines included, less each candidate you re-opened this round, and none reads as an answer.
+   Then read it for these defects, which you report and do not correct. Its COMPARISON tables the
+   criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN
+   smuggles in a ranking (the options are unranked). On any STOPPED result (a saturation, a no_solution,
+   or a partial last round), its WHERE NEXT is missing or empty. A correction the tool rejected was not
+   made, so it is a defect too. This does NOT change agree.
+   Write each correction and each defect in your review file, and count the defects in
+   determination_defects.
 WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
-fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
-claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
+fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
+near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
+citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
 If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
@@ -398,11 +431,11 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
     },
     "determination_defects": {
       "type": "integer",
-      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+      "description": "defects left in the determination after your step-6 corrections, each written in your review file. 0 when none, or when no determination was due. They never change agree"
     },
     "reopened": {
       "type": "integer",
-      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
+      "description": "ledger candidates you re-opened under step 3, 0 if none"
     }
   }
 }
@@ -421,8 +454,8 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   (the investigator named no new option this round)
 Then every other file in E:/flow/runs/flow/options/ that is UNVERIFIED: its first line is not a verdict line, or its
@@ -436,21 +469,28 @@ left. Read it before you judge any coverage claim. Do not write to it): E:/flow/
 
 CHECK:
 1. Each option you judge against EVERY criterion. On a miss, append its line to E:/flow/runs/flow/DISQUALIFIED.md
-   (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
+   (`r1 crit — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`), write its disqualified verdict line,
    and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
-   this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
-   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
+   this round's new ones in upheld. A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate> and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
    from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
    it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
    merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
-   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
-   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
-   them in reopened.
-4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
-   criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
-   should carry the marker and does not.
+3. THE NEW LEDGER LINES: no critic has checked the lines the investigator appended since the last
+   critique, the ones tagged `r1 inv`. Open each line's source at its locator and confirm
+   it supports the FAILS the line states, or, on an UNPROVEN line, that the sources it cites leave the
+   criterion unsettled. A line it does not support was read wrong: append a
+   corrected `r1 crit` line when you find the passage that does disqualify the candidate, and
+   otherwise re-open the candidate. Rule on each FLAG line among them: open its citation, re-open the
+   candidate when the citation shows it meets the criterion the flagged line names, and otherwise say in
+   your review file why the flag fails.
+   Then check the rest of the ledger for a candidate disqualified on a WRONG reading that should be
+   re-opened. A re-open cites the passage the original reading got wrong, or, on a resumed search, the
+   criterion as it reads now. An uncited re-open is not one. Say so in your review file (the next
+   investigator reads it). Count every re-open in reopened.
+4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line among the lines step 3 checks. One whose candidate
+   fails a second criterion is mismarked: append a corrected `r1 crit` line naming the additional
+   criterion. Append a corrected line for one of those lines that should carry the marker and does not.
 5. ATTACK THE COVERAGE CLAIM, the check that matters most. The investigator says the search is closed.
    Check that first against E:/flow/runs/flow/SEARCHED.md, its record of the ground swept.
    Name ONE avenue, source, phrasing or adjacent domain it did not sweep that could plausibly hold a
@@ -458,18 +498,24 @@ CHECK:
    that source puts back in play. An UNCITED contest is not a contest. Set contests_claim=true only
    with that citation written into your review file. Set agree=true ONLY when you have genuinely tried
    and cannot: agreeing asserts nothing else is there.
-6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. Read it for these defects. Its
-   ANSWER links an option whose file, after your own verdict writes, does not read `verdict: upheld`.
-   Its ANSWER omits an option whose file reads `verdict: upheld` after your verdict writes. Its
-   COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
-   not match the marked ledger lines, or read as answers. Its NEAR MISSES lack a `NEAR-MISS:` line you
-   appended to the ledger this round: the investigator wrote the determination before you appended, so
-   each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
-   round), its WHERE NEXT is missing or empty. This does NOT change agree.
-   Write each defect in your review file and count them in determination_defects.
+6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. The investigator wrote it before your
+   verdicts, so after your verdict writes and ledger appends, CORRECT these sections in place to match them.
+   ANSWER links every option whose file reads `verdict: upheld` and no other. COMPARISON and WHICH TO PICK
+   WHEN hold a row or line for each ANSWER option and no other, taken from its file. When ANSWER links
+   exactly one option, COMPARISON says so and holds no table. When it links none, ANSWER says so and the
+   file has no COMPARISON or WHICH TO PICK WHEN. NEAR MISSES holds every candidate whose latest FAILS or UNPROVEN ledger line carries `NEAR-MISS:` and that ANSWER does not link,
+   your own lines included, less each candidate you re-opened this round, and none reads as an answer.
+   Then read it for these defects, which you report and do not correct. Its COMPARISON tables the
+   criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN
+   smuggles in a ranking (the options are unranked). On any STOPPED result (a saturation, a no_solution,
+   or a partial last round), its WHERE NEXT is missing or empty. A correction the tool rejected was not
+   made, so it is a defect too. This does NOT change agree.
+   Write each correction and each defect in your review file, and count the defects in
+   determination_defects.
 WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
-fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
-claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
+fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
+near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
+citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
 If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
@@ -533,11 +579,11 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
     },
     "determination_defects": {
       "type": "integer",
-      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+      "description": "defects left in the determination after your step-6 corrections, each written in your review file. 0 when none, or when no determination was due. They never change agree"
     },
     "reopened": {
       "type": "integer",
-      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
+      "description": "ledger candidates you re-opened under step 3, 0 if none"
     }
   }
 }
@@ -556,11 +602,12 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 SEARCH MEMORY — read ALL THREE before you search:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
-    re-opens it. Do NOT re-walk an avenue it closes.
+    re-opens it: FLAG a line you can contradict with a citation instead (step 5). Do NOT re-walk an
+    avenue it closes.
   • E:/flow/runs/flow/SEARCHED.md — every AVENUE already swept, with its terms and yield. Do not re-run a search recorded
     here with the same terms. Pick up from its last `NEXT:` line, or say what you are doing differently.
   • E:/flow/runs/flow/options/ — one file per option written so far. A critic records its verdict as a file's FIRST
@@ -586,9 +633,15 @@ PROCEDURE:
    same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
    what the option BUYS, what it COSTS, and its sources. Terse and concrete.
 5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
-   `<candidate> — FAILS <criterion> — <≤15-word why> — <source>`
-   A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line `NEAR-MISS: ` and put the
+   `r2 inv — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`
+   A FAILS line's locator is the exact passage, section, line or command output that shows the failure.
+   An UNPROVEN line's locator follows the UNPROVEN rule above. The critic checks the line against it.
+   A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate> and put the
    shortfall in NUMBERS wherever the criterion has any.
+   FLAGS: a line already in the ledger that you can contradict with a citation (a passage showing the
+   candidate meets the criterion the line names) gets a FLAG, never a re-proposal. APPEND:
+   `r2 inv — FLAG <candidate> — <criterion> — <why the line is wrong> — <source and locator>`
+   The next critic rules on it, and a flag it upholds re-opens the candidate. Return their count as flagged.
    Append only: never rewrite, reorder or prune it.
    Do NOT re-append a REDISCOVERED candidate (one the ledger already closed that your search turned up
    again). Return their count as rediscovered.
@@ -623,7 +676,7 @@ PROCEDURE:
      nothing. Exactly one qualifier: say so and omit the table.
    • WHICH TO PICK WHEN — one line per option: the situation it is the right answer for. UNRANKED, since
      qualification is pass/fail.
-   • NEAR MISSES — every `NEAR-MISS:` line in the ledger: the ONE criterion it failed, the shortfall in
+   • NEAR MISSES — every candidate whose latest FAILS or UNPROVEN ledger line carries `NEAR-MISS:` and that ANSWER does not link: the ONE criterion it failed, the shortfall in
      numbers, and whether it is worth doing anyway on its own merits. Say plainly that none is a
      qualifier, even if worth doing.
    • COVERAGE — the avenues you swept, what remains untried, and why what remains cannot hold a qualifier.
@@ -648,6 +701,7 @@ Return via the schema, option_ids included.
     "wrote_files",
     "option_ids",
     "disqualified_added",
+    "flagged",
     "rediscovered",
     "next_avenue_confidence",
     "claim",
@@ -668,6 +722,10 @@ Return via the schema, option_ids included.
     "disqualified_added": {
       "type": "integer",
       "description": "candidates you appended to the DISQUALIFIED ledger this round"
+    },
+    "flagged": {
+      "type": "integer",
+      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 5), 0 if none"
     },
     "rediscovered": {
       "type": "integer",
@@ -714,11 +772,12 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 SEARCH MEMORY — read ALL THREE before you search:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
-    re-opens it. Do NOT re-walk an avenue it closes.
+    re-opens it: FLAG a line you can contradict with a citation instead (step 5). Do NOT re-walk an
+    avenue it closes.
   • E:/flow/runs/flow/SEARCHED.md — every AVENUE already swept, with its terms and yield. Do not re-run a search recorded
     here with the same terms. Pick up from its last `NEXT:` line, or say what you are doing differently.
   • E:/flow/runs/flow/options/ — one file per option written so far. A critic records its verdict as a file's FIRST
@@ -744,9 +803,15 @@ PROCEDURE:
    same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
    what the option BUYS, what it COSTS, and its sources. Terse and concrete.
 5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
-   `<candidate> — FAILS <criterion> — <≤15-word why> — <source>`
-   A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line `NEAR-MISS: ` and put the
+   `r5 inv — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`
+   A FAILS line's locator is the exact passage, section, line or command output that shows the failure.
+   An UNPROVEN line's locator follows the UNPROVEN rule above. The critic checks the line against it.
+   A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate> and put the
    shortfall in NUMBERS wherever the criterion has any.
+   FLAGS: a line already in the ledger that you can contradict with a citation (a passage showing the
+   candidate meets the criterion the line names) gets a FLAG, never a re-proposal. APPEND:
+   `r5 inv — FLAG <candidate> — <criterion> — <why the line is wrong> — <source and locator>`
+   The next critic rules on it, and a flag it upholds re-opens the candidate. Return their count as flagged.
    Append only: never rewrite, reorder or prune it.
    Do NOT re-append a REDISCOVERED candidate (one the ledger already closed that your search turned up
    again). Return their count as rediscovered.
@@ -781,7 +846,7 @@ PROCEDURE:
      nothing. Exactly one qualifier: say so and omit the table.
    • WHICH TO PICK WHEN — one line per option: the situation it is the right answer for. UNRANKED, since
      qualification is pass/fail.
-   • NEAR MISSES — every `NEAR-MISS:` line in the ledger: the ONE criterion it failed, the shortfall in
+   • NEAR MISSES — every candidate whose latest FAILS or UNPROVEN ledger line carries `NEAR-MISS:` and that ANSWER does not link: the ONE criterion it failed, the shortfall in
      numbers, and whether it is worth doing anyway on its own merits. Say plainly that none is a
      qualifier, even if worth doing.
    • COVERAGE — the avenues you swept, what remains untried, and why what remains cannot hold a qualifier.
@@ -809,6 +874,7 @@ Return via the schema, option_ids included.
     "wrote_files",
     "option_ids",
     "disqualified_added",
+    "flagged",
     "rediscovered",
     "next_avenue_confidence",
     "claim",
@@ -829,6 +895,10 @@ Return via the schema, option_ids included.
     "disqualified_added": {
       "type": "integer",
       "description": "candidates you appended to the DISQUALIFIED ledger this round"
+    },
+    "flagged": {
+      "type": "integer",
+      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 5), 0 if none"
     },
     "rediscovered": {
       "type": "integer",
@@ -875,8 +945,8 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   - E:/flow/runs/flow/options/opt-a.md
 Then every other file in E:/flow/runs/flow/options/ that is UNVERIFIED: its first line is not a verdict line, or its
@@ -890,21 +960,28 @@ left. Read it before you judge any coverage claim. Do not write to it): E:/flow/
 
 CHECK:
 1. Each option you judge against EVERY criterion. On a miss, append its line to E:/flow/runs/flow/DISQUALIFIED.md
-   (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
+   (`r1 crit — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`), write its disqualified verdict line,
    and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
-   this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
-   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
+   this round's new ones in upheld. A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate> and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
    from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
    it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
    merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
-   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
-   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
-   them in reopened.
-4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
-   criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
-   should carry the marker and does not.
+3. THE NEW LEDGER LINES: no critic has checked the lines the investigator appended since the last
+   critique, the ones tagged `r1 inv`. Open each line's source at its locator and confirm
+   it supports the FAILS the line states, or, on an UNPROVEN line, that the sources it cites leave the
+   criterion unsettled. A line it does not support was read wrong: append a
+   corrected `r1 crit` line when you find the passage that does disqualify the candidate, and
+   otherwise re-open the candidate. Rule on each FLAG line among them: open its citation, re-open the
+   candidate when the citation shows it meets the criterion the flagged line names, and otherwise say in
+   your review file why the flag fails.
+   Then check the rest of the ledger for a candidate disqualified on a WRONG reading that should be
+   re-opened. A re-open cites the passage the original reading got wrong, or, on a resumed search, the
+   criterion as it reads now. An uncited re-open is not one. Say so in your review file (the next
+   investigator reads it). Count every re-open in reopened.
+4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line among the lines step 3 checks. One whose candidate
+   fails a second criterion is mismarked: append a corrected `r1 crit` line naming the additional
+   criterion. Append a corrected line for one of those lines that should carry the marker and does not.
 5. ATTACK THE SATURATION CLAIM. It is NOT that the search is CLOSED. It is that another round is not
    worth its cost, because this one added nothing genuinely new or its yield collapsed against earlier
    rounds. Check that TRAJECTORY in the r<N> SWEPT lines of E:/flow/runs/flow/SEARCHED.md and the growth of E:/flow/runs/flow/DISQUALIFIED.md. Did the
@@ -915,18 +992,24 @@ CHECK:
    An UNCITED contest is not a contest. Set contests_claim=true only with that citation written into
    your review file. Set agree=true to accept the stop: the run reports an OPEN, STOPPED search, never an
    exhaustive one.
-6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. Read it for these defects. Its
-   ANSWER links an option whose file, after your own verdict writes, does not read `verdict: upheld`.
-   Its ANSWER omits an option whose file reads `verdict: upheld` after your verdict writes. Its
-   COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
-   not match the marked ledger lines, or read as answers. Its NEAR MISSES lack a `NEAR-MISS:` line you
-   appended to the ledger this round: the investigator wrote the determination before you appended, so
-   each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
-   round), its WHERE NEXT is missing or empty. This does NOT change agree.
-   Write each defect in your review file and count them in determination_defects.
+6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. The investigator wrote it before your
+   verdicts, so after your verdict writes and ledger appends, CORRECT these sections in place to match them.
+   ANSWER links every option whose file reads `verdict: upheld` and no other. COMPARISON and WHICH TO PICK
+   WHEN hold a row or line for each ANSWER option and no other, taken from its file. When ANSWER links
+   exactly one option, COMPARISON says so and holds no table. When it links none, ANSWER says so and the
+   file has no COMPARISON or WHICH TO PICK WHEN. NEAR MISSES holds every candidate whose latest FAILS or UNPROVEN ledger line carries `NEAR-MISS:` and that ANSWER does not link,
+   your own lines included, less each candidate you re-opened this round, and none reads as an answer.
+   Then read it for these defects, which you report and do not correct. Its COMPARISON tables the
+   criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN
+   smuggles in a ranking (the options are unranked). On any STOPPED result (a saturation, a no_solution,
+   or a partial last round), its WHERE NEXT is missing or empty. A correction the tool rejected was not
+   made, so it is a defect too. This does NOT change agree.
+   Write each correction and each defect in your review file, and count the defects in
+   determination_defects.
 WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
-fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
-claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
+fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
+near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
+citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
 If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
@@ -990,11 +1073,11 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
     },
     "determination_defects": {
       "type": "integer",
-      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+      "description": "defects left in the determination after your step-6 corrections, each written in your review file. 0 when none, or when no determination was due. They never change agree"
     },
     "reopened": {
       "type": "integer",
-      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
+      "description": "ledger candidates you re-opened under step 3, 0 if none"
     }
   }
 }
@@ -1013,8 +1096,8 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   (the investigator named no new option this round)
 Then every other file in E:/flow/runs/flow/options/ that is UNVERIFIED: its first line is not a verdict line, or its
@@ -1028,27 +1111,35 @@ left. Read it before you judge any coverage claim. Do not write to it): E:/flow/
 
 CHECK:
 1. Each option you judge against EVERY criterion. On a miss, append its line to E:/flow/runs/flow/DISQUALIFIED.md
-   (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
+   (`r1 crit — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`), write its disqualified verdict line,
    and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
-   this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
-   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
+   this round's new ones in upheld. A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate> and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
    from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
    it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
    merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
-   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
-   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
-   them in reopened.
-4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
-   criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
-   should carry the marker and does not.
+3. THE NEW LEDGER LINES: no critic has checked the lines the investigator appended since the last
+   critique, the ones tagged `r1 inv`. Open each line's source at its locator and confirm
+   it supports the FAILS the line states, or, on an UNPROVEN line, that the sources it cites leave the
+   criterion unsettled. A line it does not support was read wrong: append a
+   corrected `r1 crit` line when you find the passage that does disqualify the candidate, and
+   otherwise re-open the candidate. Rule on each FLAG line among them: open its citation, re-open the
+   candidate when the citation shows it meets the criterion the flagged line names, and otherwise say in
+   your review file why the flag fails.
+   Then check the rest of the ledger for a candidate disqualified on a WRONG reading that should be
+   re-opened. A re-open cites the passage the original reading got wrong, or, on a resumed search, the
+   criterion as it reads now. An uncited re-open is not one. Say so in your review file (the next
+   investigator reads it). Count every re-open in reopened.
+4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line among the lines step 3 checks. One whose candidate
+   fails a second criterion is mismarked: append a corrected `r1 crit` line naming the additional
+   criterion. Append a corrected line for one of those lines that should carry the marker and does not.
 5. No termination was claimed this round: leave agree and contests_claim false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
 WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
-fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
-claim: the avenue still open WITH its citation, or that the claim holds.
+fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
+near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
+citation, or that the claim holds.
 Do NOT modify any repo, stage, or commit.
 If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
@@ -1112,11 +1203,11 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
     },
     "determination_defects": {
       "type": "integer",
-      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+      "description": "defects left in the determination after your step-6 corrections, each written in your review file. 0 when none, or when no determination was due. They never change agree"
     },
     "reopened": {
       "type": "integer",
-      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
+      "description": "ledger candidates you re-opened under step 3, 0 if none"
     }
   }
 }
@@ -1135,11 +1226,12 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 SEARCH MEMORY — read ALL THREE before you search:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
-    re-opens it. Do NOT re-walk an avenue it closes. This search resumes after round 2, and the criteria
+    re-opens it: FLAG a line you can contradict with a citation instead (step 5). Do NOT re-walk an
+    avenue it closes. This search resumes after round 2, and the criteria
     may have changed since: a line whose named failing criterion no longer disqualifies the candidate as
     the criteria read now is OPEN, so re-propose that candidate.
   • E:/flow/runs/flow/SEARCHED.md — every AVENUE already swept, with its terms and yield. Do not re-run a search recorded
@@ -1150,8 +1242,9 @@ SEARCH MEMORY — read ALL THREE before you search:
     before round 3 is OUT: never link it in ANSWER. A file with no verdict line, or one naming round
     3 or a later round, is unverified until a critic judges it. Bring a disqualified option back
     only on a critique's re-open note, by re-proposing it: rewrite its whole file with no verdict line.
-This search resumes after round 2. If E:/flow/runs/flow/acceptance-review-r2.md does not exist, that round had
-nothing for the critic to check, so change the avenue rather than repeat it. If it exists, READ it and answer EVERY point it raises. A
+This search resumes after round 2. If E:/flow/runs/flow/acceptance-review-r2.md does not exist, that round ran
+no critic, and this round's critic checks its ledger lines. Change the avenue rather than repeat it. If it
+exists, READ it and answer EVERY point it raises. A
 disqualified option needs a DIFFERENT candidate, not a re-argued one. A candidate the review re-opens is
 the exception: re-propose it. A contested exhaustion claim names
 an avenue you did not sweep: sweep it.
@@ -1168,9 +1261,16 @@ PROCEDURE:
    same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
    what the option BUYS, what it COSTS, and its sources. Terse and concrete.
 5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
-   `<candidate> — FAILS <criterion> — <≤15-word why> — <source>`
-   A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line `NEAR-MISS: ` and put the
+   `r3 inv — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`
+   A FAILS line's locator is the exact passage, section, line or command output that shows the failure.
+   An UNPROVEN line's locator follows the UNPROVEN rule above. The critic checks the line against it.
+   A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate> and put the
    shortfall in NUMBERS wherever the criterion has any.
+   FLAGS: a line already in the ledger that you can contradict with a citation (a passage showing the
+   candidate meets the criterion the line names) gets a FLAG, never a re-proposal, unless the resumed-search
+   rule above makes the line OPEN. APPEND:
+   `r3 inv — FLAG <candidate> — <criterion> — <why the line is wrong> — <source and locator>`
+   The next critic rules on it, and a flag it upholds re-opens the candidate. Return their count as flagged.
    Append only: never rewrite, reorder or prune it.
    Do NOT re-append a REDISCOVERED candidate (one the ledger already closed that your search turned up
    again). Return their count as rediscovered.
@@ -1205,7 +1305,7 @@ PROCEDURE:
      nothing. Exactly one qualifier: say so and omit the table.
    • WHICH TO PICK WHEN — one line per option: the situation it is the right answer for. UNRANKED, since
      qualification is pass/fail.
-   • NEAR MISSES — every `NEAR-MISS:` line in the ledger: the ONE criterion it failed, the shortfall in
+   • NEAR MISSES — every candidate whose latest FAILS or UNPROVEN ledger line carries `NEAR-MISS:` and that ANSWER does not link: the ONE criterion it failed, the shortfall in
      numbers, and whether it is worth doing anyway on its own merits. Say plainly that none is a
      qualifier, even if worth doing.
    • COVERAGE — the avenues you swept, what remains untried, and why what remains cannot hold a qualifier.
@@ -1230,6 +1330,7 @@ Return via the schema, option_ids included.
     "wrote_files",
     "option_ids",
     "disqualified_added",
+    "flagged",
     "rediscovered",
     "next_avenue_confidence",
     "claim",
@@ -1250,6 +1351,10 @@ Return via the schema, option_ids included.
     "disqualified_added": {
       "type": "integer",
       "description": "candidates you appended to the DISQUALIFIED ledger this round"
+    },
+    "flagged": {
+      "type": "integer",
+      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 5), 0 if none"
     },
     "rediscovered": {
       "type": "integer",
@@ -1296,8 +1401,8 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   (the investigator named no new option this round)
 Then EVERY other file in E:/flow/runs/flow/options/, whatever verdict line it carries: judge each against the
@@ -1310,30 +1415,38 @@ left. Read it before you judge any coverage claim. Do not write to it): E:/flow/
 
 CHECK:
 1. Each option you judge against EVERY criterion. On a miss, append its line to E:/flow/runs/flow/DISQUALIFIED.md
-   (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
+   (`r3 crit — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`), write its disqualified verdict line,
    and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
-   this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
-   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
+   this round's new ones in upheld. A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate> and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
    from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
    it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
    merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
-   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
-   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
-   them in reopened.
+3. THE NEW LEDGER LINES: no critic of this run has checked the lines the investigator
+   appended, the ones tagged `r<K> inv` for K from 1 to 3. Open each line's source at its locator and confirm
+   it supports the FAILS the line states, or, on an UNPROVEN line, that the sources it cites leave the
+   criterion unsettled. A line it does not support was read wrong: append a
+   corrected `r3 crit` line when you find the passage that does disqualify the candidate, and
+   otherwise re-open the candidate. Rule on each FLAG line among them: open its citation, re-open the
+   candidate when the citation shows it meets the criterion the flagged line names, and otherwise say in
+   your review file why the flag fails.
+   Then check the rest of the ledger for a candidate disqualified on a WRONG reading that should be
+   re-opened. A re-open cites the passage the original reading got wrong, or, on a resumed search, the
+   criterion as it reads now. An uncited re-open is not one. Say so in your review file (the next
+   investigator reads it). Count every re-open in reopened.
    This search resumes after round 2, and the criteria may have changed since. So read EVERY
    line of E:/flow/runs/flow/DISQUALIFIED.md, re-open in your review file every line whose named failing criterion no longer
    disqualifies the candidate as the criteria read now, and count each in reopened.
-4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
-   criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
-   should carry the marker and does not.
+4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line among the lines step 3 checks. One whose candidate
+   fails a second criterion is mismarked: append a corrected `r3 crit` line naming the additional
+   criterion. Append a corrected line for one of those lines that should carry the marker and does not.
 5. No termination was claimed this round: leave agree and contests_claim false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
 WRITE E:/flow/runs/flow/acceptance-review-r3.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
-fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
-claim: the avenue still open WITH its citation, or that the claim holds.
+fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
+near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
+citation, or that the claim holds.
 Do NOT modify any repo, stage, or commit.
 If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
@@ -1397,11 +1510,11 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
     },
     "determination_defects": {
       "type": "integer",
-      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+      "description": "defects left in the determination after your step-6 corrections, each written in your review file. 0 when none, or when no determination was due. They never change agree"
     },
     "reopened": {
       "type": "integer",
-      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
+      "description": "ledger candidates you re-opened under step 3, 0 if none"
     }
   }
 }
@@ -1420,11 +1533,12 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 SEARCH MEMORY — read ALL THREE before you search:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
-    re-opens it. Do NOT re-walk an avenue it closes.
+    re-opens it: FLAG a line you can contradict with a citation instead (step 5). Do NOT re-walk an
+    avenue it closes.
   • E:/flow/runs/flow/SEARCHED.md — every AVENUE already swept, with its terms and yield. Do not re-run a search recorded
     here with the same terms. Pick up from its last `NEXT:` line, or say what you are doing differently.
   • E:/flow/runs/flow/options/ — one file per option written so far. A critic records its verdict as a file's FIRST
@@ -1448,9 +1562,15 @@ PROCEDURE:
    same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
    what the option BUYS, what it COSTS, and its sources. Terse and concrete.
 5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
-   `<candidate> — FAILS <criterion> — <≤15-word why> — <source>`
-   A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line `NEAR-MISS: ` and put the
+   `r3 inv — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`
+   A FAILS line's locator is the exact passage, section, line or command output that shows the failure.
+   An UNPROVEN line's locator follows the UNPROVEN rule above. The critic checks the line against it.
+   A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate> and put the
    shortfall in NUMBERS wherever the criterion has any.
+   FLAGS: a line already in the ledger that you can contradict with a citation (a passage showing the
+   candidate meets the criterion the line names) gets a FLAG, never a re-proposal. APPEND:
+   `r3 inv — FLAG <candidate> — <criterion> — <why the line is wrong> — <source and locator>`
+   The next critic rules on it, and a flag it upholds re-opens the candidate. Return their count as flagged.
    Append only: never rewrite, reorder or prune it.
    Do NOT re-append a REDISCOVERED candidate (one the ledger already closed that your search turned up
    again). Return their count as rediscovered.
@@ -1485,7 +1605,7 @@ PROCEDURE:
      nothing. Exactly one qualifier: say so and omit the table.
    • WHICH TO PICK WHEN — one line per option: the situation it is the right answer for. UNRANKED, since
      qualification is pass/fail.
-   • NEAR MISSES — every `NEAR-MISS:` line in the ledger: the ONE criterion it failed, the shortfall in
+   • NEAR MISSES — every candidate whose latest FAILS or UNPROVEN ledger line carries `NEAR-MISS:` and that ANSWER does not link: the ONE criterion it failed, the shortfall in
      numbers, and whether it is worth doing anyway on its own merits. Say plainly that none is a
      qualifier, even if worth doing.
    • COVERAGE — the avenues you swept, what remains untried, and why what remains cannot hold a qualifier.
@@ -1510,6 +1630,7 @@ Return via the schema, option_ids included.
     "wrote_files",
     "option_ids",
     "disqualified_added",
+    "flagged",
     "rediscovered",
     "next_avenue_confidence",
     "claim",
@@ -1530,6 +1651,10 @@ Return via the schema, option_ids included.
     "disqualified_added": {
       "type": "integer",
       "description": "candidates you appended to the DISQUALIFIED ledger this round"
+    },
+    "flagged": {
+      "type": "integer",
+      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 5), 0 if none"
     },
     "rediscovered": {
       "type": "integer",
@@ -1576,11 +1701,12 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 SEARCH MEMORY — read ALL THREE before you search:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
-    re-opens it. Do NOT re-walk an avenue it closes.
+    re-opens it: FLAG a line you can contradict with a citation instead (step 5). Do NOT re-walk an
+    avenue it closes.
   • E:/flow/runs/flow/SEARCHED.md — every AVENUE already swept, with its terms and yield. Do not re-run a search recorded
     here with the same terms. Pick up from its last `NEXT:` line, or say what you are doing differently.
   • E:/flow/runs/flow/options/ — one file per option written so far. A critic records its verdict as a file's FIRST
@@ -1604,9 +1730,15 @@ PROCEDURE:
    same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
    what the option BUYS, what it COSTS, and its sources. Terse and concrete.
 5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
-   `<candidate> — FAILS <criterion> — <≤15-word why> — <source>`
-   A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line `NEAR-MISS: ` and put the
+   `r5 inv — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`
+   A FAILS line's locator is the exact passage, section, line or command output that shows the failure.
+   An UNPROVEN line's locator follows the UNPROVEN rule above. The critic checks the line against it.
+   A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate> and put the
    shortfall in NUMBERS wherever the criterion has any.
+   FLAGS: a line already in the ledger that you can contradict with a citation (a passage showing the
+   candidate meets the criterion the line names) gets a FLAG, never a re-proposal. APPEND:
+   `r5 inv — FLAG <candidate> — <criterion> — <why the line is wrong> — <source and locator>`
+   The next critic rules on it, and a flag it upholds re-opens the candidate. Return their count as flagged.
    Append only: never rewrite, reorder or prune it.
    Do NOT re-append a REDISCOVERED candidate (one the ledger already closed that your search turned up
    again). Return their count as rediscovered.
@@ -1641,7 +1773,7 @@ PROCEDURE:
      nothing. Exactly one qualifier: say so and omit the table.
    • WHICH TO PICK WHEN — one line per option: the situation it is the right answer for. UNRANKED, since
      qualification is pass/fail.
-   • NEAR MISSES — every `NEAR-MISS:` line in the ledger: the ONE criterion it failed, the shortfall in
+   • NEAR MISSES — every candidate whose latest FAILS or UNPROVEN ledger line carries `NEAR-MISS:` and that ANSWER does not link: the ONE criterion it failed, the shortfall in
      numbers, and whether it is worth doing anyway on its own merits. Say plainly that none is a
      qualifier, even if worth doing.
    • COVERAGE — the avenues you swept, what remains untried, and why what remains cannot hold a qualifier.
@@ -1669,6 +1801,7 @@ Return via the schema, option_ids included.
     "wrote_files",
     "option_ids",
     "disqualified_added",
+    "flagged",
     "rediscovered",
     "next_avenue_confidence",
     "claim",
@@ -1689,6 +1822,10 @@ Return via the schema, option_ids included.
     "disqualified_added": {
       "type": "integer",
       "description": "candidates you appended to the DISQUALIFIED ledger this round"
+    },
+    "flagged": {
+      "type": "integer",
+      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 5), 0 if none"
     },
     "rediscovered": {
       "type": "integer",
@@ -1735,8 +1872,8 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   (the investigator named no new option this round)
 Then every other file in E:/flow/runs/flow/options/ that is UNVERIFIED: its first line is not a verdict line, or its
@@ -1750,34 +1887,47 @@ left. Read it before you judge any coverage claim. Do not write to it): E:/flow/
 
 CHECK:
 1. Each option you judge against EVERY criterion. On a miss, append its line to E:/flow/runs/flow/DISQUALIFIED.md
-   (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
+   (`r5 crit — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`), write its disqualified verdict line,
    and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
-   this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
-   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
+   this round's new ones in upheld. A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate> and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
    from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
    it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
    merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
-   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
-   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
-   them in reopened.
-4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
-   criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
-   should carry the marker and does not.
+3. THE NEW LEDGER LINES: no critic has checked the lines the investigator appended since the last
+   critique, the ones tagged `r<K> inv` for K from 2 to 5. Open each line's source at its locator and confirm
+   it supports the FAILS the line states, or, on an UNPROVEN line, that the sources it cites leave the
+   criterion unsettled. A line it does not support was read wrong: append a
+   corrected `r5 crit` line when you find the passage that does disqualify the candidate, and
+   otherwise re-open the candidate. Rule on each FLAG line among them: open its citation, re-open the
+   candidate when the citation shows it meets the criterion the flagged line names, and otherwise say in
+   your review file why the flag fails.
+   Then check the rest of the ledger for a candidate disqualified on a WRONG reading that should be
+   re-opened. A re-open cites the passage the original reading got wrong, or, on a resumed search, the
+   criterion as it reads now. An uncited re-open is not one. Say so in your review file (the next
+   investigator reads it). Count every re-open in reopened.
+4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line among the lines step 3 checks. One whose candidate
+   fails a second criterion is mismarked: append a corrected `r5 crit` line naming the additional
+   criterion. Append a corrected line for one of those lines that should carry the marker and does not.
 5. No termination was claimed this round: leave agree and contests_claim false.
-6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. Read it for these defects. Its
-   ANSWER links an option whose file, after your own verdict writes, does not read `verdict: upheld`.
-   Its ANSWER omits an option whose file reads `verdict: upheld` after your verdict writes. Its
-   COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
-   not match the marked ledger lines, or read as answers. Its NEAR MISSES lack a `NEAR-MISS:` line you
-   appended to the ledger this round: the investigator wrote the determination before you appended, so
-   each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
-   round), its WHERE NEXT is missing or empty. This does NOT change agree.
-   Write each defect in your review file and count them in determination_defects.
+6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. The investigator wrote it before your
+   verdicts, so after your verdict writes and ledger appends, CORRECT these sections in place to match them.
+   ANSWER links every option whose file reads `verdict: upheld` and no other. COMPARISON and WHICH TO PICK
+   WHEN hold a row or line for each ANSWER option and no other, taken from its file. When ANSWER links
+   exactly one option, COMPARISON says so and holds no table. When it links none, ANSWER says so and the
+   file has no COMPARISON or WHICH TO PICK WHEN. NEAR MISSES holds every candidate whose latest FAILS or UNPROVEN ledger line carries `NEAR-MISS:` and that ANSWER does not link,
+   your own lines included, less each candidate you re-opened this round, and none reads as an answer.
+   Then read it for these defects, which you report and do not correct. Its COMPARISON tables the
+   criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN
+   smuggles in a ranking (the options are unranked). On any STOPPED result (a saturation, a no_solution,
+   or a partial last round), its WHERE NEXT is missing or empty. A correction the tool rejected was not
+   made, so it is a defect too. This does NOT change agree.
+   Write each correction and each defect in your review file, and count the defects in
+   determination_defects.
 WRITE E:/flow/runs/flow/acceptance-review-r5.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
-fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
-claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
+fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
+near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
+citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
 If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
@@ -1841,11 +1991,11 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
     },
     "determination_defects": {
       "type": "integer",
-      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+      "description": "defects left in the determination after your step-6 corrections, each written in your review file. 0 when none, or when no determination was due. They never change agree"
     },
     "reopened": {
       "type": "integer",
-      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
+      "description": "ledger candidates you re-opened under step 3, 0 if none"
     }
   }
 }
@@ -1864,8 +2014,8 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   - E:/flow/runs/flow/options/opt-a.md
 Then EVERY other file in E:/flow/runs/flow/options/, whatever verdict line it carries: judge each against the
@@ -1878,24 +2028,31 @@ left. Read it before you judge any coverage claim. Do not write to it): E:/flow/
 
 CHECK:
 1. Each option you judge against EVERY criterion. On a miss, append its line to E:/flow/runs/flow/DISQUALIFIED.md
-   (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
+   (`r3 crit — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`), write its disqualified verdict line,
    and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
-   this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
-   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
+   this round's new ones in upheld. A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate> and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
    from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
    it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
    merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
-   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
-   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
-   them in reopened.
+3. THE NEW LEDGER LINES: no critic of this run has checked the lines the investigator
+   appended, the ones tagged `r<K> inv` for K from 1 to 3. Open each line's source at its locator and confirm
+   it supports the FAILS the line states, or, on an UNPROVEN line, that the sources it cites leave the
+   criterion unsettled. A line it does not support was read wrong: append a
+   corrected `r3 crit` line when you find the passage that does disqualify the candidate, and
+   otherwise re-open the candidate. Rule on each FLAG line among them: open its citation, re-open the
+   candidate when the citation shows it meets the criterion the flagged line names, and otherwise say in
+   your review file why the flag fails.
+   Then check the rest of the ledger for a candidate disqualified on a WRONG reading that should be
+   re-opened. A re-open cites the passage the original reading got wrong, or, on a resumed search, the
+   criterion as it reads now. An uncited re-open is not one. Say so in your review file (the next
+   investigator reads it). Count every re-open in reopened.
    This search resumes after round 2, and the criteria may have changed since. So read EVERY
    line of E:/flow/runs/flow/DISQUALIFIED.md, re-open in your review file every line whose named failing criterion no longer
    disqualifies the candidate as the criteria read now, and count each in reopened.
-4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
-   criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
-   should carry the marker and does not.
+4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line among the lines step 3 checks. One whose candidate
+   fails a second criterion is mismarked: append a corrected `r3 crit` line naming the additional
+   criterion. Append a corrected line for one of those lines that should carry the marker and does not.
 5. ATTACK THE COVERAGE CLAIM, the check that matters most. The investigator says the search is closed.
    Check that first against E:/flow/runs/flow/SEARCHED.md, its record of the ground swept.
    Name ONE avenue, source, phrasing or adjacent domain it did not sweep that could plausibly hold a
@@ -1903,18 +2060,24 @@ CHECK:
    that source puts back in play. An UNCITED contest is not a contest. Set contests_claim=true only
    with that citation written into your review file. Set agree=true ONLY when you have genuinely tried
    and cannot: agreeing asserts nothing else is there.
-6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. Read it for these defects. Its
-   ANSWER links an option whose file, after your own verdict writes, does not read `verdict: upheld`.
-   Its ANSWER omits an option whose file reads `verdict: upheld` after your verdict writes. Its
-   COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
-   not match the marked ledger lines, or read as answers. Its NEAR MISSES lack a `NEAR-MISS:` line you
-   appended to the ledger this round: the investigator wrote the determination before you appended, so
-   each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
-   round), its WHERE NEXT is missing or empty. This does NOT change agree.
-   Write each defect in your review file and count them in determination_defects.
+6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. The investigator wrote it before your
+   verdicts, so after your verdict writes and ledger appends, CORRECT these sections in place to match them.
+   ANSWER links every option whose file reads `verdict: upheld` and no other. COMPARISON and WHICH TO PICK
+   WHEN hold a row or line for each ANSWER option and no other, taken from its file. When ANSWER links
+   exactly one option, COMPARISON says so and holds no table. When it links none, ANSWER says so and the
+   file has no COMPARISON or WHICH TO PICK WHEN. NEAR MISSES holds every candidate whose latest FAILS or UNPROVEN ledger line carries `NEAR-MISS:` and that ANSWER does not link,
+   your own lines included, less each candidate you re-opened this round, and none reads as an answer.
+   Then read it for these defects, which you report and do not correct. Its COMPARISON tables the
+   criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN
+   smuggles in a ranking (the options are unranked). On any STOPPED result (a saturation, a no_solution,
+   or a partial last round), its WHERE NEXT is missing or empty. A correction the tool rejected was not
+   made, so it is a defect too. This does NOT change agree.
+   Write each correction and each defect in your review file, and count the defects in
+   determination_defects.
 WRITE E:/flow/runs/flow/acceptance-review-r3.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
-fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
-claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
+fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
+near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
+citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
 If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
@@ -1978,11 +2141,11 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
     },
     "determination_defects": {
       "type": "integer",
-      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+      "description": "defects left in the determination after your step-6 corrections, each written in your review file. 0 when none, or when no determination was due. They never change agree"
     },
     "reopened": {
       "type": "integer",
-      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
+      "description": "ledger candidates you re-opened under step 3, 0 if none"
     }
   }
 }
@@ -2001,8 +2164,8 @@ THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read th
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
-either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
-source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
+names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   - E:/flow/runs/flow/options/opt-a.md
 Then every other file in E:/flow/runs/flow/options/ that is UNVERIFIED: its first line is not a verdict line, or its
@@ -2016,27 +2179,35 @@ left. Read it before you judge any coverage claim. Do not write to it): E:/flow/
 
 CHECK:
 1. Each option you judge against EVERY criterion. On a miss, append its line to E:/flow/runs/flow/DISQUALIFIED.md
-   (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
+   (`r1 crit — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`), write its disqualified verdict line,
    and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
-   this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
-   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
+   this round's new ones in upheld. A candidate that fails EXACTLY ONE criterion is a NEAR MISS: write `NEAR-MISS: ` in front of its <candidate> and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
    from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
    it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
    merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
-   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
-   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
-   them in reopened.
-4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
-   criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
-   should carry the marker and does not.
+3. THE NEW LEDGER LINES: no critic has checked the lines the investigator appended since the last
+   critique, the ones tagged `r1 inv`. Open each line's source at its locator and confirm
+   it supports the FAILS the line states, or, on an UNPROVEN line, that the sources it cites leave the
+   criterion unsettled. A line it does not support was read wrong: append a
+   corrected `r1 crit` line when you find the passage that does disqualify the candidate, and
+   otherwise re-open the candidate. Rule on each FLAG line among them: open its citation, re-open the
+   candidate when the citation shows it meets the criterion the flagged line names, and otherwise say in
+   your review file why the flag fails.
+   Then check the rest of the ledger for a candidate disqualified on a WRONG reading that should be
+   re-opened. A re-open cites the passage the original reading got wrong, or, on a resumed search, the
+   criterion as it reads now. An uncited re-open is not one. Say so in your review file (the next
+   investigator reads it). Count every re-open in reopened.
+4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line among the lines step 3 checks. One whose candidate
+   fails a second criterion is mismarked: append a corrected `r1 crit` line naming the additional
+   criterion. Append a corrected line for one of those lines that should carry the marker and does not.
 5. No termination was claimed this round: leave agree and contests_claim false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
 WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
-fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
-claim: the avenue still open WITH its citation, or that the claim holds.
+fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
+near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
+citation, or that the claim holds.
 Do NOT modify any repo, stage, or commit.
 If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
@@ -2100,11 +2271,11 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
     },
     "determination_defects": {
       "type": "integer",
-      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+      "description": "defects left in the determination after your step-6 corrections, each written in your review file. 0 when none, or when no determination was due. They never change agree"
     },
     "reopened": {
       "type": "integer",
-      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
+      "description": "ledger candidates you re-opened under step 3, 0 if none"
     }
   }
 }

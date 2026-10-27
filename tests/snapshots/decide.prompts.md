@@ -6,17 +6,17 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| analyst | 1 | 1 | 1777 | reviewer agrees |
+| analyst | 1 | 1 | 2007 | reviewer agrees |
 | decide | 1 | 1 | 3608 | reviewer agrees |
-| review r1 | 1 | 1 | 4602 | reviewer agrees |
+| review r1 | 1 | 1 | 4797 | reviewer agrees |
 | review r1 | 2 | 1 | 4418 | reviewer agrees |
 | review r1 | 3 | 1 | 4597 | reviewer agrees |
-| decide | 2 | 1 | 5160 | gaps to the round budget |
-| review | 1 | 1 | 5142 | gaps to the round budget |
-| decide | 3 | 1 | 5045 | gaps to the round budget |
-| review | 2 | 1 | 5664 | gaps to the round budget |
+| decide | 2 | 1 | 5632 | gaps to the round budget |
+| review | 1 | 1 | 5316 | gaps to the round budget |
+| decide | 3 | 1 | 5517 | gaps to the round budget |
+| review | 2 | 1 | 5994 | gaps to the round budget |
 | decide | 4 | 1 | 3545 | one lens dies |
-| review r1 | 4 | 1 | 4562 | one lens dies |
+| review r1 | 4 | 1 | 4757 | one lens dies |
 | review r1 | 5 | 1 | 4378 | one lens dies |
 | review r1 | 6 | 1 | 4557 | one lens dies |
 
@@ -43,7 +43,9 @@ PROCEDURE:
    the ELEMENTS of it worth keeping even if another option wins (so the decider can build a hybrid).
 WRITE E:/flow/runs/flow/lenses/efficiency.md (create E:/flow/runs/flow/lenses/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write a short block with title,
 description, and your 0–10 lens score + why. For your pick, add the keep-worthy elements. Be concrete and
-terse. Do NOT modify any repo, stage, or commit.
+terse. Cite each factual claim: a file:line, a measurement (the exact command and its result), a source URL,
+or "own judgment" where you have none. The choice reviewer re-checks the source behind
+each matrix cell that moves the outcome. Do NOT modify any repo, stage, or commit.
 Return via the schema.
 ~~~~
 
@@ -166,7 +168,9 @@ Return via the schema.
 
 You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion on ONE focus: the CHOICE. Verify every matrix cell's citation against its lens file, re-derive every
 total, the trade-off and the flip check (the single smallest flip AND the joint effect of the
-low-confidence cells). Look for a stronger option or hybrid the decider dismissed or never considered, a
+low-confidence cells). For each cell that moves the outcome, one the flip check names or one
+whose error would change the winner, open the source the lens file cites behind it and confirm it says what
+the cell claims. Look for a stronger option or hybrid the decider dismissed or never considered, a
 "why not" that strawmans a runner-up, and a ruling-out whose premise the evidence contradicts.
 Other reviewers cover the other focuses at the same time, so go deep on yours.
 THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
@@ -466,9 +470,15 @@ The reviewers did NOT yet agree. READ every review file of round 1:
   - E:/flow/runs/flow/decision-review-r1-design.md
 Each holds a BLOCKING section and a CAVEATS section. REVISE your decision at E:/flow/runs/flow/decision-r1.md
 into a complete new file:
-- For each BLOCKING gap, fold in the SMALLEST change that closes it, or rebut it under a `## Rebuttals`
-  heading with evidence: a lens claim, a file:line, a measurement or the requirements text. A rebuttal
-  without evidence is not one, and agreeing with a gap you cannot refute is the honest move.
+- A gap is another agent's claim. Before you fold a BLOCKING gap, confirm its evidence against its
+  source: open the lens file, file:line, URL or requirements text it cites, and re-run a measurement it
+  cites where you can run it. Treat its smallest change as a hint. Fold the SMALLEST change that closes
+  the confirmed defect, which may differ from the hint, and check it against every passage of your
+  decision that states the same fact.
+- A gap whose evidence you refute is rebutted under a `## Rebuttals` heading with evidence: a lens claim,
+  a file:line, a measurement or the requirements text. A rebuttal without evidence is not one. A gap you
+  can neither confirm nor refute goes under `## Rebuttals` marked unverified, with the check that would
+  settle it.
 - You MAY fold a CAVEAT whose fix is one sentence. Leave every other caveat alone: the review files
   carry it to the user.
 - A repair patches the option it repairs. Never add a repaired variant as a new rival option. When a
@@ -567,7 +577,8 @@ round 1:
   - E:/flow/runs/flow/decision-review-r1-design.md
 VERIFY THE REVISION:
 1. Each BLOCKING gap in those files: closed by the revision, or rebutted under `## Rebuttals` with
-   evidence that holds? One that is neither stays BLOCKING under its slug.
+   evidence that holds? One that is neither stays BLOCKING under its slug. A gap the decider marked
+   unverified stays BLOCKING unless you run the check it names and that check refutes the gap.
 2. Every passage the revision changed or added (compare the two decision files): judge it in full.
 3. Re-derive the totals, the trade-off and the flip check.
 In text the revision left unchanged, report only a NON-NEGOTIABLE VIOLATION as blocking. Anything else
@@ -581,8 +592,9 @@ Prefer the SIMPLEST option that meets all requirements. If a more complex option
 justify why the simpler one is inadequate.
 THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r2.md
 THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md, E:/flow/runs/flow/lenses/robustness.md
-Gaps earlier reviews raised, AS SLUGS: slug-a, slug-b. If a gap you find is the SAME issue as one
-of those, reuse its slug verbatim. Otherwise mint a new short kebab-case one.
+Blocking gaps earlier reviews raised, AS SLUGS: slug-a, slug-b. If a gap you find is the SAME issue
+as one of those, or as a caveat in a review file named above, reuse its slug verbatim. Otherwise mint a
+new short kebab-case one.
 
 SEVERITY: every gap is BLOCKING or a CAVEAT. A gap is BLOCKING only when it is one of these:
   1. A NON-NEGOTIABLE VIOLATION by the winner, judged at the depth the requirements state, or on
@@ -680,9 +692,15 @@ The reviewers did NOT yet agree. READ every review file of round 2:
   - E:/flow/runs/flow/decision-review-r2.md
 Each holds a BLOCKING section and a CAVEATS section. REVISE your decision at E:/flow/runs/flow/decision-r2.md
 into a complete new file:
-- For each BLOCKING gap, fold in the SMALLEST change that closes it, or rebut it under a `## Rebuttals`
-  heading with evidence: a lens claim, a file:line, a measurement or the requirements text. A rebuttal
-  without evidence is not one, and agreeing with a gap you cannot refute is the honest move.
+- A gap is another agent's claim. Before you fold a BLOCKING gap, confirm its evidence against its
+  source: open the lens file, file:line, URL or requirements text it cites, and re-run a measurement it
+  cites where you can run it. Treat its smallest change as a hint. Fold the SMALLEST change that closes
+  the confirmed defect, which may differ from the hint, and check it against every passage of your
+  decision that states the same fact.
+- A gap whose evidence you refute is rebutted under a `## Rebuttals` heading with evidence: a lens claim,
+  a file:line, a measurement or the requirements text. A rebuttal without evidence is not one. A gap you
+  can neither confirm nor refute goes under `## Rebuttals` marked unverified, with the check that would
+  settle it.
 - You MAY fold a CAVEAT whose fix is one sentence. Leave every other caveat alone: the review files
   carry it to the user.
 - A repair patches the option it repairs. Never add a repaired variant as a new rival option. When a
@@ -779,12 +797,15 @@ round 2:
   - E:/flow/runs/flow/decision-review-r2.md
 VERIFY THE REVISION:
 1. Each BLOCKING gap in those files: closed by the revision, or rebutted under `## Rebuttals` with
-   evidence that holds? One that is neither stays BLOCKING under its slug.
+   evidence that holds? One that is neither stays BLOCKING under its slug. A gap the decider marked
+   unverified stays BLOCKING unless you run the check it names and that check refutes the gap.
 2. Every passage the revision changed or added (compare the two decision files): judge it in full.
 3. Re-derive the totals, the trade-off and the flip check.
 In text the revision left unchanged, report only a NON-NEGOTIABLE VIOLATION as blocking. Anything else
 you notice there is a caveat. List only NEW caveats: one an earlier review raised stays on record there,
-so do not re-list it.
+so do not re-list it. Earlier rounds' caveats are under `## Caveats` in these files as well, so read
+them before you list one:
+  - E:/flow/runs/flow/decision-review-r1-design.md
 THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
 Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
@@ -793,8 +814,9 @@ Prefer the SIMPLEST option that meets all requirements. If a more complex option
 justify why the simpler one is inadequate.
 THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r3.md
 THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md, E:/flow/runs/flow/lenses/robustness.md
-Gaps earlier reviews raised, AS SLUGS: slug-a, slug-b. If a gap you find is the SAME issue as one
-of those, reuse its slug verbatim. Otherwise mint a new short kebab-case one.
+Blocking gaps earlier reviews raised, AS SLUGS: slug-a, slug-b. If a gap you find is the SAME issue
+as one of those, or as a caveat in a review file named above, reuse its slug verbatim. Otherwise mint a
+new short kebab-case one.
 
 SEVERITY: every gap is BLOCKING or a CAVEAT. A gap is BLOCKING only when it is one of these:
   1. A NON-NEGOTIABLE VIOLATION by the winner, judged at the depth the requirements state, or on
@@ -976,7 +998,9 @@ Return via the schema.
 
 You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion on ONE focus: the CHOICE. Verify every matrix cell's citation against its lens file, re-derive every
 total, the trade-off and the flip check (the single smallest flip AND the joint effect of the
-low-confidence cells). Look for a stronger option or hybrid the decider dismissed or never considered, a
+low-confidence cells). For each cell that moves the outcome, one the flip check names or one
+whose error would change the winner, open the source the lens file cites behind it and confirm it says what
+the cell claims. Look for a stronger option or hybrid the decider dismissed or never considered, a
 "why not" that strawmans a runner-up, and a ruling-out whose premise the evidence contradicts.
 Other reviewers cover the other focuses at the same time, so go deep on yours.
 THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)

@@ -63,7 +63,8 @@ No mid-run questions — settle the rubric with the user first:
   decider, reviewers) read it **read-only** for pattern-fit and feasibility; the engine never modifies it.
 - **`testbed` (optional):** how agents may **empirically test** claims (e.g. a sqlite db + how to query
   it, a script to benchmark against). All three roles are told to prefer measured evidence — run the
-  check, cite command + result (#14) — and the reviewers re-run measurements to verify. Set it up
+  check, cite command + result (#14) — and the `choice` reviewer (`order` in `ranked` mode) re-runs each
+  testbed command behind a matrix cell that moves the outcome. Set it up
   read-only by construction (e.g. `sqlite3 "file:path.db?mode=ro"`, or a copy), and **pre-allowlist the
   commands** in the target project's settings — a background run can't answer permission prompts
   unattended.
@@ -106,7 +107,8 @@ caveat, so a rubric that wants it judged names it under a weighted criterion.
 The JS conductor sequences `agent()` calls, passing only paths + verdicts (#1). Each agent is fresh.
 
 - **Analyst** (analyst · sonnet) — one per lens; reads the requirements + its lens, generates 2–4
-  scored options, recommends one, notes keep-worthy elements, writes `lenses/<lens>.md`.
+  scored options, recommends one, notes keep-worthy elements, writes `lenses/<lens>.md`. It cites a
+  file:line, a measurement, a source URL or "own judgment" for each factual claim.
 - **Decider** (decide · opus) — reads the requirements + every lens file (+ every review file of the
   previous round); consolidates options, may build a hybrid, scores a **global weighted matrix**
   (non-negotiables forced to 0, **every cell citing its lens evidence or marked "own judgment,
@@ -118,8 +120,11 @@ The JS conductor sequences `agent()` calls, passing only paths + verdicts (#1). 
   effect of moving every low-confidence cell by its uncertainty). It grades the choice **dominant**
   (gives up nothing), **robust** (the smallest flip is larger than the uncertainty of the input it moves)
   or **fragile** (it is not), and returns the grade as `flip`. From round 2 it revises its prior
-  decision into a complete new file under fixed **fold rules**: each blocking gap gets the smallest fold
-  that closes it or a rebuttal under `## Rebuttals` with evidence; it may fold a caveat whose fix is one
+  decision into a complete new file under fixed **fold rules**: it confirms each blocking gap's evidence
+  against its source and treats the gap's smallest change as a hint; a confirmed gap gets the smallest
+  fold that closes it, a refuted one a rebuttal under `## Rebuttals` with evidence, and one it can
+  neither confirm nor refute goes under `## Rebuttals` marked unverified, with the check that would
+  settle it; it may fold a caveat whose fix is one
   sentence and leaves every other caveat to the review files; it tests each fold against one hostile
   input of each kind it touches (a failure, a concurrent edit, a human-set value, state saved before the
   change, an edit by another program that no scan has seen yet); a fold that repairs one option against
@@ -135,14 +140,17 @@ The JS conductor sequences `agent()` calls, passing only paths + verdicts (#1). 
 - **Reviewers** (review · opus) — **non-blind, adversarial**; each reads the decision + requirements +
   lens files. **Round 1** runs three **focused reviewers** in parallel, each writing
   `decision-review-r1-<focus>.md`. In `single` mode the focuses are `choice` (verifies every matrix
-  citation against its lens file (#14), re-derives the totals, the trade-off and the flip check, and
-  hunts a missed option or a strawmanned runner-up), `requirements` (every non-negotiable path by path,
-  every criterion) and `design` (does the specified design work as written on every input the rubric
-  accepts). In `ranked` mode they are `order` (the matrix and the order), `requirements` and `combine`
+  citation against its lens file (#14), re-derives the totals, the trade-off and the flip check,
+  re-checks the cited source behind each cell that moves the outcome and re-runs each testbed command
+  such a cell rests on, and hunts a missed option or a strawmanned runner-up), `requirements` (every
+  non-negotiable path by path, every criterion) and `design` (does the specified design work as written
+  on every input the rubric accepts). In `ranked` mode they are `order` (the matrix and the order, with
+  the same source re-check), `requirements` and `combine`
   (the combine/exclude claims — two options sold as combinable that actually conflict is the most
   damaging error the list can carry). Only the `choice` and `order` reviewers re-derive the matrix.
   **Round 2 and later** run one **verifier** that reads every review file of the previous round, checks
-  each blocking gap was closed or rebutted with evidence that holds, judges every changed or added
+  each blocking gap was closed or rebutted with evidence that holds, keeps a gap the decider marked
+  unverified blocking unless the check it names refutes it, judges every changed or added
   passage in full, re-derives the totals, the trade-off (in `ranked` mode, the order) and the flip check,
   blocks only on a non-negotiable violation in unchanged text, lists only new caveats, and writes
   `decision-review-rN.md`.
@@ -156,8 +164,10 @@ The JS conductor sequences `agent()` calls, passing only paths + verdicts (#1). 
   blocks. Every other real gap is a caveat, and a caveat
   never blocks. Each review writes `## Blocking` and `## Caveats` sections, returns blocking slugs in
   `gap_ids` and caveat slugs in `caveat_ids`, and agrees exactly when its Blocking section is empty. From
-  round 2 the verifier is handed the earlier rounds' blocking and caveat slugs and reuses one when
-  re-raising the same issue, which is what makes repeated-vs-new measurable (§6). On the **last** round
+  round 2 the verifier is handed the earlier rounds' blocking slugs and reuses one, or the slug of a
+  caveat in a review file it is handed, when re-raising the same issue, which is what makes repeated-vs-new measurable (§6). From round 3 it is also handed every
+  earlier review file that holds a counted caveat and that the previous round did not write, so it
+  lists no caveat that is already on record. On the **last** round
   a non-agreeing review ends with a **WHERE NEXT** section: whether the open blocking gaps sit in text
   the latest revision changed (the folds open new defects) or in a requirement the rubric does not
   settle, and for a requirement the one change that would let a decision converge. A final verifier

@@ -218,7 +218,9 @@ PROCEDURE:
    the ELEMENTS of it worth keeping even if another option wins (so the decider can build a hybrid).
 WRITE ${lensFile(lens.id)} (create ${LENS_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Per option, write a short block with title,
 description, and your 0–10 lens score + why. For your pick, add the keep-worthy elements. Be concrete and
-terse. Do NOT modify any repo, stage, or commit.
+terse. Cite each factual claim: a file:line, a measurement (the exact command and its result), a source URL,
+or "own judgment" where you have none. The ${RANKED ? 'order' : 'choice'} reviewer re-checks the source behind
+each matrix cell that moves the outcome. Do NOT modify any repo, stage, or commit.
 Return via the schema.`;
 
 const decidePrompt = (round, reviewPaths) => `
@@ -236,9 +238,15 @@ ${round === 1
 ${reviewPaths.map((p) => `  - ${p}`).join('\n')}
 Each holds a BLOCKING section and a CAVEATS section. REVISE your decision at ${decisionFile(round - 1)}
 into a complete new file:
-- For each BLOCKING gap, fold in the SMALLEST change that closes it, or rebut it under a \`## Rebuttals\`
-  heading with evidence: a lens claim, a file:line, a measurement or the requirements text. A rebuttal
-  without evidence is not one, and agreeing with a gap you cannot refute is the honest move.
+- A gap is another agent's claim. Before you fold a BLOCKING gap, confirm its evidence against its
+  source: open the lens file, file:line, URL or requirements text it cites, and re-run a measurement it
+  cites where you can run it. Treat its smallest change as a hint. Fold the SMALLEST change that closes
+  the confirmed defect, which may differ from the hint, and check it against every passage of your
+  decision that states the same fact.
+- A gap whose evidence you refute is rebutted under a \`## Rebuttals\` heading with evidence: a lens claim,
+  a file:line, a measurement or the requirements text. A rebuttal without evidence is not one. A gap you
+  can neither confirm nor refute goes under \`## Rebuttals\` marked unverified, with the check that would
+  settle it.
 - You MAY fold a CAVEAT whose fix is one sentence. Leave every other caveat alone: the review files
   carry it to the user.
 - A repair patches the option it repairs. Never add a repaired variant as a new rival option. When a
@@ -297,10 +305,14 @@ Return via the schema.`;
 // Round 1 splits the review by FOCUS, so one pass covers what three fresh sequential samples used to find
 // one round at a time. Later rounds verify the folds instead of re-sampling the whole decision, so the
 // loop converges on the folds rather than on whatever the next fresh reviewer happens to read.
+// A lens file can misquote its own source, so the cells that decide the outcome are checked past it.
+const sourceCheck = (outcome) => `For each cell that moves the outcome, one the flip check names or one
+whose error would change ${outcome}, open the source the lens file cites behind it and confirm it says what
+the cell claims${TESTBED ? ', and re-run each testbed command the cell rests on' : ''}.`;
 const FOCUSES = RANKED
   ? [
     { id: 'order', check: `the MATRIX and the ORDER. Verify every matrix cell's citation against its lens file and
-re-derive every total. Name any option that dominates the one ranked above it, any pair the matrix does
+re-derive every total. ${sourceCheck('the order')} Name any option that dominates the one ranked above it, any pair the matrix does
 not support, any filler option, and any clearly stronger option left OFF the list or never considered.` },
     { id: 'requirements', check: `the NON-NEGOTIABLES and the CRITERIA. Check every listed option against every
 non-negotiable, path by path, and check every weighted criterion is addressed. The order reviewer
@@ -312,7 +324,7 @@ damaging error this list can carry.` },
   : [
     { id: 'choice', check: `the CHOICE. Verify every matrix cell's citation against its lens file, re-derive every
 total, the trade-off and the flip check (the single smallest flip AND the joint effect of the
-low-confidence cells). Look for a stronger option or hybrid the decider dismissed or never considered, a
+low-confidence cells). ${sourceCheck('the winner')} Look for a stronger option or hybrid the decider dismissed or never considered, a
 "why not" that strawmans a runner-up, and a ruling-out whose premise the evidence contradicts.` },
     { id: 'requirements', check: `the REQUIREMENTS. Check the winner's design against every non-negotiable, path by
 path, and check every weighted criterion is addressed. The choice reviewer re-derives the matrix, so do
@@ -353,7 +365,7 @@ requirements text. No evidence, no gap. A check you ran that holds is evidence, 
 // NON-BLIND on purpose (#3 guards code-regression anchoring, not argument evaluation): every reviewer
 // MUST see the decision + requirements to judge them. A round-1 reviewer judges its focus fresh. A later
 // round's verifier reads the previous round's reviews, since its job is to check the folds they asked for.
-const reviewPrompt = (round, focus, priorSlugs, isFinal, prevReviews) => `
+const reviewPrompt = (round, focus, priorSlugs, isFinal, prevReviews, olderCaveatFiles) => `
 You are an ADVERSARIAL DECISION REVIEWER. ${round === 1
     ? `Try to BREAK ${RANKED ? 'the ranked shortlist' : 'the conclusion'} on ONE focus: ${focus.check}
 Other reviewers cover the other focuses at the same time, so go deep on yours.`
@@ -362,18 +374,24 @@ round ${round - 1}:
 ${prevReviews.map((p) => `  - ${p}`).join('\n')}
 VERIFY THE REVISION:
 1. Each BLOCKING gap in those files: closed by the revision, or rebutted under \`## Rebuttals\` with
-   evidence that holds? One that is neither stays BLOCKING under its slug.
+   evidence that holds? One that is neither stays BLOCKING under its slug. A gap the decider marked
+   unverified stays BLOCKING unless you run the check it names and that check refutes the gap.
 2. Every passage the revision changed or added (compare the two decision files): judge it in full.
 3. Re-derive the totals, ${RANKED ? 'the order' : 'the trade-off'} and the flip check.
 In text the revision left unchanged, report only a NON-NEGOTIABLE VIOLATION as blocking. Anything else
 you notice there is a caveat. List only NEW caveats: one an earlier review raised stays on record there,
-so do not re-list it.`}
+so do not re-list it.${olderCaveatFiles.length ? ` Earlier rounds' caveats are under \`## Caveats\` in these files as well, so read
+them before you list one:
+${olderCaveatFiles.map((p) => `  - ${p}`).join('\n')}` : ''}`}
 ${ENV}
 THE ${RANKED ? 'SHORTLIST' : 'DECISION'} TO REVIEW (read it verbatim): ${decisionFile(round)}
 THE LENS ANALYSES it drew on (cross-check its claims against these): ${LIVE.map((l) => lensFile(l.id)).join(', ')}
-${priorSlugs.length ? `Gaps earlier reviews raised, AS SLUGS: ${priorSlugs.join(', ')}. If a gap you find is the SAME issue as one
-of those, reuse its slug verbatim. Otherwise mint a new short kebab-case one.
-` : ''}
+${round === 1 ? '' : priorSlugs.length ? `Blocking gaps earlier reviews raised, AS SLUGS: ${priorSlugs.join(', ')}. If a gap you find is the SAME issue
+as one of those, or as a caveat in a review file named above, reuse its slug verbatim. Otherwise mint a
+new short kebab-case one.
+` : `If a gap you find is the SAME issue as a caveat in a review file named above, reuse its slug verbatim.
+Otherwise mint a new short kebab-case one.
+`}
 ${SEVERITY}
 WRITE ${decisionReviewFile(round, round === 1 ? focus.id : '')} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} The file has a \`## Blocking\` section and a
 \`## Caveats\` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
@@ -471,12 +489,15 @@ while (round < MAX_ROUNDS) {
 
   // ---- REVIEW (non-blind, adversarial) -------------------------------------
   phase('Review');
-  const priorSlugs = [...new Set([...gapFirstRound.keys(), ...caveatIds])];
+  // A bare caveat slug says nothing about the caveat, so the verifier gets the files that hold the
+  // caveats of rounds before the one it reviews, whose files it already reads in full.
+  const priorSlugs = [...gapFirstRound.keys()];
+  const olderCaveatFiles = caveatFiles.filter((f) => !reviewPaths.includes(f));
   const units = round === 1
     ? FOCUSES.map((f) => ({ focus: f, file: decisionReviewFile(1, f.id), label: `review r1 ${f.id}` }))
     : [{ focus: null, file: decisionReviewFile(round), label: `review r${round}` }];
   const revs = await parallel(units.map((u) => () =>
-    agent(reviewPrompt(round, u.focus, priorSlugs, round === MAX_ROUNDS, reviewPaths), roleOpts('review', {
+    agent(reviewPrompt(round, u.focus, priorSlugs, round === MAX_ROUNDS, reviewPaths, olderCaveatFiles), roleOpts('review', {
       schema: REVIEW_SCHEMA, phase: 'Review', label: u.label,
     }))));
   const dead = units.filter((u, i) => !revs[i]);

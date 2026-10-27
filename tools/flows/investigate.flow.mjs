@@ -4,7 +4,7 @@
 //
 // Coverage aimed at here: all eight terminal states (they are eight different FACTS — folding any pair is
 // how a stopped search gets reported as a finished one), the critic gate in BOTH directions (skipped over
-// a later round with nothing to check, forced open on the last round because a determination is due and on
+// a later round with no option or flag to check, forced open on the last round because a determination is due and on
 // a run's first round), a contested claim of EACH kind buying another round, and each of the thirteen throw sites.
 
 const base = {
@@ -96,7 +96,7 @@ export default {
       respond: { investigate: INV, critique: CRIT },
     },
     {
-      // Rounds 2..n-1 skip the critic (nothing to check); the LAST round still spawns one, because it
+      // Rounds 2..n-1 skip the critic (no option or flag to check); the LAST round still spawns one, because it
       // owes a determination and that file is what reaches the user. So this scenario draws BOTH edges
       // out of the investigator — the skip and the gate opening on the final round. It must RULE THINGS
       // OUT while qualifying nothing: an all-zero round stalls and there is no later round to draw.

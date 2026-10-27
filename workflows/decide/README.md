@@ -17,13 +17,15 @@ A **diverge-then-converge** workflow built on the shared [Workflow Principles](.
 
 - **Lensed divergence, weighted convergence.** Each lens pushes its own best answer. The decider
   balances them in a global weighted matrix. Non-negotiables are pass/fail, the simplest adequate
-  option is preferred, and every runner-up is explicitly disqualified.
+  option is preferred, and every runner-up is explicitly disqualified. Every claim cites its source
+  or is marked as own judgment, and a reviewer re-checks the sources behind the matrix cells that
+  decide the outcome.
 - **A fixed rubric both sides judge against.** The requirements file is the single source of truth for
   the decider *and* the reviewers. This is what makes the loop converge instead of bikeshedding.
 - **Adversarial, non-blind review.** Unlike a code review, the reviewers *must* see the decision to judge
   it, so the review is non-blind by design. In round 1 each of three reviewers attacks one focus, such as
-  the choice, the requirements or the design. From round 2 a verifier reads the earlier reviews and
-  checks each fix the decider made.
+  the choice, the requirements or the design. The decider checks each gap against its source before it
+  makes a fix. From round 2 a verifier reads the earlier reviews and checks each fix the decider made.
 - **Blocking gaps and caveats.** A gap blocks agreement only when it shows a broken non-negotiable, a
   correctness defect, a wrong choice or a missed better option. Every other real gap is a caveat. A
   caveat never blocks, and the run hands it to your plan. A run that agrees with caveats ends

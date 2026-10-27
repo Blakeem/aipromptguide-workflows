@@ -70,9 +70,9 @@ flowchart TD
 
 | Phase | What happens |
 |---|---|
-| Refine | MANDATORY first pass (refine phase only): an independent criteria critic reads the criteria and returns gaps, blocking questions, and any criterion no evidence could settle either way. Writes nothing. |
-| Investigate | ONE investigator per round (sequential, which is what makes a single shared ledger safe): reads the criteria verbatim + the whole DISQUALIFIED.md ledger + the last critique, searches, self-checks every candidate against every criterion, writes options/&lt;id&gt;.md per qualifier, appends each reject to the ledger (marking NEAR-MISS: the ones that failed exactly one criterion), and writes DETERMINATION.md - the options, a comparison over the axes they DIFFER on, which to pick when, the near misses and the coverage evidence - on a terminating round AND on the last round the budget allows, where it is labelled a partial result. |
-| Critique | Adversarial non-blind critic - skipped only in a round that adds no option, claims no termination, owes no determination and is not this run's first round: verifies each new option and every unverified option file against every criterion and each citation against its source, writes its verdict as the first line of each file it judges, disqualifies what fails (appending to the same ledger), re-checks every NEAR-MISS marker, attacks any exhaustion / no-solution / saturation claim, and checks the determination when one was written. Agreement on a claim ends the loop; a contested claim buys another round. |
+| Refine | MANDATORY first pass (refine phase only): an independent criteria critic reads the criteria and returns gaps, each quoting the criteria line it rests on or naming the section the criteria lack, blocking questions, and any criterion no evidence could settle either way. Writes nothing. |
+| Investigate | ONE investigator per round (sequential, which is what makes a single shared ledger safe): reads the criteria verbatim + the whole DISQUALIFIED.md ledger + the last critique, searches, self-checks every candidate against every criterion, writes options/&lt;id&gt;.md per qualifier, appends each reject to the ledger tagged with its round and carrying its source and locator (marking NEAR-MISS: the ones that failed exactly one criterion), flags a ledger line it can contradict with a citation, and writes DETERMINATION.md - the options, a comparison over the axes they DIFFER on, which to pick when, the near misses and the coverage evidence - on a terminating round AND on the last round the budget allows, where it is labelled a partial result. |
+| Critique | Adversarial non-blind critic - skipped only in a round that adds no option, flags no ledger line, claims no termination, owes no determination and is not this run's first round: verifies each new option and every unverified option file against every criterion and each citation against its source, writes its verdict as the first line of each file it judges, disqualifies what fails (appending to the same ledger), checks every ledger line added since the last critique against its source and locator and rules on each FLAG among them, re-checks every NEAR-MISS marker among those lines, attacks any exhaustion / no-solution / saturation claim, and, when a determination was written, corrects its ANSWER, COMPARISON, WHICH TO PICK WHEN and NEAR MISSES to match its verdicts and reports any other defect. Agreement on a claim ends the loop; a contested claim buys another round. |
 
 ## Loops
 
@@ -103,9 +103,9 @@ flowchart TD
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 74) |
 | throw: args.planPath is required | args carry no planPath | throw (line 103) |
 | throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 112) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 455) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 528) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 556) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 493) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 574) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 606) |
 
 ## Coverage
 

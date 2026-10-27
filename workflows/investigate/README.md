@@ -19,8 +19,9 @@ A **bounded exhaustive search** built on the shared [Workflow Principles](../../
 
 - **Pass/fail, not weighted.** Every criterion is a gate. Miss one and a candidate is out, however strong
   it is elsewhere. There is no weighted total or "close enough".
-- **A ledger that makes the search learn.** Every rejection is appended to `DISQUALIFIED.md` with the
-  criterion it failed or could not prove, and every later round reads it first. That memory is what turns
+- **A ledger that makes the search learn.** Every rejection is appended to `DISQUALIFIED.md` with its
+  round, the criterion it failed or could not prove, and the source that shows it. The critic checks each
+  new line against that source, and every later round reads the ledger first. That memory is what turns
   repeated searching into converging rather than repeating. A second file, `SEARCHED.md`, does the same
   for **ground**. It records which avenues were swept, with what search terms, and the most promising one
   still untried. Closed candidates do not come back, and neither do closed searches.
@@ -81,7 +82,8 @@ mandatory criteria review, then runs `investigate-cycle.mjs` **by path**.
 1. **Frames the criteria.** The criteria file written in plan mode states the question, the pass/fail
    gates, the evidence standard and the search space.
 2. **Reviews the criteria.** An independent critic returns gaps, blocking questions, and any criterion no
-   evidence could settle. Those get fixed before a single search runs.
+   evidence could settle. Each gap quotes the line of the criteria file it rests on, or names the section
+   the file lacks, so that you can check it. Those get fixed before a single search runs.
 3. **Searches and qualifies.** The investigator finds and self-checks. The critic verifies and
    disqualifies. The ledger carries what died and why into the next round.
 4. **Concludes.** A determination with the qualifying options and the coverage evidence, or a verified dead
@@ -95,7 +97,8 @@ mandatory criteria review, then runs `investigate-cycle.mjs` **by path**.
 (`options/<id>.md`), the full record of what was ruled out and why (`DISQUALIFIED.md`), the ground each
 round covered and what it would try next (`SEARCHED.md`), the critic's round-by-round findings
 (`acceptance-review-rN.md`), and the conclusion (`DETERMINATION.md`). The critic writes its verdict as
-the first line of each option file it judges. The file of an option the critic disqualified stays in
+the first line of each option file it judges, then corrects `DETERMINATION.md` to match those verdicts.
+The file of an option the critic disqualified stays in
 `options/`. The run's `options` result lists the options whose verdict reads upheld, earlier runs included. It is
 `null` when the run could not learn that set.
 
