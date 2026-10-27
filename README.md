@@ -157,6 +157,13 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-26
 
+- **develop's agents check what they are handed.** Acceptance reproduces a plan amendment's defect
+  before the amendment excuses a requirement, and a relaunch re-checks each amendment an earlier launch
+  wrote. A fix run checks each problem a park entry lists against the code. In a fix block, an entry the
+  developer did not report counts as open. Acceptance confirms that the staged changes hold only
+  accepted work before it stages, and that the tree it stages is the one the developer judged for risk.
+  A decline whose reason is the plan takes the form `SKIPPED: SPEC: <file:line>`, which the blind
+  reviewer skips and acceptance checks.
 - **A run edits only the backlog entries its blocks marked.** `plan-edit.mjs args` applies a pulled entry's
   status edit only when the entry's `- pulled:` line names the block that made the edit. A proactive run's
   `nextStep` also names the `- pulled:` line of each block whose park agent did not return, a block that did

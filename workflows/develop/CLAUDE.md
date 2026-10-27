@@ -443,16 +443,28 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   tree id as `risk_snapshot`. Each phase after BUILD runs a targeted test while it works. The gate
   runs once more after the last phase that changed code, and that run's outcome is the one it
   reports. Every gate run sets the shell tool's timeout to its maximum (600000 ms) and writes the
-  gate's entire output to a log under `scratch/`, which the agent then reads. Acceptance, the sweep
-  and park run their gates the same way. A phase with nothing to do for its
-  round's changes is skipped. It routes each finding by the code zone it lies in, as §4 sets. It
-  logs every finding it routes and does not fix, so none is dropped silently. A dismissal names one
-  place or the class of places it covers, and its reason holds for every place it names. The reason
-  states a fact it checked that round, the file and line it read or the command it ran and its
-  output. It never drops a finding it can neither confirm nor refute. It settles that finding with a
-  read or a probe, fixes it or escalates it. On a relaunch, the round-1 developer re-checks each line
-  that `DISMISSED-<id>.md` carries from an earlier launch against the current code before it builds,
-  and removes each line whose finding no longer applies or whose reason the code no longer supports.
+  gate's entire output to a log under `scratch/`, which the agent then reads. Acceptance, the sweep and
+  park run their gates the same way. A phase with nothing to do for its round's changes is skipped. It
+  routes each finding by the code zone it lies in, as §4 sets. It logs every finding it routes and does
+  not fix, so none is dropped silently. A dismissal names one place or the class of places it covers,
+  and its reason holds for every place it names. The reason states a fact it checked that round, the
+  file and line it read or the command it ran and its output. The reason never cites the plan, apart
+  from one form, `SKIPPED: SPEC: <file:line>`, for a decline whose reason is that the plan prescribes
+  the code at that file:line, that the block's text excludes it, or that another block of the plan owns
+  it. That form quotes no plan text. It never drops a finding it can neither confirm nor refute. It
+  settles that finding with a read or a probe, fixes it or escalates it. On a relaunch, the round-1
+  developer re-checks each line that `DISMISSED-<id>.md` carries from an earlier launch against the
+  current code before it builds, and removes each line whose finding no longer applies or whose reason
+  the code no longer supports. It re-checks each amendment in `AMENDED-<id>.md` the same way. It
+  reproduces the amendment's defect and removes each amendment whose quoted clause the block's text no
+  longer holds or whose defect the current code does not reproduce, together with its pointer line in
+  `DECISIONS.md`. Each amendment's header, `## Plan amendment: <id> rN, launch <n>`, numbers its launch,
+  and its pointer line names the same number. An amendment whose header names no launch has a pointer
+  that names none, and the developer matches that pointer by block id, round and defect file:line
+  alone. The round-1 developer counts `<n>` as one past the highest
+  launch number the file's headers still hold and returns it as `launch_number`, and the engine renders
+  it into every later round's header. The number tells apart the launches whose amendments the file
+  holds. A number returns once every amendment that carried it is removed.
   It escalates only a choice that changes user-visible behavior, stored data or a public contract and
   that nothing it can read or check settles, or a blocker it cannot resolve in scope. One it cannot
   proceed without goes to `NEEDS-USER.md` in an ordered run, which halts on it, and to the block's
@@ -473,7 +485,18 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   closes a defect that an entry in any backlog file holds, it adds a `**Closed by:**` line to that
   entry and leaves the entry's status and decision as they are, since a park clears the fix from the
   tree. **Must attest `unstaged_confirmed`. A missing or false attestation HALTS, even beside a
-  needs-user escalation** (the staged index is surface neither reviewer checks).
+  needs-user escalation** (no reviewer reads what the staged index holds). The attestation is not the
+  only guard. The round-1 developer returns the index's tree id, from `git write-tree`, as
+  `baseline_index_tree` before it changes anything. Each acceptance confirms the index still holds
+  the tree id the run last recorded before it stages. It returns the index's tree id once it finishes,
+  after its `git add` when it stages, as `index_tree`, which the engine hands to the next acceptance.
+  Before any acceptance of the launch has returned a usable id, and after one returns none, the next
+  acceptance has nothing to compare unless a round-1 developer's report takes its place first. The tree
+  id that acceptance returns restores the check. A changed index halts `staging-unconfirmed`, and the block parks with its
+  work unstaged. The halt reason names `git diff --cached <tree id>` with the recorded tree id, which
+  lists only what changed in the index after it, since the index also holds the accepted blocks. In commit mode, an agent's own commit moves HEAD, which `git diff --cached` does not
+  show. So the halt reason also names the last commit the launch landed, and says to revert each newer
+  commit that `git log --oneline` lists.
 - **Quality Reviewer** — blind by placement (`gate/` only). It receives the conventions and reports
   every finding the diff introduces or exposes at every tier, from critical down to nit, under both
   policies. It works through a reach step over callers, siblings, duplicates and describing text,
@@ -481,7 +504,8 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   code contradicts. A review is clean when it holds no finding and no contested dismissal, and its
   file then reads `No findings.` Each finding gives a fix direction it checked against the code it
   would change. Before it skips a dismissed finding, it checks the stated reason against the code,
-  and it contests a reason the code contradicts, at any tier. §6 says which rounds it runs in.
+  and it contests a reason the code contradicts, at any tier. It skips a `SKIPPED: SPEC:` line
+  without a check, since that reason rests on the plan it cannot read. §6 says which rounds it runs in.
 - **Acceptance Verifier** — frame per mode; carries the legitimate no-op branch in both modes (a
   block the accepted baseline already satisfies passes without inventing changes). In fix mode, any
   unstaged or untracked change fails acceptance when no issue is claimed FIXED. Only agent that
@@ -490,10 +514,16 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   the dismissal ledger declines it. A ledger line whose reason starts `SKIPPED:` declines a finding
   only when its reason holds. Acceptance checks each such reason against the code it cites, and a
   reason the code contradicts or one that states no checked fact declines nothing, so its finding
-  counts as a gap. Acceptance may also override a line whose reason holds. Each gap it writes gives a
-  fix direction it checked against the code it would change. A line whose reason starts `ESCALATED:` records a default routed
-  to the user, and acceptance holds it. It audits the risk file of each round since the block's last
-  blind review, against that round's own hunks (§6). In the closing pass it sorts each gap as
+  counts as a gap. A `SKIPPED: SPEC:` line declines a finding only when the block's text prescribes
+  the code it cites, or that code lies in code the block's text excludes or another block of the plan
+  owns. Acceptance checks it against the block's text and the other blocks. An amendment in
+  `AMENDED-<id>.md` is the developer's claim too. Acceptance reproduces its defect against the file:line
+  and the clause it cites before the amendment excuses a criterion, and an amendment whose defect it
+  cannot confirm leaves that criterion unmet. Acceptance may also override a line whose reason holds.
+  Each gap it writes gives a fix direction it checked against the code it would change. A line whose
+  reason starts `ESCALATED:` records a default routed to the user, and acceptance holds it. It audits
+  the risk file of each round since the block's last blind review, against that round's own hunks (§6).
+  In the closing pass it sorts each gap as
   blocking or not blocking, and it lands the block when no gap blocks. Otherwise the block parks
   (§6). Every defect it writes in its review file counts as a gap, including a regression the block
   prescribes or no current caller reaches. A change counts as required only when the block's text or
@@ -503,27 +533,39 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   shows the removed behavior was a real defect, the change alters no other behavior, the block's
   text does not exclude that code, no other block of the plan owns it, and it lies in a zone the
   policy lets the developer change (§4). Under `proactive`, a change that closes a pulled backlog
-  entry's defect (§4) is not a regression when the code shows the removed behavior was that defect
-  and the change alters no other behavior. The developer never dismisses a regression. It fixes the
-  regression, with an amendment when prescribed text causes it. It escalates the regression when
+  entry's defect (§4) is not a regression when the code shows the removed behavior was that defect and
+  the change alters no other behavior. The developer never dismisses a regression it confirms. It fixes
+  the regression, with an amendment when prescribed text causes it. It escalates the regression when
   that fix would change a choice the text says the user made, so the block parks with the user's
-  question. It also escalates with a default when only a change in other code closes it (§4). The
-  review file holds no notes section. In fix mode, a harm an entry lists whose cause shares no code
-  path with the re-derived root cause is a new issue, never a gap. A sibling path with the identical
-  defect stays a residual path. The verifier appends a new issue to its source block's backlog file
-  (§10), and the entry's `**What:**` names the source issue id. The return counts every writer's
-  entries in `backlogEntries` and names each file in `backlogFiles`. Work a block's file (§10) once
-  that block is `done`, `skip` or `backlogged`, since a relaunch of the block may still append to
-  it. `args --backlog` leaves the file out until then (§10 step 4). In fix mode, an entry with an `- origin:` line holds
-  a parked block's unfinished work. When it also carries a `- branch:` line, the round-1 developer
-  restored that branch's work (§7), unless the accepted baseline already holds it, so acceptance
-  judges that entire branch work as the entry's fix. Every such entry's fix also meets every
-  acceptance criterion of each block its `- origin:` line names, and for a feature or section block
-  its reachability. A landed block holds a branch's work only when acceptance returned
-  `actually_fixed=true` for every entry that names that branch, since the developer may keep or
-  revert the restored work of an entry it reports FAILED. In commit delivery, acceptance deletes
-  each such branch with `git branch -D` only on a pass with no regression that it committed with the
-  block's title, the reviewed tree and a clean tree after, and returns each branch its deletion left
+  question. It also escalates with a default when only a change in other code closes it (§4). A
+  regression a review names is another agent's claim too, so the developer fixes it once it confirms it
+  against the code, and drops one it refutes as a false positive, with the file:line that refutes it. A
+  regression its own self-review finds it always fixes or escalates. The review file holds no notes
+  section. In fix mode, an ACTIONABLE entry the developer did not report is an open gap, as one it
+  reported SKIPPED is, in every round and in the closing bar. For a pass, the engine renders the ids of
+  the members' entries the developer did not report. A single fix block's acceptance reads the block to
+  find them, since the engine never parses a block. A FAILED report is no gap by itself, since that
+  entry syncs `needs-attention` and goes back to the user. In fix mode, a harm an entry lists whose
+  cause shares no code path with the re-derived root cause is a new issue, never a gap. A sibling path
+  with the identical defect stays a residual path. The verifier appends a new issue to its source
+  block's backlog file (§10), and the entry's `**What:**` names the source issue id. The return counts
+  every writer's entries in `backlogEntries` and names each file in `backlogFiles`. Work a block's file
+  (§10) once that block is `done`, `skip` or `backlogged`, since a relaunch of the block may still
+  append to it. `args --backlog` leaves the file out until then (§10 step 4). In fix mode, an entry with
+  an `- origin:` line holds a parked block's unfinished work. When it also carries a `- branch:` line,
+  the round-1 developer restored that branch's work (§7), unless the accepted baseline already holds it,
+  so acceptance judges that entire branch work as the entry's fix. Every such entry's fix also meets
+  every acceptance criterion of each block its `- origin:` line names, and for a feature or section
+  block its reachability. The gaps the entry's `**What:**` copies are another agent's claims. The
+  round-1 developer confirms each against the code as it confirms a review finding, closes each one it
+  confirms and declines each one it refutes with a DISMISSED line. Acceptance counts a listed gap closed
+  when the code closes it or a ledger line declines it. A listed gap for a wrong risk answer, or for a
+  path that changed after its round's snapshot, takes no fix and no log, and acceptance counts it
+  closed, since the block's first blind review judges the entire restored work. A landed block holds a branch's work only when
+  acceptance returned `actually_fixed=true` for every entry that names that branch, since the developer
+  may keep or revert the restored work of an entry it reports FAILED. In commit delivery, acceptance
+  deletes each such branch with `git branch -D` only on a pass with no regression that it committed with
+  the block's title, the reviewed tree and a clean tree after, and returns each branch its deletion left
   behind. In stage delivery, acceptance deletes no branch, since the user may still reject the
   staged work. On a pass with no regression that it staged, it returns each such branch, and
   `nextStep` says to delete it once the user commits that work. Every other branch stays, and so
@@ -572,6 +614,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
 - **Sweep** (opus) — runs only when `sweep: goal-coverage` AND every non-skip block is done
   (launch-status `done` plus this run's accepted ids). Re-greps the surface from `goal`, runs the
   full gates, writes `SWEEP.md`, where each gap's follow-up block gives a fix direction it checked
+  against the code. It holds an escalated default in `DECISIONS.md` as acceptance holds it, so a goal
+  hit it covers is no gap unless the reason it gives is false. It reads every other `DECISIONS.md` line
+  and every `AMENDED-<id>.md` as claims, so one excuses a goal hit only once the sweep confirms it
   against the code. Advisory: a dead sweep is the `failed` entry
   `{ id: 'sweep', stage: 'sweep' }`, never a halt.
 
@@ -594,7 +639,8 @@ when every answer is no. The developer writes the answers to `risk-<id>-rN.md` a
 `review_needed`, true when any change is not low risk. Each risk file starts with the line
 `Snapshot: <tree id>`. The tree id is a snapshot of the round's working tree, which the developer
 makes with `git add -A` and `git write-tree` on a temporary index file under `scratch/`, seeded with
-a copy of the real index. The real index, which holds the accepted baseline, is never written. The
+a copy of the real index, and deletes that file once it prints the tree id. The real index, which
+holds the accepted baseline, is never written. The
 blind review runs in a block's first round with a satisfied gate in a launch, a fix block that
 restored a parked block's branch included. A later round gets one when a round since the block's
 last blind review returned `review_needed` true or no boolean, or an acceptance verdict since then
@@ -604,8 +650,13 @@ snapshots. It runs `git diff <base> <snapshot>`, where `<snapshot>` is the line 
 file and `<base>` is the line in the risk file of the round before it. The engine hands acceptance
 the `risk_snapshot` each of those rounds returned, and acceptance confirms each file's snapshot line
 equals it before it audits. A line that differs, or a round that returned no tree id, counts as a
-missing file. It checks each answer in the
-risk file of each round since the last blind review against that round's hunks. A missing file, a
+missing file. On every verdict, acceptance also runs the same snapshot commands on a temporary index
+file of its own, before it stages anything, and lists the paths that differ from the snapshot the
+last round returned with `git diff --name-only`. A path that differs is a risk-audit gap, since it
+changed after the developer handed its round on, unless it is untracked build output or a cache that a
+gate or test run regenerates. When the last round returned no snapshot, this check has nothing to
+compare, and an unreviewed round's missing snapshot is already a missing file. It checks each answer in
+the risk file of each round since the last blind review against that round's hunks. A missing file, a
 missing snapshot line in an audited round's file or in its base file, a change the file does not
 judge low risk and an answer the hunks contradict are each a gap, and the verdict returns
 `risk_misclassified` true, which sends the next round to a blind review.
@@ -627,8 +678,9 @@ lands with a change that needs a blind review and has none.
 The closing acceptance sorts each gap into one of two kinds. A blocking gap is a regression, a red
 gate, an unmet criterion of a feature or section block, an ACTIONABLE entry of a fix block whose root
 cause is not closed, a change made for an entry that is not ACTIONABLE or a change no FIXED claim
-accounts for, a defect at medium severity or higher that the block's diff introduces, or a wrong risk
-answer whose changes no blind review has read. Every other gap is not blocking, such as a low or nit
+accounts for, a defect at medium severity or higher that the block's diff introduces, a wrong risk
+answer whose changes no blind review has read, or a path the tree check finds changed after its
+round's snapshot. Every other gap is not blocking, such as a low or nit
 finding or a cleanup. A finding the closing blind review raises against a dismissal is a gap of either
 kind by the same rule, unless it contests an `ESCALATED:` line acceptance holds. With no blocking gap,
 the closing acceptance stages the block, commits it in commit mode, and appends each gap that is not
@@ -843,9 +895,17 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   its risk file's first line, which acceptance's risk audit confirms, and a value that is not a tree
   id counts as no risk file) and, in the closing pass only,
   `recorded_entries` (the ids of the backlog entries it listed, appended or already there, which a
-  park's entry names) · in commit mode, the round-1 developer's `baseline_staged_files` (the files
-  staged before it touched anything, above 0 halts `staged-baseline`, and a non-number is logged as
-  unverified) · under `proactive`, the developer's `pulled_results` (each pulled entry's `FIXED`,
+  park's entry names) · the round-1 developer's `baseline_index_tree` (the index's tree id before it
+  changed anything, which the first acceptance of a launch confirms, §5) and `launch_number` (the
+  launch its amendment headers name, and a value below 1 or not an integer is logged and renders
+  `launch unrecorded`) · acceptance's `index_matched` (false halts `staging-unconfirmed`, and a
+  non-boolean is logged as unverified) and `index_tree` (the index's tree id once it finished, after its
+  `git add` when it staged, which the next acceptance confirms. A value that is not a tree id is logged,
+  and the next acceptance then compares nothing unless a round-1 developer reports a tree id first. The
+  tree id that acceptance returns restores the check) · in commit mode, the round-1
+  developer's `baseline_staged_files` (the files staged before it touched anything, above 0 halts
+  `staged-baseline`, and a non-number is logged as unverified) · under `proactive`, the developer's
+  `pulled_results` (each pulled entry's `FIXED`,
   `STALE` or `FAILED`, every round) and acceptance's `pulled_checks` (each pulled entry's
   `actually_fixed`, and only the latest verdict's checks count, §4) · acceptance's
   `risk_misclassified` (true when its risk audit found a gap) · in commit

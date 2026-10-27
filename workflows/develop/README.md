@@ -95,13 +95,18 @@ Every block runs the same loop, up to `maxRounds`.
    Under both policies, it reports every problem it finds, from critical down to nit. It reviews the
    block's first round that meets its gate, and any later round with a change the developer judged
    risky. A round with only low-risk changes goes straight to acceptance. Before it skips a finding
-   the developer declined, it checks the developer's reason against the code.
+   the developer declined, it checks the developer's reason against the code. Since the reviewer
+   never sees the plan, it skips a decline whose reason is that the plan prescribes the code, that the
+   block excludes it, or that another block owns it. Acceptance checks that decline instead.
 3. An **acceptance verifier** checks the diff against the block and stages it on a pass. In commit
    mode it also commits it.
    It also rechecks every finding raised earlier in the block. A reason the developer gave for
    declining a finding counts only when the code supports it. For a round the blind reviewer did not
    see, it checks each of the developer's risk answers against that round's own changes. A wrong answer
-   sends the next round to the blind reviewer.
+   sends the next round to the blind reviewer. A plan amendment excuses a requirement only once
+   acceptance reproduces the defect the amendment names. In a fix block, an entry the developer did
+   not report counts as open. Before it stages, acceptance confirms that the staged changes hold only
+   work an earlier acceptance staged.
 4. If the last round fails, a **closing pass** runs one more developer, and no develop round follows
    it. It makes each fix that is low risk and records each risky fix in the project's backlog. A blind
    review follows it when its changes need one. Then acceptance runs once more and sorts each problem
@@ -111,7 +116,8 @@ Every block runs the same loop, up to `maxRounds`.
 5. A block that cannot pass is **parked**. Its work is saved as a commit on a branch and cleared from
    the tree, so nothing is lost and the next block starts clean. One entry in the project's backlog
    links the branch and says why the block parked. Once that entry is ready to build, a later fix run
-   restores the branch's work and finishes it.
+   restores the branch's work and finishes it. That run checks each problem the entry lists against
+   the code and declines a problem it disproves.
 
 Settings at the top of the plan file control the run.
 

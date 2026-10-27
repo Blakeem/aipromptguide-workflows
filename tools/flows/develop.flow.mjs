@@ -50,11 +50,11 @@ const base = {
 
 // Agent returns carrying every attestation the engine reads. `review_needed` gates a later round's blind
 // review, and `unstaged_confirmed` is a HALT here rather than a warning — hence its own scenario below.
-const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, backlog_entries: 0, backlog_blocks: [], review_needed: true, risk_snapshot: 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678' };
+const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, backlog_entries: 0, backlog_blocks: [], review_needed: true, risk_snapshot: 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', baseline_index_tree: 'c0ffee0000000000000000000000000000000001', launch_number: 1 };
 const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, contested_dismissals: 0 };
 const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, contested_dismissals: 0 };
-const ACC_PASS = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, reachable: true, regression: false, evidence_recorded: true, gap_count: 0, backlog_entries: 0, backlog_blocks: [] };
-const ACC_FAIL = { wrote_file: true, pass: false, staged: false, earlier_reviews_read: 0, reachable: false, regression: false, evidence_recorded: true, gap_count: 2, backlog_entries: 0, backlog_blocks: [] };
+const ACC_PASS = { wrote_file: true, pass: true, staged: true, index_matched: true, index_tree: 'c0ffee0000000000000000000000000000000001', earlier_reviews_read: 0, reachable: true, regression: false, evidence_recorded: true, gap_count: 0, backlog_entries: 0, backlog_blocks: [] };
+const ACC_FAIL = { wrote_file: true, pass: false, staged: false, index_matched: true, index_tree: 'c0ffee0000000000000000000000000000000001', earlier_reviews_read: 0, reachable: false, regression: false, evidence_recorded: true, gap_count: 2, backlog_entries: 0, backlog_blocks: [] };
 const PARK_OK  = { saved: true, cleared: true, gates_green: true, commit_sha: 'd1e2f3a4b5c60718293a4b5c6d7e8f9012345678', entry_written: true };
 const SWEEP_OK = { wrote_file: true, complete: true, gap_count: 0, suite_result: 'green' };
 // A closing pass that made only low-risk fixes and recorded nothing.
@@ -390,6 +390,14 @@ export default {
       when: 'the developer will not confirm its work stayed unstaged',
       args: base,
       respond: { develop: { ...DEV_OK, unstaged_confirmed: false }, park: PARK_OK },
+    },
+    {
+      // A second route into the same terminal: the developer's attestation is its own claim, so acceptance
+      // confirms the index before it stages.
+      name: 'the index changed outside acceptance',
+      when: 'acceptance finds the staged index no longer holds the tree the run recorded',
+      args: base,
+      respond: { ...GREEN_RUN, acceptance: { ...ACC_PASS, index_matched: false }, park: PARK_OK },
     },
     {
       // The block command runs in the AGENT's shell, so this attestation is the only signal the block
