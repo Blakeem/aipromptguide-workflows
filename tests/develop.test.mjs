@@ -358,8 +358,8 @@ section('acceptance audits the risk file of each round since the block\'s last b
     'a reviewed round that returned no snapshot has no tree to compare, since its blind review read the diff');
   ok(a3.includes('developer judged each change low risk: E:/r/runs/t/risk-block-a-r2.md E:/r/runs/t/risk-block-a-r3.md The first line of each risk file') && !a3.includes('round 1, base in'),
     'round 3\'s acceptance audits rounds 2 and 3, which no blind review judged, and not round 1, which one did');
-  ok(a3.includes('round 2, base in E:/r/runs/t/risk-block-a-r1.md, snapshot in E:/r/runs/t/risk-block-a-r2.md: git -C E:/repo diff <base> <snapshot>')
-    && a3.includes('round 3, base in E:/r/runs/t/risk-block-a-r2.md, snapshot in E:/r/runs/t/risk-block-a-r3.md: git -C E:/repo diff <base> <snapshot>'),
+  ok(a3.includes('round 2, base in E:/r/runs/t/risk-block-a-r1.md, snapshot in E:/r/runs/t/risk-block-a-r2.md: git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command')
+    && a3.includes('round 3, base in E:/r/runs/t/risk-block-a-r2.md, snapshot in E:/r/runs/t/risk-block-a-r3.md: git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command'),
   'each audited round gets the command that shows its own hunks, from its snapshot and the snapshot of the round before it');
   ok(a3.includes('The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after that round.')
     && a3.includes('<snapshot> and <base> are the tree ids on the first lines of the files named beside each command:')
@@ -1814,7 +1814,7 @@ section('a fix block restores each branch its ACTIONABLE entries link, in round 
   ok(String(byLabel('develop fix-a r1')[0]?.opts?.schema?.required ?? '').includes('restore_failed'), 'a fix developer returns restore_failed');
   ok(!flat((await run(GREEN_RUN, ONE_BLOCK)).prompt('develop block-a r1')).includes('RESTORE unfinished work'), 'a feature block restores nothing');
   const accept = flat(prompt('acceptance fix-a r2'));
-  ok(accept.includes('An entry with an "- origin:" line holds a parked block\'s unfinished work. When it also carries a "- branch:" line, the developer restored that branch\'s work into the unstaged diff in round 1, unless the accepted baseline already held it, and its fix is that entire branch work and every change made on it: read every hunk of `git -C E:/repo diff <branch>^1 <branch>` in the unstaged diff or the accepted baseline.'),
+  ok(accept.includes('An entry with an "- origin:" line holds a parked block\'s unfinished work. When it also carries a "- branch:" line, the developer restored that branch\'s work into the unstaged diff in round 1, unless the accepted baseline already held it, and its fix is that entire branch work and every change made on it: read every hunk of that range, by `git -C E:/repo diff --stat <branch>^1 <branch>` first, then `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted baseline.'),
     'acceptance judges the entire branch work as that entry\'s fix, wherever it is');
   ok(accept.includes(`The gaps its **What:** lists are another agent's claims, which the developer confirmed or refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/r/runs/t/gate/DISMISSED-fix-a.md declines that gap under the OVERRIDE and ledger-line rules above, and meets ${ORIGIN_CRITERIA}. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit, or disagrees with the change, or for a path that changed after its round's snapshot, that its **What:** lists counts as closed, since this block's first blind review, which runs before any acceptance, judges the entire restored work.`),
     'acceptance checks the origin block\'s criteria and reachability for every park entry, with a branch or without, and counts a listed risk gap closed');
@@ -3143,6 +3143,33 @@ section('the block command is role-neutral: acceptance is never told to implemen
     ok(acc !== '' && !/implement EXACTLY|implement ONLY/.test(acc), `${id}: acceptance is not told to implement`);
     ok(/you never implement it/.test(acc), 'and it is told it judges against the block');
     ok(/Implement the |Resolve the verified issues in /.test(prompt(`develop ${id}`)), 'while the developer role still builds it');
+  }
+}
+
+section('every reviewer reads the diff by --stat, then file by file, and never runs the entire diff');
+{
+  const { prompt } = await run({ ...GREEN_RUN, develop: DEV_OK, quality: firstRound(FLAGGED, CLEAN) }, ONE_BLOCK);
+  const fix = await run({ ...GREEN_RUN, develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), acceptance: FIX_PASS }, FIX_ONE);
+  const prompts = [
+    ['the blind reviewer', prompt('quality block-a r1')],
+    ['feature acceptance', prompt('acceptance block-a')],
+    ['fix acceptance', fix.prompt(`acceptance ${FIX_ONE.plans[0].id}`)]];
+  for (const [name, text] of prompts) {
+    const stat = text.indexOf('1. `git -C E:/repo diff --stat`.');
+    const perFile = text.indexOf('2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.');
+    const untracked = text.indexOf('3. `git -C E:/repo status --porcelain`, then READ every untracked file');
+    ok(text !== '' && stat > -1 && stat < perFile && perFile < untracked, `${name}: the numbered reading order is --stat, per-file diff, untracked files`);
+    ok(!/`git -C E:\/repo diff`/.test(text), `${name}: no unconditional full git diff`);
+  }
+  // A range read of a parked branch or of a risk round's snapshots overflows like the entire diff, so each names --stat or one file.
+  const risk = await run({ develop: { ...DEV_OK, review_needed: false }, quality: CLEAN, acceptance: (label) => (/r[12]$/.test(label) ? ACC_FAIL : ACC_PASS) }, ONE_BLOCK);
+  const rangeReads = [
+    ['fix acceptance', fix.prompt(`acceptance ${FIX_ONE.plans[0].id}`), /git -C E:\/repo diff (?:--stat )?<branch>\^1 <branch>[^`,.]*/g],
+    ['a risk round acceptance', risk.prompt('acceptance block-a r3'), /git -C E:\/repo diff (?:--stat )?<base> <snapshot>[^`,.]*/g]];
+  for (const [name, text, pattern] of rangeReads) {
+    const reads = flat(text).match(pattern) ?? [];
+    ok(reads.length > 0, `${name}: renders a range diff command`);
+    ok(reads.every((c) => /^git -C E:\/repo diff --stat /.test(c) || / -- <file>/.test(c)), `${name}: every range diff command is --stat or one file`);
   }
 }
 

@@ -675,7 +675,7 @@ branch included. A later round gets one when a round since the block's last blin
 `review_needed` true or no boolean, or an acceptance verdict since then returned `risk_misclassified`
 true. Any other round goes from the developer straight to acceptance.
 Git holds one cumulative unstaged diff, so acceptance reads each audited round's own hunks from two
-snapshots. It runs `git diff <base> <snapshot>`, where `<snapshot>` is the line in that round's risk
+snapshots. It runs `git diff --stat <base> <snapshot>` and then `git diff <base> <snapshot> -- <file>` per file, where `<snapshot>` is the line in that round's risk
 file and `<base>` is the line in the risk file of the round before it. The engine hands acceptance
 the `risk_snapshot` each of those rounds returned, and acceptance confirms each file's snapshot line
 equals it before it audits. A line that differs, or a round that returned no tree id, counts as a

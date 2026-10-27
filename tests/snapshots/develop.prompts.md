@@ -7,59 +7,59 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | develop | 1 | 1 | 31546 | every block accepts first time |
-| quality | 1 | 1 | 8894 | every block accepts first time |
-| acceptance | 1 | 1 | 15769 | every block accepts first time |
+| quality | 1 | 1 | 8941 | every block accepts first time |
+| acceptance | 1 | 1 | 15994 | every block accepts first time |
 | develop | 2 | 1 | 31971 | every block accepts first time |
-| acceptance | 2 | 2 | 16050 | every block accepts first time |
+| acceptance | 2 | 2 | 16275 | every block accepts first time |
 | final-sweep | 1 | 1 | 4557 | every block accepts first time |
 | develop | 3 | 2 | 34796 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 3 | 16930 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 3 | 17155 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 4548 | a feature block accepts under the proactive policy |
 | develop | 4 | 1 | 30804 | quality flags the first round |
-| acceptance | 4 | 1 | 15768 | quality flags the first round |
+| acceptance | 4 | 1 | 15993 | quality flags the first round |
 | develop | 5 | 1 | 31174 | quality flags the first round |
-| acceptance | 5 | 2 | 16049 | quality flags the first round |
+| acceptance | 5 | 2 | 16274 | quality flags the first round |
 | develop | 6 | 1 | 30800 | acceptance finds gaps, then passes |
-| acceptance | 6 | 1 | 15766 | acceptance finds gaps, then passes |
+| acceptance | 6 | 1 | 15991 | acceptance finds gaps, then passes |
 | develop | 7 | 1 | 31170 | acceptance finds gaps, then passes |
-| acceptance | 7 | 2 | 16047 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 18376 | a later round is judged low risk |
-| acceptance | 9 | 2 | 18657 | a later round is judged low risk |
+| acceptance | 7 | 2 | 16272 | acceptance finds gaps, then passes |
+| acceptance | 8 | 1 | 18707 | a later round is judged low risk |
+| acceptance | 9 | 2 | 18988 | a later round is judged low risk |
 | develop | 8 | 1 | 29452 | the gate never goes green |
 | develop-closing | 1 | 1 | 31002 | the gate never goes green |
-| quality | 2 | 1 | 8954 | the gate never goes green |
-| acceptance | 10 | 4 | 19150 | the gate never goes green |
+| quality | 2 | 1 | 9001 | the gate never goes green |
+| acceptance | 10 | 4 | 19375 | the gate never goes green |
 | park | 1 | 1 | 10683 | the gate never goes green |
 | develop | 9 | 1 | 29877 | the gate never goes green |
 | develop-closing | 2 | 1 | 31372 | the gate never goes green |
-| acceptance | 11 | 5 | 19431 | the gate never goes green |
-| acceptance | 12 | 1 | 15821 | a parked block, and the run carries on |
-| acceptance | 13 | 1 | 15876 | a parked block, and the run carries on |
-| acceptance | 14 | 1 | 15931 | a parked block, and the run carries on |
+| acceptance | 11 | 5 | 19656 | the gate never goes green |
+| acceptance | 12 | 1 | 16046 | a parked block, and the run carries on |
+| acceptance | 13 | 1 | 16101 | a parked block, and the run carries on |
+| acceptance | 14 | 1 | 16156 | a parked block, and the run carries on |
 | develop-closing | 3 | 1 | 32216 | a parked block, and the run carries on |
-| acceptance | 15 | 4 | 21975 | a parked block, and the run carries on |
+| acceptance | 15 | 4 | 22306 | a parked block, and the run carries on |
 | develop | 10 | 1 | 31528 | an ordered run stops at a parked block |
-| acceptance | 16 | 1 | 15763 | an ordered run stops at a parked block |
+| acceptance | 16 | 1 | 15988 | an ordered run stops at a parked block |
 | develop | 11 | 1 | 30782 | an ordered run stops at a parked block |
-| acceptance | 17 | 1 | 15760 | an ordered run stops at a parked block |
-| acceptance | 18 | 1 | 15815 | an ordered run stops at a parked block |
-| acceptance | 19 | 1 | 15870 | an ordered run stops at a parked block |
-| acceptance | 20 | 1 | 15925 | an ordered run stops at a parked block |
+| acceptance | 17 | 1 | 15985 | an ordered run stops at a parked block |
+| acceptance | 18 | 1 | 16040 | an ordered run stops at a parked block |
+| acceptance | 19 | 1 | 16095 | an ordered run stops at a parked block |
+| acceptance | 20 | 1 | 16150 | an ordered run stops at a parked block |
 | develop-closing | 4 | 1 | 32198 | an ordered run stops at a parked block |
-| acceptance | 21 | 4 | 21969 | an ordered run stops at a parked block |
+| acceptance | 21 | 4 | 22300 | an ordered run stops at a parked block |
 | park | 2 | 1 | 10695 | an ordered run stops at a parked block |
 | develop | 12 | 3 | 40350 | a fix block closes its issues |
-| acceptance | 22 | 6 | 23246 | a fix block closes its issues |
+| acceptance | 22 | 6 | 23606 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 4548 | a fix block closes its issues |
 | develop | 13 | 4 | 43817 | a fix block closes its issues under the proactive policy |
-| acceptance | 23 | 7 | 24753 | a fix block closes its issues under the proactive policy |
-| acceptance | 24 | 7 | 24767 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 23 | 7 | 25113 | a fix block closes its issues under the proactive policy |
+| acceptance | 24 | 7 | 25127 | a proactive fix block starts round 2 from the statuses it last reported |
 | develop | 14 | 4 | 35169 | a proactive fix block starts round 2 from the statuses it last reported |
-| acceptance | 25 | 7 | 24566 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 25 | 7 | 24926 | a proactive fix block starts round 2 from the statuses it last reported |
 | develop | 15 | 3 | 40805 | a pass of two fix blocks closes its issues |
-| acceptance | 26 | 6 | 23672 | a pass of two fix blocks closes its issues |
+| acceptance | 26 | 6 | 24032 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 4578 | a pass of two fix blocks closes its issues |
-| acceptance | 27 | 6 | 23245 | every issue is already fixed |
+| acceptance | 27 | 6 | 23605 | every issue is already fixed |
 | develop | 16 | 3 | 40332 | an ordered run stops on a fix block that closes nothing |
 | park | 3 | 1 | 10998 | passed with a regression, not staged |
 | park | 4 | 1 | 10290 | acceptance stages a rejected block |
@@ -74,24 +74,24 @@ this file is stale.
 | park | 13 | 1 | 10596 | the acceptance verifier dies |
 | park | 14 | 1 | 10100 | developer escalates |
 | park | 15 | 1 | 10090 | developer escalates in an ordered run |
-| acceptance | 28 | 6 | 25699 | log line cap before the sweep |
-| acceptance | 29 | 4 | 21755 | a closing acceptance lands the block |
+| acceptance | 28 | 6 | 26059 | log line cap before the sweep |
+| acceptance | 29 | 4 | 22086 | a closing acceptance lands the block |
 | develop-closing | 5 | 1 | 32586 | a closing acceptance lands the block |
-| acceptance | 30 | 5 | 22036 | a closing acceptance lands the block |
-| acceptance | 31 | 4 | 19204 | a closing pass gets a blind review |
-| acceptance | 32 | 5 | 19485 | a closing pass gets a blind review |
-| acceptance | 33 | 4 | 22048 | a closing acceptance finds a blocking gap |
+| acceptance | 30 | 5 | 22367 | a closing acceptance lands the block |
+| acceptance | 31 | 4 | 19429 | a closing pass gets a blind review |
+| acceptance | 32 | 5 | 19710 | a closing pass gets a blind review |
+| acceptance | 33 | 4 | 22379 | a closing acceptance finds a blocking gap |
 | park | 16 | 1 | 10833 | a closing acceptance finds a blocking gap |
-| acceptance | 34 | 5 | 22329 | a closing acceptance finds a blocking gap |
+| acceptance | 34 | 5 | 22660 | a closing acceptance finds a blocking gap |
 | park | 17 | 1 | 10833 | a closing acceptance finds a blocking gap |
 | develop | 17 | 5 | 31717 | every block commits first time |
-| quality | 3 | 1 | 8847 | every block commits first time |
-| acceptance | 35 | 8 | 17308 | every block commits first time |
+| quality | 3 | 1 | 8894 | every block commits first time |
+| acceptance | 35 | 8 | 17533 | every block commits first time |
 | develop | 18 | 5 | 32142 | every block commits first time |
-| acceptance | 36 | 9 | 17589 | every block commits first time |
+| acceptance | 36 | 9 | 17814 | every block commits first time |
 | final-sweep | 5 | 1 | 4869 | every block commits first time |
 | develop | 19 | 6 | 40552 | a fix block commits |
-| acceptance | 37 | 10 | 25002 | a fix block commits |
+| acceptance | 37 | 10 | 25362 | a fix block commits |
 | final-sweep | 6 | 1 | 4776 | a fix block commits |
 | park | 18 | 1 | 10296 | acceptance commits a rejected block |
 
@@ -549,9 +549,10 @@ Do NOT read prior review files, apart from the overwrite read the WRITE step nam
 diff FRESH, catching new or nearby issues.
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
-  `git -C E:/repo diff`: unstaged tracked changes, the work to review. On a large diff run
-  `git -C E:/repo diff --stat` first, then read it file by file.
-  `git -C E:/repo status --porcelain` then READ every untracked file (`??`) — `git diff` OMITS those.
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   A ` A` entry (intent-to-add) is a new file `git diff` already shows in full. A first-column `A` or
   `M` is STAGED: the staged half of an `AM` or `MM` file is baseline, and only its unstaged half
   (`git -C E:/repo diff -- <file>`) is this cycle's work.
@@ -747,7 +748,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -1403,7 +1407,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -2211,7 +2218,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -2941,7 +2951,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -3576,7 +3589,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -4210,7 +4226,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -4845,7 +4864,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -5073,7 +5095,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -5111,7 +5136,7 @@ PROCEDURE:
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
      round 2, base in E:/flow/runs/flow/risk-block-a-r1.md, snapshot in E:/flow/runs/flow/risk-block-a-r2.md:
-       git -C E:/repo diff <base> <snapshot>
+       git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
@@ -5328,7 +5353,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -5369,7 +5397,7 @@ PROCEDURE:
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
      round 2, base in E:/flow/runs/flow/risk-block-b-r1.md, snapshot in E:/flow/runs/flow/risk-block-b-r2.md:
-       git -C E:/repo diff <base> <snapshot>
+       git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
@@ -6357,9 +6385,10 @@ Do NOT read prior review files, apart from the overwrite read the WRITE step nam
 diff FRESH, catching new or nearby issues.
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
-  `git -C E:/repo diff`: unstaged tracked changes, the work to review. On a large diff run
-  `git -C E:/repo diff --stat` first, then read it file by file.
-  `git -C E:/repo status --porcelain` then READ every untracked file (`??`) — `git diff` OMITS those.
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   A ` A` entry (intent-to-add) is a new file `git diff` already shows in full. A first-column `A` or
   `M` is STAGED: the staged half of an `AM` or `MM` file is baseline, and only its unstaged half
   (`git -C E:/repo diff -- <file>`) is this cycle's work.
@@ -6565,7 +6594,10 @@ A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither clo
 gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -7806,7 +7838,10 @@ A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither clo
 gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -8062,7 +8097,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -8288,7 +8326,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -8515,7 +8556,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -9182,7 +9226,10 @@ A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither clo
 gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -9224,7 +9271,7 @@ PROCEDURE:
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
      round 6, base in E:/flow/runs/flow/risk-block-a-r5.md, snapshot in E:/flow/runs/flow/risk-block-a-r6.md:
-       git -C E:/repo diff <base> <snapshot>
+       git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 5: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 6: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
@@ -9896,7 +9943,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -10527,7 +10577,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -10752,7 +10805,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -10978,7 +11034,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -11205,7 +11264,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -11872,7 +11934,10 @@ A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither clo
 gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -11914,7 +11979,7 @@ PROCEDURE:
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
      round 6, base in E:/flow/runs/flow/risk-block-a-r5.md, snapshot in E:/flow/runs/flow/risk-block-a-r6.md:
-       git -C E:/repo diff <base> <snapshot>
+       git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 5: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 6: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
@@ -12836,7 +12901,10 @@ Drop any other concern silently, except a new issue (step 1). Your file holds no
 non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -12852,7 +12920,8 @@ PROCEDURE:
    An entry with an "- origin:" line holds a parked block's unfinished work. When it also carries a
    "- branch:" line, the developer restored that branch's work into the unstaged diff in round 1, unless
    the accepted baseline already held it, and its fix is that entire branch work and every change made on
-   it: read every hunk of `git -C E:/repo diff <branch>^1 <branch>` in the unstaged diff or the accepted
+   it: read every hunk of that range, by `git -C E:/repo diff --stat <branch>^1 <branch>` first, then
+   `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
    baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c.md
@@ -13834,7 +13903,10 @@ Drop any other concern silently, except a new issue (step 1). Your file holds no
 non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -13850,7 +13922,8 @@ PROCEDURE:
    An entry with an "- origin:" line holds a parked block's unfinished work. When it also carries a
    "- branch:" line, the developer restored that branch's work into the unstaged diff in round 1, unless
    the accepted baseline already held it, and its fix is that entire branch work and every change made on
-   it: read every hunk of `git -C E:/repo diff <branch>^1 <branch>` in the unstaged diff or the accepted
+   it: read every hunk of that range, by `git -C E:/repo diff --stat <branch>^1 <branch>` first, then
+   `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
    baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c.md
@@ -14187,7 +14260,10 @@ Drop any other concern silently, except a new issue (step 1). Your file holds no
 non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -14203,7 +14279,8 @@ PROCEDURE:
    An entry with an "- origin:" line holds a parked block's unfinished work. When it also carries a
    "- branch:" line, the developer restored that branch's work into the unstaged diff in round 1, unless
    the accepted baseline already held it, and its fix is that entire branch work and every change made on
-   it: read every hunk of `git -C E:/repo diff <branch>^1 <branch>` in the unstaged diff or the accepted
+   it: read every hunk of that range, by `git -C E:/repo diff --stat <branch>^1 <branch>` first, then
+   `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
    baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c.md
@@ -15045,7 +15122,10 @@ Drop any other concern silently, except a new issue (step 1). Your file holds no
 non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -15061,7 +15141,8 @@ PROCEDURE:
    An entry with an "- origin:" line holds a parked block's unfinished work. When it also carries a
    "- branch:" line, the developer restored that branch's work into the unstaged diff in round 1, unless
    the accepted baseline already held it, and its fix is that entire branch work and every change made on
-   it: read every hunk of `git -C E:/repo diff <branch>^1 <branch>` in the unstaged diff or the accepted
+   it: read every hunk of that range, by `git -C E:/repo diff --stat <branch>^1 <branch>` first, then
+   `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
    baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c.md
@@ -15915,7 +15996,10 @@ Drop any other concern silently, except a new issue (step 1). Your file holds no
 non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -15932,7 +16016,8 @@ PROCEDURE:
    An entry with an "- origin:" line holds a parked block's unfinished work. When it also carries a
    "- branch:" line, the developer restored that branch's work into the unstaged diff in round 1, unless
    the accepted baseline already held it, and its fix is that entire branch work and every change made on
-   it: read every hunk of `git -C E:/repo diff <branch>^1 <branch>` in the unstaged diff or the accepted
+   it: read every hunk of that range, by `git -C E:/repo diff --stat <branch>^1 <branch>` first, then
+   `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
    baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md
@@ -16313,7 +16398,10 @@ Drop any other concern silently, except a new issue (step 1). Your file holds no
 non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -16329,7 +16417,8 @@ PROCEDURE:
    An entry with an "- origin:" line holds a parked block's unfinished work. When it also carries a
    "- branch:" line, the developer restored that branch's work into the unstaged diff in round 1, unless
    the accepted baseline already held it, and its fix is that entire branch work and every change made on
-   it: read every hunk of `git -C E:/repo diff <branch>^1 <branch>` in the unstaged diff or the accepted
+   it: read every hunk of that range, by `git -C E:/repo diff --stat <branch>^1 <branch>` first, then
+   `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
    baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c.md
@@ -18927,7 +19016,10 @@ Drop any other concern silently, except a new issue (step 1). Your file holds no
 non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -18943,7 +19035,8 @@ PROCEDURE:
    An entry with an "- origin:" line holds a parked block's unfinished work. When it also carries a
    "- branch:" line, the developer restored that branch's work into the unstaged diff in round 1, unless
    the accepted baseline already held it, and its fix is that entire branch work and every change made on
-   it: read every hunk of `git -C E:/repo diff <branch>^1 <branch>` in the unstaged diff or the accepted
+   it: read every hunk of that range, by `git -C E:/repo diff --stat <branch>^1 <branch>` first, then
+   `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
    baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c.md
@@ -19440,7 +19533,10 @@ A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither clo
 gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -19478,7 +19574,7 @@ PROCEDURE:
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
      round 2, base in E:/flow/runs/flow/risk-block-a-r1.md, snapshot in E:/flow/runs/flow/risk-block-a-r2.md:
-       git -C E:/repo diff <base> <snapshot>
+       git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
@@ -20166,7 +20262,10 @@ A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither clo
 gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -20207,7 +20306,7 @@ PROCEDURE:
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
      round 2, base in E:/flow/runs/flow/risk-block-b-r1.md, snapshot in E:/flow/runs/flow/risk-block-b-r2.md:
-       git -C E:/repo diff <base> <snapshot>
+       git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
@@ -20462,7 +20561,10 @@ A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither clo
 gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -20726,7 +20828,10 @@ A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither clo
 gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -20997,7 +21102,10 @@ Before you rely on one, confirm that E:/flow/backlog/repo-0a1b2c3d/<the id witho
 id with no such entry is a gap.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -21035,7 +21143,7 @@ PROCEDURE:
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
      round 2, base in E:/flow/runs/flow/risk-block-a-r1.md, snapshot in E:/flow/runs/flow/risk-block-a-r2.md:
-       git -C E:/repo diff <base> <snapshot>
+       git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
@@ -21430,7 +21538,10 @@ Before you rely on one, confirm that E:/flow/backlog/repo-0a1b2c3d/<the id witho
 id with no such entry is a gap.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
@@ -21471,7 +21582,7 @@ PROCEDURE:
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
      round 2, base in E:/flow/runs/flow/risk-block-b-r1.md, snapshot in E:/flow/runs/flow/risk-block-b-r2.md:
-       git -C E:/repo diff <base> <snapshot>
+       git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
@@ -22222,9 +22333,10 @@ Do NOT read prior review files, apart from the overwrite read the WRITE step nam
 diff FRESH, catching new or nearby issues.
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
-  `git -C E:/repo diff`: unstaged tracked changes, the work to review. On a large diff run
-  `git -C E:/repo diff --stat` first, then read it file by file.
-  `git -C E:/repo status --porcelain` then READ every untracked file (`??`) — `git diff` OMITS those.
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   A ` A` entry (intent-to-add) is a new file `git diff` already shows in full. A first-column `A` or
   `M` is STAGED, and only its unstaged half
   (`git -C E:/repo diff -- <file>`) is this cycle's work.
@@ -22420,7 +22532,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   HEAD = accepted baseline, each accepted block one commit (compare against it for regressions).
 
 PROCEDURE:
@@ -23119,7 +23234,10 @@ OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   HEAD = accepted baseline, each accepted block one commit (compare against it for regressions).
 
 PROCEDURE:
@@ -24012,7 +24130,10 @@ Drop any other concern silently, except a new issue (step 1). Your file holds no
 non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
   HEAD = accepted baseline, each accepted block one commit (compare against it for regressions).
 
 PROCEDURE:
@@ -24028,7 +24149,8 @@ PROCEDURE:
    An entry with an "- origin:" line holds a parked block's unfinished work. When it also carries a
    "- branch:" line, the developer restored that branch's work into the unstaged diff in round 1, unless
    the accepted baseline already held it, and its fix is that entire branch work and every change made on
-   it: read every hunk of `git -C E:/repo diff <branch>^1 <branch>` in the unstaged diff or the accepted
+   it: read every hunk of that range, by `git -C E:/repo diff --stat <branch>^1 <branch>` first, then
+   `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
    baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c.md

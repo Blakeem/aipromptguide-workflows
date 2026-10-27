@@ -762,6 +762,11 @@ const STAGED_HARM = COMMIT ? 'where no reviewer reads it and the next commit car
 const ACC_BASELINE_LINE = COMMIT
   ? 'HEAD = accepted baseline, each accepted block one commit (compare against it for regressions).'
   : `\`git -C ${REPO} diff --staged\` = accepted baseline (compare against it for regressions).`;
+// A full `git diff` of a large diff overflows the tool output, so every reviewer reads the diff in this order.
+const DIFF_READ_ORDER = `Read the diff in this order, and never run the entire \`git diff\` at once:
+  1. \`git -C ${REPO} diff --stat\`.
+  2. \`git -C ${REPO} diff -- <file>\` for each file it lists, one file per command.
+  3. \`git -C ${REPO} status --porcelain\`, then READ every untracked file (\`??\`), since \`git diff\` OMITS those.`;
 
 // The closing pass takes the number after the last round, so its files sort after every round's.
 const CLOSING_ROUND = MAX_ROUNDS + 1;
@@ -1548,9 +1553,7 @@ ${CONVENTION_FILES_BLOCK}
 ${SETTLED(p.id, true, false, absent.dismissed)}
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
-  \`git -C ${REPO} diff\`: unstaged tracked changes, the work to review. On a large diff run
-  \`git -C ${REPO} diff --stat\` first, then read it file by file.
-  \`git -C ${REPO} status --porcelain\` then READ every untracked file (\`??\`) — \`git diff\` OMITS those.
+  ${DIFF_READ_ORDER}
   A \` A\` entry (intent-to-add) is a new file \`git diff\` already shows in full. A first-column \`A\` or
   \`M\` is STAGED${COMMIT ? ', and' : ': the staged half of an \`AM\` or \`MM\` file is baseline, and'} only its unstaged half
   (\`git -C ${REPO} diff -- <file>\`) is this cycle's work.
@@ -1602,7 +1605,7 @@ ${earlierReviews.map((path) => `     ${path}`).join('\n') || '     (none: no rev
 // A round's base is the round before it. Round 1 is never audited, since the block's first blind review
 // covers it before any acceptance runs.
 const roundHunksCommand = (id, round) => `round ${round}, base in ${riskFile(id, round - 1)}, snapshot in ${riskFile(id, round)}:
-       git -C ${REPO} diff <base> <snapshot>`;
+       git -C ${REPO} diff --stat <base> <snapshot>, then git -C ${REPO} diff <base> <snapshot> -- <file> for each file it lists, one file per command`;
 // A file an earlier launch left, or one its round never rewrote, carries another tree id than the one the
 // round's developer returned, so the returned id ties each file to its round. `riskSnapshots` maps a round to
 // that id, or to null when the developer returned no tree id.
@@ -1815,7 +1818,7 @@ Drop any other concern silently, except a new issue (step 1). ${round === CLOSIN
     : 'Your file holds no notes, observations or\nnon-blocking section.'}
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  \`git -C ${REPO} diff\` + \`git -C ${REPO} status --porcelain\` (READ new files).
+  ${DIFF_READ_ORDER}
   ${ACC_BASELINE_LINE}
 
 PROCEDURE:
@@ -1831,7 +1834,8 @@ ${claimedFixed.map((id) => `     - ${id}`).join('\n') || '     (none claimed fix
    An entry with an "- origin:" line holds a parked block's unfinished work. When it also carries a
    "- branch:" line, the developer restored that branch's work into the unstaged diff in round 1, unless
    the accepted baseline already held it, and its fix is that entire branch work and every change made on
-   it: read every hunk of \`git -C ${REPO} diff <branch>^1 <branch>\` in the unstaged diff or the accepted
+   it: read every hunk of that range, by \`git -C ${REPO} diff --stat <branch>^1 <branch>\` first, then
+   \`git -C ${REPO} diff <branch>^1 <branch> -- <file>\` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
    baseline with the unstaged diff closes each gap its **What:** lists, or a line in ${dismissedFile(p.id)}
@@ -1946,7 +1950,7 @@ Drop any other concern silently. ${round === CLOSING_ROUND
     : 'Your file holds no notes, observations or non-blocking section.'}
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
-  \`git -C ${REPO} diff\` + \`git -C ${REPO} status --porcelain\` (READ new files).
+  ${DIFF_READ_ORDER}
   ${ACC_BASELINE_LINE}
 
 PROCEDURE:
