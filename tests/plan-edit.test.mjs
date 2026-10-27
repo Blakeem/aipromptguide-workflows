@@ -1171,7 +1171,7 @@ section('a status edit whose value is null removes that key\'s line, with its ow
   const renamed = argsWith(configWith([record({ blocks: [[{ planPath: path, id: 'inbox-1', key: 'effort', value: null }]] })]), path).err ?? '';
   ok(/removes the effort line of inbox-1 .*was renamed to "size", so use size in its place/.test(renamed), `a renamed key fails with a message that never asks for a value: ${renamed}`);
   const typed = argsWith(configWith([record({ blocks: [[{ planPath: path, id: 'inbox-1', key: 'pulled', value: 7 }]] })]), path).err ?? '';
-  ok(/is not \{ planPath \(absolute\), id, key, value \(a string, or null to remove the line\), expectPulled \(absent, or the pulled value the entry must carry\) \}/.test(typed), 'a value that is neither a string nor null still fails the record');
+  ok(/is not \{ planPath \(absolute\), id, key, value \(a string, or null to remove the line\), expectPulled \(absent, or the pulled value the entry must carry\), expectNoOpen \(absent, or true\) \}/.test(typed), 'a value that is neither a string nor null still fails the record');
   const badExpect = argsWith(configWith([record({ blocks: [[{ planPath: path, id: 'inbox-1', key: 'pulled', value: null, expectPulled: 7 }]] })]), path).err ?? '';
   ok(/is not \{ planPath \(absolute\), id, key, value/.test(badExpect), `an expectPulled that is not a string fails the record: ${badExpect}`);
 }
@@ -1200,6 +1200,52 @@ section('a status edit with expectPulled applies only to an entry whose pulled l
   const path = fixture(marked('r1#blk'), 'inbox.md');
   const unmarked = argsWith(configWith([record({ blocks: [[{ planPath: path, id: 'inbox', key: 'status', value: 'done', expectPulled: 'r1#blk' }]] })]), path).err ?? '';
   ok(/sets inbox status=done in .*inbox\.md, which fails: no issue "inbox"/.test(unmarked), `an expectPulled on a block id fails, naming the edit: ${unmarked}`);
+}
+
+section('a status edit with expectNoOpen sets a todo block done only once it holds no open entry');
+{
+  const inbox = (second, blockStatus = null) => [
+    '## Plan: inbox - backlog', 'mode: fix', 'gate: green', ...(blockStatus ? [`status: ${blockStatus}`] : []), '',
+    '### [inbox-1] first', '- file: a.js:1', '- decision: ACTIONABLE', '- status: open', '- pulled: r1#blk', '', 'What.', '',
+    '### [inbox-2] second', '- file: b.js:1', '- decision: ACTIONABLE', ...second, '', 'What.', '',
+  ].join('\n');
+  const close = (path, id, mark = 'r1#blk') => [{ planPath: path, id, key: 'status', value: 'fixed', expectPulled: mark }, { planPath: path, id, key: 'pulled', value: null, expectPulled: mark }];
+  const done = (path) => ({ planPath: path, id: 'inbox', key: 'status', value: 'done', expectNoOpen: true });
+  const statusOf = (text) => text.match(/^status: (\w+)$/m)?.[1] ?? 'todo';
+  for (const [second, blockStatus, want, note, name] of [
+    [['- status: fixed'], null, 'done', '', 'every other entry closed'],
+    [['- status: needs-attention'], null, 'done', '', 'the other entry waits on the user, which is not open'],
+    [['- status: open'], null, 'todo', 'block inbox still holds the open entry inbox-2', 'another entry still open'],
+    [[], null, 'todo', 'block inbox still holds the open entry inbox-2', 'another entry with no status line, which counts as open'],
+    [['- status: fixed'], 'skip', 'skip', 'block inbox is skip, not todo', 'a block that is not todo'],
+  ]) {
+    const path = fixture(inbox(second, blockStatus), 'inbox.md');
+    const { err, notes } = argsWith(configWith([record({ blocks: [[...close(path, 'inbox-1'), done(path)]] })]), path);
+    ok(!err, `${name}: it succeeds: ${err ?? ''}`);
+    const text = read(path);
+    ok(text.includes('### [inbox-1] first\n- file: a.js:1\n- decision: ACTIONABLE\n- status: fixed\n\nWhat.'), `${name}: the pulled entry closes first`);
+    eq(statusOf(text), want, `${name}: the block's status`);
+    ok(note ? notes.includes(`leaves the status line of inbox in`) && notes.includes(note) : !notes.includes('leaves the status line of inbox in'),
+      `${name}: ${note ? 'a note says why the block stays' : 'no note'}: ${notes.trim()}`);
+  }
+
+  // Two blocks of one run pulled one entry each from the file: only the later done edit finds every entry closed.
+  const both = fixture(inbox(['- status: open', '- pulled: r1#other']), 'inbox.md');
+  const { err: bothErr } = argsWith(configWith([record({ blocks: [[...close(both, 'inbox-1'), done(both)], [...close(both, 'inbox-2', 'r1#other'), done(both)]] })]), both);
+  ok(!bothErr, `two blocks' edits succeed: ${bothErr ?? ''}`);
+  eq(statusOf(read(both)), 'done', 'the file closes once the second block closes its last open entry');
+
+  // develop names the block after its file, so a hand-written file with another block id keeps its status and the fold goes on.
+  const renamed = fixture(inbox(['- status: fixed']).replace('## Plan: inbox -', '## Plan: inbox-hand -'), 'inbox.md');
+  const { err: renamedErr, notes: renamedNotes } = argsWith(configWith([record({ blocks: [[...close(renamed, 'inbox-1'), done(renamed)]] })]), renamed);
+  ok(!renamedErr && statusOf(read(renamed)) === 'todo' && read(renamed).includes('- status: fixed\n\nWhat.'), `a file with no such block keeps its block status and still takes the entry edits: ${renamedErr ?? ''}`);
+  ok(renamedNotes.includes('the file holds no block "inbox"'), `and a note says why: ${renamedNotes.trim()}`);
+
+  const onIssue = fixture(inbox(['- status: fixed']), 'inbox.md');
+  const issueErr = argsWith(configWith([record({ blocks: [[{ planPath: onIssue, id: 'inbox-2', key: 'status', value: 'fixed', expectNoOpen: true }]] })]), onIssue).err ?? '';
+  ok(/sets inbox-2 status=fixed in .*inbox\.md, which fails: "inbox-2" in .*inbox\.md is an issue entry, not a block/.test(issueErr), `an expectNoOpen on an issue id fails, naming the edit: ${issueErr}`);
+  const badFlag = argsWith(configWith([record({ blocks: [[{ ...done(onIssue), expectNoOpen: false }]] })]), onIssue).err ?? '';
+  ok(/is not \{ planPath \(absolute\), id, key, value .*expectNoOpen \(absent, or true\) \}/.test(badFlag), `an expectNoOpen that is not true fails the record: ${badFlag}`);
 }
 
 section('--backlog never builds an entry another block\'s developer pulled');

@@ -44,7 +44,7 @@ node tools/plan-block.mjs <plan.md|plan-name> --list          # { goal, ordered,
 It parses the plan-bus metadata grammar: file keys (`goal`, `ordered`, `suite`, `synced`,
 `sweep`), a block preamble (`mode`, `gate`, `status`, `model`, `effort`, plus informational
 `test_selector`/`depends_on`), and `### [<id>]` issue entries in fix-mode blocks. An issue entry holds `id`, `status`, `file`, `loc`,
-`severity`, `category`, `lens`, `size`, `decision`, `theme`, a park entry's `branch` and `origin`, and `pulled`, the `<runId>#<block id>` of a developer that took the entry beside its block. A `- effort:` line in an entry fails the parse with a
+`severity`, `category`, `lens`, `size`, `decision`, `theme`, a park entry's `branch`, `origin`, `ledger` and `amended`, and `pulled`, the `<runId>#<block id>` of a developer that took the entry beside its block. A `- effort:` line in an entry fails the parse with a
 message that names the entry and says the key was renamed to `size`. `plan-edit.mjs set` refuses `effort=` on an
 issue entry with the same rename. `model` takes `opus | sonnet | haiku | fable` and names the block's developer model. `effort` takes `low | medium | high | xhigh | max` and
 names the block's developer reasoning level. `--list` emits the file keys plus a `blocks`
@@ -137,7 +137,11 @@ as a plan gets no cut. A status edit whose `value` is null removes its key's
 line, with the line's own ending, and is a no-op when the line is absent. develop removes a pulled entry's `- pulled:`
 line that way. A status edit that carries `expectPulled` applies only to an issue entry whose `- pulled:` value is
 `expectPulled`, and is skipped with a note otherwise. develop gives each status edit and removal of a pulled entry its
-block's mark, so a run never edits an entry its block did not mark.
+block's mark, so a run never edits an entry its block did not mark. A status edit that carries `expectNoOpen` applies
+only to a `todo` block that holds no entry whose `- status:` is `open` or absent, and is skipped with a note otherwise,
+a file that holds no block of that id included.
+develop adds one such `done` edit for the backlog file of each pulled entry it closes, after that entry's edits, since
+the run cannot see the file's other entries.
 
 `--pack <repo>` groups the todo fix blocks into passes, so one set of agents builds several small ones.
 A block's weight is the line count of each distinct file its open ACTIONABLE issues name: the `- loc:`

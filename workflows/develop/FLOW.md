@@ -187,7 +187,7 @@ flowchart TD
 
 | Edge | From | To | Taken when |
 |---|---|---|---|
-| E1 | acceptance | develop | acceptance finds gaps · a block parks and ordered is false · a block parks and ordered is true · park could not clear the tree · park reports saved=false beside a commit id · the build is red after parking |
+| E1 | acceptance | develop | acceptance finds gaps · a block parks and ordered is false · a block parks and ordered is true · changePolicy is proactive and acceptance fails a fix block with a pulled entry, then passes it · park could not clear the tree · park reports saved=false beside a commit id · the build is red after parking |
 
 The thick unlabelled edge of each pair above is the next-item advance (the unit boundary).
 
@@ -195,7 +195,7 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| done (all blocks staged) | every block accepts and the sweep runs · changePolicy is proactive and a feature block accepts · the whole-goal sweep dies · sweep:none on a fully accepted run · the blind review finds defects · acceptance finds gaps · the developer judges every change since the last blind review low risk · a fix block fixes an issue and accepts · changePolicy is proactive and a fix block fixes an issue and accepts · a packed pass of two fix blocks fixes its issues and accepts · every issue in a fix block is stale · the last round fails and the closing acceptance finds no blocking gap · the closing pass judges a change not low risk and the closing acceptance finds no blocking gap | derived |
+| done (all blocks staged) | every block accepts and the sweep runs · changePolicy is proactive and a feature block accepts · the whole-goal sweep dies · sweep:none on a fully accepted run · the blind review finds defects · acceptance finds gaps · the developer judges every change since the last blind review low risk · a fix block fixes an issue and accepts · changePolicy is proactive and a fix block fixes an issue and accepts · changePolicy is proactive and acceptance fails a fix block with a pulled entry, then passes it · a packed pass of two fix blocks fixes its issues and accepts · every issue in a fix block is stale · the last round fails and the closing acceptance finds no blocking gap · the closing pass judges a change not low risk and the closing acceptance finds no blocking gap | derived |
 | partial slice complete (every selected block staged) | runOnly builds a subset of the blocks | derived |
 | nothing to run (no todo blocks) | no block still has status todo | derived |
 | run complete (N block(s) parked) | the block gate is never green · a block parks and ordered is false · the developer hits a user-only blocker in an unordered run · the closing acceptance finds a blocking gap | derived |
@@ -239,27 +239,27 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | throw: Missing args.blockTool | blockTool is missing or blank | throw (line 184) |
 | throw: Missing or relative args.backlogDir | backlogDir is missing or relative | throw (line 193) |
 | throw: args.backlogDir is inside the target repo | backlogDir lies inside target.repo | throw (line 196) |
-| throw: Invalid ordered key | ordered is the string "false" | throw (line 212) |
-| throw: Invalid suite key | suite is outside green \| scoped | throw (line 217) |
-| throw: Invalid sweep key | sweep is outside goal-coverage \| none | throw (line 222) |
-| throw: Invalid goal key | goal is a number | throw (line 226) |
-| throw: Missing goal key | sweep is goal-coverage and goal is empty | throw (line 231) |
-| throw: plans entries at index [...] are not objects carrying a string id | a plans entry carries no id | throw (line 250) |
-| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 258) |
-| throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 265) |
-| throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 276) |
-| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 284) |
-| throw: plan model(s) [...] are not one of opus \| sonnet \| haiku \| fable | a block names a model outside opus \| sonnet \| haiku \| fable | throw (line 291) |
-| throw: plan effort(s) [...] are not one of low \| medium \| high \| xhigh \| max | a block names an effort outside low \| medium \| high \| xhigh \| max | throw (line 297) |
-| throw: plan status(es) [...] are not one of todo \| done \| skip \| backlogged \| parked \| blocked | a block names an unknown status | throw (line 305) |
-| throw: plan title(s) [...] are not one line of text | commit is true and a block title spans two lines | throw (line 314) |
-| throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 333) |
-| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 344) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 2107) |
-| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 2118) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 2125) |
-| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 2133) |
+| throw: Invalid ordered key | ordered is the string "false" | throw (line 213) |
+| throw: Invalid suite key | suite is outside green \| scoped | throw (line 218) |
+| throw: Invalid sweep key | sweep is outside goal-coverage \| none | throw (line 223) |
+| throw: Invalid goal key | goal is a number | throw (line 227) |
+| throw: Missing goal key | sweep is goal-coverage and goal is empty | throw (line 232) |
+| throw: plans entries at index [...] are not objects carrying a string id | a plans entry carries no id | throw (line 251) |
+| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 259) |
+| throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 266) |
+| throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 277) |
+| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 285) |
+| throw: plan model(s) [...] are not one of opus \| sonnet \| haiku \| fable | a block names a model outside opus \| sonnet \| haiku \| fable | throw (line 292) |
+| throw: plan effort(s) [...] are not one of low \| medium \| high \| xhigh \| max | a block names an effort outside low \| medium \| high \| xhigh \| max | throw (line 298) |
+| throw: plan status(es) [...] are not one of todo \| done \| skip \| backlogged \| parked \| blocked | a block names an unknown status | throw (line 306) |
+| throw: plan title(s) [...] are not one line of text | commit is true and a block title spans two lines | throw (line 315) |
+| throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 334) |
+| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 345) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 2147) |
+| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 2158) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 2165) |
+| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 2173) |
 
 ## Coverage
 
-90 scenarios · 6/6 roles · 39/39 throw sites · 18/18 halt statuses · 64 terminal states.
+91 scenarios · 6/6 roles · 39/39 throw sites · 18/18 halt statuses · 64 terminal states.

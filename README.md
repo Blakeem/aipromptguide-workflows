@@ -157,6 +157,12 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-26
 
+- **develop hands each later agent what an earlier agent settled.** A park entry names its block's
+  declined findings and plan amendments, and the fix block built from it reads both. A later round of a
+  fix block starts from the statuses the developer last reported. A gate that runs in the background is
+  awaited through an exit code file. The run's summary names each `DISMISSED-<id>.md` file. A backlog
+  file is set `done` once a pulled fix closes its last open entry. A halt for a block that acceptance
+  flagged but still staged names a diff of that block's staging alone.
 - **develop's agents check what they are handed.** Acceptance reproduces a plan amendment's defect
   before the amendment excuses a requirement, and a relaunch re-checks each amendment an earlier launch
   wrote. A fix run checks each problem a park entry lists against the code. In a fix block, an entry the

@@ -145,10 +145,10 @@ shows.
    `backlogged` when its branch holds all of its work, an entry links that branch, and a green fix
    block can build that entry (§5 Park), and never back to `todo`. For a fix block, that route also
    sets to `stale` each entry whose branch its round 1 restored and whose work the new branch's tree
-   holds, deletes that branch with `git branch -D`, and adds that entry's `- origin:` values to the
-   new entry's `- origin:` line. Otherwise set that entry's `- status:` to `stale`, remove the
-   `- pulled:` line of each entry its `Pulled:` line names, delete the branch with
-   `git branch -D`, and set the block back to `todo` as follows. After resolving a
+   holds, deletes that branch with `git branch -D`, and adds that entry's `- origin:` and
+   `- amended:` values to the new entry's line of the same key. Otherwise set that entry's
+   `- status:` to `stale`, remove the `- pulled:` line of each entry its `Pulled:` line names, delete
+   the branch with `git branch -D`, and set the block back to `todo` as follows. After resolving a
    `blocked` block, run step 3 (it applies the finished run's statuses), then set the block's
    `status:` back to `todo`, then run step 3 again for the launch args. A block whose staged or
    committed work you keep after `acceptance-regression` or a commit-mode pass halt is the
@@ -204,8 +204,9 @@ shows.
    `aipg/<runId>`. Branch on its exit code:
    - `0`: landed. Run the full gate in the user's checkout, since the run worktree held only the tracked
      files and the ignored files that provision copied. Report the result with the run's summary: each
-     landed block, each backlog entry the run added with its decision, and each `DECISIONS.md` line,
-     showing a logged fix line only after you confirm the landed code still holds its change.
+     landed block, each backlog entry the run added with its decision, each `DECISIONS.md` line,
+     showing a logged fix line only after you confirm the landed code still holds its change, and the
+     path of each `DISMISSED-<id>.md` that `nextStep` names and that exists.
    - `20`: the rebase conflicted with commits the branch gained during the run, or the branch moved
      while close ran. Resolve it yourself in the run worktree: run `git rebase <branch>`, read both
      sides of each conflicted file and keep both intents, `git add` it, run `git rebase --continue`,
@@ -355,7 +356,9 @@ to the backlog (§10). The policies differ as follows.
   verdict confirmed its claim, `fixed` for a STALE report that follows the developer's own FIXED report,
   and `needs-attention` otherwise, each with its `- pulled:` line removed so a later run can take it
   again. Each of those edits expects the block's mark, so `args` leaves an entry as it is when its
-  `- pulled:` line names another block or is absent. A park that saved its block's work keeps the
+  `- pulled:` line names another block or is absent. When those edits close an entry and its backlog
+  file's block is `todo` and then holds no open entry, they also set that block `done`, as for a file
+  whose fix block lands. A park that saved its block's work keeps the
   status and `- pulled:` line of each pulled entry whose last report is FIXED, or STALE after a FIXED
   report, since the park's branch holds its fix, and the park entry's `Pulled:` line names those
   entries (§10 steps 3 and 5). Every other pulled entry of that park syncs `needs-attention` and loses
@@ -443,8 +446,12 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   tree id as `risk_snapshot`. Each phase after BUILD runs a targeted test while it works. The gate
   runs once more after the last phase that changed code, and that run's outcome is the one it
   reports. Every gate run sets the shell tool's timeout to its maximum (600000 ms) and writes the
-  gate's entire output to a log under `scratch/`, which the agent then reads. Acceptance, the sweep and
-  park run their gates the same way. A phase with nothing to do for its round's changes is skipped. It
+  gate's entire output to a log under `scratch/`, which the agent then reads. A gate that may outlast
+  that timeout runs in the background and writes its exit code to a file beside the log, and the agent
+  waits for that file with one bounded loop that ends inside the timeout, then reads the log once.
+  Acceptance, the sweep and park run their gates the same way. A fix block's later round, and every
+  later round's pulled entries, start from the statuses the developer last reported, which the prompt
+  lists. A phase with nothing to do for its round's changes is skipped. It
   routes each finding by the code zone it lies in, as §4 sets. It logs every finding it routes and does
   not fix, so none is dropped silently. A dismissal names one place or the class of places it covers,
   and its reason holds for every place it names. The reason states a fact it checked that round, the
@@ -492,9 +499,10 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   after its `git add` when it stages, as `index_tree`, which the engine hands to the next acceptance.
   Before any acceptance of the launch has returned a usable id, and after one returns none, the next
   acceptance has nothing to compare unless a round-1 developer's report takes its place first. The tree
-  id that acceptance returns restores the check. A changed index halts `staging-unconfirmed`, and the block parks with its
-  work unstaged. The halt reason names `git diff --cached <tree id>` with the recorded tree id, which
-  lists only what changed in the index after it, since the index also holds the accepted blocks. In commit mode, an agent's own commit moves HEAD, which `git diff --cached` does not
+  id that acceptance returns restores the check. A changed index halts `staging-unconfirmed`, and the
+  block parks with its work unstaged. The halt reason names `git diff --cached <tree id>` with the
+  recorded tree id, which lists only what changed in the index after it, since the index also holds the
+  accepted blocks. In commit mode, an agent's own commit moves HEAD, which `git diff --cached` does not
   show. So the halt reason also names the last commit the launch landed, and says to revert each newer
   commit that `git log --oneline` lists.
 - **Quality Reviewer** — blind by placement (`gate/` only). It receives the conventions and reports
@@ -561,15 +569,23 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   confirms and declines each one it refutes with a DISMISSED line. Acceptance counts a listed gap closed
   when the code closes it or a ledger line declines it. A listed gap for a wrong risk answer, or for a
   path that changed after its round's snapshot, takes no fix and no log, and acceptance counts it
-  closed, since the block's first blind review judges the entire restored work. A landed block holds a branch's work only when
-  acceptance returned `actually_fixed=true` for every entry that names that branch, since the developer
-  may keep or revert the restored work of an entry it reports FAILED. In commit delivery, acceptance
-  deletes each such branch with `git branch -D` only on a pass with no regression that it committed with
-  the block's title, the reviewed tree and a clean tree after, and returns each branch its deletion left
-  behind. In stage delivery, acceptance deletes no branch, since the user may still reject the
-  staged work. On a pass with no regression that it staged, it returns each such branch, and
-  `nextStep` says to delete it once the user commits that work. Every other branch stays, and so
-  does every branch on any other verdict, so a rejected landing can be rebuilt from it.
+  closed, since the block's first blind review judges the entire restored work. A park entry's
+  `- ledger:` line names the `DISMISSED-<id>.md` of the parked block, and its `- amended:` line names
+  the `AMENDED-<id>.md` files of the blocks its `- origin:` line names. The round-1 developer re-checks
+  each line of that ledger as it re-checks an earlier launch's line, and copies each one it keeps into
+  its own block's ledger, the one ledger the blind reviewer reads. It reproduces each such amendment's
+  defect and meets an origin criterion under an amendment it reproduces. Acceptance reads both files,
+  counts a ledger line the developer did not copy as settling nothing, and judges an origin criterion
+  under such an amendment only once it reproduces the amendment's defect. A landed block holds a
+  branch's work only when acceptance returned `actually_fixed=true` for every entry that names that
+  branch, since the developer may keep or revert the restored work of an entry it reports FAILED. In
+  commit delivery, acceptance deletes each such branch with `git branch -D` only on a pass with no
+  regression that it committed with the block's title, the reviewed tree and a clean tree after, and
+  returns each branch its deletion left behind. In stage delivery, acceptance deletes no branch, since
+  the user may still reject the staged work. On a pass with no regression that it staged, it returns
+  each such branch, and `nextStep` says to delete it once the user commits that work. Every other
+  branch stays, and so does every branch on any other verdict, so a rejected landing can be rebuilt
+  from it.
 - **Park** — saves then clears, never the other way. `ordered: false` → the run CONTINUES past a
   parked block; `ordered: true` → the run STOPS there (later blocks depend on it). A needs-user
   escalation parks the same way. Every other escalation stops the run. Park saves the block's work
@@ -585,14 +601,18 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   developer's last report gave FIXED, and for a branch whose restored diff the working tree still
   holds (`git apply -R --check` accepts it), since a FAILED entry may keep or revert that work. That
   branch's entry syncs `stale`, or, when the developer never reported it, `nextStep` says to set it
-  `stale`. The new entry's `**What:**` names it, and the new entry's `- origin:` line adds that
-  entry's origins, so the block built from it still meets their criteria. After a halt that may
+  `stale`. The new entry's `**What:**` names it, and the new entry's `- origin:` and `- amended:`
+  lines add that entry's values, so the block built from it still meets their criteria under their
+  amendments. Its `- ledger:` lines need no carry, since round 1 copied each line it kept into the
+  block's own ledger. After a halt that may
   leave the block's work staged or committed (§2 step 5), the park keeps each restored branch, since
   the new commit may lack part of that work. Park clears the tree only after it confirms the
   commit's tree differs from its first parent's tree, and a tree with no work makes no commit and
   clears nothing. Park then appends one entry to the block's backlog file, with
   `- category: unfinished`, a `- branch:` line naming the branch when this park made a commit, a
-  `- origin: <planPath>#<block id>` line, and a `- decision:` by §10's rule. The park of a block
+  `- origin: <planPath>#<block id>` line, a `- ledger:` line naming the block's `DISMISSED-<id>.md`
+  and an `- amended:` line naming its `AMENDED-<id>.md`, each only when that file exists, and a
+  `- decision:` by §10's rule. The park of a block
   whose developer escalated a user-only question is always `NEEDS_USER`, whatever halt parked it.
   The entry's `**What:**` copies the escalated question, the halt reason, or the gaps of the last
   review file, whichever caused the park. After a closing acceptance it copies the blocking gaps
@@ -699,11 +719,13 @@ Halts match the sibling engines (dirty baseline, needs-user, plan-unreadable, ag
 passed-unstaged, acceptance-regression, park-unsafe, budget) plus `staging-unconfirmed`,
 `rejected-staged`, `restore-failed`, `review-unwritten`, `passed-regression` and `log-cap`. Commit
 mode adds `staged-baseline` and `commit-unverified`, which **Commit mode** below describes.
-`rejected-staged` means acceptance failed a block but staged it, so inspect `git diff --cached` and
-unstage that block's files before resuming. `passed-regression` means acceptance passed a block but
-flagged a regression and staged nothing. Its work is parked, and the block ends as §5 Park says.
-Never stage that work as it is. `acceptance-regression` means acceptance staged a block while its
-verdict flagged a regression, so inspect `git diff --cached`. To keep the work, run §2 step 3, then
+`rejected-staged` means acceptance failed a block but staged it, so inspect
+`git diff --cached <tree id>` with the tree id the halt reason names, which lists only what that
+acceptance staged, and unstage that block's files before resuming. `passed-regression` means
+acceptance passed a block but flagged a regression and staged nothing. Its work is parked, and the
+block ends as §5 Park says. Never stage that work as it is. `acceptance-regression` means acceptance
+staged a block while its verdict flagged a regression, so inspect the view its halt reason names,
+`git diff --cached <tree id>` in stage delivery. To keep the work, run §2 step 3, then
 set the block's `status:` to `done`. Then set each fix issue that the acceptance file named in the
 halt reason confirmed closed to `fixed` or `stale`, as §2 step 5 maps a landed block's issues. Under
 `proactive`, also run `plan-edit.mjs args --backlog <backlogDir> --fold-only`, which writes the run's
@@ -720,9 +742,10 @@ block is then done, so a relaunch has nothing to build, and you verify coverage 
 yourself. Every exit leaves a clean tree except passed-but-unstaged, a commit-mode halt whose reason
 names the tree dirty check, and a `park-unsafe` halt whose park did not confirm a clear. After every
 run, grep integration points, read every `AMENDED-<id>.md` and surface `NEEDS-USER.md`,
-`DECISIONS.md`, the files in `backlogFiles` and `SWEEP.md`. Before landing, do not re-run the gates,
-read the review files or audit the `DISMISSED-<id>.md` files, since acceptance and the gate of
-`wt.mjs close` cover them. Do not view the accepted diff, apart from a record a guide asks for, such
+`DECISIONS.md`, the files in `backlogFiles`, `SWEEP.md` and the path of each `DISMISSED-<id>.md` that
+`nextStep` names and that exists, so the user can audit every judgment call. Before landing, do not
+re-run the gates, read the review files or audit those ledgers yourself, since acceptance and the gate
+of `wt.mjs close` cover them. Do not view the accepted diff, apart from a record a guide asks for, such
 as debug's stat record in stage delivery. Once §2 step 6 says the run lands, land it there and
 report its summary.
 
@@ -855,7 +878,9 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   mode, and `pulled`, each pulled entry as `{ issue_id, status, confirmed }`, which is empty under
   `focused`) · `statusSync` (the plan-file edits, also logged per block for §2 step 5. An edit whose
   `value` is null removes its key's line, which closes a pulled entry's `- pulled:` line. An edit with
-  `expectPulled` applies only to an entry whose `- pulled:` value is `expectPulled`) · `sweep` ·
+  `expectPulled` applies only to an entry whose `- pulled:` value is `expectPulled`. An edit with
+  `expectNoOpen`, which develop adds for the backlog file of each pulled entry it closes, applies only to
+  a `todo` block that holds no open entry) · `sweep` ·
   `failed` (`{ id: 'sweep', stage: 'sweep' }` when the sweep ran and died, else empty, so
   `sweep: null` with no entry means the sweep did not run) · `backlogEntries` (every mode, the
   entries developers, fix verifiers and closing acceptances added to the backlog this run, null when
@@ -948,7 +973,9 @@ run builds an `ACTIONABLE` entry without triage, and a
 carries `- category: feature` and a decision entry `- category: decision`, and both carry
 `- decision: NEEDS_USER`. An unfinished entry carries `- category: unfinished`, a `- branch:` line
 naming the branch that holds the work when that branch exists, and an `- origin: <planPath>#<block id>`
-line naming the block the work was built for. Its `**What:**` indents every line it copies from a
+line naming the block the work was built for. It carries a `- ledger:` line naming the block's
+`DISMISSED-<id>.md` and an `- amended:` line naming its `AMENDED-<id>.md`, each only when that file
+exists. Its `**What:**` indents every line it copies from a
 file by four spaces, so a copied heading, fence or `- <key>:` line never ends the entry or starts
 another. These four kinds carry no `- severity:` line.
 An entry a developer pulled beside its block carries `- pulled: <runId>#<block id>` (§4). No launch

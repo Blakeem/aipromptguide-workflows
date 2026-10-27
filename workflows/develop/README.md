@@ -159,6 +159,8 @@ entry), the
 defaults the developer took, a pointer to each plan amendment and each fix the developer made to a
 problem the code already had that its block did not require (`DECISIONS.md`), the backlog entries a
 block's developer took under `proactive` (`PULLED-<id>.md`), and the sweep result (`SWEEP.md`).
+The run's summary names each `DISMISSED-<id>.md` file, so you can audit every finding a developer
+declined.
 
 The project's backlog folder (`backlog/<project>/`) holds the defects found outside each block's work,
 in one file per block of each run. From a block's closing pass, it holds the findings whose fixes need

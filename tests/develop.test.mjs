@@ -1483,7 +1483,7 @@ section('a park that saved no commit writes an entry built from the accepted bas
 section('a park after a halt that may leave work staged or the tree unsafe stays blocked, with one rule for its two routes');
 // The branch's first parent holds committed work, and in stage mode staged work, so its diff omits that part, and the entry may not be the block's whole work.
 {
-  const HELD = 'These parked blocks stay blocked until you resolve their halt: block-a. Once a block\'s halt is resolved, set its status to backlogged when its branch holds all of its work and its backlog file holds an entry that links that branch, so that entry is the one place its work continues from, and never set it back to todo. For a fix block, that route also sets to stale each entry whose branch its round 1 restored and whose work the new branch\'s tree holds, deletes that branch with `git -C E:/repo branch -D <branch>`, and adds that entry\'s "- origin:" values to the new entry\'s "- origin:" line. Otherwise set that entry\'s "- status:" to stale, remove the "- pulled:" line of each entry its "Pulled:" line names, delete the branch with `git -C E:/repo branch -D <branch>` when it exists, and set the block back to todo.';
+  const HELD = 'These parked blocks stay blocked until you resolve their halt: block-a. Once a block\'s halt is resolved, set its status to backlogged when its branch holds all of its work and its backlog file holds an entry that links that branch, so that entry is the one place its work continues from, and never set it back to todo. For a fix block, that route also sets to stale each entry whose branch its round 1 restored and whose work the new branch\'s tree holds, deletes that branch with `git -C E:/repo branch -D <branch>`, and adds that entry\'s "- origin:" and "- amended:" values to the new entry\'s line of the same key, writing an "- amended:" line when it has none. Otherwise set that entry\'s "- status:" to stale, remove the "- pulled:" line of each entry its "Pulled:" line names, delete the branch with `git -C E:/repo branch -D <branch>` when it exists, and set the block back to todo.';
   for (const [what, respond] of [
     ['staging-unconfirmed', { develop: { ...DEV_OK, unstaged_confirmed: false }, park: PARK_OK }],
     ['rejected-staged', { ...GREEN_RUN, acceptance: { ...ACC_FAIL, staged: true }, park: PARK_OK }],
@@ -1638,8 +1638,8 @@ section('a fix block that parks supersedes each branch its round 1 restored');
   const unlinkedFix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_GAP, park: { ...PARK_OK, superseded_entries: ['i-1'], entry_written: false } },
     { ...FIX_ONE, maxRounds: 1 });
   eq(syncOf(unlinkedFix.out), 'fix-a=blocked,i-1=stale', 'an unlinked fix park still syncs its superseded entry stale');
-  ok(unlinkedFix.out.nextStep.includes('The park of fix-a superseded i-1 and deleted their branches, so end its entry\'s **What:** with the line "Supersedes: i-1, whose branches this entry\'s branch now holds." and append each "- origin:" value of those entries to its "- origin:" line.'),
-    'and nextStep says to carry the superseded entries into the entry written by hand');
+  ok(unlinkedFix.out.nextStep.includes('The park of fix-a superseded i-1 and deleted their branches, so end its entry\'s **What:** with the line "Supersedes: i-1, whose branches this entry\'s branch now holds." and append each "- origin:" value of those entries to its "- origin:" line, and each "- amended:" value to its "- amended:" line, writing that line when it has none.'),
+    'and nextStep says to carry the superseded entries\' origins and amendments into the entry written by hand');
   ok(!fixPark.out.nextStep.includes('The park of fix-a superseded'), 'a park that wrote its entry adds no such line');
   ok(!fixPark.out.nextStep.includes('entries its developer never reported'), 'a park whose superseded entries were all reported adds no stale line');
   // The branch may omit staged work, so the operator may redo the block, which restores each old branch again.
@@ -1901,8 +1901,8 @@ section('acceptance that stages while reporting a regression halts the run');
   ok(!labels.some((l) => l.startsWith('park')), 'did NOT park (the work is staged)');
   ok(!labels.some((l) => l.includes('block-b')), 'the run did NOT continue onto a poisoned baseline');
   eq(out.status, 'BLOCKED (a block staged while self-reporting a regression)', 'status');
-  ok(!/inspect/i.test(out.status) && /Inspect `git -C E:\/repo diff --cached`/.test(out.haltReason),
-    'the inspect instruction lives in the halt reason, not the status');
+  ok(!/inspect/i.test(out.status) && out.haltReason.includes('Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001`'),
+    'the inspect instruction lives in the halt reason, not the status, and diffs against the tree before this acceptance staged');
   eq(out.plansDone.join(), 'block-a', 'the block itself still counts as done (staged)');
   ok(out.ledger[0].contradicted === true, 'and the ledger flags the self-contradiction');
   // The plan file's statuses pick the relaunch's blocks, so a block rejected back to todo is rebuilt.
@@ -3318,9 +3318,28 @@ section('acceptance that FAILS a block but reports staged=true halts, never re-r
     `the reason names the block, round, file and the staged diff: ${out.haltReason.slice(0, 160)}`);
   ok(!labels.includes('develop block-a r2'), 'no second develop round runs over the staged index');
   ok(labels.includes('park:block-a'), 'any unstaged remainder is parked');
-  ok(/acceptance rejected the block but staged it anyway; inspect `git -C E:\/repo diff --cached`/.test(prompt('park')), 'park is told the real cause');
+  ok(prompt('park').includes('acceptance rejected the block but staged it anyway; inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001`'),
+    'park is told the real cause and the tree from before the rejected staging');
   ok(!labels.some((l) => /block-b/.test(l)), 'block-b never started');
   eq(out.ledger[0].status, 'BLOCKED (acceptance staged a rejected block)', 'ledger status');
+}
+{
+  // The index holds block-a's accepted work, so the recovery diffs against the tree block-a's acceptance recorded,
+  // never the tree the rejecting acceptance reported after it staged.
+  const accepted = 'b0b0000000000000000000000000000000000002';
+  const rejected = 'bad0000000000000000000000000000000000003';
+  const { out, logs, prompt } = await run({
+    develop: DEV_OK,
+    quality: CLEAN,
+    acceptance: (label) => (label.includes('block-a') ? { ...ACC_PASS, index_tree: accepted } : { ...ACC_FAIL, staged: true, index_tree: rejected }),
+    park: PARK_OK,
+  });
+  const view = `git -C E:/repo diff --cached ${accepted}`;
+  ok(String(out.haltReason ?? '').includes(`Inspect \`${view}\` and unstage this block's files before resuming.`),
+    `the halt reason diffs against the tree before the rejected staging: ${String(out.haltReason ?? '').slice(0, 300)}`);
+  ok(logs.some((l) => l.includes(`staged it → halting (inspect ${view})`)), 'the log line names the same view');
+  ok(prompt('park:block-b').includes(`acceptance rejected the block but staged it anyway; inspect \`${view}\``), 'and so does the park reason');
+  ok(![String(out.haltReason ?? ''), prompt('park:block-b')].some((t) => t.includes(rejected)), 'no recovery names the rejected tree');
 }
 {
   const { out, logs } = await run({ ...GREEN_RUN, acceptance: { ...ACC_FAIL, staged: true, wrote_file: false }, park: PARK_OK });
@@ -4180,6 +4199,9 @@ section('commit-mode acceptance that fails a block but reports a commit halts an
   ok(nextOf(staged.out).endsWith(HALTED_NEXT), 'and nextStep never claims nothing is staged');
   ok(String(r.out.haltReason ?? '').includes(`revert it with \`git -C E:/repo revert ${SHA}\``), 'the halt reason names the revert of that commit');
   ok(r.prompt('park').includes('revert its commit with `git -C E:/repo revert <sha>`'), 'park is told the commit-mode cause');
+  // A diff against the tree before a rejected commit would list that commit's hunks as staged.
+  ok(r.prompt('park').includes("inspect `git -C E:/repo diff --cached` and `git -C E:/repo log -1`, then unstage this block's files"),
+    'the commit-mode park reason diffs the index against HEAD, never against the tree before the rejected commit');
   ok(flat(r.prompt('acceptance block-a r1')).includes('return pass=false (do NOT stage or commit, and return committed=false and commit_sha "")'),
     'the fail bullet forbids a commit');
   // A sha beside committed=false may be HEAD before this block, and its revert would undo an accepted block.
@@ -4448,7 +4470,8 @@ section('every backlog writer keeps an existing file\'s header and reopens a ski
 
 section('every gate run keeps its entire output in a log under scratch');
 {
-  const gateRun = (name) => `Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to ${STATE}/scratch/gate-${name}-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.`;
+  // A background run may not wake a subagent, so the rule names one bounded wait on an exit-code file.
+  const gateRun = (name) => `Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to ${STATE}/scratch/gate-${name}-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and once the command exits, its exit code to ${STATE}/scratch/gate-${name}-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.`;
   const feat = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, { ...ONE_BLOCK, sweep: 'goal-coverage', goal: 'g' });
   const park = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 });
   const sites = [
@@ -4546,10 +4569,14 @@ section('acceptance judges each pulled entry like a fix entry, and the closing a
 section('a landed block syncs each pulled entry fixed, stale or needs-attention, and removes its pulled line');
 {
   const landed = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }, { issue_id: PULL_B, status: 'STALE' }]), acceptance: { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, true], [PULL_B, true]]) } }, PRO_ONE_BLOCK);
-  eq(pulledSync(landed.out), `${PULL_A}:status=fixed,${PULL_A}:pulled=null,${PULL_B}:status=stale,${PULL_B}:pulled=null`, 'a confirmed FIXED entry syncs fixed and a confirmed STALE one stale, each in its own backlog file, and each loses its pulled line');
+  eq(pulledSync(landed.out), `${PULL_A}:status=fixed,${PULL_A}:pulled=null,${PULL_B}:status=stale,${PULL_B}:pulled=null,${PULLED_FILE_ID}:status=done`,
+    'a confirmed FIXED entry syncs fixed and a confirmed STALE one stale, each in its own backlog file, each loses its pulled line, and their file then closes once');
   eq(JSON.stringify(landed.out.ledger[0].pulled), JSON.stringify([{ issue_id: PULL_A, status: 'FIXED', confirmed: true }, { issue_id: PULL_B, status: 'STALE', confirmed: true }]), 'the ledger row names each pulled entry');
-  const pulledEdits = landed.out.statusSync.filter((e) => e.planPath === PULLED_FILE);
+  const pulledEdits = landed.out.statusSync.filter((e) => e.planPath === PULLED_FILE && e.id !== PULLED_FILE_ID);
   ok(pulledEdits.length === 4 && pulledEdits.every((e) => e.expectPulled === 't#block-a'), 'each pulled status edit and removal expects the block\'s own mark, so plan-edit skips an entry the block never marked');
+  const fileEdit = landed.out.statusSync.filter((e) => e.id === PULLED_FILE_ID);
+  ok(fileEdit.length === 1 && fileEdit[0].expectNoOpen === true && fileEdit[0].expectPulled === undefined && landed.out.statusSync.at(-1) === fileEdit[0],
+    `the file's done edit expects no open entry, since the run cannot see the file's other entries, and follows every entry edit: ${JSON.stringify(fileEdit)}`);
   ok(landed.out.statusSync.filter((e) => e.planPath !== PULLED_FILE).every((e) => e.expectPulled === undefined), 'a block or fix entry edit expects no mark');
   const landedNext = String(landed.out.nextStep ?? '');
   ok(landedNext.includes(`For block-a, grep ${BACKLOG}/ for the line "- pulled: t#block-a" and remove each one on an entry that is not one of ${PULL_A}, ${PULL_B}, the ids its ledger row's \`pulled\` names.`),
@@ -4560,7 +4587,7 @@ section('a landed block syncs each pulled entry fixed, stale or needs-attention,
   ok(focusedNext !== '' && !focusedNext.includes('- pulled:'), 'a focused run names no pulled mark');
 
   const mixed = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FAILED' }, { issue_id: PULL_B, status: 'FIXED' }]), acceptance: { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, false]]) } }, PRO_ONE_BLOCK);
-  eq(pulledSync(mixed.out), `${PULL_A}:status=needs-attention,${PULL_A}:pulled=null,${PULL_B}:status=needs-attention,${PULL_B}:pulled=null`, 'a FAILED entry and one the landing verdict never confirmed sync needs-attention');
+  eq(pulledSync(mixed.out), `${PULL_A}:status=needs-attention,${PULL_A}:pulled=null,${PULL_B}:status=needs-attention,${PULL_B}:pulled=null`, 'a FAILED entry and one the landing verdict never confirmed sync needs-attention, and their file gets no done edit');
   ok(mixed.logs.some((l) => l.includes(`acceptance returned no pulled_check for ${PULL_B}`)), 'a missing check is logged');
 
   // The round-1 verdict confirmed it, and the passing round-2 verdict did not check it, so only the latest verdict counts.
@@ -4575,7 +4602,7 @@ section('a landed block syncs each pulled entry fixed, stale or needs-attention,
   eq(bogus.logs.filter((l) => l.includes('names no backlog entry or status → ignored')).length, 2, 'and each is logged');
   const staleOwnFix = await run({ ...GREEN_RUN, develop: firstRound(pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), pulledDev([{ issue_id: PULL_A, status: 'STALE' }])),
     acceptance: firstRound({ ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, true]]) }, { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, true]]) }) }, PRO_ONE_BLOCK);
-  eq(pulledSync(staleOwnFix.out), `${PULL_A}:status=fixed,${PULL_A}:pulled=null`, 'a STALE report after the block\'s own FIXED report syncs fixed, as a fix issue does');
+  eq(pulledSync(staleOwnFix.out), `${PULL_A}:status=fixed,${PULL_A}:pulled=null,${PULLED_FILE_ID}:status=done`, 'a STALE report after the block\'s own FIXED report syncs fixed, as a fix issue does');
 
   const refuted = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, false]]) } }, PRO_ONE_BLOCK);
   ok(refuted.logs.some((l) => l.includes(`CONTRADICTS ITS OWN PASS`) && l.includes(`refuted pulled claims=${PULL_A}`)), 'a pass that refutes a pulled claim is flagged as contradicting itself');
@@ -4802,4 +4829,52 @@ section('an index halt names a reported commit and its revert, and says when no 
     'a commit-mode halt for an unconfirmed developer names the history check too');
   ok(flat(bus.prompt('develop block-a')).includes(`Then append ONE POINTER line to ${STATE}/DECISIONS.md: the block id, the round, the launch, the defect's file:line, and the path`),
     'an amendment\'s pointer line names its launch, so a relaunch finds the pointer of an amendment it removes');
+}
+
+section('develop hands each later agent what an earlier agent settled');
+{
+  const LEDGER = (id) => `${STATE}/gate/DISMISSED-${id}.md`;
+  const AMENDED = (id) => `${STATE}/AMENDED-${id}.md`;
+  // A park entry names its block's ledger and amendments, so the fix block built from it reads both.
+  const parked = flat((await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 })).prompt('park:block-a'));
+  ok(parked.includes(`- origin: ${BUS}#block-a - ledger: ${LEDGER('block-a')} - amended: ${AMENDED('block-a')} **What:**`), 'the park entry carries the ledger and amended lines after its origin');
+  ok(parked.includes(`Write the "- ledger:" line only when ${LEDGER('block-a')} exists, and the "- amended:" line only when ${AMENDED('block-a')} exists, so the block built from this entry reads this block's declined findings and plan amendments.`),
+    'each line is written only when its file exists');
+  ok(!parked.includes('Append to its "- amended:" line'), 'a park that supersedes nothing carries no amendments over');
+  const fixParked = flat((await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_GAP, park: PARK_OK }, { ...FIX_ONE, maxRounds: 1 })).prompt('park:fix-a'));
+  ok(fixParked.includes(`Append to its "- amended:" line the same way every path that the "- amended:" line of those entries holds and this line does not, writing that line when this entry has none, since those blocks' criteria stay judged under their amendments. Their "- ledger:" lines carry over through ${LEDGER('fix-a')}, into which round 1 copied each line it kept.`),
+    'a superseding park carries the superseded entries\' amendments, and their ledgers through its own');
+
+  // The fix block built from such an entry: round 1 copies each kept ledger line where the blind reviewer reads.
+  const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: firstRound(FIX_GAP, FIX_PASS) }, FIX_ONE);
+  const r1 = flat(fix.prompt('develop fix-a r1'));
+  const copy = r1.indexOf(`An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it continues. Before you build, READ each file it names, re-check each line there as the ledger rule below re-checks an earlier launch's line, and append each line you keep to ${LEDGER('fix-a')} unless that file already holds it, since that is the one ledger the blind reviewer reads.`);
+  ok(copy > -1 && copy < r1.indexOf("In round 1 it holds only an earlier launch's lines."), 'round 1 re-checks and copies each origin ledger line, before the ledger rule it cites');
+  ok(r1.includes('Its "- amended:" line names the plan amendments of the blocks its "- origin:" line names, each another agent\'s claim. READ each file it names and reproduce each amendment\'s defect against the file:line it cites. Meet an origin criterion under an amendment whose defect you reproduce, and as its block\'s text states it otherwise.'),
+    'round 1 meets an origin criterion under an amendment only once it reproduces its defect');
+  ok(!flat(fix.prompt('develop fix-a r2')).includes('"- ledger:" line names'), 'a later round copies nothing');
+  const acc = flat(fix.prompt('acceptance fix-a r1'));
+  ok(acc.includes(`• each file that the "- ledger:" line of an ACTIONABLE entry of this block names — the findings that the developers of the parked block whose work that entry continues declined. The round-1 developer re-checked each of its lines against the code and copied each one it kept into ${LEDGER('fix-a')}, so a line that only such a file holds settles nothing.`),
+    'fix acceptance reads the origin ledgers in its settled section');
+  ok(acc.includes('Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses that the developers of the parked block whose work that entry continues OVERRODE. Judge each of those amendments the same way before it excuses a criterion of a block that entry\'s "- origin:" line names.'),
+    'fix acceptance reads the origin amendments in its amendment section and confirms each before it excuses a criterion');
+  const plan = flat((await run(GREEN_RUN, ONE_BLOCK)).prompt('acceptance block-a'));
+  ok(plan !== '' && !plan.includes('"- ledger:"') && !plan.includes('"- amended:"'), 'a feature acceptance names no park entry line');
+  ok(!/- ledger:|- amended:|AMENDED-/.test(fix.prompt('quality fix-a')), 'the blind reviewer gets no path outside its gate folder (#3)');
+
+  // Rounds 2 and later start from the statuses the developer last reported.
+  const r2 = flat(fix.prompt('develop fix-a r2'));
+  ok(r2.includes('Your earlier rounds last reported these statuses: - i-1: FIXED Start each listed entry from its status rather than re-deriving it.'), 'a fix block\'s round 2 lists each entry\'s last status');
+  ok(!r1.includes('Your earlier rounds last reported'), 'round 1 lists none');
+  const pro = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: firstRound({ ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, true]]) }, { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, true]]) }) }, PRO_ONE_BLOCK);
+  ok(flat(pro.prompt('develop block-a r2')).includes(`Your earlier rounds last reported: - ${PULL_A}: FIXED Report each listed status again unless this round's work changes it.`), 'a later round lists each pulled entry\'s last status');
+
+  // Every block's ledger reaches the user, so each judgment call can be audited (#6).
+  const next = nextOf((await run(GREEN_RUN)).out);
+  ok(next.includes(`so the user can audit every judgment call: ${LEDGER('block-a')}, ${LEDGER('block-b')}. Then derive`), `nextStep names each block's ledger: ${next.slice(-600)}`);
+  const idle = nextOf((await run(GREEN_RUN, { ...baseArgs, plans: BLOCKS.map((b) => ({ ...b, status: 'done' })) })).out);
+  ok(idle !== '' && !idle.includes('audit every judgment call'), 'a run that built no block names no ledger');
+  const guide = flat(readFileSync(join(REPO_ROOT, 'workflows/develop/CLAUDE.md'), 'utf8'));
+  ok(guide.includes('the files in `backlogFiles`, `SWEEP.md` and the path of each `DISMISSED-<id>.md` that `nextStep` names and that exists, so the user can audit every judgment call.'),
+    'the guide\'s surfaced list names each ledger');
 }

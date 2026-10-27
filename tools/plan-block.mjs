@@ -66,6 +66,8 @@ const ISSUE_KEYS = {
   theme: null,
   branch: null,                                // a park entry's branch, which holds the parked block's work
   origin: null,                                // a park entry's <planPath>#<block id>, the block that work was built for
+  ledger: null,                                // a park entry's absolute path to its parked block's DISMISSED ledger
+  amended: null,                               // a park entry's absolute paths to the plan amendments of the blocks its origin names
   pulled: null,                                // <runId>#<block id> of the developer that took the entry beside its block
 };
 

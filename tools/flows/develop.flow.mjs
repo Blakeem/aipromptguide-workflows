@@ -66,6 +66,8 @@ const devFix = (results, extra) => ({ ...DEV_OK, results, ...extra });
 const FIX_DONE   = devFix([{ issue_id: 'i-1', status: 'FIXED' }]);
 const FIX_STALE  = devFix([{ issue_id: 'i-1', status: 'STALE' }]);
 const FIX_SKIP   = devFix([{ issue_id: 'i-1', status: 'SKIPPED' }]);
+// develop ignores a pulled id outside the backlog id shape or in a plan file the run builds, so this file is neither.
+const PULLED_FILE_ID = 'old-run-blk-0a1b2c3d';
 const ACC_FIX    = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, regression: false, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], backlog_entries: 0, backlog_blocks: [], gap_count: 0, suite_result: 'green' };
 
 // The clean full run every "what changes" scenario is a one-key edit of. Its closing pass returns a usable
@@ -298,6 +300,20 @@ export default {
       when: 'changePolicy is proactive and a fix block fixes an issue and accepts',
       args: { ...base, changePolicy: 'proactive', plans: [FIX_BLOCK] },
       respond: { develop: FIX_DONE, quality: CLEAN, acceptance: ACC_FIX, 'final-sweep': SWEEP_OK },
+    },
+    {
+      // Round 2 of a proactive fix block is the only prompt that renders both lists of statuses the developer
+      // last reported, its entries' and its pulled entries'.
+      name: 'a proactive fix block starts round 2 from the statuses it last reported',
+      when: 'changePolicy is proactive and acceptance fails a fix block with a pulled entry, then passes it',
+      args: { ...base, changePolicy: 'proactive', plans: [FIX_BLOCK] },
+      respond: {
+        develop: devFix([{ issue_id: 'i-1', status: 'FIXED' }], { pulled_results: [{ issue_id: `${PULLED_FILE_ID}-1`, status: 'FIXED' }] }),
+        quality: CLEAN,
+        acceptance: firstRound({ ...ACC_FIX, pass: false, staged: false, gap_count: 1, pulled_checks: [{ issue_id: `${PULLED_FILE_ID}-1`, actually_fixed: false }] },
+          { ...ACC_FIX, pulled_checks: [{ issue_id: `${PULLED_FILE_ID}-1`, actually_fixed: true }] }),
+        'final-sweep': SWEEP_OK,
+      },
     },
     {
       // A pass: two fix blocks from two plan files built by ONE developer, reviewer and verifier. The flow

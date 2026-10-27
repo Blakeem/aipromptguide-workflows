@@ -121,6 +121,22 @@ function findTarget(plan, id) {
   throw new Error(`no id "${id}" in ${plan.path} — it has: ${everyId(plan.blocks).join(', ')}`);
 }
 
+/**
+ * Why an edit that expects no open entry leaves block `id` as it is, or '' when that block is todo and holds no open
+ * entry. develop names the block after its backlog file, so a hand-written file with another block id skips the edit.
+ */
+function openBlockReason(plan, id) {
+  const block = plan.blocks.find((b) => b.id === id);
+  if (!block) {
+    if (plan.blocks.some((b) => b.issues.some((e) => e.id === id))) throw new Error(`"${id}" in ${plan.path} is an issue entry, not a block`);
+    return `the file holds no block "${id}"`;
+  }
+  const status = blockStatus(block);
+  if (status !== 'todo') return `block ${id} is ${status}, not todo`;
+  const open = block.issues.filter((e) => (keyOf(e, 'status') ?? 'open') === 'open').map((e) => e.id);
+  return open.length ? `block ${id} still holds the open entr${open.length === 1 ? 'y' : 'ies'} ${open.join(', ')}` : '';
+}
+
 /** The issue entry an id addresses. A BLOCK id lands here too, and is refused: only an entry can move. */
 function findIssue(plan, id) {
   for (const block of plan.blocks) {
@@ -397,9 +413,10 @@ export function readRunRecord(path) {
   }
   edits.forEach((e, i) => {
     const typed = e && ['planPath', 'id', 'key'].every((k) => typeof e[k] === 'string') && (typeof e.value === 'string' || e.value === null)
-      && (e.expectPulled === undefined || typeof e.expectPulled === 'string');
+      && (e.expectPulled === undefined || typeof e.expectPulled === 'string')
+      && (e.expectNoOpen === undefined || e.expectNoOpen === true);
     if (!typed || !isAbsolute(e.planPath)) {
-      throw new Error(`status edit [${i}] in ${path} is not { planPath (absolute), id, key, value (a string, or null to remove the line), expectPulled (absent, or the pulled value the entry must carry) }: ${JSON.stringify(e)}`);
+      throw new Error(`status edit [${i}] in ${path} is not { planPath (absolute), id, key, value (a string, or null to remove the line), expectPulled (absent, or the pulled value the entry must carry), expectNoOpen (absent, or true) }: ${JSON.stringify(e)}`);
     }
   });
   // Older records keep no args, so the result's echo of the runId arg stands in for it. develop takes a numeric
@@ -441,18 +458,25 @@ function fileKey(path) {
 /**
  * The plan with each edit applied in order, re-validated after each so every splice reads fresh positions. A null
  * value removes the key's line. An edit that carries `expectPulled` is skipped unless the entry's `- pulled:` value is
- * `expectPulled`, so a run never edits an entry its block did not mark. Returns the plan and the count of edits applied.
+ * `expectPulled`, so a run never edits an entry its block did not mark. An edit that carries `expectNoOpen` applies only
+ * to a `todo` block that holds no open entry, since the run that wrote it could not see the file's other entries.
+ * Returns the plan and the count of edits applied.
  */
 function applyEdits(plan, edits, source, note) {
   let next = plan;
   let applied = 0;
-  for (const { id, key, value, expectPulled } of edits) {
+  for (const { id, key, value, expectPulled, expectNoOpen } of edits) {
     const removes = value === null;
     try {
       if (!removes) checkOneLine(key, value);
       const mark = expectPulled === undefined ? null : findIssue(next, id).values.pulled ?? null;
       if (expectPulled !== undefined && mark !== expectPulled) {
         note(`${source} leaves the ${key} line of ${id} in ${plan.path} as it is, since its pulled line is ${mark === null ? 'absent' : `"${mark}"`}, not "${expectPulled}"\n`);
+        continue;
+      }
+      const openWhy = expectNoOpen ? openBlockReason(next, id) : '';
+      if (openWhy) {
+        note(`${source} leaves the ${key} line of ${id} in ${plan.path} as it is, since ${openWhy}\n`);
         continue;
       }
       const text = removes ? withKeyRemoved(next, id, key) : withKeySet(next, id, key, value);
@@ -491,7 +515,7 @@ function foldRecords(plan, records, note) {
     const iso = new Date(lost.time).toISOString();
     const older = records.filter((r) => r.time > marker && r.time < lost.time && r.edits.some((e) => fileKey(e.planPath) === key));
     const skipped = older.length ? ` after applying by hand the edits of the older run(s) ${older.map((r) => r.runId).join(', ')}, which that key also skips` : '';
-    throw new Error(`run ${lost.runId} (${lost.path}, ${iso}) logged a status line the runtime cut short, and it names ${plan.path}, so its status edits cannot be applied. The record's logs hold what survived. Set those statuses by hand, applying an edit that carries "expectPulled" only to an entry whose "- pulled:" value equals it, then set the plan's "synced:" file key to ${iso}${skipped}`);
+    throw new Error(`run ${lost.runId} (${lost.path}, ${iso}) logged a status line the runtime cut short, and it names ${plan.path}, so its status edits cannot be applied. The record's logs hold what survived. Set those statuses by hand, applying an edit that carries "expectPulled" only to an entry whose "- pulled:" value equals it and one that carries "expectNoOpen" only to a todo block that holds no open entry, then set the plan's "synced:" file key to ${iso}${skipped}`);
   }
   const fresh = records
     .filter((r) => r.time > marker)

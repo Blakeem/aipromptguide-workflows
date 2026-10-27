@@ -371,10 +371,11 @@ section('every metadata fault exits 1 naming the offending key, value or id');
   let sizeValue = '';
   try { sizeValue = parseBlocks(fix('### [x-y] t\n- size: small'))[0].issues[0].values.size; } catch (e) { sizeValue = e.message; }
   eq(sizeValue, 'small', 'an entry with a `- size:` line parses and its value is read');
-  // A park's entry links the branch that holds its block's work and names the block that work was built for.
+  // A park's entry links the branch that holds its block's work, names the block that work was built for, and names its ledger and amendments.
   let parkValues = {};
-  try { parkValues = parseBlocks(fix('### [x-y] t\n- category: unfinished\n- decision: NEEDS_USER\n- branch: aipg-unfinished/r-b-1a2b3c4d\n- origin: E:/plans/p.md#b'))[0].issues[0].values; } catch (e) { parkValues = { error: e.message }; }
-  eq(`${parkValues.branch}|${parkValues.origin}`, 'aipg-unfinished/r-b-1a2b3c4d|E:/plans/p.md#b', 'a park entry\'s branch and origin lines parse and their values are read');
+  try { parkValues = parseBlocks(fix('### [x-y] t\n- category: unfinished\n- decision: NEEDS_USER\n- branch: aipg-unfinished/r-b-1a2b3c4d\n- origin: E:/plans/p.md#b\n- ledger: E:/r/runs/t/gate/DISMISSED-b.md\n- amended: E:/r/runs/t/AMENDED-b.md'))[0].issues[0].values; } catch (e) { parkValues = { error: e.message }; }
+  eq(`${parkValues.branch}|${parkValues.origin}|${parkValues.ledger}|${parkValues.amended}`, 'aipg-unfinished/r-b-1a2b3c4d|E:/plans/p.md#b|E:/r/runs/t/gate/DISMISSED-b.md|E:/r/runs/t/AMENDED-b.md',
+    'a park entry\'s branch, origin, ledger and amended lines parse and their values are read');
   // A proactive developer marks an entry it took beside its block with its run and block.
   let pulledValue = '';
   try { pulledValue = parseBlocks(fix('### [x-y] t\n- decision: ACTIONABLE\n- pulled: run-1#block-a'))[0].issues[0].values.pulled; } catch (e) { pulledValue = e.message; }
