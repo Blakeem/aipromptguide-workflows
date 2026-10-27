@@ -11,7 +11,7 @@ import { isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // `id — title`: the separator needs surrounding space, so a kebab id keeps its own hyphens.
-const TITLE_SPLIT_RE = /[ \t]+[—–-][ \t]+/;
+export const TITLE_SPLIT_RE = /[ \t]+[—–-][ \t]+/;
 const KEBAB_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 // =============================================================================

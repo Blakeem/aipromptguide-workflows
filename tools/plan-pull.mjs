@@ -16,7 +16,7 @@ import { realpathSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { basename, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { entryPath, findRunRecords, foldBacklog, isBacklogBlock, isReady, keyOf, readRunRecord } from './plan-edit.mjs';
+import { entryPath, findRunRecords, foldBacklog, isBacklogBlock, isReady, keyOf, readRunRecord, repoPath } from './plan-edit.mjs';
 
 const USAGE = `usage:
   node tools/plan-pull.mjs pullable --backlog <dir> --files <path,...> [--exclude <plan.md,...>]
@@ -27,9 +27,6 @@ const USAGE = `usage:
       entry of an --exclude file, such as a plan file the current run builds. It writes nothing.`;
 
 const FLAGS = ['--backlog', '--files', '--exclude'];
-
-/** A repo path as an entry's "- file:" line spells it: forward slashes, no leading "./". */
-const repoPath = (path) => path.trim().replace(/\\/g, '/').replace(/^\.\//, '');
 
 /** The comma-separated list a flag carries, with blank items dropped. */
 const listOf = (value) => (value ?? '').split(',').map((item) => item.trim()).filter(Boolean);

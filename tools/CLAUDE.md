@@ -76,7 +76,7 @@ and acceptance schemas is that signal, and develop halts on an explicit `false`.
 ```bash
 node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>          # upsert one metadata line
 node tools/plan-edit.mjs move <src> <issue-id> <dest> <block-id>             # relocate one issue entry
-node tools/plan-edit.mjs args [<plan.md> ...] [--expect <wf-id>] [--backlog <dir>] [--pack <repo> [--loc-cap <n>]]
+node tools/plan-edit.mjs args [<plan.md> ...] [--expect <wf-id>] [--backlog <dir>] [--pack <repo> [--loc-cap <n>] | --fold-only]
                                                                              # fold finished runs, print develop's args
 ```
 
@@ -101,7 +101,9 @@ finished block's status edits as one `status-sync <json>` line. Claude Code writ
 `<config>/projects/<project>/<session>/workflows/wf_<id>.json` when it ends, logs included, for a
 completed, failed or stopped run alike. `args` reads every develop record newer than the plan's
 `synced:` file key, applies the edits naming that plan oldest first, and moves the key to the newest run
-applied, so an operator's later edit is never overwritten. The record format is Claude Code's and
+applied, so an operator's later edit is never overwritten. `--fold-only` writes every fold and cut that `args` writes,
+the `--backlog` files' included. It sets no `done` backlog file to `todo`, holds back nothing and prints nothing, so an
+operator reads current statuses without a launch. It refuses `--pack`. The record format is Claude Code's and
 undocumented. A completed run's edits come from its result, which holds them uncut. A failed or stopped
 run's come from its log lines, and the runtime cuts a long line short: a cut line that names a plan
 being folded fails `args`, and one that names none is skipped with a note. A changed develop record
@@ -116,9 +118,9 @@ without the user. A file is not added while the block that wrote it is not `done
 of that block may still append to it. A `parked` writer, an older engine's park that develop never relaunches, holds its
 file back until the user sets it `skip` to drop it, `todo` to rebuild it, or `backlogged` only when a backlog entry carries its
 work, and the note that names the left-out file says so. The file's header names that block and its develop `runId`, and the run records
-with that `runId` arg and this `--backlog` folder as their `backlogDir` arg, or with no `backlogDir` arg, give its plan path, through their status edits or their `plans` rows. A header that names a pass
+with that `runId` arg and this `--backlog` folder as their `backlogDir` arg, or with no `backlogDir` arg, give its plan path, through their block status edits or their `plans` rows. A record with no args stands for its runId through the `runId` its result echoes. Both runIds are compared after the header title's own split at a spaced dash, rejoin with ` - ` and trim. A header that names a pass
 matches each member of that pass's row, and one that names a member matches that member. Its status is read with those records folded in memory, and its plan file is never written. A file whose block
-no record names, or whose plan file is gone, is not held back. A writer plan file that exists but fails to read or validate, or whose run records cannot be folded into it, fails the command, since its status is unknown. A file named as a plan skips this check. The fold of every `todo` or `done` backlog file with an `ACTIONABLE` entry is written, built or not. An entry with no `- status:` line counts as `open`. A `done` file is
+no record names, or whose plan file is gone, is not held back. A writer plan file that exists but fails to read or validate, or whose run records cannot be folded into it, fails the command, since its status is unknown. A file named as a plan skips this check. A file is not added either while one of its ready entries names, in its `- file:` path, a file that the text of a `blocked` block, or of an older engine's `parked` block, names, as an entire path in either slash direction, since a relaunch of that block may change that file. A file named as a plan skips this hold too, so name one only once no such block's text names the `- file:` path of one of its ready entries. Those blocks are the `blocked` and `parked` blocks of the given plans and of every plan in the `plans` rows of a run whose `backlogDir` arg is this folder, including a pass row's members, read with the records folded in memory. A note names each held entry with the block that holds it and that block's status, and for a `parked` block the statuses the user sets to release the file. Every other file builds. The file, not the entry, is held, since develop builds every ACTIONABLE entry of a file it builds. Such a plan file that is gone holds nothing, and one that exists but fails to read, validate or fold fails the command. The fold of every `todo` or `done` backlog file with an `ACTIONABLE` entry is written, built or not. An entry with no `- status:` line counts as `open`. A `done` file is
 set to `todo` on disk. A file already named as a plan is not added twice. The backlog files carry no file keys, so they take the given
 plans' keys, and the defaults when no plan is given. The flag lets the plan list be empty, and fails with a message that
 ends `nothing to build` when it then adds no file. A missing folder adds nothing. An `ordered: true` plan set is refused.
@@ -143,10 +145,11 @@ A member with no `model` or `effort` line runs on the run's default, which `--pa
 shares a pass with a member that sets that line only when the pass's value is `fable` or `max`. A pass
 whose members all lack the line carries no key for it. The `packed` note names each member whose own
 value differs from its pass's, as `<id> <key> <value> -> <pass value>`, with `default` for a member with
-no line. Blocks are sorted so the ones that can share a pass sit together, by model and then by effort:
-a set value other than the top rank (`fable` or `max`) first, then the top rank, then no line. Then they
-sort by the first file they touch, and fill passes up to `--loc-cap` (default 5000, scaled from
-resolve's 3000-line batches of about 150-200k tokens). A block over the cap, one with nothing open and
+no line. Blocks are sorted by model and then by effort: a set value other than the top rank (`fable` or
+`max`) first, then the top rank, then no line. Then they sort by the first file they touch. Each block
+joins the first pass it fits, one that stays under `--loc-cap` (default 5000, scaled from resolve's
+3000-line batches of about 150-200k tokens), whose members it can share a developer with, and that holds
+none of its issues. A block opens a new pass only when no pass fits. A block over the cap, one with nothing open and
 ACTIONABLE, or one whose open ACTIONABLE issue carries a `- branch:` line, stays its own row, so two
 unfinished branches never restore in one round 1. A pass row is `{ id: <first>-plus-<n>, mode: fix,
 model?, effort?, blocks: [{ id, planPath, issues }] }`, and develop writes each member's status and each
@@ -161,7 +164,7 @@ node tools/plan-pull.mjs pullable --backlog <dir> --files <path,...> [--exclude 
 Prints a JSON array of `{ id, title, planPath, file, size }`, one per entry a `plan-edit.mjs args --backlog <dir>`
 launch would build whose `- file:` path names one of `--files`, compared with forward slashes and no leading `./`.
 It folds the run records into each backlog file in memory and applies every file and entry rule of `--backlog`,
-the writer hold and the parked-with hold and its cut included. It also leaves out an entry with a `- branch:` line, which restores parked work and
+the writer hold, the blocked-block hold, and the parked-with hold and its cut included. It also leaves out an entry with a `- branch:` line, which restores parked work and
 builds alone, an entry with a `- pulled:` line, an entry whose id is not its file's name and `-<n>`, since develop
 finds a pulled entry's file from its id, and every entry of an `--exclude` file, which develop passes as the run's
 own plan files. It writes nothing, and each fold note it passes on starts `in memory only:`. So a listed entry

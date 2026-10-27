@@ -115,6 +115,25 @@ section('pullable lists a parked-with entry only once its block is done or skip,
   eq(read(file), before, 'the release happens in memory only');
 }
 
+section('pullable leaves out an entry whose file a blocked block names, in a built plan or an --exclude plan');
+{
+  const backlog = tmpDir();
+  const plans = tmpDir();
+  const built = join(plans, 'built.md');
+  writeFileSync(built, ['## Plan: stuck - the parser', 'mode: feature', 'gate: green', 'status: blocked', '', 'Edit src/held.js.', ''].join('\n'));
+  const excluded = join(plans, 'run.md');
+  writeFileSync(excluded, ['## Plan: halted - the loader', 'mode: feature', 'gate: green', 'status: blocked', '', 'Edit src/mine.js.', ''].join('\n'));
+  backlogFile(backlog, 'held', 'todo', [{ id: 'held-1', file: 'src/held.js:1' }]);
+  backlogFile(backlog, 'mine', 'todo', [{ id: 'mine-1', file: 'src/mine.js:1' }]);
+  backlogFile(backlog, 'free', 'todo', [{ id: 'free-1', file: 'src/free.js:1' }]);
+  const record = { runId: 'wf_b', timestamp: '2026-09-25T10:00:00.000Z', workflowName: 'develop-cycle', status: 'completed',
+    args: { runId: 'b1', backlogDir: backlog, plans: [{ id: 'stuck', planPath: built }] }, logs: [], result: null };
+  const { entries, notes, err } = pullable(configWith([record]), '--backlog', backlog, '--files', 'src/held.js,src/mine.js,src/free.js', '--exclude', excluded);
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  eq((entries ?? []).map((e) => e.id).join(','), 'free-1', 'only the entry no blocked block names is listed');
+  ok(/in memory only: held held-1 .*block stuck \(blocked\)/.test(notes) && /in memory only: held mine-1 .*block halted \(blocked\)/.test(notes), `each note names the blocked block: ${notes.trim()}`);
+}
+
 section('pullable fails on a missing flag or file list, and a missing folder lists nothing');
 {
   const backlog = tmpDir();

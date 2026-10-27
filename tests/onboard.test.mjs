@@ -60,7 +60,7 @@ withFixture(USER, (fx) => {
   eq(optionsOf(r.stdout, 'policy'), 'proactive focused auto', 'the user\'s own repo recommends proactive');
   eq(optionsOf(r.stdout, 'delivery'), 'commit stage', '...and commit');
   const optionLine = (flag) => r.stdout.split('\n').find((l) => l.startsWith(`  --policy ${flag}:`)) ?? '';
-  ok(optionLine('proactive').includes('also builds every ready entry in the project\'s backlog on each run whose blocks all end done, skipped or backlogged'), 'the proactive option says which runs build the backlog');
+  ok(optionLine('proactive').includes('also builds every ready entry in the project\'s backlog on each run once no block is left to build, apart from the files a blocked block\'s text names'), 'the proactive option says which runs build the backlog');
   ok(optionLine('proactive').includes('more tokens per run, and fewer in total than reaching the same code quality later'), '...and what that costs and saves');
   ok(!optionLine('focused').includes('backlog'), 'the focused option does not claim it');
   ok(/one AskUserQuestion call/.test(r.stdout), 'the operator is told to ask them in one call');

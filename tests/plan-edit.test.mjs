@@ -924,6 +924,17 @@ section('--pack joins blocks of different efforts into one pass on the highest, 
   ok(/raising mo model default -> fable, fo effort default -> max\n/.test(both.notes), `the note names each key's raise: ${both.notes.trim()}`);
 }
 
+section('--pack puts each block in the first pass it fits, not only the last one opened');
+{
+  const dir = tmpDir();
+  const sh = withLine(withLine(inventory(dir, 'sh', [{ id: 'sh-1', file: 'src/a.js', loc: 10 }]), 'model: sonnet'), 'effort: high');
+  const sn = withLine(inventory(dir, 'sn', [{ id: 'sn-1', file: 'src/b.js', loc: 10 }]), 'model: sonnet');
+  const fh = withLine(withLine(inventory(dir, 'fh', [{ id: 'fh-1', file: 'src/c.js', loc: 10 }]), 'model: fable'), 'effort: high');
+  const fit = packRows('model', sh, sn, fh);
+  eq(fit.rows, 'sh-plus-1:fable,sn:sonnet', `the fable block joins the sonnet/high pass, and the block with no effort stays alone: ${fit.notes.trim()}`);
+  eq(fit.plans[0]?.blocks?.map((m) => m.id).join(','), 'sh,fh', 'that pass holds the two blocks that share an effort');
+}
+
 section('--pack refuses an ordered plan set and a bad cap');
 {
   const dir = tmpDir();
@@ -1258,6 +1269,103 @@ section('--backlog holds a parked-with entry until its block is done or skip, th
   writtenBy('next', 'landed', [['n-1']], { dir: weigh, file: 'other.js', loc: 2000 });
   const weighed = argsWith(config, '--backlog', weigh, '--pack', weigh, '--loc-cap', '2500');
   eq(weighed.err ? weighed.err : JSON.parse(weighed.out).plans.map((r) => r.id).join(','), 'heavy-plus-1', '--pack weighs only the files of entries a developer will work, so a held entry\'s file adds no lines');
+}
+
+section('--backlog leaves out a file whose ready entry names a file a blocked block names, and builds the rest');
+{
+  const plans = tmpDir();
+  const backlog = tmpDir();
+  const work = fixture(['## Plan: stuck - change the parser', 'mode: feature', 'gate: green', 'status: blocked', '',
+    'Edit `./src/held.js` and src\\win.js, then the docs and src/free.js.orig.', '',
+    '## Plan: landed - the loader', 'mode: feature', 'gate: green', 'status: done', '', 'Edit src/free.js.', ''].join('\n'), 'work.md', plans);
+  const held = backlogFile(backlog, 'held', 'done', [{ id: 'held-1', file: 'src/held.js', status: 'open' }]);
+  backlogFile(backlog, 'win', 'todo', [{ id: 'win-1', file: 'src/win.js', status: 'open' }]);
+  backlogFile(backlog, 'free', 'todo', [{ id: 'free-1', file: 'src/free.js', status: 'open' }]);
+  backlogFile(backlog, 'suffix', 'todo', [{ id: 'suffix-1', file: 'held.js', status: 'open' }]);
+  backlogFile(backlog, 'longer', 'todo', [{ id: 'longer-1', file: 'src/held.js.bak/x.js', status: 'open' }]);
+  const heldBefore = read(held);
+  const run9 = record({ runId: 'wf_9', args: { runId: 'p9', backlogDir: backlog, plans: [{ id: 'stuck', planPath: work }, { id: 'landed', planPath: work }] } });
+
+  const { out, notes, err } = withBacklog(configWith([run9]), backlog);
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  eq(err ? '' : JSON.parse(out).plans.map((r) => r.id).join(','), 'free,longer,suffix',
+    'a file a blocked block names holds its entry back, in either slash direction and with a leading ./, and a file named only by a done block, a shorter path, a longer one or one with an added extension builds');
+  ok(/held held-1 in .*held\.md: block stuck \(blocked\) in .*work\.md names src\/held\.js, and a relaunch of it may change that file, so the file is left out/.test(notes), `the note names the entry, the blocked block and the file: ${notes.trim()}`);
+  ok(/held win-1 in .*win\.md: block stuck \(blocked\)/.test(notes), 'a backslash path in the block text holds its entry too');
+  eq(read(held), heldBefore, 'a held done file stays done on disk');
+
+  const otherFolder = record({ runId: 'wf_10', args: { runId: 'p10', backlogDir: tmpDir(), plans: [{ id: 'stuck', planPath: work }] } });
+  const elsewhere = withBacklog(configWith([otherFolder]), backlog);
+  ok(!/held /.test(elsewhere.notes), `a run on another backlog folder holds nothing here: ${elsewhere.notes.trim()}`);
+
+  const given = withBacklog(configWith([]), backlog, fixture(read(work).replace('status: done', 'status: todo'), 'given.md', plans));
+  ok(/held held-1 in .*held\.md: block stuck \(blocked\) in .*given\.md/.test(given.notes), `a blocked block of a plan named here holds too: ${given.notes.trim()}`);
+
+  const pass = record({ runId: 'wf_11', args: { runId: 'p11', backlogDir: backlog, plans: [
+    { id: 'gone', planPath: join(plans, 'gone.md') },
+    { id: 'stuck-plus-1', mode: 'fix', blocks: [{ id: 'stuck', planPath: work, issues: [] }, { id: 'landed', planPath: work, issues: [] }] },
+  ] } });
+  const member = withBacklog(configWith([pass]), backlog);
+  ok(!member.err, `a row whose plan file is gone holds nothing and fails nothing: ${member.err ?? ''}`);
+  ok(/held held-1 in .*held\.md: block stuck \(blocked\) in .*work\.md/.test(member.notes), `a blocked member of a pass row holds its files: ${member.notes.trim()}`);
+
+  const old = fixture(read(work).replace('status: blocked', 'status: parked'), 'old.md', plans);
+  const parked = withBacklog(configWith([record({ runId: 'wf_12', args: { runId: 'p12', backlogDir: backlog, plans: [{ id: 'stuck', planPath: old }] } })]), backlog);
+  ok(/held held-1 in .*held\.md: block stuck \(parked\) in .*old\.md/.test(parked.notes), `an older engine's parked block holds its files too: ${parked.notes.trim()}`);
+  ok(/held held-1 in .*held\.md: block stuck \(parked\).*so the file is left out\. A parked block is never relaunched, so set stuck in its plan file to skip to drop it, to todo to rebuild it, or to backlogged only when a backlog entry carries its work\./.test(parked.notes),
+    'and the note names every way the user releases it');
+  ok(!/never relaunched/.test(given.notes), 'a blocked holder\'s note names no parked way out');
+
+  writeFileSync(work, `${read(work)}\n${read(work)}`);
+  ok(/cannot read the blocked blocks of .*work\.md/.test(withBacklog(configWith([run9]), backlog).err ?? ''), 'a built plan that fails to validate fails loudly instead of releasing the entries it may hold');
+}
+
+section('--backlog matches a writer whose runId the header title rewrites, and reads only block status edits');
+{
+  const plans = tmpDir();
+  const backlog = tmpDir();
+  const stuck = backlogFile(plans, 'stuck', 'blocked', [{ id: 'stuck-1', file: 'w.js' }]);
+  const writer = backlogFile(plans, 'wx', 'done', [{ id: 'wx-1', file: 'w.js' }]);
+  const issues = backlogFile(plans, 'host', 'todo', [{ id: 'wx', file: 'w.js' }]);
+  const header = (name, blockId, runId) => fixture([`## Plan: ${name} - backlog from block ${blockId} of run ${runId}`, 'mode: fix', 'gate: green', 'status: todo', '',
+    `### [${name}-1] ${name}`, '- file: a.js:1', '- decision: ACTIONABLE', '- status: open', '', 'What.', ''].join('\n'), `${name}.md`, backlog);
+  header('from-dash', 'stuck', 'p — 1');
+  header('from-spaced', 'stuck', ' p2 ');
+  header('from-wx', 'wx', 'p3');
+  const dash = record({ runId: 'wf_d', args: { runId: 'p — 1', backlogDir: backlog }, blocks: [[status('stuck', 'blocked', stuck)]] });
+  const spaced = record({ runId: 'wf_s', args: { runId: 'p2', backlogDir: backlog }, blocks: [[status('stuck', 'blocked', stuck)]] });
+  const both = record({ runId: 'wf_w', args: { runId: 'p3', backlogDir: backlog }, blocks: [[status('wx', 'done', writer), status('wx', 'fixed', issues)]] });
+  const { out, notes, err } = withBacklog(configWith([dash, spaced, both]), backlog);
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  eq(err ? '' : JSON.parse(out).plans.map((r) => r.id).join(','), 'from-wx', 'a runId the title parser rewrites still names its writer, so its blocked writer holds its file');
+  ok(/left out .*from-dash\.md: the block that wrote it, stuck \(blocked\)/.test(notes), `an em dash runId matches its rewritten header: ${notes.trim()}`);
+  ok(/left out .*from-spaced\.md: the block that wrote it, stuck \(blocked\)/.test(notes), 'a header runId with surrounding spaces matches its record');
+  ok(!/host\.md no longer holds wx/.test(notes), 'an issue status edit with the writer block\'s id is not read as a block edit');
+}
+
+section('args --fold-only writes the folds and cuts, sets no done file to todo, and prints nothing');
+{
+  const backlog = tmpDir();
+  const reopen = backlogFile(backlog, 'reopen', 'done', [{ id: 'o-1', file: 'b.js', status: 'open' }]);
+  const built = backlogFile(backlog, 'built', 'todo', [{ id: 'b-1', file: 'a.js', status: 'open' }]);
+  const given = inventory(tmpDir(), 'given', [{ id: 'g-1', file: 'x.js' }]);
+  const landed = backlogFile(tmpDir(), 'landed', 'done', [{ id: 'landed-1', file: 'w.js' }]);
+  const parkedWith = '**Parked with:** block landed. Hold this entry until that block is done or skip.';
+  const released = fixture(['## Plan: released - backlog from block landed of run p1', 'mode: fix', 'gate: green', 'status: todo', '',
+    '### [r-1] r-1', '- file: c.js:1', '- decision: ACTIONABLE', '- status: open', '', 'What.', '**Fix:** fix it.', parkedWith, ''].join('\n'), 'released.md', backlog);
+  const config = configWith([
+    record({ blocks: [[status('built', 'done', built), status('b-1', 'fixed', built)], [status('g-1', 'fixed', given)]] }),
+    record({ runId: 'wf_p1', args: { runId: 'p1', backlogDir: backlog, plans: [{ id: 'landed', planPath: landed }] } }),
+  ]);
+  const { out, err } = argsWith(config, given, '--backlog', backlog, '--fold-only');
+  ok(!err, `it succeeds although nothing is left to build: ${err ?? ''}`);
+  eq(out, '', 'it prints nothing on stdout');
+  ok(/^status: done$/m.test(read(built)) && /^- status: fixed$/m.test(read(built)) && /^synced: /m.test(read(built)), 'the backlog fold is written');
+  ok(/^- status: fixed$/m.test(read(given)), 'and so is the fold of a plan named here');
+  ok(/^status: done$/m.test(read(reopen)) && !/^status: todo$/m.test(read(reopen)), 'a done file with a ready entry stays done');
+  ok(!read(released).includes('**Parked with:**') && read(released).includes('**Fix:** fix it.\n'), 'the line of an entry parked with a done block is cut on disk');
+  ok(/usage:/.test(argsWith(config, '--backlog', backlog, '--fold-only', '--pack', backlog).err ?? ''), '--fold-only with --pack is a usage error');
+  ok(/usage:/.test(argsWith(config, '--fold-only').err ?? ''), 'and so is --fold-only with no plan and no --backlog');
 }
 
 for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });

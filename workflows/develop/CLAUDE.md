@@ -155,16 +155,19 @@ shows.
    exception: §6 sets it `done`, never `todo`. A flip made before the first step 3 is overwritten by
    the run's own status edit. Records are deleted after `cleanupPeriodDays` (30 by default), so run
    step 3 within that window or the statuses of a finished run are lost.
-6. **Build the backlog, then land the run on the user's branch.** Under `proactive`, once every
-   block of the plan is `done`, `skip` or `backlogged` and before the landing below, build the ready
-   backlog entries once, in the same run worktree. A `blocked` block holds this build back, since
-   §5 works a block's backlog file only once that block is `done`, `skip` or `backlogged`, and a
-   relaunch of a `blocked` block may still append to its file. This guard covers this plan's blocks
-   only. `args --backlog` holds back the file of a block of any plan by the same rule (§10 step 4).
-   When the run lands with a block in any other status, such as a `blocked` block when
-   the user stops the plan or an older engine's `parked` block, skip the build for that landing and
-   say so in the run's summary. First apply §10 step 1 to the folder, so an entry whose fix the run
-   already made is closed. Then run
+6. **Build the backlog, then land the run on the user's branch.** Under `proactive`, once the plan
+   has no `todo` block left and before the landing below, build the ready backlog entries once, in
+   the same run worktree. A `blocked` block, or an older engine's `parked` one, holds back only the
+   backlog work on the files its text names. `args --backlog` leaves out its own backlog file, and
+   each file with a ready entry whose `- file:` path that block's text names, and notes each held
+   entry with that block (§10 step 4). Every other ready entry builds. The build needs a run
+   worktree that holds only accepted work, since its round 1 halts on unstaged work and builds on
+   the index it finds. So when `git -C <the run worktree> diff` is not empty, `git -C <the run
+   worktree> status --porcelain` lists a `??` file, or a `blocked` block halted as a held park,
+   with `acceptance-regression` or with a commit-mode commit that did not land (step 5), settle
+   the run worktree and that block first (§6). When the user stops the plan with a `todo` block
+   left, or with the run worktree unsettled, skip the build for that landing and say so in the run's summary. First apply §10 step 1 to
+   the folder, so an entry whose fix the run already made is closed. Then run
    `node <plan-edit.mjs> args --backlog <backlogDir> --pack <the run worktree>` and launch with its
    output as steps 3 and 4 say. This build takes the ready entries that no developer pulled beside its
    block (§4), since `args --backlog` leaves out an entry with a `- pulled:` line. When it exits 1 with
@@ -328,9 +331,9 @@ to the backlog (§10). The policies differ as follows.
   in connected code when the fix is low risk under the risk questions (§6). It leaves every other
   pre-existing finding there, such as a nit, unchanged. A fix block leaves each pre-existing finding in
   connected code unchanged, as a fix block does under `focused`. The developer also records each cleanup
-  outside task code that it noticed and did not make. A run whose blocks all end `done`, `skip` or
-  `backlogged` also builds every ready entry in the project's backlog (§2 step 6), so it fixes issues
-  across the codebase over time. It uses more tokens per run, and fewer in total than reaching the same
+  outside task code that it noticed and did not make. A run whose plan has no `todo` block left also
+  builds every ready entry in the project's backlog that no `blocked` or `parked` block holds (§2 step 6), so it
+  fixes issues across the codebase over time. It uses more tokens per run, and fewer in total than reaching the same
   code quality later.
 - **Pulling** happens only under `proactive`, in round 1 of every feature, section and fix block. Once
   the developer has read its block, it runs `plan-pull.mjs pullable` with the files its block will
@@ -910,8 +913,12 @@ back in the code, so it gets a new entry whose `**What:**` names theirs.
 
 When the user asks to work the backlog:
 
-1. Run `node <project-settings.mjs> backlog --root <root> --repo <target.repo>` and read each file
-   in the folder it prints. For each entry with a `**Closed by:**` line and a `- status:` of `open`
+1. Run `node <project-settings.mjs> backlog --root <root> --repo <target.repo>`, which prints the
+   folder. Then run `node <plan-edit.mjs> args --backlog <that folder> --fold-only`, which writes
+   every finished run's statuses into the folder's `todo` and `done` files that hold an ACTIONABLE
+   entry, sets no `done` file to `todo` and prints nothing. It runs before every read and hand edit
+   below, since a later fold would overwrite a hand edit made before it. Then read each file in the
+   folder. For each entry with a `**Closed by:**` line and a `- status:` of `open`
    or `needs-attention`, confirm the accepted baseline holds the fix. When it does, set
    `- status: fixed` and leave the entry out of the steps below, since the writers' dedup treats an
    open entry as still holding the defect. When the code does not hold the fix and the entry carries
@@ -929,9 +936,7 @@ When the user asks to work the backlog:
    after its `**Fix:**` line, where `<id>` is a block of the run the `**Closed by:**` line names. The
    decision keeps `args --backlog` from releasing it, since `args` looks the block up in the run the
    file's header names. Step 3 owns an entry once it carries that line. Otherwise treat the
-   entry like the rest. Last, apply step 5 to the folder. Step 5 there sees only the statuses an
-   earlier `args` call folded, so a fix that a finished launch's record holds and no `args` call has
-   folded yet closes nothing until a later `args` call folds it and step 5 runs again.
+   entry like the rest. Last, apply step 5 to the folder.
 2. List only the entries that wait on the user, grouped by severity, highest first, with the entries
    that carry no severity last. An entry waits on the user while its `- decision:` is `NEEDS_USER` or
    `DEFER`, or while it is ACTIONABLE and its `- status:` is `needs-attention`, which a fix that failed
@@ -973,15 +978,22 @@ When the user asks to work the backlog:
    sets each `done` one to `todo`, and prints an unordered set, so it refuses an ordered plan file.
    It leaves out a file while the block that wrote it is not `done`, `skip` or `backlogged` (§5). It matches the run records whose `runId`
    arg and block id match the file's header, and whose `backlogDir` arg, when they keep one, names
-   this folder. The `backlogDir` test is there because a run of another project may share the `runId`
-   and block id. It finds the block's plan file in those records' status edits or in the rows of their
+   this folder. An older record with no args stands for its run through the `runId` its result
+   echoes. The `backlogDir` test is there because a run of another project may share the `runId`
+   and block id. It finds the block's plan file in those records' block status edits or in the rows of their
    `plans` arg. A header that names a pass or one of its members matches that pass's row. It reads the
    block's status in its plan file with those records folded in, without writing that file. A file
    whose block no record names, such as one whose records expired (§2 step 5), or whose plan file is
    gone, is not held back. A block's plan file that exists but fails to read or validate, or whose run
    records cannot be folded into it, fails the command, since that block's status is unknown. A file
    named on the command line skips this check, so name one only once its writer block is `done`,
-   `skip` or `backlogged`. A file that holds an ACTIONABLE
+   `skip` or `backlogged`. It also leaves out a file with a ready entry whose `- file:` path the text
+   of a `blocked` block, or of an older engine's `parked` block, names, since a relaunch of that
+   block may change that file, and notes each held entry with that block. Those blocks are the
+   `blocked` and `parked` blocks of the plans named on the command line and of every plan a run on
+   this folder built. A file named on the command line skips this hold too, so name one only once
+   no such block's text names the `- file:` path of one of its ready entries. The file is held, not the entry alone,
+   since develop builds every ACTIONABLE entry of a file it builds. A file that holds an ACTIONABLE
    entry with `- status: needs-attention`, such as one whose entry the user approved again in step
    3, is never added, so name it as a file. A file whose `status:` is not `todo`, such as a `done`
    file whose needs-attention entry the user approved again, first takes §2 step 5's order: run

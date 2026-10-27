@@ -44,8 +44,9 @@ change neither causes nor exposes. `proactive` is for the best code. Its develop
 builds each feature and section block with the change that has the best long-term result. In those
 blocks, it also fixes a defect the connected code already had when the fix is low risk. It records a
 cleanup outside task code, such as a clearer name, in the backlog and leaves the code unchanged. A
-`proactive` run whose blocks all end done, skipped or backlogged also builds every ready entry in the
-project's backlog before it lands, so it fixes issues across the codebase over time. Under `proactive`,
+`proactive` run whose plan has no todo block left also builds every ready entry in the project's
+backlog before it lands, apart from the files a blocked block's text names, so it fixes issues
+across the codebase over time. Under `proactive`,
 each block's first developer also takes ready backlog entries whose fixes sit in the files its block
 changes, up to what it can hold, and fixes them beside its block. A tool picks the entries it may take,
 and the developer decides which of them fit. Acceptance checks each taken entry like a fix entry. An

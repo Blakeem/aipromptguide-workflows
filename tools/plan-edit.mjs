@@ -8,7 +8,7 @@
 //
 //   node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>
 //   node tools/plan-edit.mjs move <src.md|src-name> <issue-id> <dest.md|dest-name> <block-id>
-//   node tools/plan-edit.mjs args [<plan.md|plan-name> ...] [--expect <wf-run-id>] [--backlog <dir>] [--pack <repo> [--loc-cap <n>]]
+//   node tools/plan-edit.mjs args [<plan.md|plan-name> ...] [--expect <wf-run-id>] [--backlog <dir>] [--pack <repo> [--loc-cap <n>] | --fold-only]
 //
 // It parses nothing of its own. plan-block.mjs locates the metadata runs and reports their positions in the
 // RAW bytes, so a BOM'd or CRLF file splices without corruption, and the edited text goes back through that
@@ -32,7 +32,7 @@ import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } fr
 import { homedir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { RUN_KEYS, listObject, parseBlocks, parseFileKeys, resolveRoadmap, validate } from './plan-block.mjs';
+import { RUN_KEYS, TITLE_SPLIT_RE, listObject, parseBlocks, parseFileKeys, resolveRoadmap, validate } from './plan-block.mjs';
 
 const USAGE = `usage:
   node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>
@@ -41,14 +41,16 @@ const USAGE = `usage:
   node tools/plan-edit.mjs move <src.md|src-name> <issue-id> <dest.md|dest-name> <block-id>
       cut one "### [<id>]" entry and append it, verbatim, to the end of a fix-mode block.
   node tools/plan-edit.mjs args [<plan.md|plan-name> ...] [--expect <wf-run-id>] [--backlog <dir>]
-                            [--pack <repo> [--loc-cap <lines>]]
+                            [--pack <repo> [--loc-cap <lines>] | --fold-only]
       fold every finished develop run's status edits into the plan files, then print develop's
       args { goal, ordered, suite, sweep, plans, blockTool }, where blockTool is the plan-block.mjs
       beside this tool. --expect fails unless that run's record exists.
       --backlog adds each backlog file in <dir> whose status is todo or done and that holds an open
       ACTIONABLE entry with no "- pulled:" or "**Parked with:**" line and no needs-attention
       ACTIONABLE entry, and sets a done one to todo. It leaves out a file while the block that wrote
-      it, which the run records name, is not done, skip or backlogged in its plan file. It cuts the
+      it, which the run records name, is not done, skip or backlogged in its plan file. It also
+      leaves out a file whose ready entry names, in its "- file:" line, a file that the text of a
+      blocked or parked block names, in a given plan or in a plan a develop run on <dir> built. It cuts the
       "**Parked with:** block <id>" line of an open ACTIONABLE entry once that block, in the run
       the file's header names, is done or skip in its plan file. It writes the folded statuses and
       cuts of every todo or done backlog file with an ACTIONABLE entry. It needs a plan set with
@@ -56,6 +58,7 @@ const USAGE = `usage:
       --pack groups todo fix blocks into passes of at most --loc-cap lines (default 5000) of the
       files their open ACTIONABLE issues name, so one set of agents builds several small blocks.
       A pass runs on the strongest model and the highest effort among its members.
+      --fold-only writes the same folds and cuts, sets no done file to todo, and prints nothing.
       All-or-nothing: one bad edit in any file writes no file at all.
 
 a bare plan-name resolves to <CLAUDE_CONFIG_DIR | ~/.claude>/plans/<name>.md`;
@@ -526,6 +529,8 @@ const blockStatus = (block) => block.preamble.values.status ?? 'todo';
 const BACKLOG_STATUSES = ['todo', 'done'];
 /** The repo path an entry's `- file:` line names, without its `:<line>` suffix, or '' when it names none. */
 export const entryPath = (entry) => (keyOf(entry, 'file') ?? '').replace(/:\d+$/, '');
+/** A repo path as an entry's "- file:" line spells it: forward slashes, no leading "./". */
+export const repoPath = (path) => path.trim().replace(/\\/g, '/').replace(/^\.\//, '');
 
 const isOpenActionable = (entry) => keyOf(entry, 'decision') === 'ACTIONABLE' && (keyOf(entry, 'status') ?? 'open') === 'open';
 
@@ -588,6 +593,11 @@ function reopenDone(plan) {
 const WRITER_TITLE = /^backlog from block ([a-z0-9]+(?:-[a-z0-9]+)*) of run (.+)$/;
 // A relaunch of the writing block may still append to its file, so develop works the file only after these.
 const WRITER_FINISHED = ['done', 'skip', 'backlogged'];
+// A block status edit, as against an issue's: the two status sets share no value.
+const BLOCK_STATUSES = RUN_KEYS.preamble.keys.status;
+
+/** A runId as a parsed header title holds it, since the title parser splits at a spaced dash and rejoins with " - ". */
+const titleRunId = (runId) => runId.split(TITLE_SPLIT_RE).join(' - ').trim();
 
 /** A folder's comparable form, so a trailing slash or another separator still names the same folder. */
 const dirKey = (path) => fileKey(resolve(path));
@@ -603,9 +613,10 @@ function writerBlocks(records, backlogDir, developRunId, blockId) {
     if (typeof planPath === 'string' && isAbsolute(planPath) && typeof id === 'string') found.set(`${fileKey(planPath)}\u0000${id}`, { planPath, id });
   };
   const folder = dirKey(backlogDir);
-  const wrote = (r) => r.developRunId === developRunId && (r.backlogDir === null || dirKey(r.backlogDir) === folder);
+  const runId = titleRunId(developRunId);
+  const wrote = (r) => r.developRunId !== null && titleRunId(r.developRunId) === runId && (r.backlogDir === null || dirKey(r.backlogDir) === folder);
   for (const r of records.filter(wrote)) {
-    for (const e of r.edits.filter((x) => x.id === blockId)) add(e.planPath, e.id);
+    for (const e of r.edits.filter((x) => x.id === blockId && x.key === 'status' && BLOCK_STATUSES.includes(x.value))) add(e.planPath, e.id);
     for (const row of r.rows) {
       const members = Array.isArray(row?.blocks) ? row.blocks : [];
       if (row?.id === blockId && members.length === 0) add(row.planPath, row.id);
@@ -696,13 +707,75 @@ function releaseParked(plan, backlogDir, records, note) {
   return { path: plan.path, text, blocks: validate(parseBlocks(text), plan.path) };
 }
 
-/** The note for a backlog file its unfinished writer holds back, with the way out for a writer no relaunch can finish. */
-function heldBackNote(path, { planPath, id, status }) {
-  // `parked` is what an older engine wrote for a park. develop never selects it, so only the user can release the file.
-  const wayOut = status === 'parked'
+/** The way out of a hold by a `parked` block, an older engine's park, which develop never selects, so only the user releases it. */
+function parkedWayOut(id, status) {
+  return status === 'parked'
     ? ` A parked block is never relaunched, so set ${id} in its plan file to skip to drop it, to todo to rebuild it, or to backlogged only when a backlog entry carries its work.`
     : '';
-  return `left out ${path}: the block that wrote it, ${id} (${status}) in ${planPath}, is not done, skip or backlogged.${wayOut}\n`;
+}
+
+/** The note for a backlog file its unfinished writer holds back. */
+function heldBackNote(path, { planPath, id, status }) {
+  return `left out ${path}: the block that wrote it, ${id} (${status}) in ${planPath}, is not done, skip or backlogged.${parkedWayOut(id, status)}\n`;
+}
+
+// A block a relaunch may still build: `blocked`, or an older engine's `parked` once the user sets it todo.
+const RELAUNCHABLE = ['blocked', 'parked'];
+
+/**
+ * Each `blocked` or `parked` block, with the run records folded in memory, of the plans `given` names and of every
+ * plan whose block a develop run on `backlogDir` built, as { planPath, id, status, text }. A plan file that is gone
+ * holds none. One that exists but fails to read, validate or fold throws, since its blocked blocks are unknown.
+ */
+function blockedBlocks(backlogDir, given, records) {
+  const folder = dirKey(backlogDir);
+  const paths = new Map();
+  const add = (path) => {
+    if (typeof path === 'string' && isAbsolute(path) && !paths.has(fileKey(path))) paths.set(fileKey(path), path);
+  };
+  for (const p of given) add(resolve(p.path));
+  for (const r of records.filter((x) => x.backlogDir !== null && dirKey(x.backlogDir) === folder)) {
+    for (const row of r.rows) {
+      add(row?.planPath);
+      for (const m of Array.isArray(row?.blocks) ? row.blocks : []) add(m?.planPath);
+    }
+  }
+  const found = [];
+  for (const planPath of paths.values()) {
+    let plan = null;
+    try {
+      plan = foldRecords(loadPlan(planPath), records, () => {});
+    } catch (err) {
+      if (err.message.startsWith('no such plan file:')) continue;
+      throw new Error(`cannot read the blocked blocks of ${planPath}, a plan a develop run on ${backlogDir} built or one named here (${err.message}). A blocked or parked block holds back each ready backlog entry whose file its text names, so fix the plan file or the record and run again`);
+    }
+    for (const block of plan.blocks.filter((b) => RELAUNCHABLE.includes(blockStatus(b)))) found.push({ planPath, id: block.id, status: blockStatus(block), text: block.text });
+  }
+  return found;
+}
+
+const escapeRe = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** Whether `text` names the repo path `path` as an entire path, with or without a leading "./", in either slash direction. */
+function namesRepoFile(text, path) {
+  const edge = '[\\w./-]';
+  return new RegExp(`(?:(?<!${edge})|(?<=(?<!${edge})\\./))${escapeRe(path)}(?!\\.?[\\w/-])`).test(text.replace(/\\/g, '/'));
+}
+
+/**
+ * Each ready entry of `plan`'s todo or done blocks whose `- file:` path a blocked or parked block's text names, as
+ * { entry, file, holder }, since a relaunch of that block may change that file.
+ */
+function blockedHolds(plan, blocked) {
+  const holds = [];
+  for (const block of plan.blocks.filter((b) => BACKLOG_STATUSES.includes(blockStatus(b)))) {
+    for (const entry of block.issues.filter((e) => isReady(e, block))) {
+      const file = repoPath(entryPath(entry));
+      const holder = file ? blocked.find((b) => namesRepoFile(b.text, file)) : null;
+      if (holder) holds.push({ entry: entry.id, file, holder });
+    }
+  }
+  return holds;
 }
 
 /**
@@ -710,27 +783,37 @@ function heldBackNote(path, { planPath, id, status }) {
  * line of each released parked-with entry cut, as plans with their `original` text. A `chosen` file also has its done
  * blocks set to todo. A file whose writing block, which the
  * records of runs on `dir` name through the file's header, is not done, skip or backlogged is never chosen. A file whose writing block no
- * record names is chosen when it meets the other rules. Every folded file is returned, so
+ * record names is chosen when it meets the other rules. A file with a ready entry whose file a blocked or parked block's text names
+ * is never chosen, since develop builds every ACTIONABLE entry of a file it builds. Every folded file is returned, so
  * the caller writes the fold of a file no launch builds, such as one whose fix failed. A fold never changes an
  * entry's decision, so a file with no ACTIONABLE entry is skipped before it is folded, which keeps its records
- * from blocking the launch.
+ * from blocking the launch. With `choose` false, no file is chosen, and the writer hold and the blocked-block hold are
+ * not looked up.
  */
-export function foldBacklog(dir, given, records, note) {
+export function foldBacklog(dir, given, records, note, { choose = true } = {}) {
   const taken = new Set(given.map((p) => fileKey(p.path)));
-  const folds = [];
+  const judged = [];
   for (const path of backlogPaths(dir, note)) {
     if (taken.has(fileKey(path))) continue;
     const plan = loadPlan(path);
     const holdsActionable = plan.blocks.some((b) => BACKLOG_STATUSES.includes(blockStatus(b)) && b.issues.some((e) => keyOf(e, 'decision') === 'ACTIONABLE'));
     if (!holdsActionable) continue;
     const folded = releaseParked(foldRecords(plan, records, note), dir, records, note);
-    const buildable = folded.blocks.some(isBacklogBlock);
+    const buildable = choose && folded.blocks.some(isBacklogBlock);
     const writer = buildable ? unfinishedWriter(folded, dir, records, note) : null;
     if (writer) note(heldBackNote(path, writer));
-    const chosen = buildable && !writer;
-    folds.push({ ...(chosen ? reopenDone(folded) : folded), original: plan.text, chosen });
+    judged.push({ path, plan, folded, open: buildable && !writer });
   }
-  return folds;
+  // Looked up once every file's own holds are read, and only when a file may still build.
+  const blocked = judged.some((j) => j.open) ? blockedBlocks(dir, given, records) : [];
+  return judged.map(({ path, plan, folded, open }) => {
+    const holds = open ? blockedHolds(folded, blocked) : [];
+    for (const { entry, file, holder } of holds) {
+      note(`held ${entry} in ${path}: block ${holder.id} (${holder.status}) in ${holder.planPath} names ${file}, and a relaunch of it may change that file, so the file is left out.${parkedWayOut(holder.id, holder.status)}\n`);
+    }
+    const chosen = open && !holds.length;
+    return { ...(chosen ? reopenDone(folded) : folded), original: plan.text, chosen };
+  });
 }
 
 // =============================================================================
@@ -782,15 +865,16 @@ function passSetting(key, values) {
   return strongest;
 }
 
-/** 0 for a stated value other than the top rank (fable or max), 1 for the top rank, 2 for no line, so blocks that can share a pass sort together. */
+/** 0 for a stated value other than the top rank (fable or max), 1 for the top rank, 2 for no line. */
 const shareRank = (key, value) => (!value ? 2 : value === STRENGTH[key][0] ? 1 : 0);
 
 /**
  * The args with every todo fix block that has open ACTIONABLE work packed into passes of at most `cap`
  * lines. Blocks are sorted by the `shareRank` of their developer model, then of their effort, then by the
- * first file they touch, so a pass holds blocks that can share one developer and neighbouring code. A block
- * over the cap alone, one with nothing ACTIONABLE, or one whose open ACTIONABLE entry carries a `- branch:`
- * line stays its own row. A pass sits where its first member did.
+ * first file they touch, so neighbouring code packs together. Each block joins the first pass it fits, one
+ * under the cap whose members it can share a developer with and whose issues it does not repeat, and opens a
+ * new pass only when none fits. A block over the cap alone, one with nothing ACTIONABLE, or one whose open
+ * ACTIONABLE entry carries a `- branch:` line stays its own row. A pass sits where its first member did.
  */
 function packPasses(args, folded, repo, cap, note) {
   if (args.ordered) throw new Error('--pack regroups fix blocks, so it needs a plan set with ordered: false');
@@ -809,13 +893,16 @@ function packPasses(args, folded, repo, cap, note) {
     || shareRank('effort', a.effort) - shareRank('effort', b.effort) || a.first.localeCompare(b.first) || a.index - b.index);
 
   const passes = [];
-  let open = null;
-  for (const c of candidates) {
-    const added = [...c.files].filter(([f]) => !open?.files.has(f)).reduce((sum, [, loc]) => sum + loc, 0);
-    const clash = open && c.issues.some((id) => open.issues.has(id));
-    const joined = [...(open?.members ?? []), c];
+  const fits = (pass, c) => {
+    const added = [...c.files].filter(([f]) => !pass.files.has(f)).reduce((sum, [, loc]) => sum + loc, 0);
+    const clash = c.issues.some((id) => pass.issues.has(id));
+    const joined = [...pass.members, c];
     const shared = passSetting('model', joined.map((m) => m.model)) !== null && passSetting('effort', joined.map((m) => m.effort)) !== null;
-    if (!open || clash || !shared || open.loc + added > cap) {
+    return !clash && shared && pass.loc + added <= cap;
+  };
+  for (const c of candidates) {
+    let open = passes.find((pass) => fits(pass, c));
+    if (!open) {
       open = { members: [], files: new Map(), issues: new Set(), loc: 0 };
       passes.push(open);
     }
@@ -858,11 +945,14 @@ function runArgs(argv, note, invokedScript) {
   const paths = [];
   for (let i = 0; i < argv.length; i++) {
     if (!argv[i].startsWith('--')) { paths.push(argv[i]); continue; }
+    if (argv[i] === '--fold-only') { flags[argv[i]] = true; continue; }
     if (!['--expect', '--backlog', '--pack', '--loc-cap'].includes(argv[i]) || !argv[i + 1]) throw new Error(USAGE);
     flags[argv[i]] = argv[++i];
   }
   const cap = flags['--loc-cap'] === undefined ? DEFAULT_LOC_CAP : Number(flags['--loc-cap']);
+  const foldOnly = flags['--fold-only'] === true;
   if ((!paths.length && !flags['--backlog']) || !Number.isInteger(cap) || cap < 1 || (flags['--loc-cap'] && !flags['--pack'])) throw new Error(USAGE);
+  if (foldOnly && flags['--pack']) throw new Error(USAGE);
   const expect = flags['--expect'] ?? null;
   const configDir = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
   const records = findRunRecords(configDir).map(readRunRecord).filter(Boolean);
@@ -873,7 +963,7 @@ function runArgs(argv, note, invokedScript) {
   if (expect && !records.some((r) => r.runId === expect)) {
     throw new Error(`no develop run record for ${expect} under ${join(configDir, 'projects')} — the run is still going, or Claude Code moved its run records (update findRunRecords in tools/plan-edit.mjs)`);
   }
-  const backlog = flags['--backlog'] ? foldBacklog(flags['--backlog'], plans, records, note) : [];
+  const backlog = flags['--backlog'] ? foldBacklog(flags['--backlog'], plans, records, note, { choose: !foldOnly }) : [];
   const known = [...plans, ...backlog];
   for (const r of records.filter((x) => x.cut.length && !known.some((p) => x.cut.some((line) => namesPlan(line, p.path))))) {
     note(`skipped ${r.cut.length} status line(s) the runtime cut short in run ${r.runId} (${r.path}), since their surviving text names no plan given here\n`);
@@ -882,9 +972,13 @@ function runArgs(argv, note, invokedScript) {
   const added = backlog.filter((f) => f.chosen);
   const writes = [...folded.map((f, i) => ({ f, was: plans[i].text })), ...backlog.map((f) => ({ f, was: f.original }))];
   const flush = () => { for (const { f, was } of writes) if (f.text !== was) writeFileSync(f.path, f.text); };
+  if (foldOnly) {
+    flush();
+    return '';
+  }
   if (!folded.length && !added.length) {
     flush();
-    throw new Error(`no backlog file in ${flags['--backlog']} is todo or done and holds an entry with decision ACTIONABLE, status open and no pulled line or held Parked with line, and no ACTIONABLE entry with status needs-attention, with the block that wrote it done, skip or backlogged, so there is nothing to build`);
+    throw new Error(`no backlog file in ${flags['--backlog']} is todo or done and holds an entry with decision ACTIONABLE, status open and no pulled line or held Parked with line, and no ACTIONABLE entry with status needs-attention, with the block that wrote it done, skip or backlogged, and no ready entry whose file a blocked or parked block names, so there is nothing to build`);
   }
   const merged = mergeArgs(folded, added);
   if (flags['--backlog'] && merged.ordered) throw new Error('--backlog adds fix files that build unordered, so it needs a plan set with ordered: false');

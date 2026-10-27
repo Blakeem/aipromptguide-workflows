@@ -157,6 +157,19 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-26
 
+- **`plan-edit.mjs args --fold-only` writes the run statuses without printing launch args.** It writes every
+  fold and cut that `args` writes, sets no `done` backlog file to `todo`, and prints nothing. The develop guide's
+  "Working the backlog" step 1 runs it before it reads or edits the backlog files, so a fix a finished launch made
+  shows as `fixed` there.
+- **develop and refine need the `blockTool` arg.** Each throws without it. `plan-edit.mjs args` prints it
+  for develop. For refine it is the `plan-block.mjs` that the pre-launch command
+  `node <plan-block.mjs> <planPath> --list` runs. A launch you build by hand must add it.
+- **`plan-edit.mjs args --pack` packs blocks of different models and efforts.** A pass runs on its strongest
+  member's model and highest effort, and the `packed` note names each member it raises. Each block joins the
+  first pass it fits, so blocks that can share a pass no longer end in separate passes.
+- **debug's review units are larger.** The default of `gen-units.mjs --unit-loc` is 3500 lines, up from 2000.
+- **A develop block holds more work.** The develop guide's §1 joins behaviors that edit the same files and
+  can be accepted together into one block, up to about 350k tokens of round-1 developer context.
 - **A closing pass's backlog entries build without triage once their block lands.** An entry with a
   `**Parked with:**` line now takes its decision by the same rule as any other entry. `plan-edit.mjs
   args --backlog` holds it while the block that line names is not `done` or `skip`. Then it cuts the
@@ -179,12 +192,15 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 - **develop's closing steps are short.** The result's `nextStep` tells Claude to land the run with
   `wt.mjs close` and to report the run's summary. It no longer re-runs the gates, views the accepted diff,
   reads the review files or audits the DISMISSED files, since acceptance and the gate of `close` cover them.
-- **A `proactive` develop run builds the backlog's ready entries.** Before a run whose blocks all end done, skipped or
-  backlogged lands, Claude builds every `todo` or `done` backlog file that holds an `ACTIONABLE` entry with
+- **A `proactive` develop run builds the backlog's ready entries.** Before a run whose plan has no todo block left
+  lands, Claude builds every `todo` or `done` backlog file that holds an `ACTIONABLE` entry with
   `status: open` in one more launch in the same run worktree. `plan-edit.mjs args --backlog <dir>` selects those files,
   sets a `done` one back to `todo`, and works with `--pack`. It needs an unordered plan set, and it works with no plan
   file. It skips a file that holds an `ACTIONABLE` entry whose fix failed, until you skip that entry. It also skips a
-  file while the block that wrote it, in any plan, is not done, skipped or backlogged. A file whose entry
+  file while the block that wrote it, in any plan, is not done, skipped or backlogged, and a file with a ready
+  entry whose `- file:` path the text of a `blocked` block, or of an older engine's `parked` one, names, since a
+  relaunch of that block may change that file. A note names each held entry with that block. Every other file builds.
+  Claude skips the build while a `blocked` block's work is left unsettled in the run worktree. A file whose entry
   you approve again is built by naming it. A `focused` run builds the backlog only when you ask. The setup question for
   the change policy says so.
 - **Each change policy states how develop treats the code.** A `proactive` run owns the code it touches.
