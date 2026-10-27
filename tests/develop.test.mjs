@@ -76,7 +76,7 @@ const HOLD_ESCALATED = 'A line whose reason starts `ESCALATED:` records a defaul
 const FAIL_NEXT_ROUND = '• Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.';
 const FAIL_PARKS = '• Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.';
 // The closing acceptance's two gap kinds, per frame: a blocking gap parks the block, and every other gap goes to the backlog.
-const closingBar = (kinds) => `CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file: • Blocking: a regression, a gate not satisfied, ${kinds}, a defect at medium severity or higher that this block's diff introduces, a wrong risk answer whose changes no blind review has read, which is every gap your RISK AUDIT finds in a risk file, or a path that changed after its round's snapshot, which is every gap your TREE CHECK finds. • Not blocking: every other gap, such as a low or nit finding or a cleanup. A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a gap, sorted by the kinds above, unless the line it contests is a held escalation.`;
+const closingBar = (kinds) => `CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file: • Blocking: a regression, a gate not satisfied, ${kinds}, a defect at medium severity or higher that this block's diff introduces, a wrong risk answer or a sweep line that is missing or disagrees with the change, in changes no blind review has read, which is every gap your RISK AUDIT finds in a risk file, or a path that changed after its round's snapshot, which is every gap your TREE CHECK finds. • Not blocking: every other gap, such as a low or nit finding or a cleanup. A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a gap, sorted by the kinds above, unless the line it contests is a held escalation.`;
 const CLOSING_BAR = {
   feature: closingBar('a criterion of this block not met, such as a change that is not reachable'),
   fix: closingBar('an ACTIONABLE entry whose root cause is not closed (an incomplete claimed fix, an unconfirmed STALE claim or an ACTIONABLE entry reported SKIPPED or left unreported), a change made for an entry that is not ACTIONABLE or that no FIXED claim accounts for'),
@@ -345,7 +345,7 @@ section('acceptance audits the risk file of each round since the block\'s last b
   // The tree acceptance stages must be the snapshot its round's developer judged, or a change after it went unjudged.
   const TREE_CMDS = (round) => `TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file (create E:/r/runs/t/scratch/ if needed) and never the real index: cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/r/runs/t/scratch/snapshot-block-a-r${round}-acceptance.index" GIT_INDEX_FILE="E:/r/runs/t/scratch/snapshot-block-a-r${round}-acceptance.index" git -C E:/repo add -A GIT_INDEX_FILE="E:/r/runs/t/scratch/snapshot-block-a-r${round}-acceptance.index" git -C E:/repo write-tree`;
   for (const [a, round] of [[a1, 1], [a3, 3]]) {
-    ok(a.includes(`${TREE_CMDS(round)} Delete the temporary index file once the last command has printed the tree id. Then run \`git -C E:/repo diff --name-only a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 <the tree id the last command printed>\`. It lists each path that differs from a1b2c3d4e5f60718293a4b5c6d7e8f9012345678, the snapshot round ${round}'s developer took after its last change. A listed path that is untracked build output or a cache, which a gate or test run regenerates, is no gap. Any other listed path changed after that snapshot, so the tree you would stage is not the tree that developer handed on, which is a gap.`),
+    ok(a.includes(`${TREE_CMDS(round)} Delete the temporary index file once the last command has printed the tree id. Then run \`git -C E:/repo diff --name-only a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 <the tree id the last command printed>\`. It lists each path that differs from a1b2c3d4e5f60718293a4b5c6d7e8f9012345678, the snapshot round ${round}'s developer took after its last change. A listed path that is untracked build output or a cache that a gate or test run regenerates is no gap. Any other listed path changed after that snapshot, so the tree you would stage is not the tree that developer handed on, which is a gap.`),
       `r${round}: acceptance snapshots the tree on its own index file and compares it with the round's returned snapshot`);
   }
   ok(a1.includes('which is a gap. Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review. Otherwise return risk_misclassified=false.'),
@@ -364,18 +364,43 @@ section('acceptance audits the risk file of each round since the block\'s last b
     && a3.includes('<snapshot> and <base> are the tree ids on the first lines of the files named beside each command:')
     && a3.includes('check each answer it gives against the hunks of its own round under the RISK QUESTIONS below.'),
   'acceptance reads the tree ids from the risk files and checks each answer against its own round\'s hunks');
-  ok(a3.includes('A missing file, a missing `Snapshot:` first line in an audited round\'s file or in the base file named beside its command, a change it does not judge low risk, and an answer the hunks contradict are each a gap. TREE CHECK.') && a3.includes('which is a gap. Write each gap in your review file and return risk_misclassified=true, which sends the next round to a blind review. Otherwise return risk_misclassified=false.'),
+  ok(a3.includes('A missing file, a missing `Snapshot:` first line in an audited round\'s file or in the base file named beside its command, a change it does not judge low risk, and an answer the hunks contradict are each a gap. SWEEP CHECK.') && a3.includes('which is a gap. Write each gap in your review file and return risk_misclassified=true, which sends the next round to a blind review. Otherwise return risk_misclassified=false.'),
     'a wrong, missing, snapshotless or not-low-risk answer is a gap that sets risk_misclassified');
   ok(a3.includes('RISK QUESTIONS - answer each one for a change:') && a3.includes('A doubtful answer counts as yes. A change is low risk when every answer is no.'),
     'the audit renders the same risk questions');
   ok(a3.includes('a failed risk audit, or a regression') && a3.includes('risk audit clean, no regression →'),
     'a failed risk audit is a gap, and a pass needs a clean one');
-  ok(a3.includes("A gap for a wrong risk answer, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review after the verdict that names it and before any later acceptance."),
+  ok(a3.includes("A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review after the verdict that names it and before any later acceptance."),
     'an earlier risk gap or tree-check gap counts as closed');
   ok(a3.includes("This round's blind code review passed, or did not run because the developer judged each change since the block's last blind review low risk, which your RISK AUDIT checks.")
     && !/skipped because the developer changed nothing/.test(a3), 'the opening says why no blind review may have run');
   const accSchema = r.byLabel('acceptance block-a r3')[0]?.opts?.schema ?? {};
   ok(String(accSchema.required ?? '').includes('risk_misclassified') && accSchema.properties?.risk_misclassified?.type === 'boolean', 'risk_misclassified is a required boolean');
+  // The sweep: the developer records it in CLASSIFY and acceptance's risk audit checks the latest audited round's.
+  const d1 = flat(r.prompt('develop block-a r1'));
+  const q1 = flat(r.prompt('quality block-a r1'));
+  ok(d1.includes('Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed, list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A round that changed nothing writes "No changes." and no `## Sweep` section.'),
+    'CLASSIFY has the developer write a Sweep section for each changed name or phrase');
+  ok(a3.includes('SWEEP CHECK. Read the `## Sweep` section of E:/r/runs/t/risk-block-a-r3.md, the file of the latest round named above.')
+    && a3.includes('A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap.')
+    && a3.includes('A round whose file reads "No changes." has no section and no gap here.')
+    && !a1.includes('SWEEP CHECK'),
+  'a missing sweep line or an unaffected hit that disagrees is a gap in the latest audited round, and a reviewed round has no sweep to audit');
+  ok(d1.includes("that the sweep of the latest such round lists each changed name or phrase of that round's hunks and each hit it marks unaffected still agrees with the change"),
+    'the developer is told the acceptance check on the sweep');
+  const REACH_SENTENCE = 'When a fact must be stated in more than one place, keep it in as few places as possible, at most one copy for users and one for agents, and update every copy in the same change.';
+  ok(d1.includes(REACH_SENTENCE) && q1.includes(REACH_SENTENCE), 'the REACH step of the developer and the blind reviewer states a fact in as few places as possible');
+  // A rule that two prompts state renders from one constant.
+  const SPEC_CASES = "the plan prescribes the code, this block's text excludes it, or another block of the plan owns it";
+  ok(d1.includes(`whose reason is that ${SPEC_CASES}. Its entire line is`) && a3.includes(`declines a finding because ${SPEC_CASES}.`),
+    'the developer and acceptance render the SPEC cases from one constant');
+  const TREE_EXEMPT = 'untracked build output or a cache that a gate or test run regenerates';
+  ok(d1.includes(`differs from the snapshot your CLASSIFY phase returns only in ${TREE_EXEMPT}`) && a3.includes(`A listed path that is ${TREE_EXEMPT} is no gap.`),
+    'the developer and acceptance render the tree-check exemption from one constant');
+  const SWEEP_GAP = 'a sweep line that is missing or disagrees with the change';
+  ok(a3.includes(`A gap for a wrong risk answer, for ${SWEEP_GAP}, or for a path that changed after its round's snapshot,`) && flat(r.prompt('develop block-a r2')).includes(`A gap for a wrong risk answer, for ${SWEEP_GAP}, or for a path that changed after its round's snapshot,`)
+    && String(accSchema.properties?.risk_misclassified?.description ?? '').includes(SWEEP_GAP),
+  'the risk-gap kinds read the same in acceptance, the developer and the schema');
   const fixRun = await run({
     develop: firstRound(fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), fixDev([{ issue_id: 'i-1', status: 'FIXED' }], { review_needed: false })),
     quality: CLEAN, acceptance: firstRound(FIX_GAP, FIX_PASS),
@@ -399,7 +424,7 @@ section('acceptance audits the risk file of each round since the block\'s last b
   const devSchema = r.byLabel('develop block-a r1')[0]?.opts?.schema ?? {};
   ok(String(devSchema.required ?? '').includes('review_needed') && devSchema.properties?.review_needed?.type === 'boolean' && !('produced' in (devSchema.properties ?? {})),
     'review_needed is a required boolean return, and produced is gone');
-  ok(dev.includes("A gap for a wrong risk answer, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff."),
+  ok(dev.includes("A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff."),
     'a round answering a review is told a risk gap or a tree-check gap holds no work');
 
   const passedMis = await run({ ...GREEN_RUN, acceptance: { ...ACC_PASS, risk_misclassified: true } }, ONE_BLOCK);
@@ -532,7 +557,7 @@ section('a block whose last round fails gets one closing pass, whose acceptance 
     'each recorded entry names the park that would hold the code it describes');
   ok(closer.includes('When the dedup forbids the append, list the id of the entry that holds the item in recorded_entries instead.'),
     'an item an entry already holds is listed by that entry\'s id, not appended again');
-  ok(closer.includes("A gap for a wrong risk answer, or for a path that changed after its round's snapshot, takes no fix and no log, since a blind review of this block's changes follows you."),
+  ok(closer.includes("A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since a blind review of this block's changes follows you."),
     'a wrong risk answer or a tree-check gap is left to the closing blind review');
   ok(closer.includes('Write E:/r/runs/t/risk-block-a-r2.md'), 'it writes its own risk file');
   const closingSchema = lands.byLabel('develop-closing block-a')[0]?.opts?.schema ?? {};
@@ -1767,7 +1792,7 @@ section('a fix block restores each branch its ACTIONABLE entries link, in round 
   ok(r1.indexOf('c. Once every branch has applied, run `git -C E:/repo add -N -- <file>` on each new file the restores created') > apply, 'it marks the restored new files intent-to-add once every branch applied');
   ok(/Confirm `git -C E:\/repo diff --cached --stat` is the same/.test(r1), 'it confirms the staged index is unchanged');
   ok(r1.includes(`An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished work. On top of its branch's work, which step b restored or the accepted baseline already holds, or on the accepted baseline when it carries no "- branch:" line, close the gaps its **What:** lists and meet ${ORIGIN_CRITERIA}. Those gaps are copied from a review. A review is another agent's claim.`)
-    && r1.includes("A gap you refute gets its DISMISSED line under rule 1. A gap for a wrong risk answer, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line and the origin criteria hold, never STALE."),
+    && r1.includes("A gap you refute gets its DISMISSED line under rule 1. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line and the origin criteria hold, never STALE."),
     'every park entry, with a branch or without, meets its origin block\'s criteria and is reported FIXED, never STALE, with no fix or log owed for a listed risk gap');
   ok(r1.includes('reverse each branch step b already restored, the last one first, with `git -C E:/repo diff --binary <branch>^1 <branch> | git -C E:/repo apply -R`')
     && r1.includes('set restore_failed to the branch that failed and why (missing, or the `git apply` error), set restored_branches to 0, and STOP. Every branch stays as it was.')
@@ -1780,7 +1805,7 @@ section('a fix block restores each branch its ACTIONABLE entries link, in round 
   const accept = flat(prompt('acceptance fix-a r2'));
   ok(accept.includes('An entry with an "- origin:" line holds a parked block\'s unfinished work. When it also carries a "- branch:" line, the developer restored that branch\'s work into the unstaged diff in round 1, unless the accepted baseline already held it, and its fix is that entire branch work and every change made on it: read every hunk of `git -C E:/repo diff <branch>^1 <branch>` in the unstaged diff or the accepted baseline.'),
     'acceptance judges the entire branch work as that entry\'s fix, wherever it is');
-  ok(accept.includes(`The gaps its **What:** lists are another agent's claims, which the developer confirmed or refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/r/runs/t/gate/DISMISSED-fix-a.md declines that gap under the OVERRIDE and ledger-line rules above, and meets ${ORIGIN_CRITERIA}. A gap for a wrong risk answer, or for a path that changed after its round's snapshot, that its **What:** lists counts as closed, since this block's first blind review, which runs before any acceptance, judges the entire restored work.`),
+  ok(accept.includes(`The gaps its **What:** lists are another agent's claims, which the developer confirmed or refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/r/runs/t/gate/DISMISSED-fix-a.md declines that gap under the OVERRIDE and ledger-line rules above, and meets ${ORIGIN_CRITERIA}. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, that its **What:** lists counts as closed, since this block's first blind review, which runs before any acceptance, judges the entire restored work.`),
     'acceptance checks the origin block\'s criteria and reachability for every park entry, with a branch or without, and counts a listed risk gap closed');
   // Stage delivery: the user may still reject the staged work, so the branch stays until the user commits it.
   ok(accept.includes(`9. LIST LANDED BRANCHES, only on a pass that returns regression=false, once step 8 has staged the block: return branches_kept = ${LANDED_BRANCHES}, or []. Delete no branch:`)
@@ -2528,7 +2553,7 @@ section('MATRIX case 6 is SPLIT in every mode: 6a fixes a VERIFIED plan defect, 
     ok(/→ DROP \+ LOG, in the SPEC reason form below\. The DROP reason names the read or probe that showed\s+the prescription works as written\. A conflict that no read or probe settles goes to 7\./.test(dev),
       `${mode}: a 6b drop rests on a checked fact, and an unsettled conflict escalates`);
     // A decline whose reason is the plan cannot name its reason in code terms, so it takes the one form the blind reviewer skips.
-    ok(flat(dev).includes('never cite a plan id, block id, issue id or plan clause. One reason form is the exception, for a decline whose reason is that the plan prescribes the code, that this block\x27s text excludes it, or that another block of the plan owns it. Its entire line is: `<file:line> — <finding gist> — SKIPPED: SPEC: <file:line of that code> — <which of the three holds, and the read or probe that showed it, ≤15 words>` Its reason names the code\'s file:line and quotes no plan text. The blind reviewer skips such a line, and acceptance checks it against the plan.'),
+    ok(flat(dev).includes('never cite a plan id, block id, issue id or plan clause. One reason form is the exception, for a decline whose reason is that the plan prescribes the code, this block\x27s text excludes it, or another block of the plan owns it. Its entire line is: `<file:line> — <finding gist> — SKIPPED: SPEC: <file:line of that code> — <which of the three holds, and the read or probe that showed it, ≤15 words>` Its reason names the code\'s file:line and quotes no plan text. The blind reviewer skips such a line, and acceptance checks it against the plan.'),
       `${mode}: the ledger-reason rule gains the SPEC form for a plan-prescribed or other-block decline`);
     ok(dev.includes(`DROP (1, 2, 6b or 8): append ONE terse line to ${STATE}/gate/DISMISSED-${id}.md`),
       `${mode}: LOGGING routes the DROP at 1, 2, 6b and 8, not the whole of 6`);
@@ -4341,12 +4366,12 @@ section('every develop prompt that writes a round file says to Read an earlier l
 section('the developer confirms each review finding, suggested fix and Fix line before it acts on one');
 // A reviewer and a fix entry each make claims another agent wrote, so the developer checks them against the code.
 {
-  const REVIEW_CLAIMS = "A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as \"CONTESTS DISMISSAL\" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, or for a path that changed after its round's snapshot, follows its own rule below.";
+  const REVIEW_CLAIMS = "A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as \"CONTESTS DISMISSAL\" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, follows its own rule below.";
   const rework = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, ONE_BLOCK);
   ok(flat(rework.prompt('develop block-a r2')).includes(REVIEW_CLAIMS), 'a round that answers a review confirms each finding and treats its fix as a hint');
   ok(!flat(rework.prompt('develop block-a r1')).includes("A review is another agent's claim."), 'round 1, which answers no review, carries no such rule');
   // A refuted finding would otherwise be re-dropped against the contested-dismissal bullet and logged against the risk-gap note.
-  ok(flat(rework.prompt('develop block-a r2')).includes(`${REVIEW_CLAIMS} A gap for a wrong risk answer, or for a path that changed after its round's snapshot, takes no fix and no log`),
+  ok(flat(rework.prompt('develop block-a r2')).includes(`${REVIEW_CLAIMS} A gap for a wrong risk answer, for a sweep line that is missing or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log`),
     'the risk-gap rule the claim check defers to follows it');
   const closing = await run({ develop: (label) => (label.startsWith('develop-closing') ? { ...DEV_OK, review_needed: false, recorded_entries: [] } : DEV_OK),
     quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS) }, { ...ONE_BLOCK, maxRounds: 1 });
@@ -4726,7 +4751,7 @@ section('a SPEC decline rests on the plan, so the blind reviewer skips it and ac
   ok(q.includes('A line whose reason starts `SKIPPED: SPEC:` rests on a plan you cannot read, and a later stage checks it, so skip its finding and never contest it.'),
     'the blind reviewer skips a SPEC line and never contests it');
   for (const [mode, id, r] of FRAMES) {
-    ok(flat(r.prompt(`acceptance ${id}`)).includes("A line whose reason starts `SKIPPED: SPEC:` declines a finding because the plan prescribes the code at the file:line it names, or because this block's text excludes that code or another block of the plan owns it. Check it against this block's text and the plan's other blocks. When none of the three holds, the line declines nothing, so its finding counts as a gap."),
+    ok(flat(r.prompt(`acceptance ${id}`)).includes("A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because the plan prescribes the code, this block's text excludes it, or another block of the plan owns it. Check it against this block's text and the plan's other blocks. When none of the three holds, the line declines nothing, so its finding counts as a gap."),
       `${mode}: acceptance checks a SPEC line against the block's text and the other blocks' code`);
   }
 }

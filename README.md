@@ -155,6 +155,12 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-10-27
+
+- **develop's developer records a sweep of each change.** For each name or phrase a round changes, the
+  developer lists its search and each hit in a `## Sweep` section of its risk file. Acceptance checks
+  each sweep line, and a missing line or a hit that disagrees with the change is a risk-audit gap.
+
 ### 2026-10-26
 
 - **debug's verifier checks the fix it writes, and each finding travels as a file.** Each reviewer

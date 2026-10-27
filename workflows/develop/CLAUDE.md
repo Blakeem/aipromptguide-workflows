@@ -53,6 +53,9 @@ shows.
    chosen with its source, and each command or API behavior the block prescribes with its source or a
    probe. Routine work in an existing repo pattern skips this. A large open question goes to the
    investigate or docs workflow first.
+
+   **Name the input's sender.** A block that touches a network, an authentication path or a shared
+   resource names who sends its input and what limits that input.
 2. **Refine it, then get approval.** Run the refine workflow on the file until it returns `converged`,
    under the run-once rule in `workflows/refine/CLAUDE.md` §2 step 3, then the user approves the FINAL
    text. Approval comes after refine so the user signs off on what develop builds.
@@ -442,14 +445,15 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   that its round neither changed nor read is outside the self-review, since each earlier round's
   self-review judged that round's code, and each blind review judges the entire block diff. CLASSIFY
   answers the risk questions (§6) for each change its round made, writes `risk-<id>-rN.md`, which
-  starts with a snapshot of its round's tree (§6), and returns `review_needed` and the snapshot's
-  tree id as `risk_snapshot`. Each phase after BUILD runs a targeted test while it works. The gate
-  runs once more after the last phase that changed code, and that run's outcome is the one it
-  reports. Every gate run sets the shell tool's timeout to its maximum (600000 ms) and writes the
-  gate's entire output to a log under `scratch/`, which the agent then reads. A gate that may outlast
-  that timeout runs in the background and writes its exit code to a file beside the log, and the agent
-  waits for that file with one bounded loop that ends inside the timeout, then reads the log once.
-  Acceptance, the sweep and park run their gates the same way. A fix block's later round, and every
+  starts with a snapshot of its round's tree and ends with a sweep of each changed name or
+  phrase (§6), and returns `review_needed` and the snapshot's tree id as `risk_snapshot`. Each
+  phase after BUILD runs a targeted test while it works. The gate runs once more after the last
+  phase that changed code, and that run's outcome is the one it reports. Every gate run sets the
+  shell tool's timeout to its maximum (600000 ms) and writes the gate's entire output to a log
+  under `scratch/`, which the agent then reads. A gate that may outlast that timeout runs in the
+  background and writes its exit code to a file beside the log, and the agent waits for that
+  file with one bounded loop that ends inside the timeout, then reads the log once. Acceptance,
+  the sweep and park run their gates the same way. A fix block's later round, and every
   later round's pulled entries, start from the statuses the developer last reported, which the prompt
   lists. A phase with nothing to do for its round's changes is skipped. It
   routes each finding by the code zone it lies in, as §4 sets. It logs every finding it routes and does
@@ -567,10 +571,11 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   block its reachability. The gaps the entry's `**What:**` copies are another agent's claims. The
   round-1 developer confirms each against the code as it confirms a review finding, closes each one it
   confirms and declines each one it refutes with a DISMISSED line. Acceptance counts a listed gap closed
-  when the code closes it or a ledger line declines it. A listed gap for a wrong risk answer, or for a
-  path that changed after its round's snapshot, takes no fix and no log, and acceptance counts it
-  closed, since the block's first blind review judges the entire restored work. A park entry's
-  `- ledger:` line names the `DISMISSED-<id>.md` of the parked block, and its `- amended:` line names
+  when the code closes it or a ledger line declines it. A listed gap for a wrong risk answer,
+  for a sweep line that is missing or disagrees with the change, or for a path that changed
+  after its round's snapshot, takes no fix and no log, and acceptance counts it closed, since
+  the block's first blind review judges the entire restored work. A park entry's `- ledger:`
+  line names the `DISMISSED-<id>.md` of the parked block, and its `- amended:` line names
   the `AMENDED-<id>.md` files of the blocks its `- origin:` line names. The round-1 developer re-checks
   each line of that ledger as it re-checks an earlier launch's line, and copies each one it keeps into
   its own block's ledger, the one ledger the blind reviewer reads. It reproduces each such amendment's
@@ -660,11 +665,14 @@ when every answer is no. The developer writes the answers to `risk-<id>-rN.md` a
 `Snapshot: <tree id>`. The tree id is a snapshot of the round's working tree, which the developer
 makes with `git add -A` and `git write-tree` on a temporary index file under `scratch/`, seeded with
 a copy of the real index, and deletes that file once it prints the tree id. The real index, which
-holds the accepted baseline, is never written. The
-blind review runs in a block's first round with a satisfied gate in a launch, a fix block that
-restored a parked block's branch included. A later round gets one when a round since the block's
-last blind review returned `review_needed` true or no boolean, or an acceptance verdict since then
-returned `risk_misclassified` true. Any other round goes from the developer straight to acceptance.
+holds the accepted baseline, is never written. After its answers the risk file holds a `## Sweep`
+section. For each function, constant, field, message or rule phrase the round changed, it lists
+the search the developer ran and each hit, marked `updated` or `unaffected` with a few words of
+reason. A round that changed nothing writes no section. The blind review runs in a block's first
+round with a satisfied gate in a launch, a fix block that restored a parked block's branch
+included. A later round gets one when a round since the block's last blind review returned
+`review_needed` true or no boolean, or an acceptance verdict since then returned
+`risk_misclassified` true. Any other round goes from the developer straight to acceptance.
 Git holds one cumulative unstaged diff, so acceptance reads each audited round's own hunks from two
 snapshots. It runs `git diff <base> <snapshot>`, where `<snapshot>` is the line in that round's risk
 file and `<base>` is the line in the risk file of the round before it. The engine hands acceptance
@@ -676,9 +684,12 @@ last round returned with `git diff --name-only`. A path that differs is a risk-a
 changed after the developer handed its round on, unless it is untracked build output or a cache that a
 gate or test run regenerates. When the last round returned no snapshot, this check has nothing to
 compare, and an unreviewed round's missing snapshot is already a missing file. It checks each answer in
-the risk file of each round since the last blind review against that round's hunks. A missing file, a
-missing snapshot line in an audited round's file or in its base file, a change the file does not
-judge low risk and an answer the hunks contradict are each a gap, and the verdict returns
+the risk file of each round since the last blind review against that round's hunks. It also checks
+the sweep of the latest of those rounds: each changed name or phrase in that round's hunks needs a
+line, and each hit marked `unaffected` must still agree with the change. A missing file, a missing
+snapshot line in an audited round's file or in its base file, a change the file does not judge low
+risk, an answer the hunks contradict, a changed name or phrase with no sweep line and an
+`unaffected` hit that disagrees with the change are each a gap, and the verdict returns
 `risk_misclassified` true, which sends the next round to a blind review.
 
 **Closing pass.** When round `maxRounds` ends without a passed acceptance, one more developer runs,
@@ -699,14 +710,15 @@ The closing acceptance sorts each gap into one of two kinds. A blocking gap is a
 gate, an unmet criterion of a feature or section block, an ACTIONABLE entry of a fix block whose root
 cause is not closed, a change made for an entry that is not ACTIONABLE or a change no FIXED claim
 accounts for, a defect at medium severity or higher that the block's diff introduces, a wrong risk
-answer whose changes no blind review has read, or a path the tree check finds changed after its
-round's snapshot. Every other gap is not blocking, such as a low or nit
-finding or a cleanup. A finding the closing blind review raises against a dismissal is a gap of either
-kind by the same rule, unless it contests an `ESCALATED:` line acceptance holds. With no blocking gap,
-the closing acceptance stages the block, commits it in commit mode, and appends each gap that is not
-blocking as one entry in the block's backlog file, with a `- decision:` by §10's rule. The block syncs
-`done`, and its ledger status names the count of those entries. With a blocking gap, the block parks,
-and its park entry lists the blocking gaps first and names each entry the closing pass listed. Every
+answer or a sweep line that is missing or disagrees with the change, in changes no blind review
+has read, or a path the tree check finds changed after its round's snapshot. Every other gap is
+not blocking, such as a low or nit finding or a cleanup. A finding the closing blind review
+raises against a dismissal is a gap of either kind by the same rule, unless it contests an
+`ESCALATED:` line acceptance holds. With no blocking gap, the closing acceptance stages the
+block, commits it in commit mode, and appends each gap that is not blocking as one entry in the
+block's backlog file, with a `- decision:` by §10's rule. The block syncs `done`, and its ledger
+status names the count of those entries. With a blocking gap, the block parks, and its park
+entry lists the blocking gaps first and names each entry the closing pass listed. Every
 round before the closing pass keeps the bar where every gap fails acceptance.
 
 Gate semantics per block: `green` = build + the block's verification passed

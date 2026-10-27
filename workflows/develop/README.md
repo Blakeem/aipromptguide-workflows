@@ -102,11 +102,11 @@ Every block runs the same loop, up to `maxRounds`.
    mode it also commits it.
    It also rechecks every finding raised earlier in the block. A reason the developer gave for
    declining a finding counts only when the code supports it. For a round the blind reviewer did not
-   see, it checks each of the developer's risk answers against that round's own changes. A wrong answer
-   sends the next round to the blind reviewer. A plan amendment excuses a requirement only once
-   acceptance reproduces the defect the amendment names. In a fix block, an entry the developer did
-   not report counts as open. Before it stages, acceptance confirms that the staged changes hold only
-   work an earlier acceptance staged.
+   see, it checks each of the developer's risk answers and each sweep line against that round's own
+   changes. A wrong answer or a bad sweep line sends the next round to the blind reviewer. A plan
+   amendment excuses a requirement only once acceptance reproduces the defect the amendment names.
+   In a fix block, an entry the developer did not report counts as open. Before it stages,
+   acceptance confirms that the staged changes hold only work an earlier acceptance staged.
 4. If the last round fails, a **closing pass** runs one more developer, and no develop round follows
    it. It makes each fix that is low risk and records each risky fix in the project's backlog. A blind
    review follows it when its changes need one. Then acceptance runs once more and sorts each problem
@@ -151,8 +151,8 @@ directly.
 
 Run the tests yourself and read `git diff --cached`. The run folder `runs/<runId>/` holds the
 acceptance reviews, the quality reviews under `gate/`, the developer's risk answers for each round
-(`risk-<id>-rN.md`, which starts with the round's snapshot), each block's declined findings
-(`gate/DISMISSED-<id>.md`), any plan amendment
+(`risk-<id>-rN.md`, which starts with the round's snapshot and ends with its sweep of each changed
+name), each block's declined findings (`gate/DISMISSED-<id>.md`), any plan amendment
 (`AMENDED-<id>.md`), the questions that stopped an ordered run (`NEEDS-USER.md`), an unordered
 run's question for one block (`question-<id>.md`, which the park also copies into that block's backlog
 entry), the

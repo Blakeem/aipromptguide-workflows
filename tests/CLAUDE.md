@@ -186,6 +186,13 @@ against (halt); an unreachable feature does not (flag).
   `runs/<runId>/` outside `gate/` — NEEDS-USER, AMENDED, critiques and issue files all live there.
 - **debug hunts defects only.** Its inventory feeds an autonomous fixer, and an improvement list never
   converges. Improvements are `enhance`, which deliberately has no fix-mode output.
+- **The workflows serve any project and any user.** No rule, check or prompt sentence exists only to
+  serve the maintainer's own setup, such as a personal writing style, user-level CLAUDE.md rules, skills
+  or local paths. A user's own rules reach agents through that user's CLAUDE.md.
+- **A fact lives in as few places as possible.** Keep it in at most one copy for users (a README) and
+  one for agents (a CLAUDE.md or the prompt constant that renders it), and point every other place to
+  one of those. A rule that two prompts share lives in one constant that both render, as
+  `DOC_REGRESSION` and `SPEC_CASES` do in `develop-cycle.mjs`.
 
 ---
 
@@ -386,7 +393,9 @@ The Loops table also carries the **full** condition list, where the arrow had be
       condition is a documented behavior change; its `README.md` too if a human-visible behavior changed
 - [ ] `meta` still a pure literal, still LF-only (the suite checks both)
 - [ ] Prompt text changed? `node tools/gen-prompts.mjs` re-run, and its snapshot diff read for variants
-      the change was not meant to reach
+      the change was not meant to reach. Read `tests/snapshots/<engine>.prompts.md` for every prompt that
+      changed, as the agent that receives it reads it, since a constant's new sentence sits beside text
+      the edit did not show
 - [ ] Engine edited? `node tools/gen-flows.mjs` re-run and the updated `FLOW.md` committed (§7);
       a new agent, guard or terminal state needs a scenario in `tools/flows/<name>.flow.mjs` too
 - [ ] Root `README.md` changelog updated if a user would notice
