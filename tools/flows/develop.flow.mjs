@@ -50,7 +50,8 @@ const base = {
 
 // Agent returns carrying every attestation the engine reads. `review_needed` gates a later round's blind
 // review, and `unstaged_confirmed` is a HALT here rather than a warning — hence its own scenario below.
-const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, backlog_entries: 0, backlog_blocks: [], review_needed: true, risk_snapshot: 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', baseline_index_tree: 'c0ffee0000000000000000000000000000000001', launch_number: 1 };
+// `earlier_files: false` with both counts 0 makes the traced prompts show the absent-file wording.
+const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, dismissed_count: 0, backlog_entries: 0, backlog_blocks: [], review_needed: true, risk_snapshot: 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', baseline_index_tree: 'c0ffee0000000000000000000000000000000001', launch_number: 1, earlier_files: false };
 const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, contested_dismissals: 0 };
 const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, contested_dismissals: 0 };
 const ACC_PASS = { wrote_file: true, pass: true, staged: true, index_matched: true, index_tree: 'c0ffee0000000000000000000000000000000001', earlier_reviews_read: 0, reachable: true, regression: false, evidence_recorded: true, gap_count: 0, backlog_entries: 0, backlog_blocks: [] };

@@ -5,7 +5,7 @@ export const meta = {
   phases: [
     { title: 'Develop', detail: 'Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues, and works within the run\'s changePolicy in six phases, in this order. PATTERNS follows the repo\'s existing patterns. BUILD builds the block, then runs the gate. In a round that answers a review, a feature or section block\'s BUILD routes each finding and gap in it through the decision matrix in place of the build, and a fix block\'s BUILD routes them beside its entry rules. HARDEN handles edge cases, failure messages, logging, a test per risky path and cleanup at every tier in the code its round added or changed. SIBLINGS covers each sibling path of a fix. SELF-REVIEW applies the blind reviewer\'s severity scale, reach step and checklist to the code its round changed or read, since each earlier round had its own self-review and each blind review judges the entire block diff. CLASSIFY answers four risk questions (systems, paths, critical code, assumptions) for each change its round made, writes risk-<id>-rN.md with a Sweep section that lists the search it ran for each changed name or phrase, and returns review_needed, true when any change is not low risk. Each phase after BUILD runs a targeted test while it works, the gate runs once more after the last phase that changed code, and a phase with nothing to do for its round\'s changes is skipped. It leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision. changePolicy sets the routing over three code zones: task code (the code its block\'s required changes add or change, plus in a fix block the sibling paths of each ACTIONABLE entry\'s root cause, apart from code its block\'s text excludes or another block owns, plus under proactive the code each pulled backlog entry\'s fix adds or changes), connected code (what a reach step from the task code finds, apart from code its block\'s text excludes or another block owns) and other code. Under both policies it hunts only task code, fixes every finding there at every tier, a defect the accepted baseline already had included, and fixes each finding its diff introduces or exposes in connected code. Only a feature or section block also fixes a defect the accepted baseline already had in connected code that its diff neither introduces nor exposes, and only when that fix is low risk. A proactive block fixes any such defect, and a focused block only one in a function or method that holds task code. Other code is never changed. A finding its diff introduces or exposes there is closed at its source in task or connected code, or escalated when only a change in other code closes it. It logs to DECISIONS.md, as a FOCUSED or PROACTIVE line, each fix of a defect the accepted baseline already had that no requirement of its block names. Each real defect at low or above that the accepted baseline already had and that its zone routing leaves unchanged, under rule 2 or as a sibling path, apart from one in code another block owns, goes to its block\'s file in the project\'s backlog folder (args.backlogDir), a fix-mode plan file a later run builds, the ACTIONABLE entries without triage and the rest once the user triages them. A proactive developer also records there each cleanup outside task code that it noticed and did not make, such as a nit. Under both policies it also records a feature or refactor outside its block\'s scope, and each choice it escalated and proceeded past by a default. It sets each entry\'s decision by one rule: ACTIONABLE for a defect or cleanup with one clear, small fix that changes no user-visible behavior, stored data or public contract, and NEEDS_USER for every other entry. When a block\'s last allowed round ends without a passed acceptance, one more developer, the closing pass, makes each fix of the last review\'s findings and gaps that is low risk and records each one that is not as a backlog entry naming the fix. No develop round follows it, and a blind review follows it only when its changes owe one. Under proactive, the round-1 developer also takes the ready backlog entries in the files its block changes that tools/plan-pull.mjs lists and that fit its capacity, marks each with a pulled line, lists them in PULLED-<id>.md and builds their fixes beside its block.' },
     { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), reports every finding the diff introduces or exposes at every tier, from critical down to nit, under both change policies, and writes quality-review-<id>-rN.md. Clean means no finding and no contested dismissal. Runs in a block\'s first round with a satisfied gate in a launch, and in a later round only when a round since the block\'s last blind review returned review_needed true or no boolean, or the previous acceptance verdict returned risk_misclassified. Otherwise the round goes from the developer straight to acceptance. The closing pass gets one by the same rule, whatever its gate, and its findings go to the closing acceptance with no develop round between.' },
-    { title: 'Acceptance', detail: 'Plan-aware gate: every acceptance criterion of THIS block met + reachable + the block gate satisfied + no regression + every risk answer of each round since the block\'s last blind review holds against that round\'s own hunks and the latest such round\'s Sweep section lists each changed name or phrase and has no unaffected hit that disagrees (a wrong or missing one returns risk_misclassified, so the next round gets a blind review). Writes acceptance-review-<id>-rN.md; on pass, STAGES that block (git add), and in commit mode (args.commit) commits it with the block\'s title as the entire message — the accepted baseline advances. Before it stages, it confirms the index still holds the tree this run last recorded for it, and a changed index halts the run and parks the block. The closing acceptance, which reads the closing blind review\'s file when one ran, sorts each gap as blocking (a regression, a red gate, an unmet criterion or unreachable change, in fix mode an ACTIONABLE entry whose root cause is open, a change made for an entry that is not ACTIONABLE or a change no FIXED claim accounts for, a defect at medium or higher the block\'s diff introduces, a wrong risk answer or a sweep line that is missing or disagrees with the change, in changes no blind review read, or a path that changed after its round\'s snapshot) or not blocking (every other gap). With no blocking gap it lands the block and appends each gap it leaves as one backlog entry. With a blocking gap, the block parks. Under proactive, it also judges each pulled backlog entry as fix acceptance judges an issue. A pulled entry\'s gap fails a round, and the closing acceptance reverts each pulled change it does not confirm before it stages the block. A pulled entry parks its block only when the gates fail after that revert, since the block\'s own work then depends on it. Each pulled entry syncs fixed or stale when its block lands and the last verdict confirmed it, else needs-attention, and loses its pulled line, apart from one whose fix a saved park\'s branch holds, which the park entry names.' },
+    { title: 'Acceptance', detail: 'Plan-aware gate: every acceptance criterion of THIS block met + reachable + the block gate satisfied + no regression + every risk answer of each round since the block\'s last blind review holds against that round\'s own hunks and the latest such round\'s Sweep section lists each changed name or phrase, leaves out no hit a rerun of its search finds, and has no unaffected hit that disagrees (a wrong or missing one returns risk_misclassified, so the next round gets a blind review). Writes acceptance-review-<id>-rN.md; on pass, STAGES that block (git add), and in commit mode (args.commit) commits it with the block\'s title as the entire message — the accepted baseline advances. Before it stages, it confirms the index still holds the tree this run last recorded for it, and a changed index halts the run and parks the block. The closing acceptance, which reads the closing blind review\'s file when one ran, sorts each gap as blocking (a regression, a red gate, an unmet criterion or unreachable change, in fix mode an ACTIONABLE entry whose root cause is open, a change made for an entry that is not ACTIONABLE or a change no FIXED claim accounts for, a defect at medium or higher the block\'s diff introduces, a wrong risk answer or a sweep line that is missing, leaves out a hit, or disagrees with the change, in changes no blind review read, or a path that changed after its round\'s snapshot) or not blocking (every other gap). With no blocking gap it lands the block and appends each gap it leaves as one backlog entry. With a blocking gap, the block parks. Under proactive, it also judges each pulled backlog entry as fix acceptance judges an issue. A pulled entry\'s gap fails a round, and the closing acceptance reverts each pulled change it does not confirm before it stages the block. A pulled entry parks its block only when the gates fail after that revert, since the block\'s own work then depends on it. Each pulled entry syncs fixed or stale when its block lands and the last verdict confirmed it, else needs-attention, and loses its pulled line, apart from one whose fix a saved park\'s branch holds, which the park entry names.' },
     { title: 'Park', detail: 'On a block that did not accept within its round budget, or one the developer escalated: SAVES its work as a commit on the branch aipg-unfinished/<the block\'s backlog file id>, built with git plumbing through a temporary index so the repo\'s index stays untouched and no commit hook runs, then clears it from the tree, and appends one backlog entry that links the branch and says why the block parked. The block\'s plan status becomes backlogged once the park clears the tree, keeps the build green and confirms its entry, after a halt that cannot leave the block\'s work staged or committed, for a block whose work a green fix block can build: not a red-baseline block, nor a build-only block in a run with no test gate. After such a halt, a fix block\'s park also takes as a parent the tip of each branch its round 1 restored whose every entry the developer\'s last report gave FIXED, or whose diff the working tree still holds, deletes that branch and syncs its entry stale. Every other park syncs blocked, and nextStep says whether the operator sets it backlogged or rebuilds it from todo. A closing acceptance that finds a blocking gap parks its block with the closing pass\'s work, and the park entry lists the blocking gaps first and names each backlog entry the closing pass listed. An UNORDERED run continues past a budget park or a needs-user escalation; an ORDERED run, or any other escalation, stops. Nothing is destroyed — a fix-mode block built from the entry restores the branch\'s work in its round 1.' },
     { title: 'Sweep', detail: 'Only when the plan file asks for it (sweep: goal-coverage) and every non-skip block is done: an independent agent re-greps the whole surface from the GOAL, runs the full gates, spot-checks the staged diff, or in commit mode this launch\'s commits, writes SWEEP.md. Advisory — a dead sweep never halts.' },
   ],
@@ -463,10 +463,13 @@ const SPEC_CASES = "the plan prescribes the code, this block's text excludes it,
 // The blind variant (canContest=true) reads DISMISSED alone (see GATE_DIR) and may contest it. Only it
 // forbids prior reviews, which would anchor it (#5). Acceptance overrides instead. A fix acceptance also reads the
 // ledgers its park entries name. The blind reviewer reads only this block's ledger, so it sees only the lines copied in.
-const SETTLED = (id, canContest, originLedgers = false) => `Before reviewing, READ ${canContest ? 'this if it exists. It holds' : 'these if they exist. They hold'} the settled decisions:
-  • ${dismissedFile(id)} — findings the developer declined for THIS block, each with a one-line reason.
+// `dismissedAbsent` is true only when the engine knows the file does not exist (see fileTracker).
+const SETTLED = (id, canContest, originLedgers = false, dismissedAbsent = false) => (dismissedAbsent && canContest ? `Settled decisions: ${dismissedFile(id)} does not exist, so nothing is settled yet. Do not search for it elsewhere.
+Do NOT read prior review files, apart from the overwrite read the WRITE step names. Review the CURRENT
+diff FRESH, catching new or nearby issues.` : `Before reviewing, READ ${canContest ? 'this if it exists. It holds' : 'these if they exist. They hold'} the settled decisions:
+  • ${dismissedAbsent ? `${dismissedFile(id)} does not exist, so no finding of this block is declined.` : `${dismissedFile(id)} — findings the developer declined for THIS block, each with a one-line reason.
     It exists only once the developer has declined something, so a missing file or folder means nothing
-    is settled yet. Do not search for it elsewhere.${originLedgers ? `
+    is settled yet. Do not search for it elsewhere.`}${originLedgers ? `
   • each file that the "- ledger:" line of an ACTIONABLE entry of this block names — the findings that the
     developers of the parked block whose work that entry continues declined. The round-1 developer
     re-checked each of its lines against the code and copied each one it kept into ${dismissedFile(id)},
@@ -482,7 +485,7 @@ contradicts a reason, at any tier, raise the finding ONCE, prefixed "CONTESTS DI
 file:line that contradicts it. A line whose reason starts \`${SPEC_REASON}\` rests on a plan you cannot
 read, and a later stage checks it, so skip its finding and never contest it.` : ` Read prior review files only at your
 EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
-accepts the overwrite, and never use its content.`}`;
+accepts the overwrite, and never use its content.`}`);
 
 function gateOk(gate, dev) {
   if (!dev) return false;
@@ -505,7 +508,7 @@ function gateOk(gate, dev) {
 // so a round that only SKIPPED entries cannot claim work it never did. `closing` marks the closing pass.
 const developSchema = (mode, closing) => ({
   type: 'object',
-  required: ['plan_obtained', 'baseline_dirty_files', ...(COMMIT ? ['baseline_staged_files'] : []), 'baseline_index_tree', 'launch_number', ...(mode === 'fix' ? ['results', 'restore_failed', 'restored_branches'] : []), 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments', 'backlog_entries', 'backlog_blocks', 'review_needed', 'risk_snapshot', ...(closing ? ['recorded_entries'] : []), ...(PROACTIVE ? ['pulled_results'] : [])],
+  required: ['plan_obtained', 'baseline_dirty_files', ...(COMMIT ? ['baseline_staged_files'] : []), 'baseline_index_tree', 'launch_number', 'earlier_files', ...(mode === 'fix' ? ['results', 'restore_failed', 'restored_branches'] : []), 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments', 'dismissed_count', 'backlog_entries', 'backlog_blocks', 'review_needed', 'risk_snapshot', ...(closing ? ['recorded_entries'] : []), ...(PROACTIVE ? ['pulled_results'] : [])],
   properties: {
     // Proactive only: the statuses of the backlog entries round 1 took beside the block, in the shape of fix results.
     ...(PROACTIVE ? {
@@ -532,6 +535,8 @@ const developSchema = (mode, closing) => ({
     baseline_index_tree: { type: 'string', description: 'ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report "" on later rounds.' },
     // A launch has no id of its own, so its number is counted from the amendment headers earlier launches wrote.
     launch_number: { type: 'integer', description: 'ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds.' },
+    // A later stage calls a file absent only when no earlier launch left it and no developer round wrote it.
+    earlier_files: { type: 'boolean', description: 'ROUND 1 ONLY: true when this block\'s DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds.' },
     ...(mode === 'fix' ? {
       results: {
         type: 'array',
@@ -565,8 +570,8 @@ const developSchema = (mode, closing) => ({
       restore_failed: { type: 'string', description: 'ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or "" when every restore applied or none was due. Report "" on later rounds.' },
       restored_branches: { type: 'integer', description: 'ROUND 1 ONLY: how many branches your restore applied into the tree. 0 when none was due or a restore failed. Report 0 on later rounds.' },
     } : {}),
-    dismissed_count:   { type: 'integer', description: 'how many review findings you declined and logged to this block\'s DISMISSED file this round (0 if none)' },
-    // Required, unlike dismissed_count: an omitted field must not read as "none this round".
+    dismissed_count:   { type: 'integer', description: 'how many lines you appended to this block\'s DISMISSED file this round, such as a declined finding, an ESCALATED line or a ledger line copied in (0 if none)' },
+    // dismissed_count and plan_amendments are required: an omitted field must not read as "none this round".
     plan_amendments:   { type: 'integer', description: 'entries you appended to this block\'s AMENDED file this round (MATRIX 6a). Report 0 when there were none.' },
     // Acceptance's fix and closing schemas declare the same two fields. Each schema writes them out, since
     // tests/static.test.mjs reads only the fields a schema declares itself.
@@ -715,6 +720,8 @@ const SWEEP_SCHEMA = {
 // =============================================================================
 // Shared prompt fragments + decision matrix (developer-owned)
 // =============================================================================
+// Agents that wrote edits through a shell heredoc lost backslashes and backticks, and the gate caught it a cycle later.
+const FILE_WRITE_NOTE = 'Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.';
 const ENV = `${GOAL ? `GOAL (this run's ONE goal, split into the plan file's blocks): ${GOAL}\n` : ''}TARGET REPO: ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})
 ${REFERENCE_P ? `REFERENCE (a COMPLETED example to mirror for the canonical pattern): ${REFERENCE_P}\n` : ''}CONVENTIONS (match these): ${CONVENTIONS}
 ${CONVENTION_FILES_BLOCK}GATES (the commands that define "it works"):
@@ -723,7 +730,8 @@ ${CONVENTION_FILES_BLOCK}GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
-Write every scratch file, such as a plan block or a test log, under ${STATE_DIR}/scratch/, never under ${GATE_DIR}/.`;
+Write every scratch file, such as a plan block or a test log, under ${STATE_DIR}/scratch/, never under ${GATE_DIR}/.
+${FILE_WRITE_NOTE}`;
 
 // A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to
 // overwrite a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
@@ -1026,7 +1034,7 @@ against the CONVENTIONS.`;
 // SWEEP_GAP, the risk_misclassified schema description render them. riskAuditStep and sweepCheck state them in their own words.
 const WRONG_RISK_ANSWER = 'a wrong risk answer';
 const SWEEP_HEADING = '## Sweep';
-const SWEEP_GAP = 'a sweep line that is missing or disagrees with the change';
+const SWEEP_GAP = 'a sweep line that is missing, leaves out a hit, or disagrees with the change';
 const CHANGED_PATH = "a path that changed after its round's snapshot";
 const RISK_GAPS = `A gap for ${WRONG_RISK_ANSWER}, for ${SWEEP_GAP}, or for ${CHANGED_PATH},`;
 // A reviewer's finding, its suggested fix and a fix entry's **Fix:** line can each be wrong, so the developer
@@ -1103,7 +1111,7 @@ const REGRESSION_STEP = `REGRESSION: compare the unstaged diff against the accep
 const regressionExcuses = (mode) => `Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies ${UNCLAIMED_CODE}, and ${changeZones(mode)}. Nor does it count a removed defect that a ${LOGGED_FIX_TAG} line in DECISIONS.md names and that lies ${OWNED_CODE}, and ${changeZones(mode)}.${PROACTIVE ? ' Nor does it count a change that closes the defect of a pulled backlog entry and alters no other behavior.' : ''}`;
 // The tree-check exemption, rendered by the developer's RISK_CHECK and by acceptance's treeCheck.
 const TREE_EXEMPT = 'untracked build output or a cache that a gate or test run regenerates';
-const RISK_CHECK = `that each risk answer of a round no blind review judged holds against that round's own hunks, that the sweep of the latest such round lists each changed name or phrase of that round's hunks and each hit it marks unaffected still agrees with the change, that the tree it stages differs from the snapshot your CLASSIFY phase returns only in ${TREE_EXEMPT}`;
+const RISK_CHECK = `that each risk answer of a round no blind review judged holds against that round's own hunks, that the sweep of the latest such round lists each changed name or phrase of that round's hunks and each hit it marks unaffected still agrees with the change and a rerun of each line's search finds no hit the line leaves out, that the tree it stages differs from the snapshot your CLASSIFY phase returns only in ${TREE_EXEMPT}`;
 const ACCEPTANCE_CHECKS = {
   feature: `After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, ${RISK_CHECK}, and that the gate is satisfied. ${regressionExcuses('feature')}`,
   section: `After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, ${RISK_CHECK}, and that this block's gate meets its expectation. ${regressionExcuses('section')}`,
@@ -1142,6 +1150,7 @@ ${snapshotCommands(snapshotIndex(id, round))}
    ${SNAPSHOT_DELETE} After the first line, write one section per change, named by its file:line, with its four answers.
    Then write a \`${SWEEP_HEADING}\` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked \`updated\` or \`unaffected\` with a few words of reason. A
+   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
    round that changed nothing writes "No changes." and no \`${SWEEP_HEADING}\` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -1441,15 +1450,15 @@ block alone fills that. For each entry you take:
      When its fix breaks the gate and you cannot resolve it within that fix's own scope, revert that
      change surgically and report the entry FAILED.
 ${PULLED_REPORT}`;
-const pulledLaterNote = (p, lastPulled) => `PULLED ENTRIES. ${pulledFile(p.id)}, when it exists, lists the backlog entries round 1 took beside
+const pulledLaterNote = (p, lastPulled, none) => (none ? `PULLED ENTRIES. Round 1 took no backlog entry beside this block, so ${pulledFile(p.id)} lists none. Take no new entry, and report an empty pulled_results.` : `PULLED ENTRIES. ${pulledFile(p.id)}, when it exists, lists the backlog entries round 1 took beside
 this block. Take no new entry. Close a review gap on a pulled entry like any other gap, or revert that
 entry's change surgically and report it FAILED. ${PULLED_REPORT} Your earlier rounds last reported:
 ${reportedLines(lastPulled, 'no pulled entry')}
-Report each listed status again unless this round's work changes it.`;
+Report each listed status again unless this round's work changes it.`);
 
 // `launch` is the number this block's round-1 developer counted, or null before round 1 reports or when it reported none.
 // `lastFix` and `lastPulled` are the `[id, status]` pairs the developer last reported, which a later round starts from.
-const developPrompt = (p, round, reviewPath, launch, { lastFix = [], lastPulled = [] } = {}) => {
+const developPrompt = (p, round, reviewPath, launch, { lastFix = [], lastPulled = [], pulledNone = false, dismissedNone = false } = {}) => {
   const closing = round === CLOSING_ROUND;
   // Identical in every frame — only the task lines in DEVELOP_FRAME switch on mode.
   // Commit mode also counts staged files, since acceptance's commit would carry them unreviewed.
@@ -1464,10 +1473,11 @@ staged-only entries). ${COMMIT ? `Then run \`git -C ${REPO} diff --cached --name
 count of files it lists. If either count is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and
 return immediately with both counts. The run halts for the operator. If both are 0, ` : `If it is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and return
 immediately with that count. The run halts for the operator. If it IS 0, `}run \`git -C ${REPO} write-tree\`
-and report the tree id it prints as baseline_index_tree, then ${p.mode === 'fix'
+and report the tree id it prints as baseline_index_tree. Next, report earlier_files=true when ${dismissedFile(p.id)} or ${amendedFile(p.id)} exists,
+else false, before you write to either file. Then ${p.mode === 'fix'
       ? restoreOpening(p)
       : 'implement this block from\nscratch on top of the accepted baseline.'}${PROACTIVE ? `\n${pullStep(p)}` : ''}`
-    : `${PROACTIVE ? `${pulledLaterNote(p, lastPulled)}\n` : ''}${closing
+    : `${PROACTIVE ? `${pulledLaterNote(p, lastPulled, pulledNone)}\n` : ''}${closing
       ? `Round ${MAX_ROUNDS} ended without a passed acceptance, so you are this block's CLOSING PASS, and no
 develop round follows you. A blind review follows you when the block's changes since its last blind
 review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
@@ -1489,8 +1499,9 @@ Report baseline_dirty_files=-1${COMMIT ? ', baseline_staged_files=-1' : ''}, bas
   const rework = closing ? closingRework(p.id, reviewPath) : reviewRework;
   // Every round, round 1 included: the ledger persists across resumes.
   // In round 1 the file can only hold an earlier launch's lines, written against code this launch rebuilds.
-  const ledgerNote = `If ${dismissedFile(p.id)} exists, READ it first: your ledger of declined findings for THIS
-block. Do not duplicate or re-litigate an entry.${round === 1 ? ` In round 1 it holds only an earlier launch's lines. After
+  // Only a later round can know the file is absent, since round 1 reports earlier_files (see fileTracker).
+  const ledgerNote = `${round > 1 && dismissedNone ? `${dismissedFile(p.id)} does not exist, so you have declined nothing in THIS block yet.` : `If ${dismissedFile(p.id)} exists, READ it first: your ledger of declined findings for THIS
+block. Do not duplicate or re-litigate an entry.`}${round === 1 ? ` In round 1 it holds only an earlier launch's lines. After
 STEP 0 and before you build, re-check each line against the current code, and remove each line whose
 finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
 hides a finding in rebuilt code.
@@ -1517,12 +1528,12 @@ that pointer by its block id, round and defect file:line alone.` : ''}`;
 };
 
 // BLIND: no plan, spec, goal or criteria, so one frame serves every mode.
-const qualityPrompt = (p, round) => `
+const qualityPrompt = (p, round, absent) => `
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside ${GATE_DIR}/.
 ${GATE_DIR}/ also holds other blocks' review and DISMISSED files.
-Read only ${dismissedFile(p.id)} there, and ${qualityFile(p.id, round)} only at the WRITE step, so the Write tool accepts the overwrite. Never use its content.
+Read only ${absent.dismissed ? '' : `${dismissedFile(p.id)} there, and `}${qualityFile(p.id, round)} ${absent.dismissed ? 'there, and only' : 'only'} at the WRITE step, so the Write tool accepts the overwrite. Never use its content.
 ${ROUND_NOTE(round)}
 TARGET REPO: ${REPO}
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
@@ -1534,7 +1545,7 @@ temporary folder outside the repo and outside the folder that holds ${GATE_DIR}/
 ${TOOLS_LINE}
 CONVENTIONS (judge against these): ${CONVENTIONS}
 ${CONVENTION_FILES_BLOCK}
-${SETTLED(p.id, true)}
+${SETTLED(p.id, true, false, absent.dismissed)}
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
   \`git -C ${REPO} diff\`: unstaged tracked changes, the work to review. On a large diff run
@@ -1612,7 +1623,7 @@ ${snapshotCommands(snapshotIndex(id, round, 'acceptance'))}
 const sweepCheck = (id, riskRounds) => `SWEEP CHECK. Read the \`${SWEEP_HEADING}\` section of ${riskFile(id, Math.max(...riskRounds))}, the file of the latest
    round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there. Run the search each line names again, and read each hit marked \`unaffected\` against the change. A changed name or
-   phrase with no line, and a hit marked \`unaffected\` that disagrees with the change, are each a gap. A round whose file reads "No changes." has no section and no gap here.`;
+   phrase with no line, and a hit marked \`unaffected\` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose file reads "No changes." has no section and no gap here.`;
 const misclassifiedEffect = (round) => (round === CLOSING_ROUND
   ? 'makes it a blocking gap, since no round follows to send to a blind review'
   : 'sends the next round to a blind review');
@@ -1658,13 +1669,13 @@ hold it unless its stated reason is false. The hold wins over this OVERRIDE, so 
 fails acceptance. Name it in your file as held.`;
 // An amendment is the developer's claim that the plan prescribes a defect, so acceptance reproduces that defect
 // before the amendment excuses anything. A fix block also judges its origin blocks' criteria under their amendments.
-const amendmentsSection = (id, { overridden, judged, unexcused, origin = false }) => `AMENDMENTS: READ ${amendedFile(id)} if it exists. It records ${overridden} the developer OVERRODE, each
+const amendmentsSection = (id, { overridden, judged, article = /^[aeiou]/.test(judged) ? 'an' : 'a', unexcused, origin = false }, amendedAbsent = false) => `AMENDMENTS: ${amendedAbsent ? `${amendedFile(id)} does not exist, so no amendment excuses ${article} ${judged}.` : `READ ${amendedFile(id)} if it exists. It records ${overridden} the developer OVERRODE, each
 with the defect it claims the overridden text prescribes. Each amendment is the developer's claim. Before it
-excuses a ${judged}, reproduce its defect yourself against the file:line it cites and the text it quotes, by
-reading that code and following the failure path it names, or by running the probe it names. Judge a ${judged}
+excuses ${article} ${judged}, reproduce its defect yourself against the file:line it cites and the text it quotes, by
+reading that code and following the failure path it names, or by running the probe it names. Judge ${article} ${judged}
 under an amendment you confirmed against the AMENDED behavior, not the superseded text, and NAME every ${judged}
 you judged under an amendment in your review file. An amendment whose defect you cannot confirm, or that
-states NO defect evidence, excuses NOTHING: ${unexcused}.${origin ? `
+states NO defect evidence, excuses NOTHING: ${unexcused}.`}${origin ? `
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
 that the developers of the parked block whose work that entry continues OVERRODE. Judge each of those
 amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
@@ -1742,7 +1753,9 @@ const commitStep = (p, round) => (COMMIT ? `
 
 // A pulled entry rides beside its block, so its gap fails a round and parks the block only when the block's own
 // work depends on it. No developer follows the closing acceptance, so it reverts each unconfirmed pulled change.
-const pulledAcceptance = (p, round, reported) => (PROACTIVE ? `
+const pulledAcceptance = (p, round, reported, none = false) => (PROACTIVE && none ? `
+PULLED ENTRIES. ${pulledFile(p.id)} lists no entry, since the block's developer took none. Return an empty pulled_checks.
+` : PROACTIVE ? `
 PULLED ENTRIES. READ ${pulledFile(p.id)} if it exists. Each line is the id of a ready backlog entry this
 block's round-1 developer took beside its block and built in the same unstaged diff. The developer last
 reported:
@@ -1764,7 +1777,7 @@ regression=true only for a regression that remains after those reverts. These re
 you make to source code.` : ''}
 ` : '');
 
-const PULLED_REVERT_NOTE = (round) => (PROACTIVE && round === CLOSING_ROUND ? ', apart from the PULLED ENTRIES reverts' : '');
+const PULLED_REVERT_NOTE = (round, none) => (PROACTIVE && !none && round === CLOSING_ROUND ? ', apart from the PULLED ENTRIES reverts' : '');
 
 const reviewStatus = (round) => (round === CLOSING_ROUND
   ? `This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
@@ -1776,7 +1789,7 @@ const ACCEPTANCE_CHECK_RULE = `Any command that writes nothing in the repo, such
 
 // The root cause is re-derived from current code, not checked against the entry's **Fix:** line, because
 // the entry may have under-scoped the defect.
-const fixAcceptance = (p, round, { claimedFixed, claimedStale, reportedSkipped, reportedFailed, unreportedIssues, earlierReviews, riskRounds, riskSnapshots, closingRecorded, pulledReported, indexTree }) => `
+const fixAcceptance = (p, round, { claimedFixed, claimedStale, reportedSkipped, reportedFailed, unreportedIssues, earlierReviews, riskRounds, riskSnapshots, closingRecorded, pulledReported, indexTree, absent }) => `
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks.
 ${reviewStatus(round)} Read ${blockRef(p)}. Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a \`- decision:\` line, a **Fix:**
 instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. ${PULLED_ENTRY_RULE}
@@ -1785,13 +1798,13 @@ BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
 ${ROUND_NOTE(round)}
 ${TOOLS_LINE}
 
-${SETTLED(p.id, false, true)}
+${SETTLED(p.id, false, true, absent.dismissed)}
 OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
 acceptance for it and record it in your review file. ${LEDGER_LINES}
 
-${amendmentsSection(p.id, { overridden: '**Fix:** instructions', judged: 'issue', unexcused: 'that issue stays actually_fixed=false', origin: true })}
-${pulledAcceptance(p, round, pulledReported)}
+${amendmentsSection(p.id, { overridden: '**Fix:** instructions', judged: 'issue', unexcused: 'that issue stays actually_fixed=false', origin: true }, absent.amended)}
+${pulledAcceptance(p, round, pulledReported, absent.pulled)}
 EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
 (actually_fixed=false), an unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED or left unreported, a touched entry that is not ACTIONABLE,
 a non-empty diff with no FIXED claim${PROACTIVE ? ' of an entry or a pulled entry' : ''}, a gate not satisfied, an earlier finding that is neither closed
@@ -1888,9 +1901,9 @@ ${COMMIT
    before committing it, so each branch stays until that commit, and a landing the user rejects can be
    rebuilt from it. Every other verdict returns branches_kept=[].`}
 Return wrote_file=true ONLY if you wrote ${acceptanceFile(p.id, round)} this round.
-Do NOT modify source code${PULLED_REVERT_NOTE(round)}. ${ACCEPTANCE_CHECK_RULE} Return ONLY the decision fields via the schema.`;
+Do NOT modify source code${PULLED_REVERT_NOTE(round, absent.pulled)}. ${ACCEPTANCE_CHECK_RULE} Return ONLY the decision fields via the schema.`;
 
-const planAcceptance = (p, round, { earlierReviews, riskRounds, riskSnapshots, closingRecorded, pulledReported, indexTree }) => {
+const planAcceptance = (p, round, { earlierReviews, riskRounds, riskSnapshots, closingRecorded, pulledReported, indexTree, absent }) => {
   const isSection = p.mode === 'section';
   const reachStep = isSection
     ? `REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -1917,14 +1930,14 @@ BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
 ${ROUND_NOTE(round)}
 ${TOOLS_LINE}
 
-${SETTLED(p.id, false)}
+${SETTLED(p.id, false, false, absent.dismissed)}
 OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 ${LEDGER_LINES}
 
-${amendmentsSection(p.id, { overridden: 'plan clauses', judged: 'criterion', unexcused: 'that criterion stays UNMET' })}
-${pulledAcceptance(p, round, pulledReported)}
+${amendmentsSection(p.id, { overridden: 'plan clauses', judged: 'criterion', unexcused: 'that criterion stays UNMET' }, absent.amended)}
+${pulledAcceptance(p, round, pulledReported, absent.pulled)}
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 ${regressionRule(p.id, p.mode)}
@@ -1961,14 +1974,17 @@ PROCEDURE:
      (nothing to add). Say so in your file. Do NOT invent changes to justify it.${NO_OP_GAPS(round)}${NO_OP_COMMIT}
    • ${failBullet(round)}${commitStep(p, round)}
 Return wrote_file=true ONLY if you wrote ${acceptanceFile(p.id, round)} this round.
-Do NOT modify source code${PULLED_REVERT_NOTE(round)}. ${ACCEPTANCE_CHECK_RULE} Return ONLY the decision fields via the schema.`;
+Do NOT modify source code${PULLED_REVERT_NOTE(round, absent.pulled)}. ${ACCEPTANCE_CHECK_RULE} Return ONLY the decision fields via the schema.`;
 };
 
 const ACCEPTANCE_FRAME = { feature: planAcceptance, section: planAcceptance, fix: fixAcceptance };
 
+// No file is known to be absent, so every read step stays.
+const NOTHING_ABSENT = { dismissed: false, amended: false, pulled: false };
+
 // `closingRecorded` is the closing pass's recorded_entries, null when its list was unusable.
-const acceptancePrompt = (p, round, { claimedFixed = [], claimedStale = [], reportedSkipped = [], reportedFailed = [], unreportedIssues = null, earlierReviews = [], riskRounds = [], riskSnapshots = {}, closingRecorded = [], pulledReported = [], indexTree = null } = {}) =>
-  ACCEPTANCE_FRAME[p.mode](p, round, { claimedFixed, claimedStale, reportedSkipped, reportedFailed, unreportedIssues, earlierReviews, riskRounds, riskSnapshots, closingRecorded, pulledReported, indexTree });
+const acceptancePrompt = (p, round, { claimedFixed = [], claimedStale = [], reportedSkipped = [], reportedFailed = [], unreportedIssues = null, earlierReviews = [], riskRounds = [], riskSnapshots = {}, closingRecorded = [], pulledReported = [], indexTree = null, absent = NOTHING_ABSENT } = {}) =>
+  ACCEPTANCE_FRAME[p.mode](p, round, { claimedFixed, claimedStale, reportedSkipped, reportedFailed, unreportedIssues, earlierReviews, riskRounds, riskSnapshots, closingRecorded, pulledReported, indexTree, absent });
 
 // Only needs-user writes a question entry, so every other halt names its own cause for park to cite.
 const parkReason = (haltKind, id) => ({
@@ -2019,7 +2035,7 @@ const originOf = (p) => (p.blocks ? p.blocks.map((b) => `${b.planPath}#${b.id}`)
 // `fixedIds` are the entries the developer's last report gave FIXED.
 // The run's status edits close each id a report or a verdict names, so only the park closes the others.
 const unreportedPulled = (known) => (known.length ? `is not one of ${known.join(', ')}` : 'no report or verdict of the run names');
-const parkPrompt = (p, { lastReviewPath, escalated, haltKind, haltText, stopsRun, needsUser, closingRecorded = [], heldHalt = false, fixedIds = [], pulledIds = [], pulledKnown = [] }) => {
+const parkPrompt = (p, { lastReviewPath, escalated, haltKind, haltText, stopsRun, needsUser, closingRecorded = [], heldHalt = false, fixedIds = [], pulledIds = [], pulledKnown = [], pulledNone = false, absent = NOTHING_ABSENT }) => {
   const branch = unfinishedBranch(p.id);
   const index = parkIndexFile(p.id);
   const message = parkMessageFile(p.id);
@@ -2028,6 +2044,11 @@ const parkPrompt = (p, { lastReviewPath, escalated, haltKind, haltText, stopsRun
   // The operator picks a held park's route, so each restored branch then stays.
   const supersedes = p.mode === 'fix' && !heldHalt;
   const buildable = parkBuildable(p);
+  const ledgerRule = absent.dismissed ? `no "- ledger:" line, since ${dismissedFile(p.id)} does not exist` : `the "- ledger:" line only when ${dismissedFile(p.id)} exists`;
+  const amendedRule = absent.amended ? `no "- amended:" line, since ${amendedFile(p.id)} does not exist` : `the "- amended:" line only when ${amendedFile(p.id)} exists`;
+  const linesRule = absent.dismissed && absent.amended
+    ? 'Write neither the "- ledger:" nor the "- amended:" line, since neither file exists.'
+    : `Write ${ledgerRule}, and ${amendedRule}, so the block built from this entry reads this block's declined findings and plan amendments.`;
   // A FAILED report may keep or revert an entry's restored work, so the working tree, which step 1e reads
   // before step 2 clears it, decides for a branch whose entries are not all FIXED.
   const restored = supersedes
@@ -2136,9 +2157,7 @@ PROCEDURE:
     ? `, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.`
     : '.'}
-   Write the "- ledger:" line only when ${dismissedFile(p.id)} exists, and the "- amended:" line only when
-   ${amendedFile(p.id)} exists, so the block built from this entry reads this block's declined findings
-   and plan amendments.${supersedes ? `
+   ${linesRule}${supersedes ? `
    When superseded_entries is not empty, end the **What:** with the line "Supersedes: <those ids>, whose
    branches this entry's branch now holds." Then append to this entry's "- origin:" line, each after ", ",
    every <planPath>#<block id> value that the "- origin:" line of those entries holds and this line does
@@ -2148,7 +2167,7 @@ PROCEDURE:
    amendments. Their "- ledger:" lines carry over through ${dismissedFile(p.id)}, into which round 1 copied each line it kept.` : ''}${PROACTIVE || supersedes ? `
    When step 1 made a commit and the pulled list is not empty, end the **What:** with the line
      ${pulledLine('<the pulled list>')}
-   The pulled list is ${pulledIds.length ? pulledIds.join(', ') : 'empty'}${supersedes ? ', plus each id that the "Pulled:" line of an entry in superseded_entries names, since this entry\'s branch now holds that work too' : ''}${PROACTIVE ? `, plus each id ${pulledFile(p.id)} lists, when it exists, that ${unreportedPulled(pulledKnown)}
+   The pulled list is ${pulledIds.length ? pulledIds.join(', ') : 'empty'}${supersedes ? ', plus each id that the "Pulled:" line of an entry in superseded_entries names, since this entry\'s branch now holds that work too' : ''}${PROACTIVE && !pulledNone ? `, plus each id ${pulledFile(p.id)} lists, when it exists, that ${unreportedPulled(pulledKnown)}
    and whose fix, as its entry in ${BACKLOG_DIR}/<the id without its last "-<n>">.md describes it,
    \`git -C ${REPO} diff ${branch}^1 ${branch}\` holds, since no report of the run names that work` : ''}.` : ''}
    ${userOnly
@@ -2161,7 +2180,7 @@ PROCEDURE:
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
    plan file is parsed.
-   Then return entry_written=true. ${WROTE_NOTE}${PROACTIVE ? `
+   Then return entry_written=true. ${WROTE_NOTE}${PROACTIVE && !pulledNone ? `
 4. RELEASE, whatever steps 1 to 3 did. READ ${pulledFile(p.id)} if it exists. Each line is the id of a
    backlog entry this block's round-1 developer marked with the line "- pulled: ${pulledMark(p.id)}". For each
    id the file lists that ${unreportedPulled(pulledKnown)} and that no "Pulled:" line step 3 wrote
@@ -2470,6 +2489,31 @@ function fixTracker(p) {
   };
 }
 
+// A round 1 that halted on its plan (plan_obtained=false, the value the engine halts on) or escalated may have stopped before the steps that report
+// earlier_files or empty the PULLED file, so its default values prove nothing about either file.
+const reachedBuild = (ret) => ret != null && ret.plan_obtained !== false && ret.needs_user !== true;
+
+/**
+ * Which of a block's DISMISSED and AMENDED files the engine knows do not exist. A file is absent only when the
+ * round-1 developer of this launch found neither before it wrote and every developer return since reported
+ * appending nothing to it. A dead or unusable return, a round 1 that never reached its build (see `reachedBuild`),
+ * and any other value leave both unknown.
+ */
+function fileTracker() {
+  let startedEmpty = false;
+  let dismissedWritten = false;
+  let amendedWritten = false;
+  return {
+    /** Records one developer return in order, round 1 first. A null return is a dead developer. */
+    record(round, dev) {
+      if (round === 1) startedEmpty = reachedBuild(dev) && dev.earlier_files === false;
+      if (dev?.dismissed_count !== 0) dismissedWritten = true;
+      if (dev?.plan_amendments !== 0) amendedWritten = true;
+    },
+    absent: () => ({ dismissed: startedEmpty && !dismissedWritten, amended: startedEmpty && !amendedWritten }),
+  };
+}
+
 /**
  * The backlog entries a proactive round-1 developer took beside its block. The engine never reads the PULLED file,
  * so the developer's reports and the verdicts' checks are its only record of them. An entry syncs as `issueSyncStatus`
@@ -2487,11 +2531,14 @@ function pulledTracker(p) {
   const runFiles = new Set(PLAN_FILES.map(pathKey));
   const usable = (id) => typeof id === 'string' && PULLED_ID.test(id) && !runFiles.has(pathKey(pulledEntryFile(id)));
   const ids = () => [...new Set([...reported.keys(), ...checked])];
+  // The first report is round 1's. A round-1 developer that reached its build and listed nothing emptied the PULLED file or never made it.
+  let firstListEmpty = null;
   // A park's branch holds an entry's fix only while the developer's last report still claims the block's own change closed it.
   const onBranch = () => ids().filter((id) => claimedEver.has(id) && reported.get(id) !== 'FAILED');
   return {
     /** This round's reports, recorded before any halt so a parked or blocked block still syncs its pulled entries. */
     record(dev) {
+      if (firstListEmpty === null) firstListEmpty = reachedBuild(dev) && Array.isArray(dev.pulled_results) && dev.pulled_results.length === 0;
       for (const r of Array.isArray(dev.pulled_results) ? dev.pulled_results : []) {
         if (!usable(r?.issue_id) || !PULLED_STATUSES.includes(r?.status)) {
           logLine(`  ⚠ ${p.id}: pulled result ${String(JSON.stringify(r)).slice(0, 200)} names no backlog entry or status → ignored`);
@@ -2520,6 +2567,8 @@ function pulledTracker(p) {
     /** The developer's last report per id, for the acceptance prompt. */
     reported: () => [...reported],
     ids,
+    /** True once round 1 listed no entry and no later report or verdict names one, so the PULLED file lists none. */
+    none: () => firstListEmpty === true && ids().length === 0,
     onBranch,
     ledger: () => ids().map((id) => ({ issue_id: id, status: reported.get(id) ?? 'UNREPORTED', confirmed: confirmed.get(id) === true })),
     /**
@@ -2735,7 +2784,9 @@ for (const p of pending) {
   const rec = { id: p.id, mode: p.mode, gate: p.gate, model: devModel, effort: devEffort, status: 'pending', rounds: 0, closingPass: false, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, results: null, thinEvidence: false, contradicted: false, parked: false, parkReturned: false, parkCleared: false, branch: null, entryWritten: false, superseded: [], unreportedSuperseded: [], heldPark: false, backlogged: false, commit: null, pulled: [], pulledOnBranch: [] };
   const fix = p.mode === 'fix' ? fixTracker(p) : null;
   const pulled = pulledTracker(p);
-  const lastReports = () => ({ lastFix: fix ? fix.reported() : [], lastPulled: pulled.reported() });
+  const files = fileTracker();
+  const absentFiles = () => ({ ...files.absent(), pulled: pulled.none() });
+  const lastReports = () => ({ lastFix: fix ? fix.reported() : [], lastPulled: pulled.reported(), pulledNone: pulled.none(), dismissedNone: files.absent().dismissed });
   for (const b of p.blocks ?? [p]) startedBacklogFiles.add(backlogFile(b.id));
   // The round-1 fix terminal this block ended on: 'no-changes' or 'restore-failed' ('' = none). Neither
   // parks: the tree is clean, so park would have nothing to save.
@@ -2797,6 +2848,8 @@ for (const p of pending) {
         model: devModel, effort: devEffort, schema: developSchema(p.mode, true), phase: 'Develop', label: `develop-closing ${p.id}`,
       }));
     }
+
+    files.record(round, dev);
 
     // ---- PRECONDITION: the developer AGENT itself came back -----------------------------------------
     // A dead developer is agent-dead, not a gate miss that burns the round budget. Halt, not throw, so
@@ -2933,7 +2986,7 @@ for (const p of pending) {
       break;
     }
     if (dev?.dismissed_count) {
-      logLine(`  ${p.id} r${round}: developer declined ${dev.dismissed_count} finding(s) → ${dismissedFile(p.id)} (acceptance judges them)`);
+      logLine(`  ${p.id} r${round}: developer wrote ${dev.dismissed_count} DISMISSED line(s) → ${dismissedFile(p.id)} (acceptance judges them)`);
     }
     // MATRIX 6a: only the count travels (#1/#8). Coerced so garbage cannot poison the ledger total.
     const amendments = Number(dev?.plan_amendments) || 0;
@@ -3012,7 +3065,7 @@ for (const p of pending) {
     if (reviewOwed) {
       phase('Quality');
       rec.qualityRounds++;
-      const quality = await callAgent(qualityPrompt(p, round), roleOpts('quality', {
+      const quality = await callAgent(qualityPrompt(p, round, absentFiles()), roleOpts('quality', {
         schema: QUALITY_SCHEMA, phase: 'Quality', label: `quality ${p.id} r${round}`,
       }));
       // A dead reviewer is not a clean review, and the next round would read a review file nobody wrote.
@@ -3079,7 +3132,7 @@ for (const p of pending) {
     phase('Acceptance');
     const acc = await callAgent(acceptancePrompt(p, round, {
       claimedFixed: fix?.claimed(), claimedStale: fix?.stale(), reportedSkipped: fix?.skipped(), reportedFailed: fix?.failed(), unreportedIssues: fix?.unreportedIssues(), earlierReviews: [...earlierReviews], pulledReported: pulled.reported(),
-      riskRounds: [...unreviewedRounds], riskSnapshots, closingRecorded, indexTree,
+      riskRounds: [...unreviewedRounds], riskSnapshots, closingRecorded, indexTree, absent: absentFiles(),
     }), roleOpts('acceptance', {
       schema: acceptanceSchema(p.mode, closing), phase: 'Acceptance', label: `acceptance ${p.id} r${round}`,
     }));
@@ -3293,7 +3346,7 @@ for (const p of pending) {
     // reviewPath may be empty on an escalated park: see its declaration.
     const pk = await callAgent(parkPrompt(p, {
       lastReviewPath: reviewPath, escalated, haltKind: parkKind || haltKind, haltText: haltReason, stopsRun: halted,
-      needsUser: rec.needsUser === true, closingRecorded, heldHalt, fixedIds: fix ? fix.lastFixed() : [], pulledIds: pulled.onBranch(), pulledKnown: pulled.ids(),
+      needsUser: rec.needsUser === true, closingRecorded, heldHalt, fixedIds: fix ? fix.lastFixed() : [], pulledIds: pulled.onBranch(), pulledKnown: pulled.ids(), pulledNone: pulled.none(), absent: files.absent(),
     }), roleOpts('develop', {
       // park reads agentTypes.develop: the engine looks up no agentTypes.park key.
       model: M.park ?? devModel, effort: EF.park ?? devEffort, schema: parkSchema(p.mode), phase: 'Park', label: `park:${p.id}`,

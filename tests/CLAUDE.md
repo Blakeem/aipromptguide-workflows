@@ -241,8 +241,8 @@ against (halt); an unreachable feature does not (flag).
   also copy the changed code files over the export and apply the mutant to those copies. Never swap
   files in the working tree for a red run.
 - **Edit engine template text with the Edit tool or a script file written by the Write tool**, never
-  through a Bash heredoc. The shell can alter backslashes and backticks in the text, and the
-  exact-match replacement it feeds then finds nothing. The Edit tool edits only a file the Read tool has
+  through a Bash heredoc, as `FILE_WRITE_NOTE` in develop-cycle.mjs tells agents. The shell alters backslashes and backticks
+  in a heredoc, so the exact-match replacement it feeds then finds nothing. The Edit tool edits only a file the Read tool has
   read, so a Bash `cat` does not unlock it.
 - **A cross-engine sweep must RUN each engine, not grep it.** The numeric-bound sweep started as a source
   grep for `Number.isFinite` and was a false gate: the pattern was satisfied by a *different* arg's

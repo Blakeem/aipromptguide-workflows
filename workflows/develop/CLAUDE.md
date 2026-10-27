@@ -572,9 +572,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   round-1 developer confirms each against the code as it confirms a review finding, closes each one it
   confirms and declines each one it refutes with a DISMISSED line. Acceptance counts a listed gap closed
   when the code closes it or a ledger line declines it. A listed gap for a wrong risk answer,
-  for a sweep line that is missing or disagrees with the change, or for a path that changed
-  after its round's snapshot, takes no fix and no log, and acceptance counts it closed, since
-  the block's first blind review judges the entire restored work. A park entry's `- ledger:`
+  for a sweep line that is missing, leaves out a hit, or disagrees with the change, or for a path
+  that changed after its round's snapshot, takes no fix and no log, and acceptance counts it closed,
+  since the block's first blind review judges the entire restored work. A park entry's `- ledger:`
   line names the `DISMISSED-<id>.md` of the parked block, and its `- amended:` line names
   the `AMENDED-<id>.md` files of the blocks its `- origin:` line names. The round-1 developer re-checks
   each line of that ledger as it re-checks an earlier launch's line, and copies each one it keeps into
@@ -668,8 +668,9 @@ a copy of the real index, and deletes that file once it prints the tree id. The 
 holds the accepted baseline, is never written. After its answers the risk file holds a `## Sweep`
 section. For each function, constant, field, message or rule phrase the round changed, it lists
 the search the developer ran and each hit, marked `updated` or `unaffected` with a few words of
-reason. A round that changed nothing writes no section. The blind review runs in a block's first
-round with a satisfied gate in a launch, a fix block that restored a parked block's branch
+reason, and a changed field, return value, file format or output that other code or prompts read
+lists those readers as hits. A round that changed nothing writes no section. The blind review runs
+in a block's first round with a satisfied gate in a launch, a fix block that restored a parked block's branch
 included. A later round gets one when a round since the block's last blind review returned
 `review_needed` true or no boolean, or an acceptance verdict since then returned
 `risk_misclassified` true. Any other round goes from the developer straight to acceptance.
@@ -688,8 +689,9 @@ the risk file of each round since the last blind review against that round's hun
 the sweep of the latest of those rounds: each changed name or phrase in that round's hunks needs a
 line, and each hit marked `unaffected` must still agree with the change. A missing file, a missing
 snapshot line in an audited round's file or in its base file, a change the file does not judge low
-risk, an answer the hunks contradict, a changed name or phrase with no sweep line and an
-`unaffected` hit that disagrees with the change are each a gap, and the verdict returns
+risk, an answer the hunks contradict, a changed name or phrase with no sweep line, an
+`unaffected` hit that disagrees with the change and a hit that acceptance finds by running the
+line's search again and the line leaves out are each a gap, and the verdict returns
 `risk_misclassified` true, which sends the next round to a blind review.
 
 **Closing pass.** When round `maxRounds` ends without a passed acceptance, one more developer runs,
@@ -710,8 +712,8 @@ The closing acceptance sorts each gap into one of two kinds. A blocking gap is a
 gate, an unmet criterion of a feature or section block, an ACTIONABLE entry of a fix block whose root
 cause is not closed, a change made for an entry that is not ACTIONABLE or a change no FIXED claim
 accounts for, a defect at medium severity or higher that the block's diff introduces, a wrong risk
-answer or a sweep line that is missing or disagrees with the change, in changes no blind review
-has read, or a path the tree check finds changed after its round's snapshot. Every other gap is
+answer or a sweep line that is missing, leaves out a hit, or disagrees with the change, in changes
+no blind review has read, or a path the tree check finds changed after its round's snapshot. Every other gap is
 not blocking, such as a low or nit finding or a cleanup. A finding the closing blind review
 raises against a dismissal is a gap of either kind by the same rule, unless it contests an
 `ESCALATED:` line acceptance holds. With no blocking gap, the closing acceptance stages the
@@ -949,7 +951,14 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   park's entry names) · the round-1 developer's `baseline_index_tree` (the index's tree id before it
   changed anything, which the first acceptance of a launch confirms, §5) and `launch_number` (the
   launch its amendment headers name, and a value below 1 or not an integer is logged and renders
-  `launch unrecorded`) · acceptance's `index_matched` (false halts `staging-unconfirmed`, and a
+  `launch unrecorded`) and `earlier_files` (true when the block's `DISMISSED-<id>.md` or
+  `AMENDED-<id>.md` existed before it wrote. Only `false` there, with no round, round 1 included,
+  appending to a file, lets the blind review, acceptance and park (and, for DISMISSED, each later
+  developer round) say that file does not exist in place of a read step, so any other value keeps
+  every read step. Under `proactive`, a round-1 `pulled_results` of `[]` does the same for
+  `PULLED-<id>.md`. Neither counts from a round 1 that reported `plan_obtained=false` or
+  `needs_user=true`, since it may have stopped before those steps) · acceptance's `index_matched`
+  (false halts `staging-unconfirmed`, and a
   non-boolean is logged as unverified) and `index_tree` (the index's tree id once it finished, after its
   `git add` when it staged, which the next acceptance confirms. A value that is not a tree id is logged,
   and the next acceptance then compares nothing unless a round-1 developer reports a tree id first. The
