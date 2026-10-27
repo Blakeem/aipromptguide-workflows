@@ -123,7 +123,15 @@ set to `todo` on disk. A file already named as a plan is not added twice. The ba
 plans' keys, and the defaults when no plan is given. The flag lets the plan list be empty, and fails with a message that
 ends `nothing to build` when it then adds no file. A missing folder adds nothing. An `ordered: true` plan set is refused.
 An entry with a `- pulled:` line is not ready, so it neither makes its file buildable nor weighs in `--pack`, since
-the developer that pulled it, or that block's park entry, builds it. A status edit whose `value` is null removes its key's
+the developer that pulled it, or that block's park entry, builds it. An entry with a line that starts with
+`**Parked with:**` at column 0 is held the same way. Before the file is judged, `--backlog` looks up the block that a
+`**Parked with:** block <id>` line names in the run the file's header names, as for the writer hold, and cuts the line,
+with its own ending, from each open `ACTIONABLE` entry whose block is `done` or `skip` in every plan file the records give
+for it. The cut is written with the fold. A block in any other status keeps the hold. A line that names no block as
+`block <id>`, a block no record names, a plan file that is gone and a plan file that no longer holds the block keep it
+too, each with a note that says to delete the line by hand once the block is `done` or `skip`. A parked block's plan file
+that exists but fails to read or validate, or whose run records cannot be folded into it, fails the command. A file named
+as a plan gets no cut. A status edit whose `value` is null removes its key's
 line, with the line's own ending, and is a no-op when the line is absent. develop removes a pulled entry's `- pulled:`
 line that way.
 
@@ -153,10 +161,12 @@ node tools/plan-pull.mjs pullable --backlog <dir> --files <path,...> [--exclude 
 Prints a JSON array of `{ id, title, planPath, file, size }`, one per entry a `plan-edit.mjs args --backlog <dir>`
 launch would build whose `- file:` path names one of `--files`, compared with forward slashes and no leading `./`.
 It folds the run records into each backlog file in memory and applies every file and entry rule of `--backlog`,
-the writer hold included. It also leaves out an entry with a `- branch:` line, which restores parked work and
+the writer hold and the parked-with hold and its cut included. It also leaves out an entry with a `- branch:` line, which restores parked work and
 builds alone, an entry with a `- pulled:` line, an entry whose id is not its file's name and `-<n>`, since develop
 finds a pulled entry's file from its id, and every entry of an `--exclude` file, which develop passes as the run's
-own plan files. It writes nothing, and each fold note it passes on starts `in memory only:`. Exit 0 prints the
+own plan files. It writes nothing, and each fold note it passes on starts `in memory only:`. So a listed entry
+may still carry its released `**Parked with:**` line on disk, and develop's developer deletes that line when it
+takes the entry. Exit 0 prints the
 array, a missing folder prints `[]`, and exit 1 prints the reason on stderr. develop's proactive round-1
 developer runs it, so the command needs its own allowlist rule beside `blockTool`'s, and the file holds no write
 verb for the reason `plan-edit.mjs` is a separate file.

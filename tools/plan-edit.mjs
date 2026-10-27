@@ -46,11 +46,13 @@ const USAGE = `usage:
       args { goal, ordered, suite, sweep, plans, blockTool }, where blockTool is the plan-block.mjs
       beside this tool. --expect fails unless that run's record exists.
       --backlog adds each backlog file in <dir> whose status is todo or done and that holds an open
-      ACTIONABLE entry with no "- pulled:" line and no needs-attention ACTIONABLE entry, and sets a
-      done one to todo. It leaves out a file while the block that wrote it, which the run records
-      name, is not done, skip or backlogged in its plan file. It writes the folded statuses of every
-      todo or done backlog file with an ACTIONABLE entry. It needs a plan set with ordered: false,
-      and it lets the plan list be empty.
+      ACTIONABLE entry with no "- pulled:" or "**Parked with:**" line and no needs-attention
+      ACTIONABLE entry, and sets a done one to todo. It leaves out a file while the block that wrote
+      it, which the run records name, is not done, skip or backlogged in its plan file. It cuts the
+      "**Parked with:** block <id>" line of an open ACTIONABLE entry once that block, in the run
+      the file's header names, is done or skip in its plan file. It writes the folded statuses and
+      cuts of every todo or done backlog file with an ACTIONABLE entry. It needs a plan set with
+      ordered: false, and it lets the plan list be empty.
       --pack groups todo fix blocks into passes of at most --loc-cap lines (default 5000) of the
       files their open ACTIONABLE issues name, so one set of agents builds several small blocks.
       A pass runs on the strongest model and the highest effort among its members.
@@ -525,19 +527,40 @@ const BACKLOG_STATUSES = ['todo', 'done'];
 /** The repo path an entry's `- file:` line names, without its `:<line>` suffix, or '' when it names none. */
 export const entryPath = (entry) => (keyOf(entry, 'file') ?? '').replace(/:\d+$/, '');
 
+const isOpenActionable = (entry) => keyOf(entry, 'decision') === 'ACTIONABLE' && (keyOf(entry, 'status') ?? 'open') === 'open';
+
+// The hold develop puts on an entry whose code sits on its block's branch or is not built yet. Only a line at column 0
+// counts, since an entry's **What:** indents every line it copies from a file. A line that names no block as
+// `block <id>` still holds, since the developer prompts count every such line as a hold.
+const PARKED_WITH = /^\*\*Parked with:\*\*(?: block ([a-z0-9]+(?:-[a-z0-9]+)*)\b)?[^\n]*(?:\n|$)/m;
+// A landed block, or one the user dropped, no longer holds the code its parked-with entries name.
+const PARK_RELEASED = ['done', 'skip'];
+// The way out of a hold whose block `args` cannot look up.
+const PARKED_WAY_OUT = 'Once that block is done or skip, release each entry it holds by deleting that entry\'s **Parked with:** line';
+
 /**
- * An entry a run can build without the user: ACTIONABLE, neither closed nor waiting on the user, and not taken by
- * a developer beside its own block, whose run syncs that entry or whose park entry carries its work.
+ * An entry's `**Parked with:**` line as { blockId, start, end } in raw file positions, or null. `blockId` is undefined
+ * for a line that names no block. `text` starts at raw position `base`.
  */
-export const isReady = (entry) => keyOf(entry, 'decision') === 'ACTIONABLE' && (keyOf(entry, 'status') ?? 'open') === 'open'
-  && !keyOf(entry, 'pulled');
+function parkedLine(text, entry, base = 0) {
+  const hit = text.slice(entry.start - base, entry.end - base).match(PARKED_WITH);
+  return hit ? { blockId: hit[1], start: entry.start + hit.index, end: entry.start + hit.index + hit[0].length } : null;
+}
+const isHeld = (entry, block) => Boolean(parkedLine(block.text, entry, block.start));
+
+/**
+ * An entry of `block` a run can build without the user: ACTIONABLE, neither closed nor waiting on the user, not taken by
+ * a developer beside its own block, whose run syncs that entry or whose park entry carries its work, and not held by a
+ * `**Parked with:**` line.
+ */
+export const isReady = (entry, block) => isOpenActionable(entry) && !keyOf(entry, 'pulled') && !isHeld(entry, block);
 
 /** An ACTIONABLE entry whose fix failed. A fix-mode developer rebuilds it with its file, so its file waits for triage. */
 const waitsOnUser = (entry) => keyOf(entry, 'decision') === 'ACTIONABLE' && keyOf(entry, 'status') === 'needs-attention';
 
 /** A block a --backlog launch builds: a todo block, or a done one that took a new ready entry, with no entry waiting on the user. */
 export const isBacklogBlock = (block) => BACKLOG_STATUSES.includes(blockStatus(block))
-  && block.issues.some(isReady) && !block.issues.some(waitsOnUser);
+  && block.issues.some((e) => isReady(e, block)) && !block.issues.some(waitsOnUser);
 
 /** The `.md` files of the backlog folder. A folder no run has written an entry to yet does not exist, and holds none. */
 function backlogPaths(dir, note) {
@@ -593,28 +616,37 @@ function writerBlocks(records, backlogDir, developRunId, blockId) {
   return [...found.values()];
 }
 
+// What a looked-up block's status decides, for the messages of `heldStatus`.
+const WRITER_HOLD = { role: 'the block that wrote a backlog file', held: 'that file', unknown: 'its status does not hold back its backlog file' };
+const PARKED_HOLD = {
+  role: 'the block a backlog entry is parked with',
+  held: 'that entry',
+  unknown: `the entries parked with it stay held. ${PARKED_WAY_OUT}`,
+};
+
 /**
- * The writer block's status with every record folded into its plan in memory, or null when its plan file or its block is
- * gone. A plan that exists but fails to load or to fold its records throws, since its status is unknown and releasing its file could build it early.
+ * The block's status with every record folded into its plan in memory, or null when its plan file or its block is
+ * gone. A plan that exists but fails to load or to fold its records throws, since its status is unknown and releasing
+ * what it holds could build that early.
  */
-function writerStatus({ planPath, id }, records, note) {
+function heldStatus({ planPath, id }, records, note, { role, held, unknown }) {
   let plan = null;
   try {
     plan = loadPlan(planPath);
   } catch (err) {
     if (!err.message.startsWith('no such plan file:')) {
-      throw new Error(`cannot load ${planPath}, which holds ${id}, the block that wrote a backlog file (${err.message}). Its status decides whether that file is held back, so fix the plan file and run again`);
+      throw new Error(`cannot load ${planPath}, which holds ${id}, ${role} (${err.message}). Its status decides whether ${held} is held back, so fix the plan file and run again`);
     }
-    note(`cannot read ${planPath}, which holds ${id} (${err.message}), so its status does not hold back its backlog file\n`);
+    note(`cannot read ${planPath}, which holds ${id} (${err.message}), so ${unknown}\n`);
     return null;
   }
   let block = null;
   try {
     block = foldRecords(plan, records, () => {}).blocks.find((b) => b.id === id);
   } catch (err) {
-    throw new Error(`cannot fold the run records into ${planPath}, which holds ${id}, the block that wrote a backlog file (${err.message}). Its status decides whether that file is held back, so fix the plan file or the record and run again`);
+    throw new Error(`cannot fold the run records into ${planPath}, which holds ${id}, ${role} (${err.message}). Its status decides whether ${held} is held back, so fix the plan file or the record and run again`);
   }
-  if (!block) note(`${planPath} no longer holds ${id}, so its status does not hold back its backlog file\n`);
+  if (!block) note(`${planPath} no longer holds ${id}, so ${unknown}\n`);
   return block ? blockStatus(block) : null;
 }
 
@@ -624,11 +656,44 @@ function unfinishedWriter(plan, backlogDir, records, note) {
     const [, blockId, developRunId] = block.title.match(WRITER_TITLE) ?? [];
     if (!blockId) continue;
     for (const writer of writerBlocks(records, backlogDir, developRunId, blockId)) {
-      const status = writerStatus(writer, records, note);
+      const status = heldStatus(writer, records, note, WRITER_HOLD);
       if (status && !WRITER_FINISHED.includes(status)) return { ...writer, status };
     }
   }
   return null;
+}
+
+/**
+ * The plan with the `**Parked with:**` line cut from each open ACTIONABLE entry of a todo or done block when the block
+ * the line names is done or skip in its plan file, so the entry builds like any other. The line names a block of the run
+ * its file's header names. An entry whose block no record names keeps its hold, since its code may still sit on that
+ * block's branch.
+ */
+function releaseParked(plan, backlogDir, records, note) {
+  const cuts = [];
+  const statusOf = new Map();
+  const released = (holder) => {
+    const key = `${holder.planPath}\u0000${holder.id}`;
+    if (!statusOf.has(key)) statusOf.set(key, heldStatus(holder, records, note, PARKED_HOLD));
+    return PARK_RELEASED.includes(statusOf.get(key));
+  };
+  for (const block of plan.blocks.filter((b) => BACKLOG_STATUSES.includes(blockStatus(b)))) {
+    const [, , developRunId] = block.title.match(WRITER_TITLE) ?? [];
+    for (const entry of block.issues.filter(isOpenActionable)) {
+      const line = parkedLine(plan.text, entry);
+      if (!line) continue;
+      const holders = developRunId && line.blockId ? writerBlocks(records, backlogDir, developRunId, line.blockId) : [];
+      if (!holders.length) {
+        const why = line.blockId ? `no run record names block ${line.blockId}${developRunId ? ` of run ${developRunId}` : ''}` : 'its **Parked with:** line names no block as "block <id>"';
+        note(`kept the hold on ${entry.id} in ${plan.path}: ${why}. ${PARKED_WAY_OUT}\n`);
+        continue;
+      }
+      if (holders.every(released)) cuts.push(line);
+    }
+  }
+  if (!cuts.length) return plan;
+  const text = cuts.sort((a, b) => b.start - a.start).reduce((t, c) => splice(t, c.start, c.end, ''), plan.text);
+  return { path: plan.path, text, blocks: validate(parseBlocks(text), plan.path) };
 }
 
 /** The note for a backlog file its unfinished writer holds back, with the way out for a writer no relaunch can finish. */
@@ -641,8 +706,9 @@ function heldBackNote(path, { planPath, id, status }) {
 }
 
 /**
- * The todo or done backlog files of `dir` that hold an ACTIONABLE entry, each with its run records folded in, as plans with
- * their `original` text. A `chosen` file also has its done blocks set to todo. A file whose writing block, which the
+ * The todo or done backlog files of `dir` that hold an ACTIONABLE entry, each with its run records folded in and the
+ * line of each released parked-with entry cut, as plans with their `original` text. A `chosen` file also has its done
+ * blocks set to todo. A file whose writing block, which the
  * records of runs on `dir` name through the file's header, is not done, skip or backlogged is never chosen. A file whose writing block no
  * record names is chosen when it meets the other rules. Every folded file is returned, so
  * the caller writes the fold of a file no launch builds, such as one whose fix failed. A fold never changes an
@@ -657,7 +723,7 @@ export function foldBacklog(dir, given, records, note) {
     const plan = loadPlan(path);
     const holdsActionable = plan.blocks.some((b) => BACKLOG_STATUSES.includes(blockStatus(b)) && b.issues.some((e) => keyOf(e, 'decision') === 'ACTIONABLE'));
     if (!holdsActionable) continue;
-    const folded = foldRecords(plan, records, note);
+    const folded = releaseParked(foldRecords(plan, records, note), dir, records, note);
     const buildable = folded.blocks.some(isBacklogBlock);
     const writer = buildable ? unfinishedWriter(folded, dir, records, note) : null;
     if (writer) note(heldBackNote(path, writer));
@@ -679,9 +745,12 @@ const UNKNOWN_FILE_LOC = 200;   // a file the entry names that no longer exists 
 // first value of each list is at least as strong as every default.
 export const STRENGTH = { model: ['fable', 'opus', 'sonnet', 'haiku'], effort: ['max', 'xhigh', 'high', 'medium', 'low'] };
 
-/** The entries a developer will actually work: ACTIONABLE, not already closed by an earlier run, and not taken by another block's developer. */
+/**
+ * The entries a developer will actually work: ACTIONABLE, not already closed by an earlier run, not taken by another
+ * block's developer, and not held by a `**Parked with:**` line.
+ */
 const openActionable = (block) => block.issues.filter((e) => keyOf(e, 'decision') === 'ACTIONABLE'
-  && !['fixed', 'stale'].includes(keyOf(e, 'status')) && !keyOf(e, 'pulled'));
+  && !['fixed', 'stale'].includes(keyOf(e, 'status')) && !keyOf(e, 'pulled') && !isHeld(e, block));
 
 /** The line count of every distinct file a block's open entries name: its `- loc:` line, else the file itself. */
 function blockFiles(block, repo) {
@@ -731,7 +800,7 @@ function packPasses(args, folded, repo, cap, note) {
     if (row.mode !== 'fix' || row.status !== 'todo') continue;
     const block = blockOf.get(`${row.planPath}\u0000${row.id}`);
     const files = blockFiles(block, repo);
-    if (!files.size) { note(`not packed: ${row.id} has no open ACTIONABLE entry, so it is not a plan to build\n`); continue; }
+    if (!files.size) { note(`not packed: ${row.id} has no open ACTIONABLE entry without a "- pulled:" or "**Parked with:**" line, so it is not a plan to build\n`); continue; }
     // Two parked branches cut from one baseline tend to touch the same lines, so a second restore in one round 1 may not apply.
     if (openActionable(block).some((e) => keyOf(e, 'branch'))) { note(`not packed: ${row.id} restores an unfinished branch, so it builds alone\n`); continue; }
     candidates.push({ index, row, files, issues: block.issues.map((e) => e.id), first: [...files.keys()].sort()[0], model: row.model ?? '', effort: row.effort ?? '' });
@@ -815,7 +884,7 @@ function runArgs(argv, note, invokedScript) {
   const flush = () => { for (const { f, was } of writes) if (f.text !== was) writeFileSync(f.path, f.text); };
   if (!folded.length && !added.length) {
     flush();
-    throw new Error(`no backlog file in ${flags['--backlog']} is todo or done and holds an entry with decision ACTIONABLE, status open and no pulled line, and no ACTIONABLE entry with status needs-attention, with the block that wrote it done, skip or backlogged, so there is nothing to build`);
+    throw new Error(`no backlog file in ${flags['--backlog']} is todo or done and holds an entry with decision ACTIONABLE, status open and no pulled line or held Parked with line, and no ACTIONABLE entry with status needs-attention, with the block that wrote it done, skip or backlogged, so there is nothing to build`);
   }
   const merged = mergeArgs(folded, added);
   if (flags['--backlog'] && merged.ordered) throw new Error('--backlog adds fix files that build unordered, so it needs a plan set with ordered: false');

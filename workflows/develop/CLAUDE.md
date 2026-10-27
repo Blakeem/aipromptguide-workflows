@@ -339,8 +339,9 @@ to the backlog (§10). The policies differ as follows.
   builds. The developer checks each listed entry against the current code as a fix block's
   verify-first step does, and takes the entries whose fix sits in those files and fits its capacity,
   aiming for a round-1 context of about 200k to 350k tokens. It marks each taken entry with
-  `- pulled: <runId>#<block id>`, lists its id in `PULLED-<id>.md`, and builds its fix as a fix block
-  builds an ACTIONABLE entry. Later rounds take no new entry. Every acceptance of the block judges each
+  `- pulled: <runId>#<block id>`, deletes its `**Parked with:**` line, which the tool releases in memory
+  only, lists its id in `PULLED-<id>.md`, and builds its fix as a fix block builds an ACTIONABLE entry.
+  Later rounds take no new entry. Every acceptance of the block judges each
   pulled entry as fix acceptance judges an issue. A pulled entry's gap fails the round, and the next
   developer closes it or reverts that entry's change and reports it FAILED. The closing acceptance never
   grades a pulled gap blocking. It reverts the change of each pulled entry it does not confirm before
@@ -607,7 +608,9 @@ judge low risk and an answer the hunks contradict are each a gap, and the verdic
 and no develop round follows it. It takes round number `maxRounds + 1` in its file names. It makes each
 fix of the last review's findings and gaps that is low risk, and records each one whose fix is not as
 an entry in its block's backlog file (§10), with a `**Fix:**` line naming the fix, a
-`**Parked with:**` line naming the block and no DISMISSED line, under both policies. It returns those
+`**Parked with:**` line naming the block and no DISMISSED line, under both policies. Each entry takes
+its decision by §10's rule, and its line holds it out of every build until the block is `done` or
+`skip` (§10). It returns those
 entries' ids in `recorded_entries`. When the dedup forbids an append, it returns the id of the entry
 that holds the item instead. The closing acceptance confirms that each listed id names an entry in
 its backlog file before it relies on it, and a missing entry, or a list that is not usable, is a
@@ -872,8 +875,8 @@ its last entry. When the file's `status:` line reads `skip`, the writer sets it 
 a `- decision:` that the writer sets by one rule. The decision is `ACTIONABLE` when the entry is a
 defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no
 user-visible behavior, stored data or public contract. It is `NEEDS_USER` otherwise, such as a
-feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry
-with a `**Parked with:**` line. A later run builds an `ACTIONABLE` entry without triage, and a
+feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later
+run builds an `ACTIONABLE` entry without triage, and a
 `NEEDS_USER` entry waits for the user. A cleanup entry carries `- category: cleanup`. A feature entry
 carries `- category: feature` and a decision entry `- category: decision`, and both carry
 `- decision: NEEDS_USER`. An unfinished entry carries `- category: unfinished`, a `- branch:` line
@@ -886,6 +889,19 @@ builds it while that line stands, and the run's status edits remove the line, ap
 branch holds the entry's fix, whose entry ends with a `Pulled: <ids>` line. That line says to set
 each id `fixed` once the park entry is fixed and landed, and to remove only each `- pulled:` line once
 the park entry is skipped, or set `stale` while its block is rebuilt from `todo`.
+An entry that a closing pass or an escalated default recorded may carry the line
+`**Parked with:** block <id>. Hold this entry until that block is done or skip.` (§5, §6), since the
+code it names sits on that block's branch or is not built yet. A line that a closing pass or an
+escalated default writes names a block of the run the file's header names, and a line that step 1
+below writes names a block of the run the entry's `**Closed by:**` line names. The line never sets
+the entry's decision. No launch builds the entry while a line that starts with `**Parked with:**`
+stands, and the developer and acceptance of a fix block treat it as not ACTIONABLE.
+`args --backlog` cuts the line from an open ACTIONABLE entry once that block is `done` or `skip` in
+its plan file, so the entry builds like any other. A block that is `backlogged`, `blocked` or `todo`
+keeps the hold, since its code sits on a branch or is not built. A line that names no block as
+`block <id>`, a block no run record names, a plan file that is gone and a plan file that no longer
+holds the block keep the hold too, and the note `args` prints says to delete the line by hand once
+that block is `done` or `skip`.
 Before the developer, fix acceptance or the closing acceptance appends an entry (§5, §6), it greps
 the folder's `*.md` files by the file path and the name of the function or identifier at the defect,
 reads each matching entry, and never appends a defect that an entry with `- status: open` or
@@ -909,8 +925,10 @@ When the user asks to work the backlog:
    `## Parked block: <the block id>` in its state folder's NEEDS-USER.md, so hold the entry when
    that line is there as an entire line. To hold it, set its `- decision: NEEDS_USER` and add the
    line
-   `**Parked with:** block <id>. Triage this entry once that block's park entry lands, or the block is accepted or dropped.`
-   after its `**Fix:**` line. Step 3 owns an entry once it carries that line. Otherwise treat the
+   `**Parked with:** block <id>. Hold this entry until that block is done or skip.`
+   after its `**Fix:**` line, where `<id>` is a block of the run the `**Closed by:**` line names. The
+   decision keeps `args --backlog` from releasing it, since `args` looks the block up in the run the
+   file's header names. Step 3 owns an entry once it carries that line. Otherwise treat the
    entry like the rest. Last, apply step 5 to the folder. Step 5 there sees only the statuses an
    earlier `args` call folded, so a fix that a finished launch's record holds and no `args` call has
    folded yet closes nothing until a later `args` call folds it and step 5 runs again.
@@ -919,9 +937,9 @@ When the user asks to work the backlog:
    `DEFER`, or while it is ACTIONABLE and its `- status:` is `needs-attention`, which a fix that failed
    or did not land sets.
    An entry whose decision is SKIP never waits on the user, whatever its status. It keeps its status
-   unless step 3 sets one, so `- status: open` alone never lists an entry. List an entry with a
-   `**Parked with:**` line with a note naming the block that line names, and leave it out of the
-   triage in step 3 while it is held. Leave out every ACTIONABLE entry of a `backlogged` file, since that
+   unless step 3 sets one, so `- status: open` alone never lists an entry. Also list each entry with
+   a `**Parked with:**` line, whatever its decision, with a note naming the block that line names,
+   and leave it out of the triage in step 3 while it is held. Leave out every ACTIONABLE entry of a `backlogged` file, since that
    file's park entry carries it and step 5 closes it once its work lands. List each other entry of
    that file with a note naming the file, and leave it out of the triage in step 3 until step 5 sets
    the file `done`, since an entry approved before then would be closed with entries it was never
@@ -934,20 +952,24 @@ When the user asks to work the backlog:
    `Pulled:` line, remove the `- pulled:` line of each entry that line names, so a later run can take
    that entry again. Set each
    entry the user approves to `- decision: ACTIONABLE`, and rewrite its `**Fix:**` line to encode the
-   option the user chose. Hold an entry with a `**Parked with:**` line until its block's park entry
-   is built and lands, or its block is accepted and `done`, since until then the code it names sits
-   on that block's branch. A closing acceptance that lands the block makes it `done` with no park
-   entry. Release the hold when the user skips that park entry or drops the block. Once the hold
-   ends, skip the entry when the accepted baseline holds its fix, and triage it like the rest when
-   the code does not. Set `- status: fixed` on each entry skipped because the accepted
-   baseline holds its fix.
+   option the user chose. Hold an entry with a `**Parked with:**` line while the block it names is
+   not `done` or `skip` in its plan file, since until then the code it names sits on that block's
+   branch or is not built. Step 5 sets the block `done` once its park entry lands, a closing
+   acceptance that lands the block makes it `done` with no park entry, and dropping the block sets
+   it `skip`. A released ACTIONABLE entry takes no triage, since `args --backlog` cuts its line and
+   builds it (step 4), and its developer records it STALE when the accepted baseline already holds
+   its fix. Once the hold on a NEEDS_USER entry ends, remove its line, skip the entry when the
+   accepted baseline holds its fix, and triage it like the rest when the code does not. Set
+   `- status: fixed` on each entry skipped because the accepted baseline holds its fix.
    A `status: todo` file left with no ACTIONABLE entry and no entry that waits on the user is not a
    plan, so set it to `status: skip`, as debug's triage does.
 4. Build the files that hold an ACTIONABLE entry whose status is not `fixed` or `stale` and that
-   carries no `- pulled:` line, with `node <plan-edit.mjs> args <file> [<file> ...] --pack <target.repo>`
+   carries no `- pulled:` or `**Parked with:**` line, with `node <plan-edit.mjs> args <file> [<file> ...] --pack <target.repo>`
    and a develop launch in fix mode, from §2 step 3. `args --backlog <backlogDir> --pack <target.repo>`
-   takes the place of naming the files. It adds every `todo` or `done` file that holds an ACTIONABLE
-   entry with `- status: open` and no `- pulled:` line, and none with `- status: needs-attention`,
+   takes the place of naming the files. It first cuts the `**Parked with:**` line of each open
+   ACTIONABLE entry whose block is `done` or `skip`, as the hold paragraph above says. A file named
+   on the command line gets no cut, so its held entries stay held. It adds every `todo` or `done` file that holds an ACTIONABLE
+   entry with `- status: open` and no `- pulled:` or `**Parked with:**` line, and none with `- status: needs-attention`,
    sets each `done` one to `todo`, and prints an unordered set, so it refuses an ordered plan file.
    It leaves out a file while the block that wrote it is not `done`, `skip` or `backlogged` (§5). It matches the run records whose `runId`
    arg and block id match the file's header, and whose `backlogDir` arg, when they keep one, names

@@ -161,7 +161,9 @@ feature or refactor the developer noticed outside a block's scope, each choice i
 proceeded past by a default, and one entry per parked block. Each entry says whether it is ready to
 build. An entry is `ACTIONABLE` when it is a defect or a cleanup with one clear, small fix that
 changes no user-visible behavior, stored data or public contract. Develop builds it without triage.
-Every other entry is `NEEDS_USER` and waits for you. To work the backlog, run
+Every other entry is `NEEDS_USER` and waits for you. An entry from a closing pass is held until its
+block lands or you drop the block, since until then the code it names is not on your branch. Then
+it is ready or waits for you by the same rule. To work the backlog, run
 `/aipg:develop work the backlog`, or tell Claude to work the backlog with the develop workflow. You
 triage the `NEEDS_USER` entries with Claude. Then develop builds the `ACTIONABLE` entries and the
 entries you approve.

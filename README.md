@@ -157,6 +157,10 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-26
 
+- **A closing pass's backlog entries build without triage once their block lands.** An entry with a
+  `**Parked with:**` line now takes its decision by the same rule as any other entry. `plan-edit.mjs
+  args --backlog` holds it while the block that line names is not `done` or `skip`. Then it cuts the
+  line, so a ready entry builds like any other. A fix-mode developer leaves a held entry untouched.
 - **A `proactive` developer fixes ready backlog entries beside its block.** In round 1, each develop
   block runs the new read-only `tools/plan-pull.mjs pullable`, which lists the ready entries in the files
   the block changes by the rules `plan-edit.mjs args --backlog` builds by. The developer takes the ones

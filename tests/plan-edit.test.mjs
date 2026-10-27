@@ -1185,4 +1185,79 @@ section('--backlog never builds an entry another block\'s developer pulled');
   eq(packedOut.err ? packedOut.err : JSON.parse(packedOut.out).plans.map((r) => r.id).join(','), 'mixed-plus-1', '--pack weighs only the files of entries a developer will work, so a pulled entry\'s file adds no lines');
 }
 
+section('--backlog holds a parked-with entry until its block is done or skip, then cuts the line and builds it');
+{
+  const plans = tmpDir();
+  const backlog = tmpDir();
+  const block = (name, status) => backlogFile(plans, name, status, [{ id: `${name}-1`, file: 'w.js' }]);
+  const parkedWith = (id) => `**Parked with:** block ${id}. Hold this entry until that block is done or skip.`;
+  /** A backlog file written by block `writer` of run p1, one ACTIONABLE entry per `[id, extra lines]` pair, each naming `file`. */
+  const writtenBy = (name, writer, entries, { dir = backlog, file = 'a.js', loc = 10 } = {}) => fixture([`## Plan: ${name} - backlog from block ${writer} of run p1`, 'mode: fix', 'gate: green', 'status: todo', '',
+    ...entries.flatMap(([id, ...extra]) => [`### [${id}] ${id}`, `- file: ${file}:1`, `- loc: ${loc}`, '- decision: ACTIONABLE', '- status: open', '', 'What.', '**Fix:** fix it.', ...extra, ''])].join('\n'), `${name}.md`, dir);
+  const landed = block('landed', 'done');
+  const dropped = block('dropped', 'skip');
+  const shelved = block('shelved', 'backlogged');
+  const pending = block('pending', 'todo');
+  const stuck = block('stuck', 'blocked');
+  const member = block('member', 'done');
+  const fromLanded = writtenBy('from-landed', 'landed', [
+    ['l-1', parkedWith('landed')], ['l-2', parkedWith('dropped')], ['l-3', parkedWith('pending')], ['l-4', parkedWith('stuck')],
+    ['l-5', parkedWith('ghost')], ['l-6', parkedWith('member-plus-1')], ['l-7', `    ${parkedWith('pending')}`],
+    ['l-8', '**Parked with:** block `landed`.'], ['l-9', parkedWith('gone')], ['l-10', parkedWith('gone')], ['l-11', parkedWith('renamed')]]);
+  const fromShelved = writtenBy('from-shelved', 'shelved', [['s-1', parkedWith('shelved')]]);
+  const fromShelvedMixed = writtenBy('from-shelved-mixed', 'shelved', [['m-1', parkedWith('shelved')], ['m-2']]);
+  const fromCrlf = writtenBy('from-crlf', 'landed', [['c-1', parkedWith('landed')]]);
+  writeFileSync(fromCrlf, `${BOM}${read(fromCrlf).replace(/\n/g, '\r\n')}`);
+  const rows = [landed, dropped, shelved, pending, stuck].map((planPath) => ({ id: planPath.replace(/^.*[\\/]|\.md$/g, ''), planPath }))
+    .concat([{ id: 'member-plus-1', blocks: [{ id: 'member', planPath: member }] }, { id: 'gone', planPath: join(plans, 'missing.md') }, { id: 'renamed', planPath: landed }]);
+  const config = configWith([record({ runId: 'wf_p1', args: { runId: 'p1', backlogDir: backlog, plans: rows } })]);
+  const shelvedBefore = read(fromShelved);
+
+  const { out, notes, err } = withBacklog(config, backlog);
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  const text = read(fromLanded);
+  const held = (id) => new RegExp(`### \\[${id}\\][^#]*\\n\\*\\*Parked with:\\*\\*`).test(text);
+  eq(['l-1', 'l-2', 'l-6'].filter(held).join(','), '', 'a block that is done or skip, a pass whose members are all done included, releases its entry: the line is cut on disk');
+  eq(['l-3', 'l-4', 'l-5', 'l-8', 'l-9', 'l-10', 'l-11'].filter(held).join(','), 'l-3,l-4,l-5,l-8,l-9,l-10,l-11',
+    'a todo, a blocked and an unknown block keep the hold, and so do a line that names no block, a gone plan file and a gone block');
+  ok(text.includes('**Fix:** fix it.\n\n### [l-2]'), 'the cut takes the line\'s own ending and nothing else');
+  ok(text.includes(`What.\n**Fix:** fix it.\n    ${parkedWith('pending')}\n`), 'an indented copy of the line is not a hold and is left as it is');
+  const wayOut = 'Once that block is done or skip, release each entry it holds by deleting that entry\'s \\*\\*Parked with:\\*\\* line';
+  ok(new RegExp(`kept the hold on l-5 in .*from-landed\\.md: no run record names block ghost of run p1\\. ${wayOut}`).test(notes),
+    `an unknown block keeps the hold, with a note naming the way out: ${notes.trim()}`);
+  ok(new RegExp(`kept the hold on l-8 in .*from-landed\\.md: its \\*\\*Parked with:\\*\\* line names no block as "block <id>"\\. ${wayOut}`).test(notes),
+    'a line that names no block keeps the hold, with a note naming the way out');
+  ok(new RegExp(`cannot read .*missing\\.md, which holds gone \\(.*\\), so the entries parked with it stay held\\. ${wayOut}`).test(notes),
+    'a gone plan file keeps the hold, with a note naming the way out');
+  eq((notes.match(/cannot read .*missing\.md/g) ?? []).length, 1, 'a block that holds two entries is looked up once');
+  ok(new RegExp(`landed\\.md no longer holds renamed, so the entries parked with it stay held\\. ${wayOut}`).test(notes),
+    'a gone block keeps the hold, with a note naming the way out');
+  eq(read(fromShelved), shelvedBefore, 'a backlogged block keeps the hold, so its file is left as it was');
+  eq(read(fromCrlf), `${BOM}${['## Plan: from-crlf - backlog from block landed of run p1', 'mode: fix', 'gate: green', 'status: todo', '',
+    '### [c-1] c-1', '- file: a.js:1', '- loc: 10', '- decision: ACTIONABLE', '- status: open', '', 'What.', '**Fix:** fix it.', ''].join('\r\n')}`,
+  'a BOM\'d CRLF file loses only the line and its CRLF ending');
+  eq(err ? '' : JSON.parse(out).plans.map((r) => r.id).join(','), 'from-crlf,from-landed,from-shelved-mixed',
+    'a file whose only ready entry is held is left out, and a file with a ready entry beside a held one is built');
+  ok(read(fromShelvedMixed).includes(parkedWith('shelved')), 'and the held entry of a built file keeps its line, which the fix-mode developer reads as not ACTIONABLE');
+
+  const lone = tmpDir();
+  writeFileSync(join(lone, 'only.md'), read(fromShelved));
+  const nothing = withBacklog(config, lone).err ?? '';
+  ok(/no pulled line or held Parked with line.*nothing to build/.test(nothing), `a held entry alone is nothing to build, which the message says: ${nothing}`);
+
+  // A plan with two blocks of one id fails validation, so the parked block's status cannot be read.
+  const pendingBefore = read(pending);
+  writeFileSync(pending, `${pendingBefore}\n${pendingBefore}`);
+  ok(/cannot load .*pending\.md, which holds pending, the block a backlog entry is parked with \(.*\)\. Its status decides whether that entry is held back/.test(withBacklog(config, backlog).err ?? ''),
+    'a parked block\'s plan that exists but fails to validate fails loudly instead of releasing the entry');
+  writeFileSync(pending, pendingBefore);
+
+  const weigh = tmpDir();
+  writtenBy('heavy', 'shelved', [['h-1', parkedWith('shelved')]], { dir: weigh, file: 'big.js', loc: 4000 });
+  writeFileSync(join(weigh, 'heavy.md'), `${read(join(weigh, 'heavy.md'))}### [h-2] h-2\n- file: small.js:1\n- loc: 10\n- decision: ACTIONABLE\n- status: open\n\nWhat.\n`);
+  writtenBy('next', 'landed', [['n-1']], { dir: weigh, file: 'other.js', loc: 2000 });
+  const weighed = argsWith(config, '--backlog', weigh, '--pack', weigh, '--loc-cap', '2500');
+  eq(weighed.err ? weighed.err : JSON.parse(weighed.out).plans.map((r) => r.id).join(','), 'heavy-plus-1', '--pack weighs only the files of entries a developer will work, so a held entry\'s file adds no lines');
+}
+
 for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });

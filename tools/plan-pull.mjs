@@ -38,10 +38,10 @@ const listOf = (value) => (value ?? '').split(',').map((item) => item.trim()).fi
  * An entry a developer can take beside its block. A branch entry restores parked work and builds alone. The id
  * must be `<file name>-<n>`, since the engine finds the file each pulled entry's status edits go to from its id.
  */
-function isPullable(entry, planPath, files) {
+function isPullable(entry, block, planPath, files) {
   const fileId = basename(planPath).replace(/\.md$/, '');
   const idFitsFile = entry.id.startsWith(`${fileId}-`) && /^\d+$/.test(entry.id.slice(fileId.length + 1));
-  return isReady(entry) && !keyOf(entry, 'branch') && idFitsFile && files.has(repoPath(entryPath(entry)));
+  return isReady(entry, block) && !keyOf(entry, 'branch') && idFitsFile && files.has(repoPath(entryPath(entry)));
 }
 
 function runPullable(argv, note) {
@@ -61,7 +61,7 @@ function runPullable(argv, note) {
   // notes say "applied", so each is marked, since this tool writes nothing.
   const chosen = foldBacklog(flags['--backlog'], excluded, records, (line) => note(`in memory only: ${line}`)).filter((fold) => fold.chosen);
   const entries = chosen.flatMap((fold) => fold.blocks.filter(isBacklogBlock).flatMap((block) => block.issues
-    .filter((entry) => isPullable(entry, fold.path, files))
+    .filter((entry) => isPullable(entry, block, fold.path, files))
     .map((entry) => ({ id: entry.id, title: entry.title, planPath: fold.path.replace(/\\/g, '/'), file: keyOf(entry, 'file'), size: keyOf(entry, 'size') ?? null }))));
 
   // Output

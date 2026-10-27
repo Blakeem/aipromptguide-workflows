@@ -94,6 +94,27 @@ section('pullable lists the ready entries in the given files, and leaves out eve
   eq(JSON.stringify({ backlog: snapshot(backlog), plans: snapshot(plans) }), JSON.stringify(before), 'it writes nothing, not even the fold args would write or the done file\'s reopening');
 }
 
+section('pullable lists a parked-with entry only once its block is done or skip, and cuts no line on disk');
+{
+  const backlog = tmpDir();
+  const plans = tmpDir();
+  const landed = backlogFile(plans, 'landed', 'done', [{ id: 'l-1', file: 'x.js:1' }]);
+  const pending = backlogFile(plans, 'pending', 'todo', [{ id: 'p-1', file: 'x.js:1' }]);
+  const entry = (id, block) => [`### [${id}] ${id} title`, `- id: ${id}`, '- file: src/a.js:1', '- decision: ACTIONABLE', '- status: open', '', 'What.',
+    `**Parked with:** block ${block}. Hold this entry until that block is done or skip.`, ''];
+  const file = join(backlog, 'parked-with.md');
+  writeFileSync(file, ['## Plan: parked-with - backlog from block landed of run p1', 'mode: fix', 'gate: green', 'status: todo', '',
+    ...entry('parked-with-1', 'landed'), ...entry('parked-with-2', 'pending')].join('\n'));
+  const record = { runId: 'wf_p1', timestamp: '2026-09-25T10:00:00.000Z', workflowName: 'develop-cycle', status: 'completed',
+    args: { runId: 'p1', backlogDir: backlog, plans: [{ id: 'landed', planPath: landed }, { id: 'pending', planPath: pending }] }, logs: [], result: null };
+  const before = read(file);
+
+  const { entries, err } = pullable(configWith([record]), '--backlog', backlog, '--files', 'src/a.js');
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  eq((entries ?? []).map((e) => e.id).join(','), 'parked-with-1', 'the entry of a done block is listed, and the entry of a todo block stays held');
+  eq(read(file), before, 'the release happens in memory only');
+}
+
 section('pullable fails on a missing flag or file list, and a missing folder lists nothing');
 {
   const backlog = tmpDir();

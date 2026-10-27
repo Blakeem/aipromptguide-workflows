@@ -480,7 +480,7 @@ const developSchema = (mode, closing) => ({
           required: ['issue_id', 'status'],
           properties: {
             issue_id: { type: 'string' },
-            status:   { type: 'string', enum: ['FIXED', 'STALE', 'SKIPPED', 'FAILED'], description: 'FIXED = you changed code that closes it. STALE = it no longer exists in current code. SKIPPED = its `- decision:` is not ACTIONABLE. FAILED = you tried and could not.' },
+            status:   { type: 'string', enum: ['FIXED', 'STALE', 'SKIPPED', 'FAILED'], description: 'FIXED = you changed code that closes it. STALE = it no longer exists in current code. SKIPPED = it counts as not ACTIONABLE, by its `- decision:` or a held line. FAILED = you tried and could not.' },
           },
         },
       },
@@ -809,10 +809,11 @@ ${indent}  **Fix:** <the change that closes it>`;
 
 // The one rule every backlog writer applies to an entry's decision, so a later run builds a clear small fix
 // without triage and the user sees only the entries that hold a choice.
-const DECISION_RULE = `Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.`;
+const DECISION_RULE = `Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.`;
 
-// The hold a park puts on an entry whose code the park removes from the tree, read by the backlog triage.
-const parkedWithLine = (id) => `"**Parked with:** block ${id}. Triage this entry once that block's park entry lands, or the block is accepted or dropped."`;
+// The hold on an entry whose code sits on its block's branch or is not built yet. plan-edit.mjs args --backlog cuts
+// the line from an ACTIONABLE entry once that block is done or skip, so the line itself marks a held entry.
+const parkedWithLine = (id) => `"**Parked with:** block ${id}. Hold this entry until that block is done or skip."`;
 
 // Case 7's proceeding branch also writes DISMISSED: the blind reviewer never sees DECISIONS (see
 // GATE_DIR), so it would flag the escalated default every round until the block parks (#5).
@@ -1171,7 +1172,8 @@ Return ONLY the decision fields via the schema (no prose report).`;
 };
 
 // A pulled entry's own run syncs it, or its park entry carries its work, so the block built from its file never builds it.
-const PULLED_ENTRY_RULE = 'An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block\'s developer took it.';
+// args --backlog cuts a released parked-with entry's line, so a line that stands marks a held entry.
+const PULLED_ENTRY_RULE = 'An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block\'s developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block\'s branch or is not built yet.';
 // The last line of a park entry whose branch holds pulled fixes. Only whoever closes that entry can close them.
 const pulledLine = (ids) => `Pulled: ${ids}, whose work this entry's branch holds. Once this entry is fixed and landed, set each of them fixed and remove its "- pulled:" line. Once this entry is skipped, or set stale while its block is rebuilt from todo, remove only that line.`;
 // Verify-first because entries come from a past snapshot. ACTIONABLE-only because the decision line is
@@ -1202,7 +1204,7 @@ ${PHASE_NOTES}
    under DECISION MATRIX rule 6a.
 2. ${PATTERN_STEP}
 3. BUILD: ${rework ? `${rework}\n   ` : ''}FIX ONLY the entries whose \`- decision:\` line says ACTIONABLE. Leave every other
-   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line, anything else) UNTOUCHED and record it
+   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else) UNTOUCHED and record it
    SKIPPED: that triage is the user's call, or the other block's. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
    The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
    leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
@@ -1277,7 +1279,7 @@ const closingRework = (id, reviewPath) => `CLOSING PASS. ${reviewPath ? `READ ${
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
    After that line, add the line ${parkedWithLine(id)}, since the engine parks the block with the code the entry names when its closing
    acceptance finds a blocking gap.
-   That line sets the entry's "- decision:" to NEEDS_USER, by RECORD's decision rule.
+   Set its "- decision:" line by RECORD's decision rule, from the entry's own kind, size and effect.
    An entry for a nit takes "- category: cleanup" and no "- severity:" line. Count it in
    backlog_entries, list its id in recorded_entries, and write no DISMISSED line for it. When the dedup
    forbids the append, list the id of the entry that holds the item in recorded_entries instead. Make
@@ -1305,7 +1307,9 @@ round-1 context of about 200k to 350k tokens, your block's own work included, an
 block alone fills that. For each entry you take:
   a. Append the line "- pulled: ${RUN_ID}#${p.id}" to the entry's "- <key>:" lines in its planPath,
      directly under the last of them. An entry that already carries a "- pulled:" line was taken by
-     another developer after the tool ran, so leave it and do not take it.
+     another developer after the tool ran, so leave it and do not take it. When the entry carries a line
+     that starts with "**Parked with:**", delete that line, since the tool lists such an entry only once
+     the block that line names is done or skip.
   b. List its id, one id per line, in ${pulledFile(p.id)} (create ${STATE_DIR}/ if needed), which holds
      the ids of every entry you take. ${REPLACE_NOTE} When you take none, create no file, and empty it
      when an earlier launch left one.
@@ -1650,7 +1654,7 @@ ${claimedStale.map((id) => `     - ${id}`).join('\n') || '     (none reported st
    ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
    entry is the user's call. The developer reports these issues SKIPPED:
 ${reportedSkipped.map((id) => `     - ${id}`).join('\n') || '     (none reported skipped)'}
-   Confirm each one's \`- decision:\` is genuinely not ACTIONABLE, or that it carries a "- pulled:" line: an
+   Confirm each one's \`- decision:\` is genuinely not ACTIONABLE, or that it carries a "- pulled:" line or a line that starts with "**Parked with:**": an
    ACTIONABLE entry reported SKIPPED is an issue left open, and it fails acceptance.
 4. ${REGRESSION_STEP}
 5. Run the FULL gates (GATES above) once and record the real outcome. ${roundGateRun('acceptance', p.id, round)}
@@ -1784,7 +1788,7 @@ const parkReason = (haltKind, id) => ({
   'passed-regression': 'acceptance passed the block but flagged a regression and staged nothing, so its work must never be staged as it is',
 }[haltKind] || `the run halted (${haltKind || 'unknown halt'})`);
 
-// A closing pass that listed entries names them, since each holds a fix that needs a blind review, which only the user can schedule.
+// The park entry names the entries a closing pass listed, so its reader sees each fix that still needs a blind review.
 // `recorded` is null when the pass gave no usable list, which may hide such an entry.
 const closingRecordNote = (p, recorded) => {
   if (recorded === null) {
@@ -2154,7 +2158,7 @@ function issueSyncStatus(status, claimedFixed, landed) {
   if (status === 'FIXED' || (status === 'STALE' && claimedFixed)) return landed ? 'fixed' : 'needs-attention';
   if (status === 'STALE') return landed ? 'stale' : 'needs-attention';
   if (status === 'FAILED') return 'needs-attention';
-  return '';   // SKIPPED: the entry stays open, and its decision line already says why
+  return '';   // SKIPPED: the entry stays open, and its decision, pulled or parked-with line already says why
 }
 
 /**
@@ -2737,7 +2741,7 @@ for (const p of pending) {
         if (ORDERED) {
           halted = true;
           haltKind = 'no-changes';
-          haltReason = `Fix block ${p.id} produced no changes in round 1: every entry it reported was SKIPPED (or it reported none), so nothing was fixed and nothing was staged. This is an ORDERED run, so the blocks after it were not attempted. Read the block itself — an entry only gets fixed while its \`- decision:\` line says ACTIONABLE — then flip it back to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean.`;
+          haltReason = `Fix block ${p.id} produced no changes in round 1: every entry it reported was SKIPPED (or it reported none), so nothing was fixed and nothing was staged. This is an ORDERED run, so the blocks after it were not attempted. Read the block itself — an entry only gets fixed while its \`- decision:\` line says ACTIONABLE and it carries no \`- pulled:\` line and no line that starts with \`**Parked with:**\` — then flip it back to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean.`;
         }
         break;
       }
@@ -3316,7 +3320,7 @@ return {
       ? `Acceptance landed these blocks but could not delete the unfinished branch whose work they now hold: ${keptBranches.map((k) => `${k.branch} (${k.id})`).join(', ')}. Delete each with \`git -C ${REPO} branch -D <branch>\`. `
       : `These staged blocks hold the work of unfinished branches that stay until the user commits that work, so a landing the user rejects can be rebuilt from them: ${keptBranches.map((k) => `${k.branch} (${k.id})`).join(', ')}. Once the user commits the staged work, delete each with \`git branch -D <branch>\` in any checkout of the repo. `)
     : ''}${noChangePlans.length
-    ? `${noChangePlans.length} block(s) closed NO issue and are NOT done: ${noChangePlans.map((r) => r.id).join(', ')}. statusSync marks each blocked: read its entries' \`- decision:\` lines (only ACTIONABLE entries get fixed), then flip it back to todo once \`plan-edit.mjs args\` has applied this run's statuses. `
+    ? `${noChangePlans.length} block(s) closed NO issue and are NOT done: ${noChangePlans.map((r) => r.id).join(', ')}. statusSync marks each blocked: read its entries' \`- decision:\`, \`- pulled:\` and \`**Parked with:**\` lines (only an ACTIONABLE entry with neither of the last two gets fixed), then flip it back to todo once \`plan-edit.mjs args\` has applied this run's statuses. `
     : ''}${restoreFailedPlans.length
     ? `${restoreFailedPlans.length} fix block(s) could not restore an unfinished branch and are NOT done: ${restoreFailedPlans.map((r) => `${r.id} (${r.restoreError})`).join('; ')}. Each developer reversed every restore, so the tree is clean, and each branch still holds its work. ${RESTORE_RECOVERY} `
     : ''}${haltedPlans.length

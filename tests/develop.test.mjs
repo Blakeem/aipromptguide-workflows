@@ -36,7 +36,7 @@ const fnv1a = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { 
 const backlogFileId = (id, runId = 't') => `${runId}-${id}-${fnv1a(JSON.stringify([runId, id]))}`;
 const backlogFile = (id, runId) => `${BACKLOG}/${backlogFileId(id, runId)}.md`;
 // A copy of the engine's rule, so a change to the one rule every backlog writer applies fails here.
-const DECISION_RULE = `Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.`;
+const DECISION_RULE = `Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.`;
 // The grep wording of both backlog writers: the dedup before an append, and the Closed-by lookup.
 const GREP = (pathOf, nameAt) => `grep the *.md files in ${BACKLOG}/ for ${pathOf} and for the name of the function or identifier at ${nameAt}, and read each entry that a grep matches`;
 const DEDUP = (item) => `Before you append, create ${BACKLOG}/ if it does not exist, then ${GREP('the path of the file the new entry names', `the ${item}`)}. Never append a ${item} that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the ${item} is back in the code, so append a new entry whose **What:** names their ids.`;
@@ -509,10 +509,10 @@ section('a block whose last round fails gets one closing pass, whose acceptance 
     && closer.includes('with a **Fix:** line naming the fix you would make')
     && closer.includes('list its id in recorded_entries, and write no DISMISSED line for it'),
     'it makes each low-risk fix and records the rest as backlog entries naming the fix');
-  ok(closer.includes("That line sets the entry's \"- decision:\" to NEEDS_USER, by RECORD's decision rule."),
-    'a recorded entry carries a Parked-with line, so the decision rule gives it NEEDS_USER');
+  ok(closer.includes("Set its \"- decision:\" line by RECORD's decision rule, from the entry's own kind, size and effect.") && !closer.includes('to NEEDS_USER, by RECORD'),
+    'a recorded entry takes its decision from its own kind, size and effect, never from its Parked-with line');
   ok(closer.includes('or, in this closing pass, RECORDED as BUILD says'), 'the matrix counts a recorded finding as routed');
-  ok(closer.includes('After that line, add the line "**Parked with:** block block-a. Triage this entry once that block\'s park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names when its closing acceptance finds a blocking gap.'),
+  ok(closer.includes('After that line, add the line "**Parked with:** block block-a. Hold this entry until that block is done or skip.", since the engine parks the block with the code the entry names when its closing acceptance finds a blocking gap.'),
     'each recorded entry names the park that would hold the code it describes');
   ok(closer.includes('When the dedup forbids the append, list the id of the entry that holds the item in recorded_entries instead.'),
     'an item an entry already holds is listed by that entry\'s id, not appended again');
@@ -781,7 +781,7 @@ section('a developer records each real defect its zone routing leaves unchanged 
   const CLEANUP = `Leave its status and decision as they are, since a park clears the fix from the tree. • CLEANUP (this run's change policy): append ONE entry for each cleanup outside task code, ${OWNED_CODE}, that you noticed and did not make, such as a nit. Route, count, dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: cleanup" and no "- severity:" line, since severity takes only critical, high, medium or low. Its **What:** names the cleanup, the code it touches and what it improves.`;
   // Both policies, after the CLEANUP bullet when there is one.
   const FEATURE = `• FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside this block's scope, ${OWNED_CODE}, instead of building it. Route, count, dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line. Its **What:** names the feature or refactor, the code it touches and what it adds or improves. • AMEND (6a)`;
-  const ESCALATION_ENTRY = (id) => `Also append ONE backlog entry for it when the choice lies ${OWNED_CODE}, routed, counted, deduped and numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER" and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:** states the other option. When the default lies in code this block's diff adds or changes, add the line "**Parked with:** block ${id}. Triage this entry once that block's park entry lands, or the block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree. Write to`;
+  const ESCALATION_ENTRY = (id) => `Also append ONE backlog entry for it when the choice lies ${OWNED_CODE}, routed, counted, deduped and numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER" and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:** states the other option. When the default lies in code this block's diff adds or changes, add the line "**Parked with:** block ${id}. Hold this entry until that block is done or skip." after the **Fix:** line, since a park removes that code from the tree. Write to`;
   const CLASS_ENTRY = 'A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first place, and its **What:** names the class.';
   const CLOSE = (tag, id) => `When you append a ${tag} line below, ${GREP('the path of the file the fix changes', 'the fix')}. When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's **Fix:** line in that file: **Closed by:** block ${id} r1 of run ${baseArgs.runId}. Confirm before the entry is built that the accepted baseline holds the fix. Leave its status and decision as they are, since a park clears the fix from the tree.`;
   const FILE_A = backlogFile('fix-a');
@@ -1015,6 +1015,9 @@ section('a round-1 fix block that closed nothing is NOT done, and `ordered` deci
     'and order the flip after the status fold');
   ok(/flip it back to todo once `plan-edit\.mjs args` has applied this run's statuses/.test(stop.out.haltReason),
     'as does the ordered halt reason');
+  ok(String(stop.out.haltReason ?? '').includes('says ACTIONABLE and it carries no `- pulled:` line and no line that starts with `**Parked with:**`')
+    && String(carry.out.nextStep ?? '').includes("read its entries' `- decision:`, `- pulled:` and `**Parked with:**` lines"),
+  'the halt reason and nextStep name the pulled and parked-with lines that also keep an ACTIONABLE entry from being fixed');
 
   // A restored branch is unstaged work that no SKIPPED or empty report reflects, so it must reach a review and a park.
   for (const [what, results] of [['all SKIPPED', [{ issue_id: 'i-1', status: 'SKIPPED' }]], ['empty', []]]) {
@@ -3704,7 +3707,8 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
     fix: 'NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.',
   };
   const best = 'with the change that has the best long-term result: correct, simple, maintainable and consistent with the repo. Leave a change that another block of the plan owns to that block.';
-  const fixScope = `Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. ${scopeLine.fix}`;
+  const takenRules = 'An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block\'s developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block\'s branch or is not built yet.';
+  const fixScope = `Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on behalf of an entry that is not ACTIONABLE, in any zone. ${takenRules} ${scopeLine.fix}`;
   const buildLine = {
     focused: {
       feature: `Build it minimally and surgically; match conventions; ${scopeLine.feature}`,
@@ -3756,6 +3760,12 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
       ok(dev !== '' && !dev.includes('a little better'), `${where}: no closing line asks to leave touched lines a little better`);
       const acc = flat(r.prompt(`acceptance ${id}`));
       ok(acc.includes(settled(tag, policy)), `${where}: acceptance's DECISIONS entry says it also holds the ${tag} lines`);
+      if (mode === 'fix') {
+        ok(dev.includes('Leave every other entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else) UNTOUCHED'),
+          `${where}: the developer leaves a held parked-with entry untouched`);
+        ok(acc.includes(takenRules) && acc.includes('or that it carries a "- pulled:" line or a line that starts with "**Parked with:**": an'),
+          `${where}: fix acceptance counts a parked-with entry as not ACTIONABLE, and confirms it was reported SKIPPED`);
+      }
       ok(acc.includes(loggedFixItem(tag, id, zones)) && !acc.includes(otherTag),
         `${where}: the last "Not a regression" item excuses a ${tag}-logged fix of a defect only in code no other block owns and ${zones}`);
       ok(acc.includes('escalates it when only a change in other code closes it. Once'), `${where}: acceptance names other code as the escalation's limit`);
@@ -4465,6 +4475,8 @@ section('the proactive round-1 developer of every mode runs the pull step, and t
     const dev = flat(r.prompt(`develop ${id} r1`));
     ok(dev.includes('PULL READY BACKLOG ENTRIES, in round 1 only.') && dev.includes(PULL_COMMAND), `proactive ${mode}: round 1 runs plan-pull with the backlog folder and leaves out the run's own plan files`);
     ok(dev.includes(`a. Append the line "- pulled: t#${id}" to the entry's "- <key>:" lines in its planPath`), `proactive ${mode}: each taken entry is marked with the run and block`);
+    ok(dev.includes('When the entry carries a line that starts with "**Parked with:**", delete that line, since the tool lists such an entry only once the block that line names is done or skip.'),
+      `proactive ${mode}: a taken entry loses the parked-with line the tool released in memory only`);
     ok(dev.includes(`b. List its id, one id per line, in ${STATE}/PULLED-${id}.md`), `proactive ${mode}: each taken id goes to the block's PULLED file`);
     ok(dev.includes('aim for a round-1 context of about 200k to 350k tokens, your block\'s own work included'), `proactive ${mode}: the developer takes entries up to its capacity`);
     ok(r.calls.find((c) => c.label === `develop ${id} r1`).opts.schema.required.includes('pulled_results'), `proactive ${mode}: the developer reports its pulled entries`);
