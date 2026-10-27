@@ -15,7 +15,7 @@ flowchart TD
   t2(["needs-answers (the critic raised questions only the operator can settle)"])
   t3(["dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md)"])
   t4(["rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)"])
-  t5(["BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere)"])
+  t5(["BLOCKED (the critic did not confirm writing its critique file, which every round writes - the round has no record)"])
   t6(["BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere)"])
   t7(["BLOCKED (the folded plan file no longer parses - every later consumer reads it)"])
   t8(["BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file)"])
@@ -60,7 +60,7 @@ flowchart TD
 
 | Phase | What happens |
 |---|---|
-| Critique | A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-&lt;round&gt;.md (gaps with file:line evidence, questions, and an FYI section only in a round with no gaps and no questions) and returns counts plus a wrote_file attestation, nothing else. |
+| Critique | A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-&lt;round&gt;.md every round (gaps with file:line evidence, questions, and an FYI section only in a round with no gaps and no questions, or "No gaps." in a round with nothing) and returns counts plus a wrote_file attestation, nothing else. |
 | Fold | Runs only when the round returned at-or-above-floor gaps and no questions. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, and re-runs the plan-block tool to prove the file still parses. |
 
 ## Terminal states
@@ -71,7 +71,7 @@ flowchart TD
 | needs-answers (the critic raised questions only the operator can settle) | the critic raises a question | derived |
 | dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md) | the editor escalates a contested dismissal | derived |
 | rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged) | gaps remain at the round budget | derived |
-| BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere) | the critic reports findings it did not write | derived |
+| BLOCKED (the critic did not confirm writing its critique file, which every round writes - the round has no record) | the critic reports findings it did not write · the critic reports a clean round it did not write | derived |
 | BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere) | the editor reports folds it did not write | derived |
 | BLOCKED (the folded plan file no longer parses - every later consumer reads it) | the plan file stops parsing after the fold | derived |
 | BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file) | the plan editor dies | derived |
@@ -86,8 +86,8 @@ flowchart TD
 | throw: Unknown role key in a role map | models carries a key outside critic \| editor | throw (line 96) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 99) |
 | throw: Missing args.blockTool | blockTool is missing or blank | throw (line 127) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 374) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 378) |
 
 ## Coverage
 
-22 scenarios · 2/2 roles · 12/12 throw sites · 8/8 halt statuses · 20 terminal states.
+23 scenarios · 2/2 roles · 12/12 throw sites · 8/8 halt statuses · 20 terminal states.

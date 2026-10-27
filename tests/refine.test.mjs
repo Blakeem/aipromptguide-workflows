@@ -22,7 +22,7 @@ const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, resp
 
 // The same healthy returns as tools/flows/refine.flow.mjs, with the editor's `declined` pinned to 0 so
 // the ledger-sum case below is the only place that varies it.
-const CLEAN     = { wrote_file: false, gap_count: 0, question_count: 0 };
+const CLEAN     = { wrote_file: true, gap_count: 0, question_count: 0 };
 const GAPS      = { wrote_file: true, gap_count: 2, question_count: 0 };
 const QUESTIONS = { wrote_file: true, gap_count: 0, question_count: 1 };
 const UNWRITTEN = { wrote_file: false, gap_count: 2, question_count: 0 };
@@ -35,7 +35,7 @@ const NEEDS_ANSWERS = 'needs-answers (the critic raised questions only the opera
 const CONTESTED     = 'dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md)';
 const EXHAUSTED     = 'rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)';
 const EDITOR_DEAD   = 'BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file)';
-const NO_CRITIQUE   = 'BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere)';
+const NO_CRITIQUE   = 'BLOCKED (the critic did not confirm writing its critique file, which every round writes - the round has no record)';
 const NO_FOLD       = 'BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere)';
 const PLAN_BROKEN   = 'BLOCKED (the folded plan file no longer parses - every later consumer reads it)';
 
@@ -65,7 +65,7 @@ section('a clean first round converges, and is the one path that spawns no edito
   eq(out.status, CONVERGED, 'status');
   eq(out.rounds, 1, 'on round 1');
   eq(out.openGaps, 0, 'with no open gaps');
-  eq(out.lastCritique, '', 'and no critique file named — a clean round legitimately writes none');
+  eq(out.lastCritique, 'E:/r/runs/t-refine/plan-critique-1.md', 'and the clean round\'s critique file is named, since every round writes one');
   handBack(out, false, [
     'Hand the plan E:/plans/bus.md to the user for approval.',
     `Audit ${STATE}/DISMISSED-PLAN.md before trusting the converge, since each declined gap is a judgment call.`,
@@ -82,8 +82,11 @@ section('an FYI-only round writes its critique file and still converges, naming 
   const p = prompt('plan-critic').replace(/\s+/g, ' ');
   ok(p.includes('A round with FYI items and no gaps or questions writes the file'),
     'the critic is told an FYI-only round writes the file');
-  ok(p.includes('A round with nothing at all writes NOTHING'),
-    'and that a round with nothing at all writes nothing');
+  ok(p.includes('Write the file EVERY round and return wrote_file=true.'),
+    'the critic is told to write its file every round');
+  ok(p.includes('A round with nothing at all writes the one line "No gaps." and returns all three counts 0.')
+    && !p.includes('writes NOTHING') && !p.includes('wrote_file=false'),
+    'and that a round with nothing at all writes "No gaps.", never nothing');
   ok(p.includes('and count them in fyi_count'), 'the critic is told to count its FYI items');
   eq(out.status, CONVERGED, 'status');
   ok(!labels.some((l) => l.startsWith('plan-editor')), 'with no editor spawned for FYI items');
@@ -276,8 +279,8 @@ section('a gapped round then a clean one converges on round 2, with exactly one 
   eq(out.rounds, 2, 'the clean round is a second round, not a continuation of the first');
   eq(byLabel('plan-editor').length, 1, 'the editor ran once — the clean round folds nothing');
   eq(out.status, CONVERGED, 'status');
-  ok(out.lastCritique.endsWith('plan-critique-1.md'),
-    'and lastCritique names the last file a critic CONFIRMED writing, not the last round');
+  eq(out.lastCritique, `${STATE}/plan-critique-2.md`,
+    'and lastCritique names the clean round\'s file, since every round writes one');
 }
 
 section('the editor checks every gap against the plan and the repo before it folds one, in every round');
@@ -298,9 +301,9 @@ section('the editor checks every gap against the plan and the repo before it fol
     ok(guard.includes('not an extra step you think a block needs, and not a criterion you would have phrased differently.'),
       `${r}: the guard's list of changes the editor may not make ends on the criterion`);
     ok(!/FYI/i.test(p), `${r}: the editor prompt never mentions an FYI section, since no round the editor reads holds one`);
-    const steps = ['1. CHECK each numbered gap before you fold it, as a spot check of the critic.',
+    const steps = ['1. CHECK each numbered gap before you fold it. Open the plan line',
       '2. For each numbered gap, make the smallest edit to E:/plans/bus.md that closes it',
-      '3. A gap you DECLINE (it is wrong, it names something the block already covers, or it fails the CHECK step) gets ONE line',
+      '3. A gap you DECLINE under the CHECK step gets ONE line',
       '4. A gap prefixed "CONTESTS DISMISSAL:" may NOT be declined a second time.',
       '5. MANDATORY FINAL STEP'];
     const at = steps.map((s) => p.indexOf(s));
@@ -309,12 +312,17 @@ section('the editor checks every gap against the plan and the repo before it fol
     const check = p.slice(at[0], at[1]);
     for (const c of ['Open the plan line and the evidence it cites (a repo line, a plan line, a cited file\'s line, a dependency doc or a probe output) and confirm each says what the gap claims.',
       'Confirm the gap names text the plan states, never text it lacks.',
-      'Confirm its change only corrects, removes or moves text the plan states, and adds nothing the plan does not already state.',
-      'Run a probe the critic ran when you doubt its result.',
-      `Put its files in a temporary directory outside the target repo and the state dir ${STATE}.`,
-      `A gap that fails any check is DECLINED, its reason naming the check it failed, except a gap prefixed "CONTESTS DISMISSAL:", which goes to ${STATE}/NEEDS-USER.md under the contested-dismissal step.`]) {
+      'Re-run every probe whose output decides a WRONG PRESCRIPTION gap, and any other probe the critic ran when you doubt its result.',
+      `Put a probe's files in a temporary directory outside the target repo and the state dir ${STATE}.`,
+      'Treat the gap\'s change as a hint. Write the correction that closes the confirmed defect: it corrects, removes or moves text the plan states, and adds nothing the plan does not already state.',
+      'Confirm every path, symbol and quote your new text introduces against the repo.',
+      'Find every plan line that states the same fact, and count a line your correction would make false as named by the gap.',
+      'DECLINE a gap only when its defect is not confirmed, or when no correction, as opposed to an addition, closes it. Its reason names which.',
+      `A gap prefixed "CONTESTS DISMISSAL:" is never declined here and goes to ${STATE}/NEEDS-USER.md under the contested-dismissal step.`]) {
       ok(check.includes(c), `${r}: the CHECK step says "${c.slice(0, 60)}"`);
     }
+    ok(!check.includes('A gap that fails any check is DECLINED') && !check.includes('as a spot check of the critic'),
+      `${r}: the CHECK step no longer declines a gap for a change it can correct`);
     ok(p.slice(at[1], at[2]).includes('The critique\'s plan line numbers predate this round\'s edits, so find each cited plan line by its quoted text.'),
       `${r}: the fold step finds each cited plan line by its quoted text`);
   }
@@ -334,7 +342,7 @@ section('questions end the run on any round, and the editor never sees them');
   eq(out.questions, 1, 'the count is handed back');
   ok(!labels.some((l) => l.startsWith('plan-editor')), 'nothing was folded');
   handBack(out, true, [
-    `Read the QUESTIONS section of ${STATE}/plan-critique-1.md, settle the questions with the user and restructure E:/plans/bus.md, where new blocks take fresh kebab ids. Then relaunch.`,
+    `Read the QUESTIONS section of ${STATE}/plan-critique-1.md and the new entries headed "## r1 critic" at the end of ${STATE}/NEEDS-USER.md, settle the questions with the user and restructure E:/plans/bus.md, where new blocks take fresh kebab ids. Then relaunch.`,
     RELAUNCH,
     'A replay returns the cached critic and halts the same way.',
   ], 'needs-answers');
@@ -342,6 +350,12 @@ section('questions end the run on any round, and the editor never sees them');
   const { out: later, byLabel } = await run({ 'plan-critic': firstRound(GAPS, QUESTIONS), 'plan-editor': FOLD_OK });
   eq(later.status, NEEDS_ANSWERS, 'a question raised after a fold lands on the same status');
   eq(later.rounds, 2, 'on the round that raised it');
+  ok(String(later.nextStep ?? '').includes(`the new entries headed "## r2 critic" at the end of ${STATE}/NEEDS-USER.md`),
+    'and nextStep names that round as the one whose NEEDS-USER entries are new');
+  const [q1, q2] = byLabel('plan-critic').map((c) => c.prompt.replace(/\s+/g, ' '));
+  ok(q1.includes(`QUESTIONS also go to ${STATE}/NEEDS-USER.md IN FULL (append, create it if needed). Each question you append there opens with the line \`## r1 critic\`.`)
+    && q2.includes('opens with the line \`## r2 critic\`.'),
+    'each round\'s critic heads its NEEDS-USER entries with its own round');
   eq(byLabel('plan-editor').length, 1, 'the round-1 fold ran; the round-2 question spawned no second editor');
 }
 
@@ -352,17 +366,19 @@ section('an editor that escalates a contested dismissal ends the run dismissal-c
 {
   const { out, byLabel, prompt } = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': { ...FOLD_OK, needs_user: true } });
   ok(prompt('plan-editor').includes('needs_user=true'), 'the editor is told which field reports the escalation');
+  ok(prompt('plan-editor').replace(/\s+/g, ' ').includes(`append a full self-contained entry to ${STATE}/NEEDS-USER.md that opens with the line \`## r1 editor\`, and set needs_user=true.`),
+    'the editor heads its NEEDS-USER entry with its round');
   eq(out.status, CONTESTED, 'status');
   eq(out.rounds, 1, 'on the round the editor escalated');
   handBack(out, true, [
-    `Read the newest entries at the end of ${STATE}/NEEDS-USER.md and record the user's ruling, by folding the gap into E:/plans/bus.md or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${STATE}/DISMISSED-PLAN.md. Then relaunch.`,
+    `Read the new entries headed "## r1 editor" at the end of ${STATE}/NEEDS-USER.md and record the user's ruling, by folding the gap into E:/plans/bus.md or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${STATE}/DISMISSED-PLAN.md. Then relaunch.`,
     RELAUNCH,
   ], 'dismissal-contested');
   eq(byLabel('plan-critic').length, 1, 'and no second critic ran to report a clean round over the open question');
   ok(/A line marked `USER-RULED:` is the user's\s+own ruling: never contest it\./.test(prompt('plan-critic')), 'the critic is told a USER-RULED line is never contested');
 }
 
-section('a gap in an already-done block arrives as a question, never as a gap to fold');
+section('a gap in a closed block arrives as a question, never as a gap to fold');
 // Scope rule 1: folding into a done block rewrites the spec that already-staged code was built against.
 // The engine cannot enforce that — the critic does — so what is asserted is the contract on both ends:
 // the rule and the file are in the prompt, and the return it produces ends the run without an editor.
@@ -370,6 +386,9 @@ section('a gap in an already-done block arrives as a question, never as a gap to
   const { out, labels, prompt } = await run({ 'plan-critic': { wrote_file: true, gap_count: 0, question_count: 1 } });
   const p = prompt('plan-critic');
   ok(p.includes('SCOPE RULE 1'), 'the critic is told which blocks are closed to it');
+  const whenToUse = String(readMeta(readFileSync(`${REPO_ROOT}/${ENGINE}`, 'utf8'))?.whenToUse ?? '');
+  ok(whenToUse.includes('a gap in a closed block, which is a block with any status but todo') && !whenToUse.includes('already-done'),
+    'the engine header names a closed block as any status but todo, as the critic prompt closes them');
   ok(p.includes('E:/r/runs/t-refine/NEEDS-USER.md'), 'and where the operator reads the question');
   eq(out.openGaps, 0, 'the finding counts as no gap');
   eq(out.status, NEEDS_ANSWERS, 'and the run ends for the operator to restructure');
@@ -454,6 +473,18 @@ section('a critic that reports findings it never wrote halts before the editor')
 
   const { out: asked } = await run({ 'plan-critic': { wrote_file: false, gap_count: 0, question_count: 1 } });
   eq(asked.status, NO_CRITIQUE, 'an unwritten QUESTION halts the same way, ahead of the needs-answers branch');
+}
+
+section('a critic that reports a clean round it never wrote halts instead of converging');
+// A clean round writes "No gaps.", so a clean return with no file confirmed has no record that a critic looked.
+{
+  const { out, labels } = await run({ 'plan-critic': { ...CLEAN, wrote_file: false } });
+  eq(out.status, NO_CRITIQUE, 'status');
+  ok(!labels.some((l) => l.startsWith('plan-editor')), 'and no editor is spawned');
+  eq(out.lastCritique, '', 'and no file is named');
+  const { out: later } = await run({ 'plan-critic': firstRound(GAPS, { ...CLEAN, wrote_file: false }), 'plan-editor': FOLD_OK });
+  eq(later.status, NO_CRITIQUE, 'an unwritten clean round after a fold halts the same way');
+  eq(later.lastCritique, `${STATE}/plan-critique-1.md`, 'and names the last file a critic confirmed writing');
 }
 
 section('a critic that reports FYI items it never wrote halts instead of converging');

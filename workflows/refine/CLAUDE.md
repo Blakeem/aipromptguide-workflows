@@ -35,9 +35,11 @@ Four things together — remove any one and the plan grows every round instead o
 - **The dismissal ledger** (`DISMISSED-PLAN.md`). A declined gap stays declined. The critic skips
   settled items and may contest one once. It never contests a line marked `USER-RULED:`, which records
   the user's own ruling.
-- **The minimal-fold editor.** It checks each gap against the plan and the repo first, and declines
-  one that fails the check. It changes NOTHING a gap does not name, and re-validates the file through
-  the plan-block tool after every fold.
+- **The minimal-fold editor.** It confirms each gap's defect against the plan and the repo first, and
+  treats the critic's change as a hint. It writes the correction that closes the confirmed defect, and
+  declines a gap only when the defect is not confirmed or no correction, as opposed to an addition,
+  closes it. It changes NOTHING a gap does not name, and re-validates the file through the plan-block
+  tool after its last edit.
 
 ## 2. The flow
 
@@ -49,7 +51,7 @@ Four things together — remove any one and the plan grows every round instead o
    `status` token says what the state means:
    - `converged` — one clean round: no gaps at or above the floor, and no questions.
    - `needs-answers` — the critic raised things only the user can settle: a dependency-ordering error
-     whose fix restructures blocks, a gap in an already-`done` block, or a defect in a
+     whose fix restructures blocks, a gap in a closed block (any status but `todo`), or a defect in a
      file key (`goal`, `ordered`, `suite`, `sweep`) at or above the floor.
    - `dismissal-contested` — the critic contested a declined gap, and the editor escalated it to
      `NEEDS-USER.md`.
@@ -71,17 +73,18 @@ own single refine run. One develop launch takes both files when their file keys 
 
 - **Critic** (opus, read-only on the repo) — writes `plan-critique-<round>.md` (gaps with file:line
   evidence, no evidence no gap; questions). In a round with no gap and no question, the converged
-  round, it writes the FYI section when it has items, and writes no file when it has none. That section
+  round, it writes the FYI section when it has items, and writes "No gaps." when it has none. That section
   has one subsection per block with below-floor findings, then `File preamble` (plan text above the
   first block, other than the file keys, at any grade, plus a file-key finding below the floor), then
   `Outside the plan` (defects no plan text holds, in files the critic read to judge the plan, at every
   floor). Its items are numbered F1, F2 across the section. No editor reads it, and the user reads it
-  with the plan. Returns counts plus a `wrote_file` attestation, nothing else — content crosses through the file. Nonzero
-  counts with `wrote_file` false halt (`critique-unwritten`). A DEAD critic **throws** — zero gaps from a dead
-  agent would be byte-identical to convergence.
+  with the plan. Returns counts plus a `wrote_file` attestation, nothing else — content crosses through
+  the file. The critic writes its file every round, so `wrote_file` false halts (`critique-unwritten`)
+  whatever the counts. A DEAD critic **throws** — zero gaps from a dead agent would be byte-identical
+  to convergence.
 - **Editor** (opus) — runs only on a round with countable gaps and no questions. Checks each gap
-  against the plan and the repo first, and declines one that fails the check. Folds, declines to the
-  ledger, then re-runs `node '<blockTool>' '<planPath>' --list` and attests `plan_parses`.
+  against the plan and the repo first, as §1 says. Folds, declines to the ledger, then re-runs
+  `node '<blockTool>' '<planPath>' --list` and attests `plan_parses`.
   Halts: dead editor (`agent-dead` — the critique file survives, but the plan may be partly edited),
   folded gaps with `wrote_file` false (`fold-unattested`), `plan_parses` false (`plan-broken`),
   `needs_user` true (`dismissal-contested`, since it escalated a contested dismissal to
@@ -95,7 +98,9 @@ content) in the exact directory develop's blind reviewer treats as its world's p
 `plan-critique-<round>.md` per round · `DISMISSED-PLAN.md` · `NEEDS-USER.md`. Every relaunch of one
 plan keeps the same runId and stateDir and never clears it, since `DISMISSED-PLAN.md` and its
 `USER-RULED:` lines are what stop the next critic re-raising declined gaps. `NEEDS-USER.md` is
-cumulative across relaunches of one stateDir, so entries from earlier halts were already settled.
+cumulative across relaunches of one stateDir, so entries from earlier halts were already settled. Each
+entry opens with `## r<round> critic` or `## r<round> editor`, and `nextStep` names the round whose
+entries at the end of the file are new.
 
 ## 5. Args reference
 

@@ -11,11 +11,12 @@ never writes code.
 Two agents take turns, up to `maxRounds`.
 
 1. A **critic** reads the repo and judges each `todo` block. It writes every gap it finds, with file and
-   line evidence, to a critique file for that round.
-2. An **editor** checks each gap against the plan and the code. It folds a gap that passes into the plan
-   file with the smallest edit that closes it. It declines a gap that fails the check or that it
-   disagrees with. It records the reason in `DISMISSED-PLAN.md`. Then it checks that the plan still
-   parses.
+   line evidence, to a critique file for that round. A round that finds nothing writes `No gaps.` to
+   that file.
+2. An **editor** checks each gap against the plan and the code. It takes the critic's change as a hint
+   and writes its own correction, the smallest edit that closes the defect. It declines a gap only when
+   the defect is not real or only an addition would close it. It records the reason in
+   `DISMISSED-PLAN.md`. Then it checks that the plan still parses.
 
 A plan review that keeps adding detail never ends. Four rules make this one finish.
 
@@ -40,7 +41,8 @@ A plan review that keeps adding detail never ends. Four rules make this one fini
   before you approve.
 - `needs-answers` means the critic raised something only you can decide, such as a block order. Read
   `NEEDS-USER.md`, change the plan, and run refine again. The file keeps the entries of earlier runs,
-  so the newest entries are at its end.
+  so the newest entries are at its end. Each entry opens with its round and the agent that wrote it,
+  such as `## r2 critic`, and `nextStep` names the round of the new entries.
 - `dismissal-contested` means the critic contested a gap the editor had declined, and the editor passed
   it to you. Read the newest entries at the end of `NEEDS-USER.md`. Fold the gap into the plan, or add
   your ruling to `DISMISSED-PLAN.md` as a `USER-RULED:` line, which no later critic contests. Then run

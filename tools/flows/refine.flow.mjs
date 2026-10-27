@@ -26,10 +26,11 @@ const base = { runId: 'flow', root: 'E:/flow', target: TARGET, planPath: 'plans/
 
 // Critic returns. Counts plus one attestation are the WHOLE control plane: every gap, grade and citation
 // crosses to the editor through the critique file, which the harness never sees.
-const CLEAN     = { wrote_file: false, gap_count: 0, question_count: 0 };
+// A clean round writes "No gaps.", so every healthy critic return confirms a file.
+const CLEAN     = { wrote_file: true, gap_count: 0, question_count: 0 };
 const GAPS      = { wrote_file: true, gap_count: 2, question_count: 0 };
 const QUESTIONS = { wrote_file: true, gap_count: 0, question_count: 1 };
-// Counts saying there was something to write, with nothing written: the findings exist nowhere.
+// A round with no file confirmed has no record, whatever its counts.
 const UNWRITTEN = { wrote_file: false, gap_count: 2, question_count: 0 };
 
 const FOLD_OK = { wrote_file: true, folded: 2, declined: 1, plan_parses: true };
@@ -82,7 +83,7 @@ export default {
       respond: { 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK },
     },
     {
-      // An ordering error or a gap in an already-done block: the minimal-fold editor has no legal edit for
+      // An ordering error or a gap in a closed block: the minimal-fold editor has no legal edit for
       // either, so the run ends for the operator to restructure.
       name: 'questions for the operator',
       when: 'the critic raises a question',
@@ -110,6 +111,13 @@ export default {
       when: 'the critic reports findings it did not write',
       args: base,
       respond: { 'plan-critic': UNWRITTEN },
+    },
+    {
+      // A second route into the same terminal: a clean round's "No gaps." is the record that a critic looked.
+      name: 'a clean round was never written',
+      when: 'the critic reports a clean round it did not write',
+      args: base,
+      respond: { 'plan-critic': { ...CLEAN, wrote_file: false } },
     },
     {
       name: 'the fold is unattested',

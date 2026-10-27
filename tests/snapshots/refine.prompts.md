@@ -6,8 +6,8 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| plan-critic | 1 | 1 | 9209 | a clean first round |
-| plan-editor | 1 | 1 | 3347 | gaps folded, then a clean round |
+| plan-critic | 1 | 1 | 9177 | a clean first round |
+| plan-editor | 1 | 1 | 3722 | gaps folded, then a clean round |
 
 ## plan-critic · variant 1 · schema 1
 
@@ -111,11 +111,11 @@ smallest change that closes it (never alternatives), and the number of every oth
 the same plan lines, so the editor folds them together. The one change may touch several lines of one block,
 such as a Files line, a Docs bullet and a criterion, and still names no alternatives. It names every plan
 line the change makes stale.
-QUESTIONS also go to E:/flow/runs/flow-refine/NEEDS-USER.md IN FULL (append, create it if needed).
-ONE RULE decides whether you write the file: write it when you have ANY gap, FYI item or question, and
-return wrote_file=true. A round with FYI items and no gaps or questions writes the file with its FYI
-section, returns wrote_file=true with gap_count and question_count 0 and fyi_count set, and still
-converges. A round with nothing at all writes NOTHING and returns wrote_file=false with all three counts 0.
+QUESTIONS also go to E:/flow/runs/flow-refine/NEEDS-USER.md IN FULL (append, create it if needed). Each question you append there
+opens with the line `## r1 critic`.
+Write the file EVERY round and return wrote_file=true. A round with FYI items and no gaps or questions
+writes the file with its FYI section, returns gap_count and question_count 0 and fyi_count set, and still
+converges. A round with nothing at all writes the one line "No gaps." and returns all three counts 0.
 Do NOT modify the plan file or the target repo. Do NOT stage or commit.
 Return via the schema.
 ~~~~
@@ -171,25 +171,29 @@ even when a gap's change asks for one. A clause that makes a stated sentence tru
 new obligation is an addition.
 
 PROCEDURE:
-1. CHECK each numbered gap before you fold it, as a spot check of the critic. Open the plan line and the
-   evidence it cites (a repo line, a plan line, a cited file's line, a dependency doc or a probe output)
-   and confirm each says what the gap claims. Confirm the gap names text the plan states, never text it lacks. Confirm its
-   change only corrects, removes or moves text the plan states, and adds nothing the plan does not
-   already state. Run a probe the critic ran when you doubt its result. Put its files in a temporary
-   directory outside the target repo and the state dir E:/flow/runs/flow-refine. A gap that fails any check is
-   DECLINED, its reason naming the check it failed, except a gap prefixed "CONTESTS DISMISSAL:", which
-   goes to E:/flow/runs/flow-refine/NEEDS-USER.md under the contested-dismissal step.
+1. CHECK each numbered gap before you fold it. Open the plan line and the evidence it cites (a repo line,
+   a plan line, a cited file's line, a dependency doc or a probe output) and confirm each says what the
+   gap claims. Confirm the gap names text the plan states, never text it lacks. Re-run every probe whose
+   output decides a WRONG PRESCRIPTION gap, and any other probe the critic ran when you doubt its
+   result. Put a probe's files in a temporary directory outside the target repo and the state dir
+   E:/flow/runs/flow-refine.
+   Treat the gap's change as a hint. Write the correction that closes the confirmed defect: it corrects,
+   removes or moves text the plan states, and adds nothing the plan does not already state. Confirm every
+   path, symbol and quote your new text introduces against the repo. Find every plan line that states the
+   same fact, and count a line your correction would make false as named by the gap.
+   DECLINE a gap only when its defect is not confirmed, or when no correction, as opposed to an addition,
+   closes it. Its reason names which. A gap prefixed "CONTESTS DISMISSAL:" is never declined here and goes
+   to E:/flow/runs/flow-refine/NEEDS-USER.md under the contested-dismissal step.
 2. For each numbered gap, make the smallest edit to E:/flow/plans/bus.md that closes it - usually one line, one
    step, one file path, one criterion. Keep each block's existing shape, headers and preamble keys. The
    critique's plan line numbers predate this round's edits, so find each cited plan line by its quoted
    text.
-3. A gap you DECLINE (it is wrong, it names something the block already covers, or it fails the CHECK
-   step) gets ONE line appended to E:/flow/runs/flow-refine/DISMISSED-PLAN.md (create it if needed):
+3. A gap you DECLINE under the CHECK step gets ONE line appended to E:/flow/runs/flow-refine/DISMISSED-PLAN.md (create it if needed):
      `<block id> - <gap gist> - DECLINED: <reason, 15 words or fewer>`
    The critic skips the item next round for your stated reason, so a vague reason buys the same gap again.
 4. A gap prefixed "CONTESTS DISMISSAL:" may NOT be declined a second time. FOLD it, or - if it is
-   genuinely a call only the user can make - append a full self-contained entry to E:/flow/runs/flow-refine/NEEDS-USER.md and set
-   needs_user=true.
+   genuinely a call only the user can make - append a full self-contained entry to E:/flow/runs/flow-refine/NEEDS-USER.md that
+   opens with the line `## r1 editor`, and set needs_user=true.
 5. MANDATORY FINAL STEP, after every edit is written: run
      node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' --list
    and report plan_parses = (it exited 0). The plan-bus grammar is strict: a folded `key: value` line
