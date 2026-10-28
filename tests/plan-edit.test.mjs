@@ -802,7 +802,7 @@ function inventory(dir, name, entries) {
   for (const e of entries) {
     lines.push(`### [${e.id}] ${e.id}`, `- file: ${e.file}:1`, ...(e.loc ? [`- loc: ${e.loc}`] : []),
       `- decision: ${e.decision ?? 'ACTIONABLE'}`, ...(e.status ? [`- status: ${e.status}`] : []),
-      ...(e.branch ? [`- branch: ${e.branch}`] : []), '', 'What.', '');
+      ...(e.branch ? [`- branch: ${e.branch}`] : []), ...(e.size ? [`- size: ${e.size}`] : []), '', 'What.', '');
   }
   return fixture(lines.join('\n'), `${name}.md`, dir);
 }
@@ -870,6 +870,20 @@ section('--pack keeps each block that restores an unfinished branch a pass of it
   ok(!err, `it succeeds: ${err ?? ''}`);
   eq(JSON.parse(out).plans.map((r) => r.id).join(','), 'one,two,plain-plus-2', 'two branch blocks on one file stay apart, and a block whose branch entry is closed packs');
   ok(/not packed: one restores an unfinished branch/.test(notes) && /not packed: two restores an unfinished branch/.test(notes), `the note names each branch block: ${notes.trim()}`);
+}
+
+section('--pack builds alone a block with an open large entry, and packs a block whose large entry is closed');
+{
+  const dir = tmpDir();
+  const big = inventory(dir, 'big', [{ id: 'g-1', file: 'shared.js', loc: 10, size: 'large' }]);
+  const big2 = inventory(dir, 'big2', [{ id: 'h-1', file: 'shared.js', loc: 10, size: 'large' }]);
+  const small = inventory(dir, 'small', [{ id: 's-1', file: 'shared.js', loc: 10, size: 'small' }]);
+  const small2 = inventory(dir, 'small2', [{ id: 't-1', file: 'shared.js', loc: 10 }]);
+  const done = inventory(dir, 'done', [{ id: 'd-1', file: 'shared.js', loc: 10, size: 'large', status: 'fixed' }, { id: 'd-2', file: 'shared.js', loc: 10, size: 'small' }]);
+  const { out, notes, err } = packed(configWith([]), dir, 3000, big, big2, small, small2, done);
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  eq(JSON.parse(out).plans.map((r) => r.id).join(','), 'big,big2,small-plus-2', 'each large block stays alone and the rest pack, a closed large entry included');
+  ok(/not packed: big has a large open entry/.test(notes) && /not packed: big2 has a large open entry/.test(notes), `the note names each large block: ${notes.trim()}`);
 }
 
 /** The block file with `line` added to its preamble. */

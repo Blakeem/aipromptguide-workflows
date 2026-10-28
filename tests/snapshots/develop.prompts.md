@@ -48,19 +48,19 @@ this file is stale.
 | develop-closing | 4 | 1 | 33468 | an ordered run stops at a parked block |
 | acceptance | 21 | 4 | 23801 | an ordered run stops at a parked block |
 | park | 2 | 1 | 10646 | an ordered run stops at a parked block |
-| develop | 12 | 3 | 41655 | a fix block closes its issues |
-| acceptance | 22 | 6 | 24389 | a fix block closes its issues |
+| develop | 12 | 3 | 41929 | a fix block closes its issues |
+| acceptance | 22 | 6 | 24645 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 4669 | a fix block closes its issues |
-| develop | 13 | 4 | 45122 | a fix block closes its issues under the proactive policy |
-| acceptance | 23 | 7 | 25896 | a fix block closes its issues under the proactive policy |
-| acceptance | 24 | 7 | 25910 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 14 | 4 | 36321 | a proactive fix block starts round 2 from the statuses it last reported |
-| acceptance | 25 | 7 | 25709 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 15 | 3 | 42009 | a pass of two fix blocks closes its issues |
-| acceptance | 26 | 6 | 24709 | a pass of two fix blocks closes its issues |
+| develop | 13 | 4 | 45396 | a fix block closes its issues under the proactive policy |
+| acceptance | 23 | 7 | 26152 | a fix block closes its issues under the proactive policy |
+| acceptance | 24 | 7 | 26166 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 14 | 4 | 36595 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 25 | 7 | 25965 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 15 | 3 | 42283 | a pass of two fix blocks closes its issues |
+| acceptance | 26 | 6 | 24965 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 4699 | a pass of two fix blocks closes its issues |
-| acceptance | 27 | 6 | 24388 | every issue is already fixed |
-| develop | 16 | 3 | 41637 | an ordered run stops on a fix block that closes nothing |
+| acceptance | 27 | 6 | 24644 | every issue is already fixed |
+| develop | 16 | 3 | 41911 | an ordered run stops on a fix block that closes nothing |
 | park | 3 | 1 | 10949 | passed with a regression, not staged |
 | park | 4 | 1 | 10241 | acceptance stages a rejected block |
 | park | 5 | 1 | 10802 | the quality reviewer fails a block without its file |
@@ -74,7 +74,7 @@ this file is stale.
 | park | 13 | 1 | 10547 | the acceptance verifier dies |
 | park | 14 | 1 | 10217 | developer escalates |
 | park | 15 | 1 | 10207 | developer escalates in an ordered run |
-| acceptance | 28 | 6 | 26842 | log line cap before the sweep |
+| acceptance | 28 | 6 | 27098 | log line cap before the sweep |
 | acceptance | 29 | 4 | 23587 | a closing acceptance lands the block |
 | develop-closing | 5 | 1 | 33856 | a closing acceptance lands the block |
 | acceptance | 30 | 5 | 23868 | a closing acceptance lands the block |
@@ -90,8 +90,8 @@ this file is stale.
 | develop | 18 | 5 | 33536 | every block commits first time |
 | acceptance | 36 | 9 | 18250 | every block commits first time |
 | final-sweep | 5 | 1 | 4990 | every block commits first time |
-| develop | 19 | 6 | 41857 | a fix block commits |
-| acceptance | 37 | 10 | 26145 | a fix block commits |
+| develop | 19 | 6 | 42131 | a fix block commits |
+| acceptance | 37 | 10 | 26401 | a fix block commits |
 | final-sweep | 6 | 1 | 4897 | a fix block commits |
 | park | 18 | 1 | 10247 | acceptance commits a rejected block |
 
@@ -12354,7 +12354,7 @@ could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
 a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
-behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
+behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -12476,7 +12476,7 @@ When any phase after BUILD changed code, run the gate once more under BUILD's ru
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
-1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
+1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH entry that is not closed, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
    with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -12487,7 +12487,7 @@ Use the tools you have, such as web search or a browser, to check how something 
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
-   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else) UNTOUCHED and record it
+   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else but a closed entry) UNTOUCHED and record it
    SKIPPED: that triage is the user's call, or the other block's. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
    The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
    leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
@@ -12769,7 +12769,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "results": {
       "type": "array",
-      "description": "one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch",
+      "description": "one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch, except an entry whose `- status:` reads fixed or stale",
       "items": {
         "type": "object",
         "required": [
@@ -12890,7 +12890,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -13045,7 +13045,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    The developer reports these issues FAILED, each a fix it reverted or could not make:
      (none reported failed)
    A FAILED entry goes back to the user as needs-attention, so its report alone is no gap. An ACTIONABLE
-   entry that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
+   entry, other than a closed one, that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
    left open, and it fails acceptance. Read every entry of the block to find each one.
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
@@ -13291,7 +13291,7 @@ could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
 a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
-behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
+behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: proactive. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -13440,7 +13440,7 @@ When any phase after BUILD changed code, run the gate once more under BUILD's ru
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
-1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
+1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH entry that is not closed, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
    with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -13451,7 +13451,7 @@ Use the tools you have, such as web search or a browser, to check how something 
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
-   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else) UNTOUCHED and record it
+   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else but a closed entry) UNTOUCHED and record it
    SKIPPED: that triage is the user's call, or the other block's. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
    The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
    leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
@@ -13764,7 +13764,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "results": {
       "type": "array",
-      "description": "one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch",
+      "description": "one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch, except an entry whose `- status:` reads fixed or stale",
       "items": {
         "type": "object",
         "required": [
@@ -13885,7 +13885,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -14056,7 +14056,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    The developer reports these issues FAILED, each a fix it reverted or could not make:
      (none reported failed)
    A FAILED entry goes back to the user as needs-attention, so its report alone is no gap. An ACTIONABLE
-   entry that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
+   entry, other than a closed one, that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
    left open, and it fails acceptance. Read every entry of the block to find each one.
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
@@ -14245,7 +14245,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -14416,7 +14416,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    The developer reports these issues FAILED, each a fix it reverted or could not make:
      (none reported failed)
    A FAILED entry goes back to the user as needs-attention, so its report alone is no gap. An ACTIONABLE
-   entry that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
+   entry, other than a closed one, that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
    left open, and it fails acceptance. Read every entry of the block to find each one.
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
@@ -14605,7 +14605,7 @@ could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
 a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
-behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
+behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: proactive. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -14662,7 +14662,7 @@ When any phase after BUILD changed code, run the gate once more under BUILD's ru
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
-1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
+1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH entry that is not closed, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
    with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -14681,7 +14681,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
    log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
    FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
-   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else) UNTOUCHED and record it
+   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else but a closed entry) UNTOUCHED and record it
    SKIPPED: that triage is the user's call, or the other block's. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
    The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
    leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
@@ -14994,7 +14994,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "results": {
       "type": "array",
-      "description": "one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch",
+      "description": "one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch, except an entry whose `- status:` reads fixed or stale",
       "items": {
         "type": "object",
         "required": [
@@ -15115,7 +15115,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -15286,7 +15286,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    The developer reports these issues FAILED, each a fix it reverted or could not make:
      (none reported failed)
    A FAILED entry goes back to the user as needs-attention, so its report alone is no gap. An ACTIONABLE
-   entry that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
+   entry, other than a closed one, that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
    left open, and it fails acceptance. Read every entry of the block to find each one.
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
@@ -15475,7 +15475,7 @@ Each output is one block, verbatim. If any exits non-zero, report plan_obtained=
 guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
 a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
-behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
+behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -15597,7 +15597,7 @@ When any phase after BUILD changed code, run the gate once more under BUILD's ru
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
-1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
+1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH entry that is not closed, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
    with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -15608,7 +15608,7 @@ Use the tools you have, such as web search or a browser, to check how something 
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
-   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else) UNTOUCHED and record it
+   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else but a closed entry) UNTOUCHED and record it
    SKIPPED: that triage is the user's call, or the other block's. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
    The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
    leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
@@ -15892,7 +15892,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "results": {
       "type": "array",
-      "description": "one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch",
+      "description": "one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch, except an entry whose `- status:` reads fixed or stale",
       "items": {
         "type": "object",
         "required": [
@@ -16014,7 +16014,7 @@ Run every one, each redirected to its own file under E:/flow/runs/flow/scratch/ 
 inside the target repo or E:/flow/runs/flow/gate/, and read those files, since the Bash display cuts long output.
 Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP: never
 guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -16172,7 +16172,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    The developer reports these issues FAILED, each a fix it reverted or could not make:
      (none reported failed)
    A FAILED entry goes back to the user as needs-attention, so its report alone is no gap. An ACTIONABLE
-   entry that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
+   entry, other than a closed one, that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
    left open, and it fails acceptance. The developer reported none of these entries of the pass:
      (none: it reported every entry)
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
@@ -16419,7 +16419,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -16574,7 +16574,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    The developer reports these issues FAILED, each a fix it reverted or could not make:
      (none reported failed)
    A FAILED entry goes back to the user as needs-attention, so its report alone is no gap. An ACTIONABLE
-   entry that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
+   entry, other than a closed one, that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
    left open, and it fails acceptance. Read every entry of the block to find each one.
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
@@ -16742,7 +16742,7 @@ could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
 a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
-behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
+behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -16864,7 +16864,7 @@ When any phase after BUILD changed code, run the gate once more under BUILD's ru
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
-1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
+1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH entry that is not closed, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
    with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -16875,7 +16875,7 @@ Use the tools you have, such as web search or a browser, to check how something 
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
-   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else) UNTOUCHED and record it
+   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else but a closed entry) UNTOUCHED and record it
    SKIPPED: that triage is the user's call, or the other block's. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
    The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
    leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
@@ -17157,7 +17157,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "results": {
       "type": "array",
-      "description": "one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch",
+      "description": "one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch, except an entry whose `- status:` reads fixed or stale",
       "items": {
         "type": "object",
         "required": [
@@ -18920,7 +18920,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -19273,7 +19273,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
      - i-199
      - i-200
    A FAILED entry goes back to the user as needs-attention, so its report alone is no gap. An ACTIONABLE
-   entry that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
+   entry, other than a closed one, that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
    left open, and it fails acceptance. Read every entry of the block to find each one.
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
@@ -23473,7 +23473,7 @@ could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
 a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
-behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
+behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -23596,7 +23596,7 @@ When any phase after BUILD changed code, run the gate once more under BUILD's ru
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
-1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
+1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH entry that is not closed, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
    with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -23607,7 +23607,7 @@ Use the tools you have, such as web search or a browser, to check how something 
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
-   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else) UNTOUCHED and record it
+   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else but a closed entry) UNTOUCHED and record it
    SKIPPED: that triage is the user's call, or the other block's. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
    The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
    leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
@@ -23894,7 +23894,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "results": {
       "type": "array",
-      "description": "one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch",
+      "description": "one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch, except an entry whose `- status:` reads fixed or stale",
       "items": {
         "type": "object",
         "required": [
@@ -24015,7 +24015,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -24170,7 +24170,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    The developer reports these issues FAILED, each a fix it reverted or could not make:
      (none reported failed)
    A FAILED entry goes back to the user as needs-attention, so its report alone is no gap. An ACTIONABLE
-   entry that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
+   entry, other than a closed one, that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
    left open, and it fails acceptance. Read every entry of the block to find each one.
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the

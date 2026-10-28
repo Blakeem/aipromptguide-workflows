@@ -1111,7 +1111,7 @@ section('a round-1 fix block that closed nothing is NOT done, and `ordered` deci
     'and order the flip after the status fold');
   ok(/flip it back to todo once `plan-edit\.mjs args` has applied this run's statuses/.test(stop.out.haltReason),
     'as does the ordered halt reason');
-  ok(String(stop.out.haltReason ?? '').includes('says ACTIONABLE and it carries no `- pulled:` line and no line that starts with `**Parked with:**`')
+  ok(String(stop.out.haltReason ?? '').includes('says ACTIONABLE, its `- status:` is not fixed or stale and it carries no `- pulled:` line and no line that starts with `**Parked with:**`')
     && String(carry.out.nextStep ?? '').includes("read its entries' `- decision:`, `- pulled:` and `**Parked with:**` lines"),
   'the halt reason and nextStep name the pulled and parked-with lines that also keep an ACTIONABLE entry from being fixed');
 
@@ -3207,6 +3207,15 @@ section('acceptance is handed STALE and SKIPPED ids beside the FIXED list, and c
     'a pass with no check behind a STALE claim is flagged thin');
 }
 
+section('a lone fix block that holds a closed entry: it needs no report and its status sync leaves it as it is');
+// Only a pass carries an `issues` filter, so a lone block's file hands the developer every entry, closed ones included.
+{
+  const { out, prompt } = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE);
+  eq(syncOf(out), 'fix-a=done,i-1=fixed', 'an entry the developer never reported gets no status edit, so a fixed one stays fixed');
+  ok(prompt('acceptance fix-a').includes('entry, other than a closed one, that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported'),
+    'and acceptance does not fail it as left unreported');
+}
+
 section('the block command is role-neutral: acceptance is never told to implement it');
 // blockRef hands the same text to the developer and to the verifier, whose prompt forbids modifying source.
 {
@@ -3910,7 +3919,8 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
   };
   const best = 'with the change that has the best long-term result: correct, simple, maintainable and consistent with the repo. Leave a change that another block of the plan owns to that block.';
   const takenRules = 'An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block\'s developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block\'s branch or is not built yet.';
-  const fixScope = `Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on behalf of an entry that is not ACTIONABLE, in any zone. ${takenRules} ${scopeLine.fix}`;
+  const closedRule = 'An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.';
+  const fixScope = `Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on behalf of an entry that is not ACTIONABLE, in any zone. ${takenRules} ${closedRule} ${scopeLine.fix}`;
   const buildLine = {
     focused: {
       feature: `Build it minimally and surgically; match conventions; ${scopeLine.feature}`,
@@ -3963,8 +3973,10 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
       const acc = flat(r.prompt(`acceptance ${id}`));
       ok(acc.includes(settled(tag, policy)), `${where}: acceptance's DECISIONS entry says it also holds the ${tag} lines`);
       if (mode === 'fix') {
-        ok(dev.includes('Leave every other entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else) UNTOUCHED'),
+        ok(dev.includes('Leave every other entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else but a closed entry) UNTOUCHED'),
           `${where}: the developer leaves a held parked-with entry untouched`);
+        ok(dev.includes(closedRule) && acc.includes(closedRule) && dev.includes('For EACH entry that is not closed, read the CURRENT code'),
+          `${where}: the developer and acceptance both skip an entry whose status reads fixed or stale`);
         ok(acc.includes(takenRules) && acc.includes('or that it carries a "- pulled:" line or a line that starts with "**Parked with:**": an'),
           `${where}: fix acceptance counts a parked-with entry as not ACTIONABLE, and confirms it was reported SKIPPED`);
       }
@@ -4904,7 +4916,7 @@ section('fix acceptance counts every ACTIONABLE entry the developer left unrepor
   const single = flat((await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'FAILED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE)).prompt('acceptance fix-a'));
   ok(single.includes('The developer reports these issues FAILED, each a fix it reverted or could not make: - i-2 A FAILED entry goes back to the user as needs-attention, so its report alone is no gap.'),
     'a FAILED entry is listed and is no gap by its report alone');
-  ok(single.includes('An ACTIONABLE entry that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue left open, and it fails acceptance. Read every entry of the block to find each one.'),
+  ok(single.includes('An ACTIONABLE entry, other than a closed one, that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue left open, and it fails acceptance. Read every entry of the block to find each one.'),
     'a single block\'s acceptance finds each unreported entry by reading the block');
   ok(flat(fixBus.prompt('acceptance fix-a')).includes('(none reported failed)'), 'no FAILED report renders an empty list');
   ok(single.includes('Every claimed fix complete, every STALE claim confirmed, every ACTIONABLE entry reported, no non-ACTIONABLE entry touched'),

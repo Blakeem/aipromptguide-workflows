@@ -238,8 +238,9 @@ mode: `feature` takes `green | build-only`; `section` takes `green | red-baselin
 `suite: scoped` and `sweep: goal-coverage`. A file whose sweep is `goal-coverage` needs a `goal:`
 line, and `--list` fails without one. A fix block IS an issue inventory: its `### [<id>]` entries
 are what the fix worker verifies and fixes (ACTIONABLE decisions only, verify-first, vanished issues
-marked stale). `--list` fails on a `todo` fix block with no `### [<id>]` entry. debug's review.mjs
-writes these files; hand-authored external inventories use the same shape.
+marked stale). It works no entry whose `- status:` is `fixed` or `stale` and returns no result for one.
+`--list` fails on a `todo` fix block with no `### [<id>]` entry. debug's review.mjs writes these files,
+and hand-authored external inventories use the same shape.
 
 **Choosing a block's developer model.** Set `model:` on each block while writing the plan. The user
 may override it. Read the repo's saved `models.develop` first (`project-settings.mjs roles`, §2 step
@@ -561,24 +562,25 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   against the code, and drops one it refutes as a false positive, with the file:line that refutes it. A
   regression its own self-review finds it always fixes or escalates. The review file holds no notes
   section. In fix mode, an ACTIONABLE entry the developer did not report is an open gap, as one it
-  reported SKIPPED is, in every round and in the closing bar. For a pass, the engine renders the ids of
-  the members' entries the developer did not report. A single fix block's acceptance reads the block to
-  find them, since the engine never parses a block. A FAILED report is no gap by itself, since that
-  entry syncs `needs-attention` and goes back to the user. In fix mode, a harm an entry lists whose
-  cause shares no code path with the re-derived root cause is a new issue, never a gap. A sibling path
-  with the identical defect stays a residual path. The verifier appends a new issue to its source
-  block's backlog file (§10), and the entry's `**What:**` names the source issue id. The return counts
-  every writer's entries in `backlogEntries` and names each file in `backlogFiles`. Work a block's file
-  (§10) once that block is `done`, `skip` or `backlogged`, since a relaunch of the block may still
-  append to it. `args --backlog` leaves the file out until then (§10 step 4). In fix mode, an entry with
-  an `- origin:` line holds a parked block's unfinished work. When it also carries a `- branch:` line,
-  the round-1 developer restored that branch's work (§7), unless the accepted baseline already holds it,
-  so acceptance judges that entire branch work as the entry's fix. Every such entry's fix also meets
-  every acceptance criterion of each block its `- origin:` line names, and for a feature or section
-  block its reachability. The gaps the entry's `**What:**` copies are another agent's claims. The
-  round-1 developer confirms each against the code as it confirms a review finding, closes each one it
-  confirms and declines each one it refutes with a DISMISSED line. Acceptance counts a listed gap closed
-  when the code closes it or a ledger line declines it. A listed gap for a wrong risk answer,
+  reported SKIPPED is, in every round and in the closing bar. An entry whose `- status:` is `fixed` or
+  `stale` is no gap unreported, since an earlier run closed it and a report would rewrite its status. For
+  a pass, the engine renders the ids of the members' entries the developer did not report. A single fix
+  block's acceptance reads the block to find them, since the engine never parses a block. A FAILED
+  report is no gap by itself, since that entry syncs `needs-attention` and goes back to the user. In fix
+  mode, a harm an entry lists whose cause shares no code path with the re-derived root cause is a new
+  issue, never a gap. A sibling path with the identical defect stays a residual path.
+  The verifier appends a new issue to its source block's backlog file (§10), and the entry's `**What:**`
+  names the source issue id. The return counts every writer's entries in `backlogEntries` and names each
+  file in `backlogFiles`. Work a block's file (§10) once that block is `done`, `skip` or `backlogged`, since
+  a relaunch of the block may still append to it. `args --backlog` leaves the file out until then (§10 step
+  4). In fix mode, an entry with an `- origin:` line holds a parked block's unfinished work. When it also
+  carries a `- branch:` line, the round-1 developer restored that branch's work (§7), unless the accepted
+  baseline already holds it, so acceptance judges that entire branch work as the entry's fix. Every such
+  entry's fix also meets every acceptance criterion of each block its `- origin:` line names, and for a
+  feature or section block its reachability. The gaps the entry's `**What:**` copies are another agent's
+  claims. The round-1 developer confirms each against the code as it confirms a review finding, closes each
+  one it confirms and declines each one it refutes with a DISMISSED line. Acceptance counts a listed gap
+  closed when the code closes it or a ledger line declines it. A listed gap for a wrong risk answer,
   for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the
   change, or for a path
   that changed after its round's snapshot, takes no fix and no log, and acceptance counts it closed,

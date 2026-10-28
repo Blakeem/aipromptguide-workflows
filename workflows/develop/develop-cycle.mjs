@@ -561,7 +561,7 @@ const developSchema = (mode, closing) => ({
     ...(mode === 'fix' ? {
       results: {
         type: 'array',
-        description: 'one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch',
+        description: 'one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch, except an entry whose `- status:` reads fixed or stale',
         items: {
           type: 'object',
           required: ['issue_id', 'status'],
@@ -1313,6 +1313,9 @@ Return ONLY the decision fields via the schema (no prose report).`;
 // A pulled entry's own run syncs it, or its park entry carries its work, so the block built from its file never builds it.
 // args --backlog cuts a released parked-with entry's line, so a line that stands marks a held entry.
 const PULLED_ENTRY_RULE = 'An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block\'s developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block\'s branch or is not built yet.';
+// A lone fix block's file lists every entry, closed ones included. Only a pass carries an `issues` filter, and a
+// closed entry reported STALE would sync over its `fixed` status.
+const CLOSED_ENTRY_RULE = 'An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.';
 // The last line of a park entry whose branch holds pulled fixes. Only whoever closes that entry can close them.
 const pulledLine = (ids) => `Pulled: ${ids}, whose work this entry's branch holds. Once this entry is fixed and landed, set each of them fixed and remove its "- pulled:" line. Once this entry is skipped, or set stale while its block is rebuilt from todo, remove only that line.`;
 // Verify-first because entries come from a past snapshot. ACTIONABLE-only because the decision line is
@@ -1324,7 +1327,7 @@ const fixDevelop = (p, round, { opening, ledgerNote, zones, staging, rework, lau
 You are the FIXER. Resolve the verified issues in ${blockRef(p)}. Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own \`- decision:\` line,
 a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
-behalf of an entry that is not ACTIONABLE, in any zone. ${PULLED_ENTRY_RULE} ${SCOPE_LINE.fix}.
+behalf of an entry that is not ACTIONABLE, in any zone. ${PULLED_ENTRY_RULE} ${CLOSED_ENTRY_RULE} ${SCOPE_LINE.fix}.
 ${POLICY_LINE}
 ${ENV}
 BLOCK: ${p.id}
@@ -1336,7 +1339,7 @@ ${zones}
 
 PROCEDURE: VERIFY-FIRST, then ${PHASES}.
 ${PHASE_NOTES}
-1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
+1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH entry that is not closed, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
    with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -1351,7 +1354,7 @@ ${reportedLines(lastFix, 'no entry reported yet')}
    as round 1 would.` : ''}
 2. ${PATTERN_STEP}
 3. BUILD: ${rework ? `${rework}\n   ` : ''}FIX ONLY the entries whose \`- decision:\` line says ACTIONABLE. Leave every other
-   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else) UNTOUCHED and record it
+   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else but a closed entry) UNTOUCHED and record it
    SKIPPED: that triage is the user's call, or the other block's. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
    The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
    leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
@@ -1840,7 +1843,7 @@ const ACCEPTANCE_CHECK_RULE = `Any command that writes nothing in the repo, such
 const fixAcceptance = (p, round, { claimedFixed, claimedStale, reportedSkipped, reportedFailed, unreportedIssues, earlierReviews, riskRounds, riskSnapshots, closingRecorded, pulledReported, indexTree, absent }) => `
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks.
 ${reviewStatus(round)} Read ${blockRef(p)}. Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a \`- decision:\` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. ${PULLED_ENTRY_RULE}
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. ${PULLED_ENTRY_RULE} ${CLOSED_ENTRY_RULE}
 ${ENV}
 BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
 ${ROUND_NOTE(round)}
@@ -1911,7 +1914,7 @@ ${reportedSkipped.map((id) => `     - ${id}`).join('\n') || '     (none reported
    The developer reports these issues FAILED, each a fix it reverted or could not make:
 ${reportedFailed.map((id) => `     - ${id}`).join('\n') || '     (none reported failed)'}
    A FAILED entry goes back to the user as needs-attention, so its report alone is no gap. An ACTIONABLE
-   entry that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
+   entry, other than a closed one, that none of the FIXED, STALE, SKIPPED or FAILED lists names was left unreported: it is an issue
    left open, and it fails acceptance. ${unreportedIssues === null
     ? 'Read every entry of the block to find each one.'
     : `The developer reported none of these entries of the pass:
@@ -3111,7 +3114,7 @@ for (const p of pending) {
         if (ORDERED) {
           halted = true;
           haltKind = 'no-changes';
-          haltReason = `Fix block ${p.id} produced no changes in round 1: every entry it reported was SKIPPED (or it reported none), so nothing was fixed and nothing was staged. This is an ORDERED run, so the blocks after it were not attempted. Read the block itself — an entry only gets fixed while its \`- decision:\` line says ACTIONABLE and it carries no \`- pulled:\` line and no line that starts with \`**Parked with:**\` — then flip it back to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean.`;
+          haltReason = `Fix block ${p.id} produced no changes in round 1: every entry it reported was SKIPPED (or it reported none), so nothing was fixed and nothing was staged. This is an ORDERED run, so the blocks after it were not attempted. Read the block itself — an entry only gets fixed while its \`- decision:\` line says ACTIONABLE, its \`- status:\` is not fixed or stale and it carries no \`- pulled:\` line and no line that starts with \`**Parked with:**\` — then flip it back to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean.`;
         }
         break;
       }

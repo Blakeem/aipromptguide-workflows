@@ -933,7 +933,8 @@ const shareRank = (key, value) => (!value ? 2 : value === STRENGTH[key][0] ? 1 :
  * first file they touch, so neighbouring code packs together. Each block joins the first pass it fits, one
  * under the cap whose members it can share a developer with and whose issues it does not repeat, and opens a
  * new pass only when none fits. A block over the cap alone, one with nothing ACTIONABLE, or one whose open
- * ACTIONABLE entry carries a `- branch:` line stays its own row. A pass sits where its first member did.
+ * ACTIONABLE entry carries a `- branch:` line or has `- size: large` stays its own row. A pass sits where its
+ * first member did.
  */
 function packPasses(args, folded, repo, cap, note) {
   if (args.ordered) throw new Error('--pack regroups fix blocks, so it needs a plan set with ordered: false');
@@ -947,6 +948,8 @@ function packPasses(args, folded, repo, cap, note) {
     if (!files.size) { note(`not packed: ${row.id} has no open ACTIONABLE entry without a "- pulled:" or "**Parked with:**" line, so it is not a plan to build\n`); continue; }
     // Two parked branches cut from one baseline tend to touch the same lines, so a second restore in one round 1 may not apply.
     if (open.some((e) => keyOf(e, 'branch'))) { note(`not packed: ${row.id} restores an unfinished branch, so it builds alone\n`); continue; }
+    // A pass parks as one block, so a blocking gap in a large entry would park every member's work with it.
+    if (open.some((e) => keyOf(e, 'size') === 'large')) { note(`not packed: ${row.id} has a large open entry, so it builds alone\n`); continue; }
     candidates.push({ index, row, files, issues: open.map((e) => e.id), first: [...files.keys()].sort()[0], model: row.model ?? '', effort: row.effort ?? '' });
   }
   candidates.sort((a, b) => shareRank('model', a.model) - shareRank('model', b.model)

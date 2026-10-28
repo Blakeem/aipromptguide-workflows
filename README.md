@@ -165,6 +165,10 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-28
 
+- **A lone fix block leaves its closed entries alone, and `--pack` builds a large entry alone.** The
+  developer and acceptance of a fix block work no entry whose `- status:` is `fixed` or `stale`, so a
+  status sync no longer rewrites `fixed` to `stale`. `plan-edit.mjs args --pack` builds alone a block
+  with an open `- size: large` entry, since a pass parks as one block.
 - **`tools/risk-check.mjs` owns develop's risk file format.** The developer runs it on its risk file
   until it prints `ok`. It writes a missing file's skeleton, names each format error, reruns each sweep
   search as written and as a source string escapes it, and lists each hit the sweep leaves out. Its last
