@@ -66,7 +66,8 @@ const ENHANCE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
 // zero doc files"), so their rows script the returns their per-engine table already uses.
 const LENS    = { wrote_file: true, top_pick: 'in-process LRU' };
 const DECIDE  = { wrote_file: true, chosen: 'in-process LRU', meets_all_requirements: true, open_issue_ids: [], user_checks: 0, needs_user: false };
-const AGREE   = { wrote_file: true, agree: true, gap_ids: [], needs_user: false };
+const ACCEPT  = { wrote_file: true, verdict: 'accept', needs_user: false };
+const CHECK   = { wrote_file: true, exit_code: 0, final_line: 'raised 0, withdrawn 0, kept 0, downgraded 0', stage1_verdict: '' };
 const GATHER  = { files_written: 6, skipped: 2 };
 const SCRUB   = { files_cleaned: 4 };
 const CURATE  = { wrote_index: true, files: 11, deleted: 1, inconsistencies: 0, fidelity_checked: 3,
@@ -118,9 +119,9 @@ const SWEEP = [
   {
     engine: 'workflows/decide/decide-cycle.mjs',
     baseArgs: { runId: 't', root: 'E:/r', lenses: ['efficiency', 'simplest'],
-      planPath: 'E:/r/plans/t/requirements.md' },
-    respond: { research: LENS, decide: DECIDE, review: AGREE },
-    required: ['runId', 'root', 'planPath', 'lenses'],
+      planPath: 'E:/r/plans/t/requirements.md', checkTool: 'E:/r/tools/review-check.mjs' },
+    respond: { research: LENS, decide: DECIDE, review: ACCEPT, check: CHECK },
+    required: ['runId', 'root', 'planPath', 'lenses', 'checkTool'],
   },
   {
     engine: 'workflows/docs/docs-cycle.mjs',

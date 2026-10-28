@@ -1,22 +1,22 @@
 export const meta = {
   name: 'decide-cycle',
-  description: 'Convergent decision, lean/file-bus design: fan out ONE researcher per lens (each finds options through its lens, gathers cited evidence for them and scores them, written to its own file), then a DECIDER funnels them into one conclusion via a global weighted decision matrix that pulls in the best of each. Each open issue the decider names (a question whose answer could change the winner) gets a researcher, round after round, until the issues are covered, two research rounds in a row find no new evidence, or maxResearchRounds is spent. Then NON-BLIND adversarial reviewers check the conclusion against the fixed requirements: three focused reviewers in round 1, then one verifier per later round that checks the folds the decider made. A gap BLOCKS only on a non-negotiable violation, a correctness defect, a wrong choice or a missed option; every other real gap is a CAVEAT carried to the plan. Looped until no reviewer holds a blocking gap. The harness only routes paths + verdicts; rich content lives in files.',
+  description: 'Convergent decision, lean/file-bus design: fan out ONE researcher per lens (each finds options through its lens, gathers cited evidence for them and scores them, written to its own file), then a DECIDER funnels them into one conclusion via a global weighted decision matrix that pulls in the best of each. Each open issue the decider names (a question whose answer could change the winner) gets a researcher, round after round, until the issues are covered, two research rounds in a row find no new evidence, or maxResearchRounds is spent. Then ONE final reviewer per review round judges the answer in two stages: first BLIND, scoring every candidate on the fixed requirements from an evidence ledger that holds the sourced facts and no score, then, once a check tool locks that judgment, against the decision file, where it may withdraw an objection only by quoting a sourced fact. An objection is a non-negotiable the winner violates or a challenger that scores higher on the same rubric; every other concern is a caveat. A check agent verifies the lock and counts the objections, and a kept objection sends the decision back to the decider. Looped until the reviewer accepts. The harness only routes paths + verdicts; rich content lives in files.',
   whenToUse: 'Have the AI reach a JUSTIFIED conclusion among approaches, weighing real trade-offs. Set selection:"ranked" instead when the answer is legitimately a PORTFOLIO rather than a choice — "give me the best N, I will pick or combine" — e.g. ranking a large pool of candidates surfaced by many agents over a big corpus; same matrix, same citation discipline, same adversarial review, but the output is an ordered shortlist with combine/exclusive notes and no single winner. The main agent authors the REQUIREMENTS (non-negotiable constraints + weighted criteria — the rubric both the decider and reviewer judge against) in PLAN MODE, approves them with the user, picks the LENSES (e.g. efficiency, simplest, robustness, best-practice), then runs this engine. It diverges into lensed option-generation, then converges via a decider ⇄ research loop gated by a decider ⇄ review loop. To explore open-ended creative variations for a HUMAN to pick (no AI verdict) use brainstorm-cycle; to BUILD the chosen approach, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.',
   phases: [
     { title: 'Diverge', detail: 'One researcher per lens (CONCURRENT). Each reads the requirements (verbatim) + its lens, generates 2–4 options, gathers cited evidence for them, scores them under its lens, recommends one, and writes lenses/<lens>.md. Returns a thin index.' },
-    { title: 'Decide', detail: 'The decider reads the requirements + every lens file (+ the research files of the latest research round, + every review file of the previous review round), combines the best elements, builds a GLOBAL weighted decision matrix: musts pass/fail, wants met / partly met / missed, every cell citing its evidence or marked own judgment. It picks the winner, writes decision-rN.md with an Open issues section and a Checks for the user section, and returns the choice + the open issue slugs.' },
+    { title: 'Decide', detail: 'The decider reads the requirements + every lens file (+ the research files of the latest research round, + the previous review round\'s final review), combines the best elements, builds a GLOBAL weighted decision matrix: musts pass/fail, wants met / partly met / missed, every cell citing its evidence or marked own judgment. It picks the winner, writes decide/decision-rN.md with an Open issues section and a Checks for the user section, writes review/ledger-rN.md (the answer under review, the candidates and the sourced facts, no score or reasoning), and returns the choice + the open issue slugs.' },
     { title: 'Research', detail: 'One researcher per open issue (CONCURRENT). Each reads the requirements, the issue in the decision file and the files the decider names for it, searches with the tools it has, and writes research/r<N>-<slug>.md with its findings cited, or a check for the user when no agent can settle it. Returns whether it found new evidence. The decider then runs again. Research stops on covered (no open issue), saturated (two research rounds in a row with no new evidence) or cap (maxResearchRounds).' },
-    { title: 'Review', detail: 'NON-BLIND adversarial reviewers read the decision + requirements + lens and research files. Round 1 runs three focused reviewers CONCURRENTLY (single: choice, requirements, design; ranked: order, requirements, combine), each writing decision-review-r1-<focus>.md. Each later round runs one verifier that reads every review file of the previous round, checks each blocking gap was closed or rebutted, judges every changed passage, and writes decision-review-rN.md. Every gap is BLOCKING (non-negotiable violation, correctness defect, wrong choice, missed option) or a CAVEAT. No blocking gap ends the loop; blocking gaps drive another Decide round.' },
+    { title: 'Review', detail: 'A check agent writes the round\'s check spec and reveal text to locks/. ONE fresh reviewer reads the requirements + the ledger, scores every candidate blind and writes review/review-rN.md with its objections and verdict, then runs review-check.mjs, which locks that file and prints the reveal: read the decision file, sort each objection into withdrawn (by a quoted sourced fact), kept or downgraded, write the final file and run the check again. The check agent then runs review-check.mjs --verify: a matching lock gives the verdict from the kept count, a mismatch falls back to the locked blind verdict, and a missing lock reruns the reviewer once, then blocks. A kept objection drives another Decide round.' },
   ],
 };
 
 // =============================================================================
 // Config — everything decision-specific arrives via args so the engine stays general.
 // Decide is a CONVERGENCE workflow: it produces a conclusion, not code — nothing is staged or
-// committed. Its review loop honors the SPIRIT of WORKFLOW-PRINCIPLES.md #5 but is NON-BLIND by
-// design: the reviewer MUST see the decision + the requirements it's judged against (a reviewer blind
-// to the decision can't evaluate it). The fixed requirements file is the anti-spin rubric — both
-// agents check against it, so the loop converges. The main agent authors the requirements + picks the
+// committed. Its review is STAGED (WORKFLOW-PRINCIPLES.md #3/#5). A judge shown a prior score anchors on
+// it, so the reviewer scores the candidates blind from an evidence ledger first, and sees the decision
+// only after a check tool has locked that judgment. The fixed requirements file is the anti-spin rubric.
+// Both agents check against it, so the loop converges. The main agent authors the requirements + picks the
 // lenses with the user BEFOREHAND (#4) — the engine spawns no setup/loader agent.
 // =============================================================================
 // args arrives from the Workflow tool VERBATIM and unvalidated, so a structural typo in a hand-built
@@ -28,7 +28,7 @@ try {
   throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
 }
 if (!A || !A.runId) {
-  throw new Error('args must include at least { runId, root, lenses, planPath }; got typeof=' + (typeof args));
+  throw new Error('args must include at least { runId, root, lenses, planPath, checkTool }; got typeof=' + (typeof args));
 }
 if (!A.root) {
   throw new Error('args.root is required: pass the ABSOLUTE path the run-state should hang off (normally this workflow tool\'s own directory).');
@@ -68,8 +68,8 @@ const RANKED      = SELECTION === 'ranked';
 const SHORTLIST_N = num(A.shortlist, 'shortlist', 2, 5, 50);    // ranked only: how many to carry on the list
 
 // Per-role model tiers + OPTIONAL custom subagent types. Decider + reviewer are opus (high stakes);
-// the researchers are the fast tier by default.
-const ROLE_KEYS = ['research', 'decide', 'review'];
+// the researchers and the check agent, which only writes and runs fixed text, are the fast tier by default.
+const ROLE_KEYS = ['research', 'decide', 'review', 'check'];
 const VALID_MODELS = new Set(['opus', 'sonnet', 'haiku', 'fable']);
 const VALID_EFFORTS = new Set(['low', 'medium', 'high', 'xhigh', 'max']);
 const DEFAULT_EFFORT = 'high';
@@ -91,8 +91,8 @@ const roleMap = (name, value, legal) => {
   }
   return Object.fromEntries(entries);
 };
-const M  = { research: 'sonnet', decide: 'opus', review: 'opus', ...roleMap('models', A.models, VALID_MODELS) };
-const EF = { research: DEFAULT_EFFORT, decide: DEFAULT_EFFORT, review: DEFAULT_EFFORT, ...roleMap('efforts', A.efforts, VALID_EFFORTS) };
+const M  = { research: 'sonnet', decide: 'opus', review: 'opus', check: 'sonnet', ...roleMap('models', A.models, VALID_MODELS) };
+const EF = { research: DEFAULT_EFFORT, decide: DEFAULT_EFFORT, review: DEFAULT_EFFORT, check: DEFAULT_EFFORT, ...roleMap('efforts', A.efforts, VALID_EFFORTS) };
 // agentTypes values name subagents in the caller's registry, so only the keys have a fixed set. A
 // retired key such as analyst must throw, or its subagent is dropped without a word.
 const agentTypeMap = (value) => {
@@ -136,8 +136,19 @@ const LENS_DIR    = `${STATE_DIR}/lenses`;
 const lensFile    = (id) => `${LENS_DIR}/${id}.md`;
 const RESEARCH_DIR = `${STATE_DIR}/research`;
 const researchFile = (n, id) => `${RESEARCH_DIR}/r${n}-${id}.md`;
-const decisionFile       = (r) => `${STATE_DIR}/decision-r${r}.md`;
-const decisionReviewFile = (r, focus) => `${STATE_DIR}/decision-review-r${r}${focus ? `-${focus}` : ''}.md`;
+// The reviewer's prompt names only review/ files, so every file that holds a score or reasoning lives
+// elsewhere: decide/ (the decisions and the reviewer's own final files), lenses/, research/ and locks/.
+const DECIDE_DIR  = `${STATE_DIR}/decide`;
+const REVIEW_DIR  = `${STATE_DIR}/review`;
+const LOCK_DIR    = `${STATE_DIR}/locks`;
+const decisionFile = (n) => `${DECIDE_DIR}/decision-r${n}.md`;
+const ledgerFile   = (n) => `${REVIEW_DIR}/ledger-r${n}.md`;
+const blindFile    = (r) => `${REVIEW_DIR}/review-r${r}.md`;
+const finalFile    = (r) => `${DECIDE_DIR}/review-r${r}-final.md`;
+// review-check.mjs finds these from the blind file's path: <its folder's parent>/locks/<its stem>.json|.lock
+const specFile     = (r) => `${LOCK_DIR}/review-r${r}.json`;
+const revealFile   = (r) => `${LOCK_DIR}/review-r${r}.reveal.md`;
+const lockFile     = (r) => `${LOCK_DIR}/review-r${r}.lock`;
 const NEEDS_USER  = `${STATE_DIR}/NEEDS-USER.md`;          // user-only escalations (may halt the run)
 
 // Requirements: the FIXED rubric — non-negotiable constraints + weighted criteria — read verbatim
@@ -148,6 +159,10 @@ if (typeof A.planPath !== 'string' || !A.planPath.trim()) {
 }
 const PLAN_PATH   = abs(A.planPath);
 const REQ_REF     = `the requirements at ${PLAN_PATH} (read them verbatim: the fixed rubric)`;
+if (typeof A.checkTool !== 'string' || !A.checkTool.trim()) {
+  throw new Error(`Missing args.checkTool: pass the absolute path of tools/review-check.mjs, the command the reviewer runs to lock its blind review. Got ${JSON.stringify(A.checkTool)}.`);
+}
+const CHECK_TOOL  = abs(A.checkTool);
 
 // Lenses — the evaluation perspectives. Each becomes ONE researcher → ONE file. Accept strings or {id, focus}.
 const LENSES = (Array.isArray(A.lenses) ? A.lenses : []).map((l, i) => {
@@ -188,7 +203,7 @@ const DECIDE_SCHEMA = {
   type: 'object',
   required: RANKED ? ['wrote_file', 'chosen', 'shortlist', 'meets_all_requirements', 'flip', 'open_issue_ids', 'user_checks', 'needs_user'] : ['wrote_file', 'chosen', 'meets_all_requirements', 'flip', 'open_issue_ids', 'user_checks', 'needs_user'],
   properties: {
-    wrote_file:             { type: 'boolean', description: 'true if you wrote the decision file' },
+    wrote_file:             { type: 'boolean', description: 'true only if you wrote both the decision file and the evidence ledger' },
     chosen:                 { type: 'string', description: RANKED ? 'short title of the RANK-1 option (the list itself is in the file)' : 'short title of the chosen conclusion (may be a hybrid)' },
     ...(RANKED ? {
       shortlist: {
@@ -214,15 +229,33 @@ const DECIDE_SCHEMA = {
   },
 };
 
+// Neutral on purpose: the reviewer reads its schema before the check tool reveals the decision file, so no
+// field may name a stage, a withdrawal or that file.
 const REVIEW_SCHEMA = {
   type: 'object',
-  required: ['wrote_file', 'agree', 'gap_ids', 'caveat_ids', 'needs_user'],
+  required: ['wrote_file', 'verdict', 'needs_user'],
   properties: {
-    wrote_file: { type: 'boolean', description: 'true if you wrote the review file' },
-    agree:      { type: 'boolean', description: 'true ONLY if your review holds no BLOCKING gap. Caveats never block agree' },
-    gap_ids:    { type: 'array', items: { type: 'string' }, description: 'one SHORT kebab-case slug per BLOCKING gap in your review file, naming the ISSUE and not the round (e.g. "p99-unproven", "reopen-deletes-human-row"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap' },
-    caveat_ids: { type: 'array', items: { type: 'string' }, description: 'one SHORT kebab-case slug per CAVEAT in your review file. [] when there is none' },
+    wrote_file: { type: 'boolean', description: 'true if you wrote your review file' },
+    verdict:    { type: 'string', enum: ['accept', 'reject'], description: 'the verdict your review ends on' },
     needs_user: { type: 'boolean', description: 'true ONLY if you found a requirement contradiction only the USER can resolve; you wrote it to NEEDS-USER.md' },
+  },
+};
+
+const CHECK_SETUP_SCHEMA = {
+  type: 'object',
+  required: ['wrote_file'],
+  properties: {
+    wrote_file: { type: 'boolean', description: 'true only if you wrote all four files' },
+  },
+};
+
+const CHECK_VERIFY_SCHEMA = {
+  type: 'object',
+  required: ['exit_code', 'final_line', 'stage1_verdict'],
+  properties: {
+    exit_code:      { type: 'integer', description: 'the exit code the command returned' },
+    final_line:     { type: 'string', description: 'the last line the command printed, verbatim' },
+    stage1_verdict: { type: 'string', description: 'the word after "locked verdict:" when the command printed that line, else ""' },
   },
 };
 
@@ -271,8 +304,8 @@ PROCEDURE:
    the ELEMENTS of it worth keeping even if another option wins (so the decider can build a hybrid).
 WRITE ${lensFile(lens.id)} (create ${LENS_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Per option, write a short block with title,
 description, and its scores with the evidence behind each. For your pick, add the keep-worthy elements. Be
-concrete and terse. ${CITE} The ${RANKED ? 'order' : 'choice'} reviewer re-checks the source behind
-each matrix cell that moves the outcome. Do NOT modify any repo, stage, or commit.
+concrete and terse. ${CITE} The final reviewer sees only the original sources, never your file, and
+re-checks the source behind each fact that moves the outcome. Do NOT modify any repo, stage, or commit.
 Return via the schema.`;
 
 // The engine routes on open_issue_ids alone, so each issue's question and files live in the decision file.
@@ -288,7 +321,19 @@ user_checks. An empty section says "None."`;
 
 const list = (paths) => paths.map((p) => `  - ${p}`).join('\n');
 
-const decidePrompt = (pass, { reviewRound, reviewPaths, researchRound, researchPaths, olderResearch }) => `
+// The reviewer scores from the ledger before it sees the decision, so the ledger reveals no score or reasoning.
+const LEDGER = (n) => `EVIDENCE LEDGER: also WRITE ${ledgerFile(n)} (create ${REVIEW_DIR}/ if needed). ${REPLACE_NOTE}
+A reviewer scores the candidates from this file alone before it sees your decision, so it holds facts,
+never judgment, in three sections:
+- \`## Answer under review\`: ${RANKED ? 'the listed options in rank order, then each combine and exclude claim' : 'the winner'}.
+- \`## Candidates\`: every candidate your matrix scored${RANKED ? ', listed or left off the list' : ''}, one line each saying what it is.
+- \`## Facts\`: for each candidate, every fact its scores rest on, each with its original source: a
+  file:line, a measurement (the exact command and its result) or a source URL.
+The ledger holds no score, weight, total, rationale or lens recommendation, and it cites no lens,
+research or decision file: copy the original source such a file cites instead. A fact with no original
+source stays out.`;
+
+const decidePrompt = (pass, { review, researchRound, researchPaths, olderResearch }) => `
 You are the DECIDER. Converge the lensed analyses into ${RANKED
     ? `a RANKED SHORTLIST of the strongest options (up to ${SHORTLIST_N}) via a global weighted decision
 matrix. You are NOT picking one winner: the user wants the best options in order, to choose among or
@@ -305,30 +350,37 @@ ${list(researchPaths)}
 Fold each finding by its cited source: rescore each cell it settles and close the open issue it answers.
 A finding written as a check for the user moves its issue under \`## Checks for the user\`. Keep an issue
 open only while its answer can still change ${RANKED ? 'rank 1 or an adjacent pair' : 'the winner'} and a researcher could still settle it.
-`}${!reviewPaths.length ? '' : `The reviewers did NOT yet agree. READ every review file of round ${reviewRound}:
-${list(reviewPaths)}
-Each holds a BLOCKING section and a CAVEATS section.
-- A gap is another agent's claim. Before you fold a BLOCKING gap, confirm its evidence against its
-  source: open the lens or research file, file:line, URL or requirements text it cites, and re-run a
-  measurement it cites where you can run it. Treat its smallest change as a hint. Fold the SMALLEST change
-  that closes the confirmed defect, which may differ from the hint, and check it against every passage of
-  your decision that states the same fact.
-- A gap whose evidence you refute is rebutted under a \`## Rebuttals\` heading with evidence: a lens or
-  research claim, a file:line, a measurement or the requirements text. A rebuttal without evidence is not
-  one. A gap you can neither confirm nor refute, or one that names evidence no file of the run holds,
-  becomes an open issue under its slug, so a research round settles it before your revision goes to
-  review.
-- You MAY fold a CAVEAT whose fix is one sentence. Leave every other caveat alone: the review files
-  carry it to the user.
+`}${!review ? '' : `THE REVIEWER REJECTED the decision of review round ${review.round}. ${review.fallback
+    ? `${review.fallback}, so act on every objection in the blind review ${review.blind}.`
+    : `READ its final review ${review.final}, which sorts each objection of its blind review
+${review.blind} into withdrawn, kept or downgraded to a caveat. Act on each KEPT objection.`}
+- An objection is another agent's claim. Before you act on one, confirm its evidence against its
+  source: open the file:line, URL or requirements text it cites, and re-run a measurement it cites
+  where you can run it.
+- A CHALLENGER, ${RANKED
+    ? `an option the reviewer scores above a listed option it would displace or above the option ranked
+  just above it: score the two side by side on the same rubric, every cell cited, and order them by that
+  score.`
+    : `an option the reviewer scores above the winner: score the winner and the challenger side by side on
+  the same rubric, every cell cited, and keep the higher.`}
+- A NON-NEGOTIABLE VIOLATION: ${RANKED
+    ? 'repair the listed option so it passes, or take it off the list.'
+    : 'repair the winner so it passes, or replace it with the best option that passes.'}
+${RANKED ? `- A COMBINE OR EXCLUDE CLAIM the evidence contradicts: correct it to what the evidence supports.
+` : ''}- An objection whose evidence you refute is rebutted under a \`## Rebuttals\` heading with evidence: a
+  lens or research claim, a file:line, a measurement or the requirements text. A rebuttal without
+  evidence is not one. An objection you can neither confirm nor refute, or one that names evidence no
+  file of the run holds, becomes an open issue, so a research round settles it before the next review.
+- You MAY fold a caveat or a downgraded objection whose fix is one sentence. Leave every other one
+  alone: the review files carry it to the user.
 - A repair patches the option it repairs. Never add a repaired variant as a new rival option. When a
   fold repairs one option against a defect another option shares, repair that option the same way and
-  keep it scored in the matrix. But an option or hybrid a reviewer raised as missed in two rounds goes
-  into the matrix, scored.
+  keep it scored in the matrix.
 - Before you write a fold, test it against one hostile input of each kind it touches, such as a failure,
   a concurrent edit, a human-set value, state saved before the change (a legacy row, a migration, a
   value an older version stored), or an edit by another program that no scan has seen yet, so the fold
   does not open a new defect.
-- Change nothing that a gap or a research finding does not name.
+- Change nothing that an objection or a research finding does not name.
 `}${pass === 1 ? '' : `Then redo the totals, ${RANKED ? 'the order' : 'the trade-off'} and the flip check.
 `}
 PROCEDURE:
@@ -352,7 +404,7 @@ ${RANKED
    swaps them. Grade the rank-1 position: DOMINANT when rank 1 is at least as good as rank 2 on every
    criterion, ROBUST when the smallest swap is larger than the uncertainty of the input it moves, FRAGILE
    when it is not.
-WRITE ${decisionFile(pass)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Write the matrix (table, all candidates scored),
+WRITE ${decisionFile(pass)} (create ${DECIDE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Write the matrix (table, all candidates scored),
 then the RANKED SHORTLIST (one block per option: what it BUYS, what it COSTS, and why it sits above the one
 below it), then a "Combine / exclude" section stating which listed options genuinely COMBINE and which are
 MUTUALLY EXCLUSIVE (a shortlist the user cannot safely mix is a trap), then the flip check, then anything
@@ -370,9 +422,10 @@ you considered and left OFF the list with one line why, then an \`## Open issues
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it: an open issue, or a check for the user.
-WRITE ${decisionFile(pass)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Write the matrix (table), the chosen conclusion
+WRITE ${decisionFile(pass)} (create ${DECIDE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a \`## Trade-off\` section, a \`## Flip check\` section, an
 \`## Open issues\` section and a \`## Checks for the user\` section. Do NOT modify any repo, stage, or commit.`}
+${LEDGER(pass)}
 ${OPEN_ISSUES}
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
 full entry to ${NEEDS_USER} and set needs_user=true (the run HALTS).
@@ -396,113 +449,104 @@ lens files in ${LENS_DIR}/${earlierResearch.length ? `, ${decFile} and the resea
 Do NOT modify any repo, stage, or commit.
 Return via the schema.`;
 
-// Round 1 splits the review by FOCUS, so one pass covers what three fresh sequential samples used to find
-// one round at a time. Later rounds verify the folds instead of re-sampling the whole decision, so the
-// loop converges on the folds rather than on whatever the next fresh reviewer happens to read.
-// A lens or research file can misquote its own source, so the cells that decide the outcome are checked past it.
-const sourceCheck = (outcome) => `For each cell that moves the outcome, one the flip check names or one
-whose error would change ${outcome}, open the original source the lens or research file cites behind it
-and confirm it says what the cell claims${TESTBED ? ', and re-run each testbed command the cell rests on' : ''}.`;
-const FOCUSES = RANKED
-  ? [
-    { id: 'order', check: `the MATRIX and the ORDER. Verify every matrix cell's citation against the lens or research
-file it cites and re-derive every total. ${sourceCheck('the order')} Name any option that dominates the one ranked above it, any pair the matrix does
-not support, any filler option, and any clearly stronger option left OFF the list or never considered.` },
-    { id: 'requirements', check: `the NON-NEGOTIABLES and the CRITERIA. Check every listed option against every
-non-negotiable, path by path, and check every weighted criterion is addressed. The order reviewer
-re-derives the matrix, so do not.` },
-    { id: 'combine', check: `the COMBINE / MUTUALLY-EXCLUSIVE claims. Check each claimed pair against the lens and
-research evidence${REPO ? ' and the codebase' : ''}: two items sold as combinable that actually conflict is the most
-damaging error this list can carry.` },
-  ]
-  : [
-    { id: 'choice', check: `the CHOICE. Verify every matrix cell's citation against the lens or research file it
-cites, re-derive every total, the trade-off and the flip check (the single smallest flip AND the joint effect of the
-low-confidence cells). ${sourceCheck('the winner')} Look for a stronger option or hybrid the decider dismissed or never considered, a
-"why not" that strawmans a runner-up, and a ruling-out whose premise the evidence contradicts.` },
-    { id: 'requirements', check: `the REQUIREMENTS. Check the winner's design against every non-negotiable, path by
-path, and check every weighted criterion is addressed. The choice reviewer re-derives the matrix, so do
-not.` },
-    { id: 'design', check: `the DESIGN the conclusion specifies: does it work as written? Walk every input the
-requirements accept, the edge and failure paths included. Look for a rule that contradicts another rule,
-the requirements${REPO ? ' or the codebase' : ''}, a step that depends on something built later, and a
-claim the conclusion rests on that the design does not deliver. The choice reviewer re-derives the
-matrix, so do not.` },
-  ];
+// The reviewer's prompt holds only the blind stage. The check tool locks the blind review and prints the
+// reveal, so nothing the reviewer reads before that lock names a decision file or a later stage.
+const BLIND_HEADINGS = ['## Scores', '## Objections', '## Caveats'];
+const VERDICTS = REVIEW_SCHEMA.properties.verdict.enum;
 
-const SEVERITY = `SEVERITY: every gap is BLOCKING or a CAVEAT. A gap is BLOCKING only when it is one of these:
-  1. A NON-NEGOTIABLE VIOLATION by ${RANKED ? 'a listed option' : 'the winner'}, judged at the depth the requirements state, or on
-     the default path where they state none. Normal use, an edit by another program or tool, and a
-     failure such as an outage, a timeout or a locked file are all on the default path. Operator
-     action means only a deliberate configuration change or command by the user that the requirements
-     neither list as a scenario nor require the decision to provide. A path they list or require, such
-     as a human commit, a revert or a manual apply path, is on the default path.
-  2. A CORRECTNESS DEFECT in ${RANKED ? 'a listed option' : "the winner's design"}: as written it fails, loses or corrupts data, or
-     contradicts itself, the requirements${REPO ? ' or the codebase' : ''}, on an input the requirements accept.
-     Size does not matter: a small defect that voids a claim the conclusion rests on blocks. A
-     condition the decision states, such as "this holds once X" or "assuming X", is a claim it rests
-     on, so an X the design does not deliver is a correctness defect.
-  Rules 1 and 2 judge ${RANKED ? 'each listed option' : "the winner's design"} on its own: a defect the runner-up shares, or one
-  with no measured instance on an input the requirements accept, still blocks.
-  3. A WRONG CHOICE: apply ALL your evidenced score and citation corrections TOGETHER and re-derive the
-     totals, and ${RANKED ? 'an adjacent pair swaps' : 'the winner changes'} by more than the uncertainty of the cells you moved. Your
-     own judgment against the decider's own judgment on the same cell is inside that uncertainty.
-  4. A MISSED OPTION: an option or hybrid the decider dismissed or never considered that, scored with
-     evidence, beats ${RANKED ? 'the option it would displace' : 'the winner'} by more than that uncertainty.
-Every other real gap is a CAVEAT: an addition the design needs but does not get wrong, a wording
-problem, a citation that does not move the outcome, a dispute inside the fragile margin of the flip
-check, a breach reachable only through operator action or non-default configuration, or a value
-judgment the requirements leave open. A caveat never blocks agree.
-EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
-requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.`;
+const OBJECTIONS = RANKED
+  ? `An objection is one of these four, and each cites the requirement it rests on:
+   - a listed option that violates a non-negotiable;
+   - an adjacent pair of listed options whose order your scores reverse, with both totals;
+   - a candidate off the list that scores above a listed option, with both totals;
+   - a combine or exclude claim the evidence contradicts.`
+  : `An objection is one of two kinds, and each cites the requirement it rests on:
+   - the winner violates a non-negotiable;
+   - a challenger: a candidate that scores higher than the winner on the same rubric, with both totals.`;
 
-// NON-BLIND on purpose (#3 guards code-regression anchoring, not argument evaluation): every reviewer
-// MUST see the decision + requirements to judge them. A round-1 reviewer judges its focus fresh. A later
-// round's verifier reads the previous round's reviews, since its job is to check the folds they asked for.
-const reviewPrompt = ({ round, focus, priorSlugs, isFinal, prevReviews, olderCaveatFiles, decFile, prevDecFile, researchFiles }) => `
-You are an ADVERSARIAL DECISION REVIEWER. ${round === 1
-    ? `Try to BREAK ${RANKED ? 'the ranked shortlist' : 'the conclusion'} on ONE focus: ${focus.check}
-Other reviewers cover the other focuses at the same time, so go deep on yours.`
-    : `The decider revised ${prevDecFile} into ${decFile} to address the review files of
-round ${round - 1}:
-${list(prevReviews)}
-VERIFY THE REVISION:
-1. Each BLOCKING gap in those files: closed by the revision, or rebutted under \`## Rebuttals\` with
-   evidence that holds? One that is neither stays BLOCKING under its slug. A gap the revision moved under
-   \`## Open issues\` or \`## Checks for the user\` is on record for the user: it stays BLOCKING only when
-   you settle it yourself and your result confirms the gap.
-2. Every passage the revision changed or added (compare the two decision files): judge it in full.
-3. Re-derive the totals, ${RANKED ? 'the order' : 'the trade-off'} and the flip check.
-In text the revision left unchanged, report only a NON-NEGOTIABLE VIOLATION as blocking. Anything else
-you notice there is a caveat. List only NEW caveats: one an earlier review raised stays on record there,
-so do not re-list it.${olderCaveatFiles.length ? ` Earlier rounds' caveats are under \`## Caveats\` in these files as well, so read
-them before you list one:
-${list(olderCaveatFiles)}` : ''}`}
+const DEFAULT_PATH = `Normal use, an edit by another program or tool, and a failure such as an outage, a timeout or a
+locked file are all on the default path. Operator action means only a deliberate configuration change or
+command by the user that the requirements neither list as a scenario nor require the decision to provide.
+A path they list or require, such as a human commit, a revert or a manual apply path, is on the default
+path. A breach reachable only through operator action is a caveat.`;
+
+const reviewPrompt = (round, ledger) => `
+You are an INDEPENDENT REVIEWER. Judge ${RANKED ? 'the ranked answer' : 'the answer'} under review on the fixed rubric, from the evidence.
 ${ENV}
-THE ${RANKED ? 'SHORTLIST' : 'DECISION'} TO REVIEW (read it verbatim): ${decFile}
-THE LENS ANALYSES it drew on (cross-check its claims against these): ${LIVE.map((l) => lensFile(l.id)).join(', ')}
-${researchFiles.length ? `THE RESEARCH FILES it drew on (cross-check its claims against these): ${researchFiles.join(', ')}
-` : ''}${round === 1 ? '' : priorSlugs.length ? `Blocking gaps earlier reviews raised, AS SLUGS: ${priorSlugs.join(', ')}. If a gap you find is the SAME issue
-as one of those, or as a caveat in a review file named above, reuse its slug verbatim. Otherwise mint a
-new short kebab-case one.
-` : `If a gap you find is the SAME issue as a caveat in a review file named above, reuse its slug verbatim.
-Otherwise mint a new short kebab-case one.
-`}
-${SEVERITY}
-WRITE ${decisionReviewFile(round, round === 1 ? focus.id : '')} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} The file has a \`## Blocking\` section and a
-\`## Caveats\` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
-that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
-caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
-Do NOT modify any repo, stage, or commit. If a requirement contradiction
-only the user can resolve surfaces, append it to ${NEEDS_USER} and set needs_user=true.${isFinal ? `
-This is the run's LAST round: no decider round follows.${round > 1 ? `
-Before you write, walk every non-negotiable over the entire design, unchanged text included.` : ''}
-If you do NOT agree, END that file with a \`## WHERE NEXT\` section. Say whether the open blocking gaps
-sit in text the latest revision changed, so the folds open new defects, or in a requirement the rubric
-does not settle, such as how far a non-negotiable reaches or a trade-off you and the decider land on
-opposite sides of. For a requirement, name the ONE requirement and the ONE change to it (a weight, a
-non-negotiable's depth, a missing criterion) that would let a decision converge.` : ''}
+THE EVIDENCE LEDGER (read it verbatim): ${ledger}
+It names the answer under review, every candidate and the facts behind each, with their original
+sources. For each fact that moves a score, open its original source and confirm it says what the ledger
+claims${TESTBED ? ', and re-run each testbed command it rests on' : ''}. A fact you cannot confirm counts for nothing.
+
+PROCEDURE:
+1. Score every candidate on every requirement: pass or fail on each non-negotiable, met, partly met or
+   missed on each weighted criterion, each with its evidence, and each candidate's weighted total.
+2. List your OBJECTIONS. ${OBJECTIONS}
+   Every other concern is a caveat. No evidence, no objection.
+3. Reject when you hold at least one objection, else accept.
+${DEFAULT_PATH}
+WRITE ${blindFile(round)} (create ${REVIEW_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} It holds, in this order:
+- a \`${BLIND_HEADINGS[0]}\` section: a table of every candidate against every requirement, each cell with its
+  evidence, and each candidate's weighted total;
+- a \`${BLIND_HEADINGS[1]}\` section: one line per objection, \`- O<n>: <the objection>. Requirement: <the
+  requirement>. Evidence: <the evidence>\`, numbered from O1, or "None.";
+- a \`${BLIND_HEADINGS[2]}\` section: one line per caveat with its evidence, or "None.";
+- a last line \`Verdict: accept\` or \`Verdict: reject\`.
+Do NOT modify any repo, stage, or commit. If a requirement contradiction only the user can resolve
+surfaces, append it to ${NEEDS_USER} and set needs_user=true. Return via the schema once you are done.
+When the review file is complete, run \`node '${CHECK_TOOL}' '${blindFile(round)}'\` and follow what it prints.`;
+
+// The check tool prints this once it locks the blind review. It reaches the reviewer only through that tool.
+const revealText = (round, decFile, isFinal) => `Your blind review is locked. Now read the decision file ${decFile}, which holds the decider's
+matrix and reasoning, and sort each objection of your review into one of three:
+- withdrawn: only when a sourced fact in the decision file answers it. Quote that fact word for word in
+  double quotes. The decider's opinion, weight or argument never withdraws an objection.
+- kept: it still stands. Restate it in full with its evidence.
+- downgraded: it is a caveat after all. Say why.
+WRITE ${finalFile(round)}. ${REPLACE_NOTE} ${FILE_WRITE_NOTE} Write one line per objection of your review,
+\`- O<n>: withdrawn "<the quoted fact>"\`, \`- O<n>: kept: <the objection and its evidence>\` or
+\`- O<n>: downgraded: <why>\`, then a \`## Caveats\` section with every caveat, your review's and the
+downgraded objections', or "None.", then a last line \`Verdict: accept\` or \`Verdict: reject\`.
+A reject keeps at least one objection: ${RANKED
+    ? 'a listed option that violates a non-negotiable, a challenger with its scores, or a combine or exclude claim the evidence contradicts'
+    : 'a non-negotiable the winner violates, or a challenger with its scores'}. An accept keeps none.${isFinal ? `
+This is the run's LAST round: no decider round follows. If your final verdict is reject, put a
+\`## WHERE NEXT\` section just above the verdict line. Say whether the kept objections rest on evidence
+another revision could answer, or on a requirement the rubric does not settle, such as how far a
+non-negotiable reaches or a trade-off the decision lands on the other side of. For a requirement, name
+the ONE requirement and the ONE change to it (a weight, a non-negotiable's depth, a missing criterion)
+that would let a decision converge.` : ''}
+Leave your blind review unchanged, since the check compares it with its lock. Then run
+\`node '${CHECK_TOOL}' '${blindFile(round)}'\` again, fix each error it prints, and return via the schema with
+your final verdict.`;
+
+const checkSetupPrompt = (round, decFile, isFinal) => `
+You are the CHECK AGENT of review round ${round}. Write four files exactly as given below, and change no other file.
+1. WRITE ${specFile(round)} (create ${LOCK_DIR}/ if needed). ${REPLACE_NOTE} Its content is exactly this JSON:
+${JSON.stringify({ headings: BLIND_HEADINGS, stage2: finalFile(round), decision: decFile, reveal: revealFile(round) }, null, 2)}
+2. WRITE ${revealFile(round)}. ${REPLACE_NOTE} Its content is exactly the text between the line BEGIN TEXT and
+the line END TEXT below, without those two lines:
+BEGIN TEXT
+${revealText(round, decFile, isFinal)}
+END TEXT
+3. WRITE ${lockFile(round)} with the content {} and ${finalFile(round)} with no content, so no lock or final
+review from an earlier launch stands in for this round's. ${REPLACE_NOTE}
+${WROTE_NOTE} ${FILE_WRITE_NOTE} Do NOT modify any repo, stage, or commit.
 Return via the schema.`;
+
+const checkVerifyPrompt = (round) => `
+You are the CHECK AGENT of review round ${round}. Run this command once, and read no file and change no file:
+  node '${CHECK_TOOL}' --verify '${blindFile(round)}'
+Return its exit code in exit_code and the last line it printed, verbatim, in final_line. When it printed a
+line that starts "locked verdict:", return the word after it in stage1_verdict, else "".
+Return via the schema.`;
+
+// review-check.mjs --verify prints this line last on every exit it documents.
+const COUNTS_RE = /^raised (\d+), withdrawn (\d+), kept (\d+), downgraded (\d+)$/;
+const countsOf = (line) => {
+  const m = String(line ?? '').trim().match(COUNTS_RE);
+  return m ? { raised: Number(m[1]), withdrawn: Number(m[2]), kept: Number(m[3]), downgraded: Number(m[4]) } : null;
+};
 
 // =============================================================================
 // DIVERGE — fan out one researcher per lens, concurrently (read-only, write own lens file).
@@ -524,7 +568,7 @@ for (const id of failedLensIds) log(`  ✗ ${id}: no lens file (researcher faile
 
 // =============================================================================
 // CONVERGE — decider ⇄ researchers until the open issues are covered or research stops, then decider ⇄
-// non-blind reviewer, until they agree or the round budget is spent.
+// staged reviewer, until the reviewer accepts or the round budget is spent.
 // =============================================================================
 let round = 0, agreed = false, haltReason = '';
 let pass = 0;                   // decider passes, run-wide: each one writes decisionFile(pass)
@@ -534,32 +578,23 @@ let researchPaths = [];         // the latest research round's files the next de
 const researchFiles = [];       // every attested research file of the run, in round order
 let lastOpenIssues = [];        // the latest attested decision's open issue slugs
 let lastUserChecks = 0;         // the latest attested decision's count of checks for the user
-let reviewedDecisionFile = '';  // the decision file the latest review round judged
 const RESEARCH_STOPS = {
   covered: 'the decider named no open issue',
   saturated: 'two research rounds in a row found no new evidence',
   cap: `maxResearchRounds (${MAX_RESEARCH_ROUNDS}) spent`,
 };
-let haltKind = '';              // '' (not halted) | 'needs-user' | 'write-unattested'
-let reviewPaths = [];           // the last round's review files the decider must address (control: paths only)
-let lastReviewFiles = [];       // the latest round's attested review files, agreeing or not (surfaced in the return)
-const caveatFiles = [];         // every attested review file whose reviewer listed a caveat that counted, in round order
+let haltKind = '';              // '' (not halted) | 'needs-user' | 'write-unattested' | 'review-incomplete'
+let review = null;              // the latest rejecting review the decider must act on: { round, blind, final, fallback }, fallback naming why the blind review stands, or ''
+let lastReviewFiles = [];       // the latest round's review files: the blind file, plus the final file when its lock matched and it was written
+const reviewRounds = [];        // [{ round, verdict, raised, withdrawn, kept, downgraded, lockMatched }] — counts only (#8)
+let contradicted = false;       // the latest reviewer returned a verdict its own check counts overturn
 let lastDecisionFile = '';      // latest decision whose writer attested it: a same-runId re-run can leave stale ones
+let lastLedgerFile = '';        // the evidence ledger the same decider pass attested with it
 let lastChosen = '';
 let lastShortlist = [];         // ranked mode: the ordered index the decider returned (reasoning is in the file)
 let lastMeetsAll = false;       // the decider's own rubric attestation for the latest decision file
 let lastFlip = '';              // the decider's flip-check grade for the latest decision file, '' when off the enum
-let contradictedFiles = [];     // the review files whose reviewer agreed while listing blocking gaps
-
-// WHICH gaps the reviewers raise, round over round, so the needs-attention hand-back can say whether the
-// decider is not resolving what it was given (repeats) or every round finds fresh ground (new).
-const gapFirstRound = new Map();   // slug -> first round that raised it
-const gapFirstFile  = new Map();   // slug -> first review file that raised it, in FOCUSES order inside round 1
-const gapRounds     = [];          // [{ round, gaps, new, repeated, caveats }] — counts only (#8)
-const caveatIds     = new Set();   // every caveat slug any review raised, run-wide
-let lastGapIds      = [];          // the last round's blocking slugs, for the needs-attention diagnosis
-// Slugs are control plane, so they are filtered like one: non-strings and blanks are dropped, and a
-// slug listed twice inside ONE round is one gap, not a repeat of itself.
+// Slugs are control plane, so they are filtered like one: non-strings and blanks are dropped.
 const slugs = (ids) => (Array.isArray(ids) ? ids : []).filter((id) => typeof id === 'string' && id);
 
 converge: while (round < MAX_ROUNDS) {
@@ -573,21 +608,22 @@ converge: while (round < MAX_ROUNDS) {
     pass++;
     phase('Decide');
     const dec = await callAgent(decidePrompt(pass, {
-      reviewRound: round - 1, reviewPaths, researchRound, researchPaths,
+      review, researchRound, researchPaths,
       olderResearch: researchFiles.filter((f) => !researchPaths.includes(f)),
     }), roleOpts('decide', { schema: DECIDE_SCHEMA, phase: 'Decide', label: `decide r${pass}` }));
     if (!dec) throw new Error(`Decider returned nothing in round ${round} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
     researchPaths = [];
-    // The reviewers and the return would name this path, and a same-runId re-run can leave a stale file there.
+    // The reviewer and the return would name these paths, and a same-runId re-run can leave stale files there.
     if (dec.wrote_file !== true && dec.needs_user !== true) {
-      haltKind = 'write-unattested'; haltReason = `The decider did not confirm writing ${decisionFile(pass)} in round ${round}.`;
-      log(`  ✋ r${round}: decider did NOT confirm writing ${decisionFile(pass)} → halting before the researchers and reviewers`);
+      haltKind = 'write-unattested'; haltReason = `The decider did not confirm writing ${decisionFile(pass)} and ${ledgerFile(pass)} in round ${round}.`;
+      log(`  ✋ r${round}: decider did NOT confirm writing ${decisionFile(pass)} and ${ledgerFile(pass)} → halting before the researchers and reviewers`);
       break converge;
     }
     // Per pass, no carry-over: an empty shortlist is a valid ranked return and must not pair an older
     // pass's options with this pass's decision file. Set together, so they describe the file named.
     if (dec.wrote_file === true) {
       lastDecisionFile = decisionFile(pass);
+      lastLedgerFile = ledgerFile(pass);
       lastChosen = typeof dec.chosen === 'string' ? dec.chosen : '';
       if (RANKED) {
         lastShortlist = Array.isArray(dec.shortlist) ? [...dec.shortlist].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99)) : [];
@@ -655,96 +691,100 @@ converge: while (round < MAX_ROUNDS) {
     log(`  ↻ research r${researchRound}: ${issues.length} issue(s), ${fresh} with new evidence → decider revises`);
   }
 
-  // ---- REVIEW (non-blind, adversarial) -------------------------------------
+  // ---- REVIEW (staged: blind on the ledger, then the decision) --------------
   phase('Review');
-  // A bare caveat slug says nothing about the caveat, so the verifier gets the files that hold the
-  // caveats of rounds before the one it reviews, whose files it already reads in full.
-  const priorSlugs = [...gapFirstRound.keys()];
-  const olderCaveatFiles = caveatFiles.filter((f) => !reviewPaths.includes(f));
-  const units = round === 1
-    ? FOCUSES.map((f) => ({ focus: f, file: decisionReviewFile(1, f.id), label: `review r1 ${f.id}` }))
-    : [{ focus: null, file: decisionReviewFile(round), label: `review r${round}` }];
-  const revs = await parallel(units.map((u) => () =>
-    callAgent(reviewPrompt({
-      round, focus: u.focus, priorSlugs, isFinal: round === MAX_ROUNDS, prevReviews: reviewPaths, olderCaveatFiles,
-      decFile: lastDecisionFile, prevDecFile: reviewedDecisionFile, researchFiles,
-    }), roleOpts('review', {
-      schema: REVIEW_SCHEMA, phase: 'Review', label: u.label,
-    }))));
-  const dead = units.filter((u, i) => !revs[i]);
-  if (dead.length) throw new Error(`Reviewer returned nothing in round ${round} (${dead.map((u) => u.label).join(', ')}: agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
-  // The next decider and the return would name these paths, so their verdicts must not be read either.
-  const unattested = units.filter((u, i) => revs[i].wrote_file !== true && revs[i].needs_user !== true).map((u) => u.file);
-  if (unattested.length) {
-    haltKind = 'write-unattested'; haltReason = `A reviewer did not confirm writing ${unattested.join(', ')} in round ${round}.`;
-    log(`  ✋ r${round}: reviewer did NOT confirm writing ${unattested.join(', ')} → halting before its verdict is read`);
+  const blind = blindFile(round);
+  const setup = await callAgent(checkSetupPrompt(round, lastDecisionFile, round === MAX_ROUNDS), roleOpts('check', {
+    schema: CHECK_SETUP_SCHEMA, phase: 'Review', label: `check-setup r${round}`,
+  }));
+  if (!setup) throw new Error(`Check agent returned nothing before the review in round ${round} (check-setup r${round}: agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
+  // review-check.mjs reads these files, and a same-runId re-run can leave an earlier round's spec there.
+  if (setup.wrote_file !== true) {
+    haltKind = 'write-unattested'; haltReason = `The check agent did not confirm writing ${specFile(round)}, ${revealFile(round)}, ${lockFile(round)} and ${finalFile(round)} in round ${round}.`;
+    log(`  ✋ r${round}: check agent did NOT confirm writing the check spec → halting before the reviewer`);
     break;
   }
-  lastReviewFiles = units.filter((u, i) => revs[i].wrote_file === true).map((u) => u.file);
-  reviewedDecisionFile = lastDecisionFile;
-
-  const gapIds = [...new Set(revs.flatMap((r) => slugs(r.gap_ids)))];
-  // Blocking outranks caveat: a slug one reviewer blocks on must still drive the next round.
-  const roundCaveats = [...new Set(revs.flatMap((r) => slugs(r.caveat_ids)))].filter((id) => !gapIds.includes(id));
-  for (const id of roundCaveats) caveatIds.add(id);
-  caveatFiles.push(...units
-    .filter((u, i) => revs[i].wrote_file === true && slugs(revs[i].caveat_ids).some((id) => roundCaveats.includes(id)))
-    .map((u) => u.file));
-  const repeatedIds = gapIds.filter((id) => gapFirstRound.has(id));
-  for (const id of gapIds) {
-    if (gapFirstRound.has(id)) continue;
-    gapFirstRound.set(id, round);
-    gapFirstFile.set(id, units[revs.findIndex((r) => slugs(r.gap_ids).includes(id))].file);
+  // A missing lock means the reviewer never ran the check, so it never saw the decision: one rerun, then a halt.
+  let rev = null;
+  let check = null;
+  for (const tag of ['', ' rerun']) {
+    rev = await callAgent(reviewPrompt(round, lastLedgerFile), roleOpts('review', {
+      schema: REVIEW_SCHEMA, phase: 'Review', label: `review r${round}${tag}`,
+    }));
+    if (!rev) throw new Error(`Reviewer returned nothing in round ${round} (review r${round}${tag}: agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
+    if (rev.needs_user === true || rev.wrote_file !== true) break;
+    check = await callAgent(checkVerifyPrompt(round), roleOpts('check', {
+      schema: CHECK_VERIFY_SCHEMA, phase: 'Review', label: `check r${round}${tag}`,
+    }));
+    if (!check) throw new Error(`Check agent returned nothing after the review in round ${round} (check r${round}${tag}: agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
+    if (check.exit_code !== 2) break;
+    log(`  ⚠ r${round}: no lock on ${blind}: the reviewer never ran the check${tag ? '' : ' → rerunning the reviewer once'}`);
   }
-  gapRounds.push({ round, gaps: gapIds.length, new: gapIds.length - repeatedIds.length, repeated: repeatedIds.length, caveats: roundCaveats.length });
-  lastGapIds = gapIds;
-  const split = gapIds.length ? ` — ${gapIds.length - repeatedIds.length} new, ${repeatedIds.length} repeated` : '';
-
-  if (revs.some((r) => r.needs_user === true)) {
-    haltKind = 'needs-user'; haltReason = `A reviewer surfaced a requirement contradiction only the user can resolve in round ${round} (see ${NEEDS_USER}).`;
+  if (rev.needs_user === true) {
+    haltKind = 'needs-user'; haltReason = `The reviewer surfaced a requirement contradiction only the user can resolve in round ${round} (see ${NEEDS_USER}).`;
     log(`  ✋ r${round}: reviewer escalated → halting (see ${NEEDS_USER})`);
     break;
   }
-  if (revs.every((r) => r.agree === true)) {
-    agreed = true;
-    // Flagged, not halted: the decision is the run's last step, so the contradiction cannot compound.
-    contradictedFiles = units.filter((u, i) => slugs(revs[i].gap_ids).length > 0).map((u) => u.file);
-    if (contradictedFiles.length) {
-      log(`  ⚠ r${round}: reviewers AGREE but list ${gapIds.length} blocking gap(s) — self-contradictory; audit ${contradictedFiles.join(', ')}`);
-    }
-    if (!lastMeetsAll) log(`  ⚠ r${round}: reviewers AGREE but the decider reported meets_all_requirements=false — audit ${lastDecisionFile}`);
-    log(`  ✓ r${round}: reviewers AGREE — no blocking gap (${roundCaveats.length} caveat(s) this round)`);
+  // The next decider and the return would name this path, so its verdict must not be read either.
+  if (rev.wrote_file !== true) {
+    haltKind = 'write-unattested'; haltReason = `The reviewer did not confirm writing ${blind} in round ${round}.`;
+    log(`  ✋ r${round}: reviewer did NOT confirm writing ${blind} → halting before its verdict is read`);
     break;
   }
-  reviewPaths = lastReviewFiles;
-  if (round >= MAX_ROUNDS) { log(`  ⚠ r${round}: ${gapIds.length} blocking gap(s)${split} still open at round budget (see ${reviewPaths.join(', ')})`); break; }
-  log(`  ↻ r${round}: ${gapIds.length} blocking gap(s)${split}, ${roundCaveats.length} caveat(s) → decider revises`);
+  if (check.exit_code === 2) {
+    haltKind = 'review-incomplete'; haltReason = `The reviewer never ran the check on ${blind} in round ${round}, and its rerun did not either.`;
+    log(`  ✋ r${round}: the reviewer and its rerun never ran the check → halting`);
+    break;
+  }
+
+  // A matching lock: the kept count decides, so a withdrawal the check could not confirm stays an objection.
+  // A mismatch: the blind review changed after its lock, so only its locked verdict is the reviewer's own.
+  // A matching lock with a locked verdict: the final review is unwritten, so the blind review is the one to read.
+  const counts = countsOf(check.final_line);
+  const lockMatched = check.exit_code === 0;
+  const lockedVerdict = String(check.stage1_verdict ?? '').trim().toLowerCase();
+  const finalWritten = lockMatched && lockedVerdict === '';
+  if (!counts || !(finalWritten || ((lockMatched || check.exit_code === 3) && VERDICTS.includes(lockedVerdict)))) {
+    throw new Error(`Check agent returned an unreadable result in round ${round} (exit_code ${JSON.stringify(check.exit_code)}, final_line ${JSON.stringify(check.final_line)}, stage1_verdict ${JSON.stringify(check.stage1_verdict)}): review-check.mjs --verify exits 0, 2 or 3, prints its counts line last, and prints the locked verdict on 3 and on 0 with no final review. Relaunch with the same args and no resumeFromRunId, since a resume replays this cached return.`);
+  }
+  // With no final review every objection counts as kept, so the counts give the locked blind verdict.
+  const verdict = lockMatched ? (counts.kept > 0 ? 'reject' : 'accept') : lockedVerdict;
+  const tally = `raised ${counts.raised}, withdrawn ${counts.withdrawn}, kept ${counts.kept}, downgraded ${counts.downgraded}`;
+  reviewRounds.push({ round, verdict, ...counts, lockMatched });
+  lastReviewFiles = finalWritten ? [blind, finalFile(round)] : [blind];
+  const verdictFile = lastReviewFiles[lastReviewFiles.length - 1];
+  // Flagged, not halted: the counts already decide the verdict, so the contradiction cannot compound.
+  contradicted = lockMatched && rev.verdict !== verdict;
+  if (!lockMatched) log(`  ⚠ r${round}: ${blind} does not match its lock → the locked blind verdict "${verdict}" stands`);
+  if (lockMatched && !finalWritten) log(`  ⚠ r${round}: the reviewer wrote no final review ${finalFile(round)} → its locked blind verdict "${verdict}" stands`);
+  if (contradicted) log(`  ⚠ r${round}: the reviewer returned "${rev.verdict}" but its check counts give "${verdict}" → the counts decide; audit ${verdictFile}`);
+
+  if (verdict === 'accept') {
+    agreed = true;
+    if (!lastMeetsAll) log(`  ⚠ r${round}: the reviewer ACCEPTS but the decider reported meets_all_requirements=false — audit ${lastDecisionFile}`);
+    log(`  ✓ r${round}: the reviewer ACCEPTS (${tally})`);
+    break;
+  }
+  review = { round, blind, final: finalFile(round), fallback: !lockMatched ? 'Its blind review changed after its lock' : !finalWritten ? 'It wrote no final review' : '' };
+  if (round >= MAX_ROUNDS) { log(`  ⚠ r${round}: the reviewer REJECTS (${tally}) at the round budget (see ${lastReviewFiles.join(', ')})`); break; }
+  log(`  ↻ r${round}: the reviewer REJECTS (${tally}) → decider revises`);
 }
 
 const halted = haltKind !== '';
-const status = haltKind === 'write-unattested' ? 'BLOCKED (an agent did not confirm writing its file)'
-  : halted ? 'BLOCKED (needs user input)'
-  : agreed && caveatIds.size ? 'decided with caveats (no blocking gap, and the reviews list caveats for the plan)'
-  : agreed ? 'decided (decider + reviewers agree)'
+const HALT_STATUS = {
+  'write-unattested': 'BLOCKED (an agent did not confirm writing its file)',
+  'needs-user': 'BLOCKED (needs user input)',
+  'review-incomplete': 'BLOCKED (the reviewer did not complete its review)',
+};
+const status = halted ? HALT_STATUS[haltKind]
+  : agreed ? 'decided (the final reviewer accepts the decision)'
   : 'needs-attention (no agreement within round budget)';
 log(`decide: ${status} after ${round} round(s)`);
 
-// WHY there was no agreement, read off the last review's slugs. Mostly REPEATS: the decider is not
-// resolving objections it has already been handed, so another round against the same rubric buys the
-// same review again. Mostly NEW: either the folds open new defects or the rubric is not settling what
-// "best" means, and the final review's WHERE NEXT says which. Opposite fixes, so naming the wrong one
-// costs a whole re-run. Empty when the last review raised no slugs, or ran in round 1 where the decider
-// never had a round to address a gap: no evidence, no diagnosis.
-const finalGaps  = gapRounds.length ? gapRounds[gapRounds.length - 1] : null;
-const repeatsOut = lastGapIds.filter((id) => (gapFirstRound.get(id) ?? round) < round);
-const churn = !finalGaps || !finalGaps.gaps || finalGaps.round < 2
-  ? ''
-  : finalGaps.repeated > finalGaps.new
-    ? `The final review re-raised ${finalGaps.repeated} blocking gap(s) an earlier round already put to the decider (${repeatsOut.map((id) => `${id}, first raised in ${gapFirstFile.get(id)}`).join('; ')}) — the decider is not RESOLVING them, so another round against the same rubric will not either. `
-    : `The final review raised ${finalGaps.new} blocking gap(s) no earlier round did, so every round finds fresh ground. Either the folds open new defects or the question is UNDER-SPECIFIED, and that review's WHERE NEXT section says which. `;
-
+const lastReview = reviewRounds.length ? reviewRounds[reviewRounds.length - 1] : null;
 const agreeCaveats = [
-  contradictedFiles.length ? `A reviewer agreed while listing blocking gaps: audit ${contradictedFiles.join(', ')} before presenting. ` : '',
+  agreed && contradicted ? `The reviewer returned reject while its review keeps no objection: audit ${lastReviewFiles[lastReviewFiles.length - 1]} before presenting. ` : '',
+  agreed && lastReview && !lastReview.lockMatched ? `The reviewer's blind review ${blindFile(round)} changed after its lock, so its locked verdict stands: audit it before presenting. ` : '',
   agreed && !lastMeetsAll ? `The decider itself reported that ${RANKED ? 'a shortlisted option' : 'the conclusion'} does not meet every requirement: check ${lastDecisionFile} before presenting. ` : '',
 ].join('');
 const FLIP_NOTES = RANKED
@@ -764,9 +804,14 @@ const researchNote = (researchStop === 'saturated' || researchStop === 'cap') &&
 const checksNote = lastUserChecks
   ? `Present the ${lastUserChecks} check(s) under \`## Checks for the user\` in ${lastDecisionFile}: each names the result that would change the answer. `
   : '';
-const caveatNote = caveatIds.size
-  ? `Carry the ${caveatIds.size} caveat(s) under "## Caveats" in ${caveatFiles.join(', ')} into the plan's design section. The reviewers judged that none changes the choice, but each is a gap the plan must close, so refine the plan before building. `
+// The engine reads no caveat count, since the reviewer's return names no section, so the note points at the file.
+const caveatNote = lastReviewFiles.length
+  ? `Carry each caveat under "## Caveats" in ${lastReviewFiles[lastReviewFiles.length - 1]} into the plan's design section. The reviewer judged that none changes the choice, but each is a gap the plan must close, so refine the plan before building. `
   : '';
+// A lock mismatch or an unwritten final review leaves only the blind review, which has no WHERE NEXT section.
+const budgetStart = lastReviewFiles.length > 1
+  ? 'starting with the kept objections and the WHERE NEXT section of the final review, which says whether another revision could answer them or names the one requirement change that would let a decision converge'
+  : 'starting with the objections of the blind review, since the last round left no final review the run could use and so no WHERE NEXT section';
 // A halt's relaunch already redoes every lens and leaves no decision to relay, so it gets the short form.
 const droppedLenses = !failedLensIds.length
   ? ''
@@ -788,27 +833,27 @@ return {
   research: { rounds: researchRound, stop: researchStop },
   openIssues: lastOpenIssues,
   userChecks: lastUserChecks,
-  gapRounds,
-  caveats: caveatIds.size,
+  reviewRounds,
   stateDir: STATE_DIR,
   haltReason: halted ? haltReason : '',
   decisionFile: lastDecisionFile,
   reviewFiles: lastReviewFiles,
-  caveatFiles,
   needsUserFile: haltKind === 'needs-user' ? NEEDS_USER : '',
   lensFiles: LIVE.map((l) => lensFile(l.id)),
   failed: failedLensIds.map((id) => ({ id, stage: 'diverge' })),
   lensPicks: LIVE.map((l) => ({ lens: l.id, focus: l.focus, top: ready.find((a) => a.lens === l.id)?.top || '' })),
-  contradicted: contradictedFiles.length > 0,
+  contradicted,
   meetsAllRequirements: lastMeetsAll,
-  reviewTrail: `Lens analyses in ${LENS_DIR}/, research files in ${RESEARCH_DIR}/, and decision-rN.md / decision-review-rN*.md in ${STATE_DIR}/ show every round.`,
+  reviewTrail: `Lens analyses in ${LENS_DIR}/, research files in ${RESEARCH_DIR}/, decisions and final reviews in ${DECIDE_DIR}/, and evidence ledgers and blind reviews in ${REVIEW_DIR}/ show every round.`,
   nextStep: (halted
     ? (haltKind === 'needs-user'
       ? `Run halted — ${haltReason} Read ${NEEDS_USER}, resolve it with the user, then relaunch with the same args and no resumeFromRunId. ${relaunchFromStart}`
+      : haltKind === 'review-incomplete'
+      ? `Run halted — ${haltReason} Check that this project's settings allow Bash(node '${CHECK_TOOL}':*), so the reviewer can run the check unattended, then relaunch with the same args and no resumeFromRunId: a resume replays the cached returns and halts the same way. ${relaunchFromStart}`
       : `Run halted — ${haltReason} Check that file, then relaunch with the same args and no resumeFromRunId: a resume replays the cached return and halts the same way. ${relaunchFromStart}`)
     : (agreed
       ? agreeCaveats + flipNote + researchNote + checksNote + caveatNote + (RANKED
-        ? `Present the SHORTLIST the decider and reviewers agreed on in round ${round}: relay ${lastDecisionFile} (the matrix + the ranked options with what each buys/costs + the combine-vs-exclusive section + the flip check) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. There is deliberately NO single winner — the user picks, or combines the options marked as composable. To build what they pick, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle (several picks become several blocks of one plan file).`
-        : `Present the conclusion the decider and reviewers agreed on in round ${round}: relay ${lastDecisionFile} (the matrix + rationale + why-not-others + trade-off + flip check) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. To build the chosen approach, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.`)
-      : `No agreement within ${MAX_ROUNDS} rounds. ${churn}${researchNote}${checksNote}Read the latest ${lastDecisionFile} + ${lastReviewFiles.join(', ')} with the user, starting with the WHERE NEXT section of each review that did not agree, which says whether the folds open new defects or names the one requirement change that would let a decision converge. Refine the requirements, then relaunch with the same args and no resumeFromRunId: the relaunch re-runs the run from the lens analyses and round 1 and overwrites the round files, while a resume would replay the cached returns and never read the edit. Or raise maxRounds and relaunch with the same args plus the Workflow tool's resumeFromRunId: the finished rounds replay from cache and the loop continues past round ${round}.`)) + droppedLenses,
+        ? `Present the SHORTLIST the final reviewer accepted in round ${round}: relay ${lastDecisionFile} (the matrix + the ranked options with what each buys/costs + the combine-vs-exclusive section + the flip check) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. There is deliberately NO single winner — the user picks, or combines the options marked as composable. To build what they pick, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle (several picks become several blocks of one plan file).`
+        : `Present the conclusion the final reviewer accepted in round ${round}: relay ${lastDecisionFile} (the matrix + rationale + why-not-others + trade-off + flip check) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. To build the chosen approach, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.`)
+      : `No agreement within ${MAX_ROUNDS} rounds. ${researchNote}${checksNote}Read the latest ${lastDecisionFile} + ${lastReviewFiles.join(', ')} with the user, ${budgetStart}. Refine the requirements, then relaunch with the same args and no resumeFromRunId: the relaunch re-runs the run from the lens analyses and round 1 and overwrites the round files, while a resume would replay the cached returns and never read the edit. Or raise maxRounds and relaunch with the same args plus the Workflow tool's resumeFromRunId: the finished rounds replay from cache and the loop continues past round ${round}.`)) + droppedLenses,
 };

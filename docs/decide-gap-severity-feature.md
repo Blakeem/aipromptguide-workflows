@@ -1,6 +1,7 @@
 # Decide: gap severity + "accepted with notes" — feature notes
 
-**Status: BUILT (2026-10-08) as `decided with caveats`.** See `workflows/decide/CLAUDE.md` §5 and §6.
+**Status: BUILT (2026-10-08) as `decided with caveats`, then REPLACED (2026-10-27) by the staged final
+review.** See `workflows/decide/CLAUDE.md` §5a.
 The design sketch below is the original proposal. Evidence is from decide run
 `worktree-parallelism-1` (first real run after the stop-criteria work). `runs/` is gitignored, so the
 key numbers are recorded here.

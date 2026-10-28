@@ -9,9 +9,9 @@ You write the requirements (the non-negotiables and the weighted criteria) and n
 through. Claude runs one researcher per lens to surface options, gather evidence and score them. A
 **decider** funnels them into a single conclusion and pulls in the best elements of each where they
 compose. Each open question that could change the winner goes to a researcher, until the evidence settles
-it or research stops. In round 1, three **focused reviewers** attack the decision at once. Each later
-round runs one **verifier** that checks the decider's fixes. The loop ends when no reviewer holds a
-blocking gap.
+it or research stops. Then one **final reviewer** judges the answer. It scores every candidate blind from
+the sourced evidence first, and sees the decision only after a check tool locks that judgment. The loop
+ends when the reviewer keeps no objection.
 
 ### What sets it apart
 
@@ -22,8 +22,8 @@ A **diverge-then-converge** workflow built on the shared [Workflow Principles](.
   scores met, partly met or missed, and the weighted total counts met as full weight, partly met as
   half and missed as zero. A criterion scores met only on a cited source or a measurement. The simplest
   adequate option is preferred, and every runner-up is explicitly disqualified. Every claim cites its
-  original source or is marked as own judgment, and a reviewer re-checks the sources behind the matrix
-  cells that decide the outcome.
+  original source or is marked as own judgment, and the final reviewer re-checks the sources behind the
+  facts that decide the outcome.
 - **Research inside the decision.** The decider lists each open issue: a question whose answer could
   change the winner. One researcher per issue searches for the answer, and the decider revises. Research
   stops when no issue is open, after two rounds in a row find no new evidence, or at
@@ -31,15 +31,16 @@ A **diverge-then-converge** workflow built on the shared [Workflow Principles](.
   can settle, such as one that needs your hardware, becomes a check for you, with the result that would
   change the answer. When the decision is about what to test, these checks are part of the answer.
 - **A fixed rubric both sides judge against.** The requirements file is the single source of truth for
-  the decider *and* the reviewers. This is what makes the loop converge instead of bikeshedding.
-- **Adversarial, non-blind review.** Unlike a code review, the reviewers *must* see the decision to judge
-  it, so the review is non-blind by design. In round 1 each of three reviewers attacks one focus, such as
-  the choice, the requirements or the design. The decider checks each gap against its source before it
-  makes a fix. From round 2 a verifier reads the earlier reviews and checks each fix the decider made.
-- **Blocking gaps and caveats.** A gap blocks agreement only when it shows a broken non-negotiable, a
-  correctness defect, a wrong choice or a missed better option. Every other real gap is a caveat. A
-  caveat never blocks, and the run hands it to your plan. A run that agrees with caveats ends
-  `decided with caveats`.
+  the decider *and* the final reviewer. This is what makes the loop converge instead of bikeshedding.
+- **Blind first, then checked against the decision.** A judge shown a prior score tends to agree with
+  it. So the reviewer first scores every candidate from an evidence ledger, which holds the sourced
+  facts and no score or reasoning. A check tool then locks that review and shows the reviewer the
+  decision. The reviewer keeps, withdraws or downgrades each objection. It withdraws one only by quoting
+  a sourced fact from the decision, never the decider's argument.
+- **Objections and caveats.** An objection is a broken non-negotiable or a challenger that scores
+  higher on the same rubric. The decider answers a challenger by scoring both side by side and keeping
+  the higher, so each round moves toward a stronger answer. Every other concern is a caveat. A caveat
+  never blocks, and the run hands it to your plan.
 - **Trade-off and flip check.** The decision states what the winner gives up against the runner-up,
   criterion by criterion. Its flip check names the smallest change that would swap the winner. The
   decider grades the choice `dominant`, `robust` or `fragile`, and you settle a `fragile` one.
@@ -48,12 +49,9 @@ A **diverge-then-converge** workflow built on the shared [Workflow Principles](.
   ordered shortlist instead. The shortlist states what each option buys, what it costs, and which of them
   safely combine (and which are mutually exclusive). It is held to the same matrix and the same
   adversarial review.
-- **Non-convergence diagnoses itself.** Every blocking gap carries a stable slug, and the run tracks
-  which gaps are new and which are repeats across rounds. A run that ends without agreement after two or
-  more rounds says which failure it was. Either the same gaps repeat (the decider is not resolving them),
-  or fresh gaps appear every round. Fresh gaps mean the fixes open new defects or the rubric is
-  under-specified. The final review ends with a **WHERE NEXT** section that says which. For a rubric
-  gap it names the one requirement change that would let a decision converge.
+- **Non-convergence says where to go next.** A run that ends without agreement hands back the final
+  review. Its kept objections and its **WHERE NEXT** section say whether another revision could answer
+  them. For a rubric gap it names the one requirement change that would let a decision converge.
 - **A conclusion, not code.** Nothing is staged or committed. The decision feeds
   a plan file that [`develop-cycle`](../develop/) builds next.
 
@@ -93,7 +91,7 @@ lenses, then runs `decide-cycle.mjs` **by path**.
    the weighted criteria.
 2. **Diverges.** One researcher per lens generates options, gathers evidence and scores them.
 3. **Converges.** The decider builds the matrix and concludes. Researchers settle its open issues, and
-   it revises. Three focused reviewers attack it in round 1, and a verifier checks each later revision.
+   it revises. A fresh final reviewer judges each revision, blind first.
 4. **Presents.** Relays the matrix + rationale, any open issues and checks for you, and the lens files
    so you can see the source views.
 
@@ -104,19 +102,21 @@ Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the 
 ## Reviewing the result
 
 `runs/<runId>/` holds the per-lens analyses (`lenses/<lens>.md`), each research round's findings
-(`research/r<N>-<issue>.md`) and the decider's matrix and conclusion (`decision-rN.md`), whose
-`## Open issues` and `## Checks for the user` sections list what the evidence left open. It also holds
-the round-1 focused reviews (`decision-review-r1-<focus>.md`) and each later verification
-(`decision-review-rN.md`). Each review lists its blocking gaps and its caveats. Carry the caveats into
-the plan you build from. Since a re-run can leave an earlier run's files with higher round numbers in
-that folder, read the decision file that the run's result names. Also skim the lens files to see the
-trade-offs that shaped it. Then build the chosen approach from a [`develop-cycle`](../develop/) plan
-file.
+(`research/r<N>-<issue>.md`) and the decider's matrix and conclusion (`decide/decision-rN.md`), whose
+`## Open issues` and `## Checks for the user` sections list what the evidence left open. Each review
+round leaves the reviewer's blind review (`review/review-rN.md`) and its final review
+(`decide/review-rN-final.md`), which keeps, withdraws or downgrades each objection and lists the
+caveats. Carry the caveats into the plan you build from. Since a re-run can leave an earlier run's
+files with higher round numbers in that folder, read the decision file that the run's result names.
+Also skim the lens files to see the trade-offs that shaped it. Then build the chosen approach from a
+[`develop-cycle`](../develop/) plan file.
 
 ---
 
 ## Requirements
 
 - **Claude Code** with the background **Workflow** capability.
+- Permission to run `node '<checkTool>'` unattended, through the allow rule `Bash(node '<checkTool>':*)`.
+  The reviewer runs `tools/review-check.mjs` to lock its blind review.
 - A target git repo is **optional**. Pass one for a decision about existing code (read-only context for
   pattern-fit and feasibility). Nothing is ever written to it.

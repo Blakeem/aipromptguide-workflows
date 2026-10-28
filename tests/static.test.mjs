@@ -190,8 +190,6 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
       reason: 'inside parallel(LENSES.map((lens) => () => callAgent(...))) — the return is never named' },
     { engine: 'workflows/decide/decide-cycle.mjs', schema: 'RESEARCH_SCHEMA',
       reason: 'inside parallel(issues.map((u) => () => callAgent(...))) — the return is never named' },
-    { engine: 'workflows/decide/decide-cycle.mjs', schema: 'REVIEW_SCHEMA',
-      reason: 'inside parallel(units.map((u) => () => callAgent(...))) — the return is never named' },
     { engine: 'workflows/docs/docs-cycle.mjs', schema: 'GATHER_SCHEMA',
       reason: 'callAgent(...).then((g) => ...) — the return reaches a callback parameter, not a variable' },
     { engine: 'workflows/docs/docs-cycle.mjs', schema: 'SCRUB_SCHEMA',

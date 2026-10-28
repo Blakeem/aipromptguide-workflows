@@ -17,5 +17,6 @@ Use these paths wherever the guide says "this checkout" or "the tool's own direc
 - Engine `scriptPath`: `${CLAUDE_PLUGIN_ROOT}/workflows/decide/decide-cycle.mjs`
 - `root` arg: `${CLAUDE_PLUGIN_DATA}`. Runs land in its `runs/<runId>/`. Never the plugin install dir,
   which is version-swapped on update.
+- `checkTool` arg (the reviewer's check command): `${CLAUDE_PLUGIN_ROOT}/tools/review-check.mjs`
 
 $ARGUMENTS

@@ -76,8 +76,8 @@ skill first runs `tools/plugin-access.mjs`, which adds one Read rule for the plu
 user agrees. The develop and debug skills run `tools/onboard.mjs` in its place, which asks for that
 access together with every other setup answer the repo is missing. Rename an engine, guide,
 `tools/plan-block.mjs`, `tools/plugin-access.mjs`, `tools/onboard.mjs`, `tools/project-settings.mjs`,
-`tools/wt.mjs`, or `workflows/debug/gen-units.mjs` and the matching `skills/<x>/SKILL.md` paths must
-move with it.
+`tools/wt.mjs`, `tools/review-check.mjs`, or `workflows/debug/gen-units.mjs` and the matching
+`skills/<x>/SKILL.md` paths must move with it.
 
 **Want to see what a run actually does?** Each workflow ships a generated `FLOW.md` beside its engine
 (`workflows/<x>/FLOW.md`; debug's is `FLOW-review.md`) — every agent, gate, loop and

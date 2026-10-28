@@ -37,16 +37,17 @@ Real examples, all from one week:
   (finder → verifier, one output file per unit/lens, clean-marker written by the finder)
 - **Lensed generative:** `brainstorm` · `decide` · `docs` · `enhance`
   (an id-keyed array fanned out to one file each)
-- **Non-blind review loops:** `decide` · `investigate` · `refine`
+- **Rubric review loops:** `decide` · `investigate` · `refine`
   (producer ⇄ adversarial critic against a fixed rubric, bounded by `maxRounds`, solo critical agents
   that **throw** on a null return rather than defaulting to a clean verdict). `refine` pairs a read-only
   critic with a minimal-fold editor under a fixed defect bar. Its dead critic throws, because zero gaps
-  from a dead agent would read as convergence.
+  from a dead agent would read as convergence. `decide` stages its critic: the reviewer scores blind
+  from an evidence ledger, and `tools/review-check.mjs` locks that judgment before it sees the decision.
 
 `investigate` is the family's odd member: its candidates are *found* round by round rather than fanned
 out once, so its loop state lives in a ledger (`DISQUALIFIED.md`) instead of an up-front id array. When
 fixing a loop defect in `decide`, check whether investigate's round loop has the same shape — and note
-that the reverse is often NOT true, since decide's two-variable `reviewPaths`/`lastReviewFiles` split
+that the reverse is often NOT true, since decide's two-variable `review`/`lastReviewFiles` split
 is correct there only because it has an agree-gate investigate lacks.
 
 **Do it by grep, not memory.** `grep -n "TARGET.repo" workflows/*/*.mjs` finds in seconds what a reviewer
@@ -130,6 +131,8 @@ docs' gatherer capture files. Each engine's test counts both notes in each such
 prompt through `pinWriteNotes`, so a new write site needs a row there.
 In every engine but develop, `WROTE_NOTE` is followed by `FILE_WRITE_NOTE`, which tells the agent to
 write file content with the file-editing tool, and `pinFileWriteNote` counts it in the same rows.
+A row's fifth value gives its own count where a prompt embeds another agent's write site, as decide's
+check-setup prompt embeds the reveal text.
 Docs' scrubber carries `FILE_WRITE_NOTE` without `WROTE_NOTE`, so docs' test gives it its own row.
 
 **Prose-sniffing for control flow.** `status = haltReason.includes('needs user') ? … : …` silently

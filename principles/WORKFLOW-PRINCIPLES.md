@@ -396,14 +396,15 @@ rules and apply only where they fit.
   and hands it to a human. For this reason enhance has no fix-mode output and writes to `proposals/`,
   never `issues/`.
 - **Convergence workflows** reach a conclusion (decide, investigate, refine). They run a review loop in
-  the spirit of #5 but are non-blind by design. The reviewer must see the conclusion and the
-  requirements it is judged against, since a reviewer blind to the decision can't evaluate it.
-  Blindness (#3) guards against code-regression anchoring and is wrong for evaluating an argument. Each
-  of the three shapes converges on something different:
-  - **Argument** (decide) converges when no reviewer holds a blocking gap against a fixed requirements
-    rubric, bounded by `maxRounds`. Only a gap that breaks a non-negotiable, the design's correctness or
-    the choice blocks. Every other real gap is a caveat carried into the plan. One up-front fan-out fixes
-    the candidate set.
+  the spirit of #5. investigate and refine are non-blind by design: the reviewer must see the conclusion
+  and the requirements it is judged against. decide stages its review instead. A judge shown a prior
+  score anchors on it, so its reviewer first scores the candidates blind from the sourced evidence, and
+  sees the decision only after a check tool has locked that judgment. Each of the three shapes converges
+  on something different:
+  - **Argument** (decide) converges when the final reviewer keeps no objection against a fixed
+    requirements rubric, bounded by `maxRounds`. An objection is a non-negotiable the winner violates or
+    a challenger that scores higher on the same rubric. Every other concern is a caveat carried into the
+    plan. One up-front fan-out fixes the candidate set.
   - **Plan review** (refine) converges on one round in which a read-only critic finds no gap at or above
     a fixed defect floor. The critic judges only whether the plan's text is correct, so what the plan
     does not say never counts. Its editor checks each gap against the plan and the repo before folding

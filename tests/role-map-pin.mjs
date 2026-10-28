@@ -84,13 +84,14 @@ const WROTE_NOTE = 'A write the tool rejected has not written the file, so repor
 const FILE_WRITE_NOTE = 'Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.';
 
 /**
- * Pins the heredoc warning at each write site, which is each place a prompt carries the rejected-write note.
- * @param {Array<[string, string, number, number]>} sites  the rows given to pinWriteNotes
+ * Pins the heredoc warning at each write site, which is each place a prompt carries the rejected-write note
+ * unless a row's fifth value gives the warning's own count, as for a prompt that embeds another agent's text.
+ * @param {Array<[string, string, number, number, number?]>} sites  the rows given to pinWriteNotes
  */
 export function pinFileWriteNote(sites) {
   const times = (text, needle) => text.split(needle).length - 1;
-  for (const [where, text, , wrotes] of sites) {
-    eq(times(text, FILE_WRITE_NOTE), wrotes, `${where}: the prompt tells the agent to write file content with the file-editing tool`);
+  for (const [where, text, , wrotes, fileWrites = wrotes] of sites) {
+    eq(times(text, FILE_WRITE_NOTE), fileWrites, `${where}: the prompt tells the agent to write file content with the file-editing tool`);
   }
 }
 

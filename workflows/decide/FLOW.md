@@ -10,19 +10,20 @@ it might do. `node tools/gen-flows.mjs --check` fails the gate while this file i
 flowchart TD
   S0(["args"])
   subgraph p4["Review"]
-    a4["review r1 · opus<br/>Review<br/>×3 concurrent"]
+    a4["check-setup · sonnet<br/>Review"]
     a5["review · opus"]
+    a6["check · sonnet<br/>Review"]
   end
   a1["research · sonnet<br/>Diverge<br/>×3 concurrent"]
   a2["decide · opus"]
   a3["research-issue · sonnet<br/>Research"]
-  t1(["decided (decider + reviewers agree)"])
-  t2(["decided with caveats (no blocking gap, and the reviews list caveats for the plan)"])
-  t3(["needs-attention (no agreement within round budget)"])
+  t1(["decided (the final reviewer accepts the decision)"])
+  t2(["needs-attention (no agreement within round budget)"])
+  t3(["BLOCKED (the reviewer did not complete its review)"])
   t4(["BLOCKED (an agent did not confirm writing its file)"])
   t5(["BLOCKED (needs user input)"])
   x1[/"throw: Invalid args JSON"/]
-  x2[/"throw: args must include at least { runId, root, lenses, planPath }"/]
+  x2[/"throw: args must include at least { runId, root, lenses, planPath, checkTool }"/]
   x3[/"throw: args.root is required"/]
   x4[/"throw: Invalid numeric arg"/]
   x5[/"throw: args.selection must be 'single'"/]
@@ -32,12 +33,16 @@ flowchart TD
   x9[/"throw: Invalid agentTypes arg"/]
   x10[/"throw: Invalid notes arg"/]
   x11[/"throw: args.planPath is required"/]
-  x12[/"throw: args.lenses requires >=2 evaluation perspectives"/]
-  x13[/"throw: lens ids collide after slugging"/]
-  x14[/"throw: No lens researcher produced a lens file"/]
-  x15[/"throw: Decider returned nothing in round ..."/]
-  x16[/"throw: Researcher returned nothing in research round ..."/]
-  x17[/"throw: Reviewer returned nothing in round ..."/]
+  x12[/"throw: Missing args.checkTool"/]
+  x13[/"throw: args.lenses requires >=2 evaluation perspectives"/]
+  x14[/"throw: lens ids collide after slugging"/]
+  x15[/"throw: No lens researcher produced a lens file"/]
+  x16[/"throw: Decider returned nothing in round ..."/]
+  x17[/"throw: Researcher returned nothing in research round ..."/]
+  x18[/"throw: Check agent returned nothing before the review in round ..."/]
+  x19[/"throw: Reviewer returned nothing in round ..."/]
+  x20[/"throw: Check agent returned nothing after the review in round ..."/]
+  x21[/"throw: Check agent returned an unreadable result in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -52,25 +57,31 @@ flowchart TD
   S0 --> x11
   S0 --> x12
   S0 --> x13
+  S0 --> x14
   a1 --> a2
-  a1 --> x14
+  a1 --> x15
   a2 --> a3
   a2 --> a4
-  a2 --> a5
   a2 --> t4
   a2 --> t5
-  a2 --> x15
+  a2 --> x16
   a3 -.->|"the decider names an open issue and the next pass names none · +2 more (×2)"| a2
   a3 --> t4
-  a3 --> x16
-  a4 -.->|"the reviewers keep finding blocking gaps (×2)"| a2
-  a4 --> t1
-  a4 --> t2
+  a3 --> x17
+  a4 --> a5
   a4 --> t4
-  a4 --> t5
-  a4 --> x17
-  a5 -.->|"the reviewers keep finding blocking gaps (×2)"| a2
-  a5 --> t3
+  a4 --> x18
+  a5 --> a6
+  a5 --> t4
+  a5 --> t5
+  a5 --> x19
+  a6 -.->|"the reviewer keeps a challenger that scores above the winner · +2 more (×3)"| a2
+  a6 -.->|"the reviewer never runs the check, and its rerun does · +1 more (×2)"| a5
+  a6 --> t1
+  a6 --> t2
+  a6 --> t3
+  a6 --> x20
+  a6 --> x21
 ```
 
 ## Phases
@@ -78,37 +89,41 @@ flowchart TD
 | Phase | What happens |
 |---|---|
 | Diverge | One researcher per lens (CONCURRENT). Each reads the requirements (verbatim) + its lens, generates 2-4 options, gathers cited evidence for them, scores them under its lens, recommends one, and writes lenses/&lt;lens&gt;.md. Returns a thin index. |
-| Decide | The decider reads the requirements + every lens file (+ the research files of the latest research round, + every review file of the previous review round), combines the best elements, builds a GLOBAL weighted decision matrix: musts pass/fail, wants met / partly met / missed, every cell citing its evidence or marked own judgment. It picks the winner, writes decision-rN.md with an Open issues section and a Checks for the user section, and returns the choice + the open issue slugs. |
+| Decide | The decider reads the requirements + every lens file (+ the research files of the latest research round, + the previous review round's final review), combines the best elements, builds a GLOBAL weighted decision matrix: musts pass/fail, wants met / partly met / missed, every cell citing its evidence or marked own judgment. It picks the winner, writes decide/decision-rN.md with an Open issues section and a Checks for the user section, writes review/ledger-rN.md (the answer under review, the candidates and the sourced facts, no score or reasoning), and returns the choice + the open issue slugs. |
 | Research | One researcher per open issue (CONCURRENT). Each reads the requirements, the issue in the decision file and the files the decider names for it, searches with the tools it has, and writes research/r&lt;N&gt;-&lt;slug&gt;.md with its findings cited, or a check for the user when no agent can settle it. Returns whether it found new evidence. The decider then runs again. Research stops on covered (no open issue), saturated (two research rounds in a row with no new evidence) or cap (maxResearchRounds). |
-| Review | NON-BLIND adversarial reviewers read the decision + requirements + lens and research files. Round 1 runs three focused reviewers CONCURRENTLY (single: choice, requirements, design; ranked: order, requirements, combine), each writing decision-review-r1-&lt;focus&gt;.md. Each later round runs one verifier that reads every review file of the previous round, checks each blocking gap was closed or rebutted, judges every changed passage, and writes decision-review-rN.md. Every gap is BLOCKING (non-negotiable violation, correctness defect, wrong choice, missed option) or a CAVEAT. No blocking gap ends the loop; blocking gaps drive another Decide round. |
+| Review | A check agent writes the round's check spec and reveal text to locks/. ONE fresh reviewer reads the requirements + the ledger, scores every candidate blind and writes review/review-rN.md with its objections and verdict, then runs review-check.mjs, which locks that file and prints the reveal: read the decision file, sort each objection into withdrawn (by a quoted sourced fact), kept or downgraded, write the final file and run the check again. The check agent then runs review-check.mjs --verify: a matching lock gives the verdict from the kept count, a mismatch falls back to the locked blind verdict, and a missing lock reruns the reviewer once, then blocks. A kept objection drives another Decide round. |
 
 ## Terminal states
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| decided (decider + reviewers agree) | every reviewer agrees: no blocking gap, no caveat · the decider names an open issue and the next pass names none · two research rounds in a row find no new evidence · every research round finds new evidence until maxResearchRounds is spent · one lens researcher produces no lens file | derived |
-| decided with caveats (no blocking gap, and the reviews list caveats for the plan) | every reviewer agrees and one lists a caveat | derived |
-| needs-attention (no agreement within round budget) | the reviewers keep finding blocking gaps | derived |
-| BLOCKED (an agent did not confirm writing its file) | a researcher does not confirm writing its research file · the decider does not confirm writing its decision file · a reviewer does not confirm writing its review file | derived |
-| BLOCKED (needs user input) | the decider hits a user-only call · a reviewer finds a requirement contradiction | derived |
+| decided (the final reviewer accepts the decision) | the reviewer keeps no objection · the reviewer keeps a challenger that scores above the winner · the reviewer keeps a non-negotiable the winner violates · the blind review changed after its lock, and its locked verdict is accept · the reviewer never runs the check, and its rerun does · the decider names an open issue and the next pass names none · two research rounds in a row find no new evidence · every research round finds new evidence until maxResearchRounds is spent · one lens researcher produces no lens file | derived |
+| needs-attention (no agreement within round budget) | the reviewer keeps an objection every round | derived |
+| BLOCKED (the reviewer did not complete its review) | the reviewer and its rerun never run the check | derived |
+| BLOCKED (an agent did not confirm writing its file) | a researcher does not confirm writing its research file · the decider does not confirm writing its decision file and ledger · the check agent does not confirm writing the check spec and reveal text · the reviewer does not confirm writing its blind review | derived |
+| BLOCKED (needs user input) | the decider hits a user-only call · the reviewer finds a requirement contradiction | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 28) |
-| throw: args must include at least { runId, root, lenses, planPath } | args carry no runId | throw (line 31) |
+| throw: args must include at least { runId, root, lenses, planPath, checkTool } | args carry no runId | throw (line 31) |
 | throw: args.root is required | args.root is missing | throw (line 34) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 46) |
 | throw: args.selection must be 'single' | selection is neither single nor ranked | throw (line 65) |
 | throw: Invalid role map | models is an array in place of an object | throw (line 81) |
-| throw: Unknown role key in a role map | models carries a key outside research \| decide \| review | throw (line 86) |
+| throw: Unknown role key in a role map | models carries a key outside research \| decide \| review \| check | throw (line 86) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 89) |
-| throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside research \| decide \| review, or maps one to a blank name | throw (line 103) |
+| throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside research \| decide \| review \| check, or maps one to a blank name | throw (line 103) |
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 120) |
-| throw: args.planPath is required | args carry no planPath | throw (line 147) |
-| throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 159) |
-| throw: lens ids collide after slugging | two lenses slug to one file | throw (line 163) |
-| throw: No lens researcher produced a lens file | no lens researcher produced a lens file | throw (line 519) |
-| throw: Decider returned nothing in round ... | the decider dies | throw (line 579) |
-| throw: Researcher returned nothing in research round ... | a researcher of an open issue dies | throw (line 643) |
-| throw: Reviewer returned nothing in round ... | a reviewer dies | throw (line 675) |
+| throw: args.planPath is required | args carry no planPath | throw (line 158) |
+| throw: Missing args.checkTool | args carry no checkTool | throw (line 163) |
+| throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 174) |
+| throw: lens ids collide after slugging | two lenses slug to one file | throw (line 178) |
+| throw: No lens researcher produced a lens file | no lens researcher produced a lens file | throw (line 563) |
+| throw: Decider returned nothing in round ... | the decider dies | throw (line 614) |
+| throw: Researcher returned nothing in research round ... | a researcher of an open issue dies | throw (line 679) |
+| throw: Check agent returned nothing before the review in round ... | the check agent dies writing the check spec | throw (line 700) |
+| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 714) |
+| throw: Check agent returned nothing after the review in round ... | the check agent dies running the check | throw (line 719) |
+| throw: Check agent returned an unreadable result in round ... | the check agent returns an exit code or a last line the tool never prints | throw (line 748) |
 
 ## Coverage
 
-30 scenarios · 5/5 roles · 17/17 throw sites · 0/0 halt statuses · 22 terminal states.
+39 scenarios · 6/6 roles · 21/21 throw sites · 3/3 halt statuses · 26 terminal states.

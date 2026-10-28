@@ -4,12 +4,14 @@
 lensed researcher per perspective (each finds options through its lens, gathers cited evidence and scores
 them), then **converges** via a **decider** that builds a global weighted decision matrix pulling in the
 best of each. Each **open issue** the decider names goes to a researcher, round after round, until the
-evidence covers it or research stops. Then **non-blind adversarial reviewers** gate the decision, looped
-until no reviewer holds a blocking gap against fixed requirements. Built to
-`../../principles/WORKFLOW-PRINCIPLES.md`. A *convergence* workflow: it honors the
-core (#1–4, #6, #8, #11–19) and runs a review loop in the **spirit of #5 but non-blind by design** — the
-reviewers must see the decision and the rubric to judge them (#3 guards code-regression anchoring, not argument
-evaluation). It produces a conclusion, **not code**: nothing is staged or committed.
+evidence covers it or research stops. Then one **final reviewer** per review round gates the decision in
+two stages: it scores the candidates **blind** from an evidence ledger, then checks itself against the
+decision once a check tool has locked that judgment (§5a). The loop runs until the reviewer keeps no
+objection against fixed requirements. Built to `../../principles/WORKFLOW-PRINCIPLES.md`. A
+*convergence* workflow: it honors the core (#1–4, #6, #8, #11–19) and runs a review loop in the **spirit
+of #5, staged rather than blind**: the reviewer must see the decision to check it, but a judge shown a
+prior score anchors on it, so it sees the decision only after its own judgment is locked. It produces a
+conclusion, **not code**: nothing is staged or committed.
 
 ## 1. Scope (check FIRST)
 
@@ -39,8 +41,8 @@ Launch every run from a notification turn (root `CLAUDE.md`, "Launch from a noti
 Pick a `runId`. `Workflow` loads by path: `scriptPath` = absolute path to `decide-cycle.mjs` + args.
 No mid-run questions — settle the rubric with the user first:
 
-1. **Author the requirements in `EnterPlanMode`.** This is the **fixed rubric** the decider and the
-   reviewers judge against — and the anti-spin ground that makes the loop converge. Capture (§4): the
+1. **Author the requirements in `EnterPlanMode`.** This is the **fixed rubric** the decider and the final
+   reviewer judge against — and the anti-spin ground that makes the loop converge. Capture (§4): the
    decision to be made, the **non-negotiable constraints** (pass/fail), and the **weighted criteria**
    (what "best" means, and how much each axis matters). `AskUserQuestion` for anything ambiguous —
    getting the rubric right is the whole game.
@@ -48,8 +50,9 @@ No mid-run questions — settle the rubric with the user first:
 3. **Pick the lenses** with the user — the evaluation perspectives, one researcher each (e.g. `efficiency`,
    `simplest`, `robustness`, `best-practice`, `risk`, `ux`). Propose them if the user has none. Distinct
    lenses surface distinct options; that spread is what the decider then balances.
-4. **Run** the engine (`planPath` = the plan-mode file's **absolute** path, plus `lenses`). It diverges
-   (lens researchers) then converges (decider ⇄ researchers, then decider ⇄ reviewers) and returns the
+4. **Run** the engine (`planPath` = the plan-mode file's **absolute** path, plus `lenses` and
+   `checkTool`). It diverges (lens researchers) then converges (decider ⇄ researchers, then decider ⇄
+   the staged final reviewer) and returns the
    chosen conclusion + the file trail.
 5. **Present** the result: follow the return's `nextStep`. It names the terminal state, the files to
    show and every caveat.
@@ -62,12 +65,16 @@ No mid-run questions — settle the rubric with the user first:
   arg. A rubric written without plan mode goes to `plans/<runId>/` under `root` first.
 - **`lenses` — REQUIRED:** the perspectives from §2 (strings or `{ id, focus }`); ids that collide after
   slugging throw, since two researchers would write the same `lenses/<lens>.md`.
-- **`target.repo` (optional):** pass it for a decision about existing code — all three roles (researchers,
-  decider, reviewers) read it **read-only** for pattern-fit and feasibility; the engine never modifies it.
+- **`checkTool` — REQUIRED:** the absolute path of `tools/review-check.mjs` in this checkout (or in the
+  plugin folder the skill names). The reviewer runs it to lock its blind review, and the check agent runs
+  it with `--verify` (§5a). Both run it unattended, so **pre-allowlist** the command exactly as agents
+  run it, `Bash(node '<checkTool>':*)`, in the settings of the project the run works in.
+- **`target.repo` (optional):** pass it for a decision about existing code — the researchers, the
+  decider and the reviewer read it **read-only** for pattern-fit and feasibility; the engine never modifies it.
 - **`testbed` (optional):** how agents may **empirically test** claims (e.g. a sqlite db + how to query
-  it, a script to benchmark against). All three roles are told to prefer measured evidence — run the
-  check, cite command + result (#14) — and the `choice` reviewer (`order` in `ranked` mode) re-runs each
-  testbed command behind a matrix cell that moves the outcome. Set it up
+  it, a script to benchmark against). The researchers, the decider and the reviewer are told to prefer
+  measured evidence — run the check, cite command + result (#14) — and the reviewer re-runs each testbed
+  command behind a fact that moves a score. Set it up
   read-only by construction (e.g. `sqlite3 "file:path.db?mode=ro"`, or a copy), and **pre-allowlist the
   commands** in the target project's settings — a background run can't answer permission prompts
   unattended.
@@ -126,11 +133,11 @@ measurement, and own judgment scores at most partly met.
   cites each factual claim to its original source: a file:line, a measurement with its exact command and
   result, a source URL, or "own judgment".
 - **Decider** (decide · opus) — reads the requirements + every lens file (+ the research files of the
-  latest research round, + every review file of the previous review round); consolidates options, may
+  latest research round, + the previous review round's final review); consolidates options, may
   build a hybrid, scores a **global weighted matrix** under the scoring rule (**every cell citing its
   evidence or marked "own judgment, low-confidence"**, #14), cites for **each option it rules out** what
   rules it out and the one observation that would reverse that, picks the winner with why-not-others,
-  writes `decision-rN.md`. Every decision file ends with an **`## Open issues`** section and a
+  writes `decide/decision-rN.md`. Every decision file ends with an **`## Open issues`** section and a
   **`## Checks for the user`** section. An open issue is a question whose answer could change the
   winner (in `ranked` mode, rank 1 or an adjacent pair): one the flip check names, or a must or want the
   evidence does not yet settle. Each has a slug, the question, the requirement it bears on and the files
@@ -145,67 +152,90 @@ measurement, and own judgment scores at most partly met.
   smallest single change to one cell or weight that changes the winner, plus the joint effect of
   moving every low-confidence cell by its uncertainty). It grades the choice **dominant**
   (gives up nothing), **robust** (the smallest flip is larger than the uncertainty of the input it moves)
-  or **fragile** (it is not), and returns the grade as `flip`. From round 2 it revises its prior
-  decision into a complete new file under fixed **fold rules**: it confirms each blocking gap's evidence
-  against its source and treats the gap's smallest change as a hint; a confirmed gap gets the smallest
-  fold that closes it, a refuted one a rebuttal under `## Rebuttals` with evidence, and one it can
-  neither confirm nor refute, or one that names evidence no file of the run holds, becomes an open
-  issue under its slug, so a research round settles it before the revision goes to review; it may fold
-  a caveat whose fix is one sentence and leaves every other caveat to the review files; it tests each
-  fold against one hostile
-  input of each kind it touches (a failure, a concurrent edit, a human-set value, state saved before the
-  change, an edit by another program that no scan has seen yet); a fold that repairs one option against
-  a defect another option shares repairs that option the same way and keeps it scored; it never adds a
-  repaired variant as a new rival, but an option a reviewer raised as missed in two rounds goes into
-  the matrix, scored; and it changes nothing that a gap or a research finding does not name. Escalates
-  a user-only call to `NEEDS-USER.md` (halts on a hard blocker) — **and so may a reviewer**, for a
-  requirement contradiction (§7); those are two distinct halt paths, not one. In `ranked` mode it
-  instead ranks the strongest options (up to `shortlist`), each with what it **buys**, what it
-  **costs**, its rank rationale, plus a **combine / exclude** section and a flip check over each
-  adjacent pair, graded on rank 1 (no trade-off section) — an option violating a non-negotiable is off
-  the list entirely, and it is told not to pad.
-- **Reviewers** (review · opus) — **non-blind, adversarial**; each reads the decision + requirements +
-  lens and research files. **Round 1** runs three **focused reviewers** in parallel, each writing
-  `decision-review-r1-<focus>.md`. In `single` mode the focuses are `choice` (verifies every matrix
-  citation against the lens or research file it cites (#14), re-derives the totals, the trade-off and
-  the flip check, re-checks the cited source behind each cell that moves the outcome and re-runs each
-  testbed command such a cell rests on, and hunts a missed option or a strawmanned runner-up),
-  `requirements` (every non-negotiable path by path, every criterion) and `design` (does the specified
-  design work as written on every input the rubric accepts). In `ranked` mode they are `order` (the
-  matrix and the order, with the same source re-check), `requirements` and `combine` (the
-  combine/exclude claims — two options sold as combinable that actually conflict is the most
-  damaging error the list can carry). Only the `choice` and `order` reviewers re-derive the matrix.
-  **Round 2 and later** run one **verifier** that reads every review file of the previous round, checks
-  each blocking gap was closed or rebutted with evidence that holds, keeps a gap the revision moved
-  under `## Open issues` or `## Checks for the user` blocking only when it settles the gap itself and
-  its result confirms the gap, judges every changed or added
-  passage in full, re-derives the totals, the trade-off (in `ranked` mode, the order) and the flip check,
-  blocks only on a non-negotiable violation in unchanged text, lists only new caveats, and writes
-  `decision-review-rN.md`.
-  **Severity.** Every gap is **blocking** or a **caveat**, and every gap carries its evidence. A gap
-  blocks only when it is a non-negotiable violation (judged at the depth the rubric states, else on the
-  default path, §4), a correctness defect in the design, a wrong choice (the reviewer's evidenced
-  corrections, applied together, change the winner, or in `ranked` mode swap an adjacent pair, by more
-  than the uncertainty of the moved cells) or a missed option that beats the winner by more than that
-  uncertainty. The first two judge the winner (in `ranked` mode, each listed option) on its own, so a
-  defect the runner-up shares, or one with no measured instance on an input the rubric accepts, still
-  blocks. Every other real gap is a caveat, and a caveat
-  never blocks. Each review writes `## Blocking` and `## Caveats` sections, returns blocking slugs in
-  `gap_ids` and caveat slugs in `caveat_ids`, and agrees exactly when its Blocking section is empty. From
-  round 2 the verifier is handed the earlier rounds' blocking slugs and reuses one, or the slug of a
-  caveat in a review file it is handed, when re-raising the same issue, which is what makes repeated-vs-new measurable (§6). From round 3 it is also handed every
-  earlier review file that holds a counted caveat and that the previous round did not write, so it
-  lists no caveat that is already on record. On the **last** round
-  a non-agreeing review ends with a **WHERE NEXT** section: whether the open blocking gaps sit in text
-  the latest revision changed (the folds open new defects) or in a requirement the rubric does not
-  settle, and for a requirement the one change that would let a decision converge. A final verifier
-  (round 2 or later) first walks every non-negotiable over the entire design, unchanged text included.
+  or **fragile** (it is not), and returns the grade as `flip`. Each pass also writes an **evidence
+  ledger**, `review/ledger-rN.md`: the answer under review (in `ranked` mode, the listed options in rank
+  order with their combine and exclude claims), every candidate (in `ranked` mode, listed or left off),
+  and for each candidate the facts its scores rest on, each with its original source. The ledger holds
+  no score, weight, total, rationale or lens recommendation, and cites no lens, research or decision
+  file, so reading it reveals no judgment. `wrote_file` attests both files. After a reject it revises
+  its prior decision into a complete new file under fixed **fold rules**: it confirms each kept
+  objection's evidence against its source; for a **challenger** it scores the winner and the challenger
+  side by side on the same rubric and keeps the higher (in `ranked` mode it orders the two by that
+  score); for a **must violation** it repairs the winner or replaces it (in `ranked` mode it repairs the
+  listed option or takes it off the list); in `ranked` mode it corrects a combine or exclude claim the
+  evidence contradicts; a refuted objection gets a rebuttal under `## Rebuttals` with evidence, and one
+  it can neither confirm nor refute, or one that names evidence no file of the run holds, becomes an
+  open issue, so a research round settles it before the next review; it may fold a caveat or a
+  downgraded objection whose fix is one sentence and leaves every other one to the review files; it
+  tests each fold against one hostile input of each kind it touches (a failure, a concurrent edit, a
+  human-set value, state saved before the change, an edit by another program that no scan has seen
+  yet); a fold that repairs one option against a defect another option shares repairs that option the
+  same way and keeps it scored; it never adds a repaired variant as a new rival; and it changes nothing
+  that an objection or a research finding does not name. After a lock mismatch or an unwritten final
+  review (§5a) it acts on every objection of the blind review instead. Escalates a user-only call to `NEEDS-USER.md` (halts on a hard
+  blocker) — **and so may the reviewer**, for a requirement contradiction (§7); those are two distinct
+  halt paths, not one. In `ranked` mode it instead ranks the strongest options (up to `shortlist`), each
+  with what it **buys**, what it **costs**, its rank rationale, plus a **combine / exclude** section and
+  a flip check over each adjacent pair, graded on rank 1 (no trade-off section) — an option violating a
+  non-negotiable is off the list entirely, and it is told not to pad.
+- **Final reviewer** (review · opus) — one fresh reviewer per review round, in two stages (§5a). Its
+  prompt holds only the blind stage: the requirements, the ledger and its blind file
+  `review/review-rN.md`. It opens the original source behind each fact that moves a score (and re-runs
+  each testbed command such a fact rests on), scores every candidate on every requirement (pass or fail
+  on each must; met, partly met or missed on each want, each with its evidence), lists its
+  **objections** and writes a verdict line. An objection cites the requirement it rests on and is a
+  must the winner violates or a **challenger** that scores higher on the same rubric (in `ranked` mode: a
+  listed option that violates a must, an adjacent pair whose order its scores reverse, a candidate off
+  the list that scores above a listed one, or a combine or exclude claim the evidence contradicts).
+  Musts are judged at the depth the rubric states, else on the default path (§4). Every other concern
+  is a caveat. It rejects exactly when it holds an objection. The blind file holds `## Scores`,
+  `## Objections` (`- O<n>: ...` lines), `## Caveats` and a last `Verdict: accept|reject` line. Its
+  prompt ends with one instruction: run `node '<checkTool>' '<blind file>'` and follow what it prints. Its
+  return is neutral: `wrote_file`, `verdict` and `needs_user`.
+- **Check agent** (check · sonnet) — writes and runs fixed text only. Before each review it writes the
+  round's check spec and reveal text and resets its lock and final file (§5a). After the reviewer returns it runs `--verify` and returns
+  `exit_code`, `final_line` and `stage1_verdict`.
+
+## 5a. The staged review (for the operator — no prompt points here)
+
+A judge shown a prior score or verdict anchors on it, so the final reviewer judges blind before it sees
+the decision:
+
+1. The check agent writes `locks/review-rN.json` (the headings the blind file must hold, the final file
+   `decide/review-rN-final.md`, the decision file and the reveal path) and `locks/review-rN.reveal.md`,
+   the reveal text the engine renders. It also writes `{}` to `locks/review-rN.lock` and empties the final
+   file, so a same-runId relaunch never finds an earlier launch's lock or final review standing in for
+   this round's.
+2. The reviewer writes its blind file and runs `tools/review-check.mjs` on it. While the file is
+   incomplete the tool prints the format errors only. Once it is complete the tool writes
+   `locks/review-rN.lock` (the file's sha256 and its verdict) and prints the reveal: read the decision
+   file, then sort each objection into **withdrawn** (only by quoting, word for word, a sourced fact the
+   decision file holds, never the decider's opinion, weight or argument), **kept** or **downgraded** to
+   a caveat, write the final file with the final verdict, and run the check again. Later runs check that
+   the blind file still matches the lock and that each withdrawal's quote is in the decision file. A
+   reject keeps at least one objection. In the last round a reject ends with a **WHERE NEXT** section:
+   whether the kept objections rest on evidence another revision could answer, or on a requirement the
+   rubric does not settle, and for a requirement the one change that would let a decision converge.
+3. The check agent runs `review-check.mjs --verify <blind file>`. Exit 0, the lock matches: the engine
+   takes the verdict from the counts line (`raised, withdrawn, kept, downgraded`), reject when an
+   objection is kept, and a withdrawal whose quote the tool did not find counts as kept. Exit 0 with a
+   `locked verdict:` line, the final file unwritten: every objection counts as kept, so the locked blind
+   verdict stands, the engine logs it, and the blind file is the review the decider and the hand-back
+   read. Exit 3, the blind file changed after its lock: the engine uses the locked blind verdict and logs
+   the fallback.
+   Exit 2, no lock: the reviewer never ran the check, so the engine reruns the reviewer once, and a
+   second miss ends on `BLOCKED (the reviewer did not complete its review)`. Any other result throws.
+
+The reviewer is blind by **prompt**, not by placement: the decision files sit in the same run folder,
+and nothing stops an agent that lists it. Two more paths reach it. Every agent of a run reads the
+session's memory index, so keep the staged mechanics (the reveal, the lock, the decision paths) out of
+auto-memory. A relayed user message reaches every agent prompt and can describe the reveal, so launch
+every run from a notification turn (root `CLAUDE.md`, "Launch from a notification turn").
 
 ## 6. Loop & contracts (keep intact)
 
-`diverge (once) → [decide → (research → decide)* → review]×N`, up to `maxRounds` (default 3). Each
-non-agreeing round hands the decider every review file of that round next round; the decider revises
-rather than restarting.
+`diverge (once) → [decide → (research → decide)* → review]×N`, up to `maxRounds` (default 3). A reject
+hands the decider that round's final review next round; the decider revises rather than restarting.
 
 - **The research gate.** After each decider pass the engine reads `open_issue_ids`. Empty: the decision
   goes to review, and research stops as `covered`. Otherwise a research round runs one researcher per
@@ -215,32 +245,25 @@ rather than restarting.
   `maxResearchRounds` research rounds in the run (`cap`, default 3). The dry-round streak restarts with
   each review round, since a review asks new questions, and the cap counts every research round of the
   run. The log names each stop. Research rounds and the decider passes between them do not spend
-  `maxRounds`. Each decider pass writes the next `decision-rN.md`, so N counts decider passes.
-- **A gap no agent can settle never loops.** A reviewer's gap that names missing evidence becomes an
+  `maxRounds`. Each decider pass writes the next `decision-rN.md` and `ledger-rN.md`, so N counts
+  decider passes, while `review-rN.md` counts review rounds.
+- **An objection no agent can settle never loops.** An objection that names missing evidence becomes an
   open issue, so it goes to a research round before the revision reaches review. A question no agent
-  can settle becomes a check for the user. A gap the revision moved under `## Open issues` or
-  `## Checks for the user` blocks only when the verifier settles it and its result confirms the gap.
-
-- **The requirements file is the fixed rubric and the anti-spin ground.** The decider and the reviewers
-  judge against it, so the loop converges; there is no `DISMISSED.md` (the reviewers aren't
-  blind-reviewing a diff, they check one conclusion against fixed requirements). If it won't converge,
-  **`gapRounds` on the return says which failure it is** — `[{ round, gaps, new, repeated, caveats }]`,
-  one entry per review round, where `gaps`, `new` and `repeated` count blocking gaps and `caveats`
-  counts the round's caveats. Mostly *repeated* blocking gaps: the decider is not resolving objections
-  it already has, and another round buys the same review. Mostly *new* ones: either the folds open new
-  defects or the rubric is under-specified, so each round finds fresh ground — the final review's
-  WHERE NEXT says which, and a rubric gap is fixed by refining the rubric rather than raising
-  `maxRounds`. The hand-back names whichever it is when the last review ran in round 2 or later, names
-  the review file that first raised each repeated gap, and points at the WHERE NEXT section of each
-  review that did not agree. A run of one round gets no diagnosis, since the decider had no round to
-  address a gap.
-- **Non-blind is deliberate (#3/#5).** The reviewers must see the decision and rubric; never make them
-  blind. Round-1 reviewers judge fresh. The verifier reads the previous round's reviews, because its job
-  is to check the folds the decider made for them.
-- **Agreement means no blocking gap.** The loop ends when every reviewer agrees. A caveat never blocks:
-  caveats reach the plan through the return (`caveats`, `caveatFiles`) and the status
-  `decided with caveats (no blocking gap, and the reviews list caveats for the plan)`, whose `nextStep`
-  says to carry them into the plan's design section.
+  can settle becomes a check for the user.
+- **The requirements file is the fixed rubric and the anti-spin ground.** The decider and the reviewer
+  judge against it, so the loop converges; there is no `DISMISSED.md`. A reject must keep a must
+  violation or a challenger that scores higher on the same rubric, and the decider keeps the higher of
+  the two, so each revision moves toward a stronger answer. `reviewRounds` on the return holds one
+  `{ round, verdict, raised, withdrawn, kept, downgraded, lockMatched }` entry per review round. A run
+  that does not converge hands back the final review, whose kept objections and WHERE NEXT section say
+  whether another revision or a rubric change is the fix, and a rubric gap is fixed by refining the
+  rubric rather than raising `maxRounds`. When the last round fell back to its blind review (§5a), the
+  hand-back starts from that review's objections, since no WHERE NEXT section exists.
+- **Staged, not blind (#3/#5).** The reviewer must see the decision to check itself against it, but only
+  after its blind judgment is locked (§5a). Each round's reviewer is fresh and reads no earlier review.
+- **Acceptance means no kept objection.** The loop ends when the reviewer accepts. A caveat never
+  blocks: on acceptance `nextStep` says to carry the `## Caveats` section of the last file `reviewFiles`
+  lists (§9) into the plan's design section.
 - **`selection` shapes the deliverable, not the rigor.** `single` (default) → one winner + why-not-each
   runner-up. `ranked` → an ordered shortlist (≤ `shortlist`, default 5, floor 2) where every listed
   option must satisfy every non-negotiable — a violator is excluded, never ranked last — and each
@@ -249,41 +272,47 @@ rather than restarting.
 - **No code, no git.** Decide produces files only; it never stages or commits. The conclusion feeds
   a plan file's design section, which `develop-cycle` builds next.
 - **Thin returns (#8).** Schemas carry only `chosen` / `meets_all_requirements` / `flip` /
-  `open_issue_ids` / `user_checks` / `new_evidence` / `agree` / `gap_ids` / `caveat_ids` / counts, a
-  `wrote_file` write confirmation per role — plus, in `ranked` mode, the shortlist **index** (rank + title +
-  `combines_with`/`excludes`); the matrices, buys/costs, findings and reasoning live in the files. A lens
+  `open_issue_ids` / `user_checks` / `new_evidence` / `verdict` / the check agent's `exit_code`,
+  `final_line` and `stage1_verdict`, a `wrote_file` write confirmation per writing role — plus, in
+  `ranked` mode, the shortlist **index** (rank + title + `combines_with`/`excludes`); the matrices,
+  buys/costs, findings and reasoning live in the files. A lens
   researcher whose `wrote_file` is not true is dropped: a `✗` in the log, listed in `failed`, left out of
   the decision, and the run throws when no lens researcher confirms (§7). An unconfirmed decider,
-  research-round researcher or reviewer write halts the run on
+  research-round researcher, check agent or reviewer write halts the run on
   `BLOCKED (an agent did not confirm writing its file)` (§7), unless that decider or reviewer escalated,
   because the next agent and the return would otherwise name a path a stale file can hold.
 
 ## 7. Resume
 
-Two halts. The decider or a reviewer writes a user-only call to `NEEDS-USER.md`
-(`BLOCKED (needs user input)`), or the decider, a research-round researcher or a reviewer does not
-confirm writing its file (`BLOCKED (an agent did not confirm writing its file)`). For an escalation,
-read `NEEDS-USER.md`, resolve it with the user (usually by editing the requirements file), then
-relaunch with the same args and no `resumeFromRunId`. A `resumeFromRunId` replay sends the same
-prompts, which name the requirements file by path, so it replays the cached returns and halts the same
-way. The relaunch re-runs the run from Diverge and round 1 (§3). For an unattested write, check the file
-`haltReason` names, then relaunch the same way: a resume replays the cached return and halts the same
-way.
+Three halts. The decider or the reviewer writes a user-only call to `NEEDS-USER.md`
+(`BLOCKED (needs user input)`), the decider, a research-round researcher, the check agent or the
+reviewer does not confirm writing its file (`BLOCKED (an agent did not confirm writing its file)`), or
+the reviewer and its rerun never run the check (`BLOCKED (the reviewer did not complete its review)`).
+For an escalation, read `NEEDS-USER.md`, resolve it with the user (usually by editing the requirements
+file), then relaunch with the same args and no `resumeFromRunId`. A `resumeFromRunId` replay sends the
+same prompts, which name the requirements file by path, so it replays the cached returns and halts the
+same way. The relaunch re-runs the run from Diverge and round 1 (§3). For an unattested write, check the
+file `haltReason` names, then relaunch the same way: a resume replays the cached return and halts the
+same way. For an incomplete review, check that `Bash(node '<checkTool>':*)` is allowlisted (§3), then
+relaunch the same way.
 
 A `needs-attention` run takes one of two relaunches. After refining the requirements, relaunch with the
 same args and no `resumeFromRunId`, since a resume would never read the edit. After raising `maxRounds`,
 relaunch with `resumeFromRunId`, so the finished rounds replay from cache and the loop continues past them.
 
 The run can also stop by **throwing**. If no lens researcher produced a lens file, check the requirements
-and lenses and re-run without `resumeFromRunId`. If the decider, a research-round researcher or a reviewer
-returned nothing (agent skipped or died), re-invoke with the same args/`runId` and pass the `Workflow`
-tool's `resumeFromRunId` to replay completed agents from cache, as the thrown message says.
+and lenses and re-run without `resumeFromRunId`. If the decider, a research-round researcher, the check
+agent or the reviewer returned nothing (agent skipped or died), re-invoke with the same args/`runId` and
+pass the `Workflow` tool's `resumeFromRunId` to replay completed agents from cache, as the thrown message
+says. If the check agent returned a result outside the tool's documented exits, relaunch with the same
+args and no `resumeFromRunId`, since a resume replays that cached return.
 
 ## 8. Args reference
 
 Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` inline.
 - **Required:** `runId` · `root` (§3) · `lenses` (array of ≥2 perspectives, distinct ids — both
-  enforced) · `planPath` (absolute path to the rubric file).
+  enforced) · `planPath` (absolute path to the rubric file) · `checkTool` (absolute path to
+  `tools/review-check.mjs`, §3).
 - **Optional:** `selection` (`"single"` default | `"ranked"` — §1/§6; anything else throws) ·
   `shortlist` (ranked only: how many options to carry, default 5; **throws** below 2 or non-numeric) ·
   `context` (extra framing / domain facts) · `testbed` (how to empirically test claims —
@@ -293,10 +322,10 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
   `maxResearchRounds` (3, run-wide research rounds, §6; `0` runs none; **throws** below 0 or
   non-numeric) ·
   `models`/`efforts` (`models` and `efforts` map a role key to a value. The role keys are `research`,
-  `decide` and `review`, and the retired key `analyst` throws like any unknown key. A model is
+  `decide`, `review` and `check`, and the retired key `analyst` throws like any unknown key. A model is
   `opus | sonnet | haiku | fable` and an effort is
-  `low | medium | high | xhigh | max`. The research role defaults to sonnet, the decide and review
-  roles default to opus, and every role defaults to `high`. The engine **throws** at launch, naming
+  `low | medium | high | xhigh | max`. The research and check roles default to sonnet, the decide and
+  review roles default to opus, and every role defaults to `high`. The engine **throws** at launch, naming
   the arg, on a value that is not an object, a key outside the role keys, and a value outside its
   set. Choose each role's model by the task and how much judgment the role needs, as the develop guide §3 says. One
   launch log line names each role's model and effort) · `agentTypes` (custom subagent per role — must exist
@@ -315,36 +344,38 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
 - `lenses/<lens>.md` — each lens researcher's options + evidence + lens scores + recommendation.
 - `research/r<N>-<slug>.md` — research round N's findings on the open issue `<slug>`, or its check for
   the user.
-- `decision-rN.md` — the decider's Nth pass: the matrix + conclusion + why-not-others + trade-off + flip
-  check (in `ranked` mode: the matrix + the ranked options with buys/costs + the combine-vs-exclusive
-  section + the flip check), then `## Open issues` and `## Checks for the user`.
-- `decision-review-r1-<focus>.md` — each round-1 focused reviewer's `## Blocking` and `## Caveats`
-  sections.
-- `decision-review-rN.md` for N of 2 or more — the verifier's `## Blocking` and `## Caveats` sections for
-  round N.
+- `decide/decision-rN.md` — the decider's Nth pass: the matrix + conclusion + why-not-others + trade-off
+  + flip check (in `ranked` mode: the matrix + the ranked options with buys/costs + the
+  combine-vs-exclusive section + the flip check), then `## Open issues` and `## Checks for the user`.
+- `review/ledger-rN.md` — the evidence ledger of the decider's Nth pass (§5).
+- `review/review-rN.md` — review round N's blind review: `## Scores`, `## Objections`, `## Caveats` and
+  the verdict line.
+- `decide/review-rN-final.md` — review round N's final review: each objection withdrawn, kept or
+  downgraded, `## Caveats`, the final verdict and, on a last-round reject, `## WHERE NEXT`.
+- `locks/review-rN.json`, `locks/review-rN.reveal.md`, `locks/review-rN.lock` — the check spec, the
+  reveal text and the lock of review round N (§5a).
 - `NEEDS-USER.md` — user-only escalations; a hard blocker here halted the run.
 
 The return carries the paths (`decisionFile` / `reviewFiles` / `needsUserFile`), each lens's top pick
 (`lensPicks`), the lenses whose researcher did not confirm writing a lens file (a file may still exist on
 disk) and so were left out of the decision (`failed`, one `{ id, stage: 'diverge' }` entry per lens),
-the per-round gap split (`gapRounds`, §6), two agreement flags and `selection` as structured fields.
+the per-round review counts (`reviewRounds`, §6), two agreement flags and `selection` as structured fields.
 `research` is `{ rounds, stop }`: the run's research rounds and why research last handed the decision to
 review, `covered`, `saturated` or `cap` (§6), or empty when the run halted in a round before research
 handed that round's decision to review. `openIssues` lists
 the latest attested decision's open issue slugs, and `userChecks` counts its checks for the user. When
 research stopped on `saturated` or `cap` with open issues, `nextStep` says to present them with the
 decision, and when `userChecks` is above 0 it says to present the checks.
-`reviewFiles` lists the latest round's review files. `decisionFile` and `reviewFiles` name only files
-whose writer attested, so after a halt either can be empty or name an earlier round. A halt also returns
-its `haltReason`. `flip` is the latest decision's grade (`dominant`, `robust` or `fragile`), or empty when
-the decider returned none of the three. `caveats` counts the run's caveat slugs, and `caveatFiles` lists,
-in round order, every review file whose reviewer returned a caveat that counted. A slug one reviewer
-lists as blocking and another as a caveat counts as blocking only. An agreed run ends
-`decided (decider + reviewers agree)` when it holds no caveat and
-`decided with caveats (no blocking gap, and the reviews list caveats for the plan)` otherwise, and both
-set `agreed`. On agreement `nextStep` carries a flip note for a fragile or dominant grade and a caveat
-note naming `caveatFiles`. `contradicted` is true when a reviewer agreed while listing blocking gaps.
-`meetsAllRequirements` is false when the latest decider reported that its conclusion, or a shortlisted
-option, misses a requirement. An agreed run with either flag raised keeps its agreed status, and its
-hand-back names the file to audit before presenting. In `ranked` mode the return adds the ordered `shortlist` index and `chosen` is the rank-1
-option, both from the latest decision only.
+`reviewFiles` lists the latest round's blind review, and its final review when the lock matched and
+the reviewer wrote it.
+`decisionFile` and `reviewFiles` name only files whose writer attested, so after a halt either can be
+empty or name an earlier round. A halt also returns its `haltReason`. `flip` is the latest decision's
+grade (`dominant`, `robust` or `fragile`), or empty when the decider returned none of the three. An
+accepted run ends `decided (the final reviewer accepts the decision)` and sets `agreed`. On acceptance
+`nextStep` carries a flip note for a fragile or dominant grade and a note to carry the caveats of the
+last file `reviewFiles` lists into the plan. `contradicted` is true when the latest reviewer returned a
+verdict its own check counts overturn, since the counts decide. `meetsAllRequirements` is false when the latest decider
+reported that its conclusion, or a shortlisted option, misses a requirement. An accepted run with
+`contradicted` raised, `meetsAllRequirements` false or a lock mismatch in its last round keeps its
+status, and its hand-back names the file to audit before presenting. In `ranked` mode the return adds the
+ordered `shortlist` index and `chosen` is the rank-1 option, both from the latest decision only.

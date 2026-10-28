@@ -61,7 +61,8 @@ const EXPECTED = {
   // solo critical -> throws
   'decide x decide':                { signal: 'terminal', expect: /Decider returned nothing/ },
   'decide x review':                { signal: 'terminal', expect: /Reviewer returned nothing/ },
-  'decide x review r1':             { signal: 'terminal', expect: /Reviewer returned nothing/ },
+  'decide x check-setup':           { signal: 'terminal', expect: /Check agent returned nothing before the review/ },
+  'decide x check':                 { signal: 'terminal', expect: /Check agent returned nothing after the review/ },
   'decide x research-issue':        { signal: 'terminal', expect: /Researcher returned nothing/ },
   'docs x curate':                  { signal: 'terminal', expect: /Curator returned nothing/ },
   'investigate x criteria-critic':  { signal: 'terminal', expect: /Criteria critic returned nothing/ },

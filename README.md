@@ -164,6 +164,14 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-27
 
+- **decide's final reviewer judges blind first.** One final reviewer per round replaces the three
+  focused reviewers and the verifier. It scores every candidate from an evidence ledger, which holds the
+  sourced facts and no score or reasoning. Then `tools/review-check.mjs` locks that review and shows
+  the reviewer the decision. The reviewer withdraws an objection only by quoting a sourced fact. A
+  reject keeps a broken non-negotiable or a challenger that scores higher, and the decider keeps the
+  higher of the two. decide needs the new `checkTool` arg and has a new `check` role key. The
+  `decided with caveats` status and the `gapRounds`, `caveats` and `caveatFiles` fields are gone, and
+  `reviewRounds` holds each round's counts.
 - **decide researches inside the decision.** The decider lists each open issue, a question whose answer
   could change the winner, and one researcher per issue searches for the answer before the review. Research
   stops when no issue is open, after two rounds in a row find no new evidence, or at the new
