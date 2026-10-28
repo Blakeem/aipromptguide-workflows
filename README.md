@@ -123,7 +123,8 @@ E:/aipg/               ← root          run-state lands at E:/aipg/runs/<runId>
 
 Keeping them apart is what makes the blind review work. The issue files live outside the repo under
 review, so a reviewer that is supposed to judge a diff on its own merits **cannot** wander into them.
-The develop, refine and debug engines warn if you point run-state inside the target repo. develop and refine also warn when a plan file resolves inside it.
+The develop, refine and debug engines warn if you point run-state inside the target repo. develop and refine
+also warn when a plan file resolves inside it.
 
 It also means **one checkout can drive any number of projects**. Point `target.repo` at each in turn and
 give each its own `runId`. The run-state stacks up under `root`, so you can queue work across several
@@ -249,12 +250,12 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 - **A run edits only the backlog entries its blocks marked.** `plan-edit.mjs args` applies a pulled entry's
   status edit only when the entry's `- pulled:` line names the block that made the edit. A proactive run's
   `nextStep` also names the `- pulled:` line of each block whose park agent did not return, a block that did
-  not park included, with the entries its status edits close. Remove that line from every other entry, so that a
-  later run can take the entry.
+  not park included, with the entries its status edits close. Remove that line from every other entry, so that
+  a later run can take the entry.
 - **`plan-edit.mjs args --fold-only` writes the run statuses without printing launch args.** It writes every
-  fold and cut that `args` writes, sets no `done` backlog file to `todo`, and prints nothing. The develop guide's
-  "Working the backlog" step 1 runs it before it reads or edits the backlog files, so a fix a finished launch made
-  shows as `fixed` there.
+  fold and cut that `args` writes, sets no `done` backlog file to `todo`, and prints nothing. The develop
+  guide's "Working the backlog" step 1 runs it before it reads or edits the backlog files, so a fix a finished
+  launch made shows as `fixed` there.
 - **develop and refine need the `blockTool` arg.** Each throws without it. `plan-edit.mjs args` prints it
   for develop. For refine it is the `plan-block.mjs` that the pre-launch command
   `node <plan-block.mjs> <planPath> --list` runs. A launch you build by hand must add it.
@@ -281,22 +282,22 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   `info/exclude`, so `git status` in your checkout lists no worktree. They never edit a `.gitignore`.
   `project-settings.mjs set --worktree-dir <absolute dir>|default` saves another parent folder for a project
   whose files reference a path outside the checkout by a relative path, and the `provision` verb prints it.
-  The develop guide's default provision command copies every ignored file into the worktree except the run-worktree folder
-  and what the project's setup command rebuilds, then runs that command.
+  The develop guide's default provision command copies every ignored file into the worktree except the
+  run-worktree folder and what the project's setup command rebuilds, then runs that command.
 - **develop's closing steps are short.** The result's `nextStep` tells Claude to land the run with
   `wt.mjs close` and to report the run's summary. It no longer re-runs the gates, views the accepted diff,
   reads the review files or audits the DISMISSED files, since acceptance and the gate of `close` cover them.
-- **A `proactive` develop run builds the backlog's ready entries.** Before a run whose plan has no todo block left
-  lands, Claude builds every `todo` or `done` backlog file that holds an `ACTIONABLE` entry with
-  `status: open` in one more launch in the same run worktree. `plan-edit.mjs args --backlog <dir>` selects those files,
-  sets a `done` one back to `todo`, and works with `--pack`. It needs an unordered plan set, and it works with no plan
-  file. It skips a file that holds an `ACTIONABLE` entry whose fix failed, until you skip that entry. It also skips a
-  file while the block that wrote it, in any plan, is not done, skipped or backlogged, and a file with a ready
-  entry whose `- file:` path the text of a `blocked` block, or of an older engine's `parked` one, names, since a
-  relaunch of that block may change that file. A note names each held entry with that block. Every other file builds.
-  Claude skips the build while a `blocked` block's work is left unsettled in the run worktree. A file whose entry
-  you approve again is built by naming it. A `focused` run builds the backlog only when you ask. The setup question for
-  the change policy says so.
+- **A `proactive` develop run builds the backlog's ready entries.** Before a run whose plan has no todo block
+  left lands, Claude builds every `todo` or `done` backlog file that holds an `ACTIONABLE` entry with
+  `status: open` in one more launch in the same run worktree. `plan-edit.mjs args --backlog <dir>` selects
+  those files, sets a `done` one back to `todo`, and works with `--pack`. It needs an unordered plan set, and
+  it works with no plan file. It skips a file that holds an `ACTIONABLE` entry whose fix failed, until you
+  skip that entry. It also skips a file while the block that wrote it, in any plan, is not done, skipped or
+  backlogged, and a file with a ready entry whose `- file:` path the text of a `blocked` block, or of an older
+  engine's `parked` one, names, since a relaunch of that block may change that file. A note names each held
+  entry with that block. Every other file builds. Claude skips the build while a `blocked` block's work is
+  left unsettled in the run worktree. A file whose entry you approve again is built by naming it. A `focused`
+  run builds the backlog only when you ask. The setup question for the change policy says so.
 - **Each change policy states how develop treats the code.** A `proactive` run owns the code it touches.
   It fixes defects in and around its task as far as the zone rules allow, and it puts features and
   refactors outside its task in the backlog. A `focused` run makes the smallest change that does the
@@ -315,8 +316,8 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   the branch `aipg-unfinished/<id>` and appends one backlog entry that links the branch and says why
   the block parked. The block's status is set to `backlogged` when a fix run can build its entry. Once
   that entry is ready to build, a fix run restores the branch's work in its first round, and the branch
-  is deleted once that work is committed. The park patch, the copied review files and the `continueParked` arg are gone. A launch that
-  passes `continueParked` fails with a message that names the backlog route.
+  is deleted once that work is committed. The park patch, the copied review files and the `continueParked` arg
+  are gone. A launch that passes `continueParked` fails with a message that names the backlog route.
 - **Each develop backlog entry says whether it is ready to build.** The developer marks an entry
   `ACTIONABLE` when it is a defect or a cleanup with one clear, small fix that changes no user-visible
   behavior, stored data or public contract. Develop builds it without triage. Every other entry is
@@ -357,9 +358,9 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   Claude picks the policy for each run and states the reason in the approval summary. The develop guide
   says when each policy fits.
 - **debug, enhance and develop's backlog entries name the work-size estimate `size`.** The estimate was
-  `effort`, which a block preamble also uses for a reasoning level. The values and the routing rule are unchanged. An issue entry
-  in a plan or backlog file that holds `- effort:` now fails `plan-block.mjs --list` with a message that
-  names the entry and says to rename the line to `- size:`.
+  `effort`, which a block preamble also uses for a reasoning level. The values and the routing rule are
+  unchanged. An issue entry in a plan or backlog file that holds `- effort:` now fails `plan-block.mjs --list`
+  with a message that names the entry and says to rename the line to `- size:`.
 - **Every workflow takes a model and a reasoning level per role.** refine, debug, enhance, brainstorm,
   decide, investigate and docs take the `efforts` arg beside `models`, and every role runs at `high` by
   default. A launch fails on an unknown role or value in either arg, as it does for develop. Each run logs
@@ -950,14 +951,15 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-08-01
 
-- **Parallel runs via batch worktrees: `tools/wt.mjs` + [`docs/worktree-batches.md`](docs/worktree-batches.md).**
-  Run several engine runs at once, each chain in its own git worktree (`init`/`prep`), landed one at a
-  time into a per-batch integration branch (`land`: index-only accept commit → sync → gate on the merged
-  state → merge, serialized by a heartbeat-liveness lock) and cleaned without `--force` so unlanded work
-  is refused, not deleted. A `reference-transaction` hook refuses `git stash` inside `aipg-*` worktrees,
-  since `refs/stash` is the one stack every worktree shares. A stray `pop` would inject one chain's work
-  into a sibling's blind-review diff. Built from the `worktree-parallelism-1` decide run (E-c). The engines
-  are unchanged, since a worktree is just a different `target.repo`.
+- **Parallel runs via batch worktrees: `tools/wt.mjs` +
+  [`docs/worktree-batches.md`](docs/worktree-batches.md).** Run several engine runs at once, each chain in its
+  own git worktree (`init`/`prep`), landed one at a time into a per-batch integration branch (`land`:
+  index-only accept commit → sync → gate on the merged state → merge, serialized by a heartbeat-liveness lock)
+  and cleaned without `--force` so unlanded work is refused, not deleted. A `reference-transaction` hook
+  refuses `git stash` inside `aipg-*` worktrees, since `refs/stash` is the one stack every worktree shares. A
+  stray `pop` would inject one chain's work into a sibling's blind-review diff. Built from the
+  `worktree-parallelism-1` decide run (E-c). The engines are unchanged, since a worktree is just a different
+  `target.repo`.
 - **New principle #15: "A missing result is its own outcome."** A dead/null
   agent must never be conflatable with success, a clean verdict, or an empty result. Every `agent()`
   consumption site states its death policy (solo critical → throw, build loop → park, auxiliary → log +
@@ -1067,8 +1069,8 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 - **Work is never discarded.** A feature, section, or fix batch that can't pass is now **parked**: saved to
   `runs/<runId>/parked-<id>.patch`, cleared from the tree, with the `git apply` restore command written
   into `NEEDS-USER.md`. It used to be rolled back and lost. A parked feature no longer stops a `feature`
-  roadmap either. `feature` parks that plan and builds the next one. `migrate` still stops, because its sections
-  depend on each other.
+  roadmap either. `feature` parks that plan and builds the next one. `migrate` still stops, because its
+  sections depend on each other.
 - **The build engines check your working tree first.** A dirty tree halts before any agent does work,
   naming the two commands that fix it, rather than reviewing your uncommitted changes as its own.
 - **`target.repo` is now required** on every engine that writes code, instead of quietly defaulting to the

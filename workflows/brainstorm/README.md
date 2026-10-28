@@ -24,7 +24,8 @@ A deliberately **lean, loose** workflow built on the shared [Workflow Principles
   staged, or committed in your codebase. You adopt what you like afterward.
 
 To have the AI *conclude* among options with a weighted decision matrix, use the sibling
-[`decide-cycle`](../decide/). To *build* a chosen direction, author a plan file for [`develop-cycle`](../develop/).
+[`decide-cycle`](../decide/). To *build* a chosen direction, author a plan file for
+[`develop-cycle`](../develop/).
 
 ---
 

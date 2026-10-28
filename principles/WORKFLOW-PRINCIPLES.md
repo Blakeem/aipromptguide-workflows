@@ -122,8 +122,8 @@ did" reports. A run writes only three kinds of file. These are the inter-agent m
 round or keyed by unit like enhance's `candidates/<lens>.md`, the ledgers and user notes below, and the
 workflow's own product, the thing the run exists to produce. The
 product files are `issues/`, `proposals/`, `variations/`, `lenses/`, the decision files, investigate's
-`options/` and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md`, and a parked block's commit on its
-`aipg-unfinished/<backlog file id>` branch, whose earlier parks stay in that branch's history.
+`options/` and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md`, and a parked block's
+commit on its `aipg-unfinished/<backlog file id>` branch, whose earlier parks stay in that branch's history.
 `DETERMINATION.md` earns its place the same way develop's `SWEEP.md` does. It holds the cross-option
 comparison and the coverage evidence, which no per-option file contains, and it links to
 `options/<id>.md` instead of restating them.
@@ -450,8 +450,8 @@ rules and apply only where they fit.
   numbered review trail. Every terminal exit leaves the tree clean, with accepted work staged and
   unfinished work parked. So a resumed run starts from the same clean baseline as a fresh one, and the
   round-1 precondition applies unconditionally, including on resume. A parked unit's work lives on its
-  branch. develop continues the unit from that branch through the backlog entry that links it. This invariant is
-  load-bearing, since an engine that halts leaving work in the tree would false-halt its own resume.
+  branch. develop continues the unit from that branch through the backlog entry that links it. This invariant
+  is load-bearing, since an engine that halts leaving work in the tree would false-halt its own resume.
 - **Preventing review spin.** The `DISMISSED-<id>.md` ledger stops a blind reviewer from re-flagging
   settled findings forever. Reviewers skip ledger items for the stated reason and may contest a clearly
   wrong one once. The developer must fix or escalate a contested item (#5).
@@ -507,11 +507,11 @@ Use these as yes/no checks when reviewing any workflow.
 - [ ] Are the only files written the numbered inter-agent reviews, develop's risk files and debug's
       `reviews/<unit>-<lens>.md` reviewer messages, the developer's terse
       `DISMISSED-<id>.md` ledger and `AMENDED-<id>.md` (or investigate's `DISQUALIFIED.md` and
-      `SEARCHED.md`), the full user-facing `NEEDS-USER.md` and develop's `question-<id>.md`, `DECISIONS.md`, and the workflow's own
-      product (`issues/`, `proposals/`, `variations/`, `lenses/`, decision files, investigate's `options/`
-      and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md` and backlog files, a parked block's commit)? Any
-      status, summary, progress, or "what I did" file is narration and a violation, including one
-      that restates numbers the harness already has. (#6)
+      `SEARCHED.md`), the full user-facing `NEEDS-USER.md` and develop's `question-<id>.md`, `DECISIONS.md`,
+      and the workflow's own product (`issues/`, `proposals/`, `variations/`, `lenses/`, decision files,
+      investigate's `options/` and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md` and
+      backlog files, a parked block's commit)? Any status, summary, progress, or "what I did" file is
+      narration and a violation, including one that restates numbers the harness already has. (#6)
 - [ ] Does the blind reviewer read the dismissed ledger from its own `gate/` directory (#3) and no prior
       review file (its own round file from an earlier launch is read only to overwrite it), and the
       acceptance stage the ledger, user notes and every earlier review file of its block? (#5)
@@ -525,7 +525,8 @@ Use these as yes/no checks when reviewing any workflow.
 - [ ] Is there a single staging step, at the end, on pass, with a commit only in the commit delivery the
       user chose, and does a build reach the user's branch only through `wt.mjs close`? (#9)
 - [ ] Does every terminal outcome leave the working tree clean, with unfinished work saved as a commit
-      on a branch instead of discarded or left unstaged? Does a backlog entry link that branch? (#9, Mechanics)
+      on a branch instead of discarded or left unstaged? Does a backlog entry link that branch? (#9,
+      Mechanics)
 - [ ] Is each fact kept in one canonical place, with agents linked to it and never handed copies or
       restated content? Does every copy serve a clearly different, stated purpose? (#11)
 - [ ] Is every prompt, review, and ledger line laconic by subtraction, with filler, known context, and

@@ -6,10 +6,10 @@ subtraction at capture, never paraphrase — a **scrubber** cleans each web sour
 place, then a **curator** organizes and splits the set, deletes what the brief doesn't need, writes
 `INDEX.md`, checks **cross-source consistency + coverage**, and finally **spot-checks a bounded sample**
 of files against their cited sources; gaps it finds (missing coverage *or* files needing recapture)
-drive a bounded gap-fill round, whose one gatherer fills every gap and scrubs its own captures. Built to `../../principles/WORKFLOW-PRINCIPLES.md` — a
-*provision* workflow honoring the core (#1–4, #6, #8, #11–19). It is deliberately **happy-path**: no
-review loop or blind reviewer (Scope: the user judges); the gap loop is the only feedback. There is
-**no claim-verifier agent by design**:
+drive a bounded gap-fill round, whose one gatherer fills every gap and scrubs its own captures. Built to
+`../../principles/WORKFLOW-PRINCIPLES.md` — a *provision* workflow honoring the core (#1–4, #6, #8, #11–19).
+It is deliberately **happy-path**: no review loop or blind reviewer (Scope: the user judges); the gap loop is
+the only feedback. There is **no claim-verifier agent by design**:
 a verifier exists to catch the gap between a gatherer's *paraphrase* and its source, and verbatim capture
 leaves no such gap. What remains checkable — coverage, cross-source consistency, and the one sample that
 tests the verbatim promise — needs the whole set at once, so it lives in the curator (#4). Nothing is
@@ -46,8 +46,9 @@ No mid-run questions — frame it with the user first:
 3. **Present** the set: follow the return's `nextStep`. It names the counts, the files to show and
    every warning to lead with. `failed` holds one `{ id, stage }` entry per source and stage whose
    agent returned nothing. A `gather` entry means the source lost its gatherer, so its coverage may be
-   partial. A dead gap-fill gatherer adds one `gather` entry per gap directory of its round. A `scrub` entry means the web source lost its scrubber, so its files may still hold nav
-   chrome or ads. `indexWritten` is false when the curator never confirmed writing `INDEX.md`.
+   partial. A dead gap-fill gatherer adds one `gather` entry per gap directory of its round. A `scrub` entry
+   means the web source lost its scrubber, so its files may still hold nav chrome or ads. `indexWritten` is
+   false when the curator never confirmed writing `INDEX.md`.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
@@ -107,15 +108,15 @@ well-framed source list converges in one round.
 The JS conductor routes only paths + counts (#1). Each agent is fresh. Docs work is simple next to
 code, so every role defaults to a fast tier (override via `models`).
 
-- **Gatherer** (gather · sonnet) — in round 1, one per source; **copies** the brief-relevant docs verbatim into
-  `<outDir>/<id>/`, one file per page/topic, each with a source header (URL or path, version, retrieval
+- **Gatherer** (gather · sonnet) — in round 1, one per source; **copies** the brief-relevant docs verbatim
+  into `<outDir>/<id>/`, one file per page/topic, each with a source header (URL or path, version, retrieval
   date). Subtraction at capture: skips nav, marketing, other versions, irrelevant features. HTML→markdown
   conversion is fine; changing words is not. In a gap-fill round, **one** gatherer (`gather:r<N>`)
   carries every gap: it reads each gap's Coverage-notes entry in `INDEX.md` by path, captures each gap
   into `<outDir>/<gap id>/`, and scrubs its own web captures under the scrubber's rules, so no scrubber
   runs per gap. A gap id with no entry gets no capture, and the run logs it.
-- **Scrubber** (scrub · haiku) — round 1 only, one per web source, pipelined off its gather (no barrier). Repo and
-  files sources skip it: their captures are usually markdown already, with no HTML chrome. Cleans the
+- **Scrubber** (scrub · haiku) — round 1 only, one per web source, pipelined off its gather (no barrier). Repo
+  and files sources skip it: their captures are usually markdown already, with no HTML chrome. Cleans the
   source dir in place: removes capture junk (nav/menu fragments, cookie banners, feedback widgets,
   broken markup), fixes mangled markdown formatting, changes no words, keeps source headers. Unsure →
   keep; relevance deletion belongs to the curator.
@@ -125,11 +126,11 @@ code, so every role defaults to a fast tier (override via `models`).
   (one line per file + Coverage notes), then — last, once the index is safe on disk — **spot-checks up
   to `fidelitySample` files against their cited source**. Writes each gap a fresh gather could fix as an
   id'd Coverage-notes entry (`gap-r<round>-<n>`) naming the file, the source and the reason, and returns
-  only `{ kind, id }`: missing coverage **or** a recapture (wrong version pulled, failed spot-check). Reports (never deletes) content
-  in `outDir` that is neither a source-headed capture for this set nor a curator-written file. A dead
-  gatherer is survivable (what it wrote is on disk and still gets curated, and scrubbed first for a web
-  source); a dead **curator throws** — nothing else produces the set, so re-invoke with the same
-  args/`runId` and pass the `Workflow` tool's `resumeFromRunId` to replay from cache.
+  only `{ kind, id }`: missing coverage **or** a recapture (wrong version pulled, failed spot-check). Reports
+  (never deletes) content in `outDir` that is neither a source-headed capture for this set nor a
+  curator-written file. A dead gatherer is survivable (what it wrote is on disk and still gets curated, and
+  scrubbed first for a web source); a dead **curator throws** — nothing else produces the set, so re-invoke
+  with the same args/`runId` and pass the `Workflow` tool's `resumeFromRunId` to replay from cache.
 
 ## 6. Contracts (keep intact)
 
@@ -158,10 +159,10 @@ code, so every role defaults to a fast tier (override via `models`).
   ids (`{kind, id}`, #8) covering missing coverage *and* recaptures (wrong version, failed spot-check).
   Each gap's file, source and reason live in its Coverage-notes entry, which the gap-fill gatherer reads
   by path and a later curator keeps under the same id while the gap stays open. A round's new gaps are
-  numbered in sequence past the highest `<n>` the previous `INDEX.md` uses for that round, so a relaunch into the same
-  `outDir` mints no id an open gap holds. A repeated gap id is dropped, and the run logs it. A gap directory that would collide with an id already used this run is suffixed (`-2`, `-3`,
-  …), so no gather overwrites another's captures. Gaps still open at the bound stay listed there for the
-  user.
+  numbered in sequence past the highest `<n>` the previous `INDEX.md` uses for that round, so a relaunch into
+  the same `outDir` mints no id an open gap holds. A repeated gap id is dropped, and the run logs it. A gap
+  directory that would collide with an id already used this run is suffixed (`-2`, `-3`, …), so no gather
+  overwrites another's captures. Gaps still open at the bound stay listed there for the user.
 - **INDEX.md is the entry point.** One line per file — path, what it covers, when to read it — plus
   Coverage notes. The consuming agent starts there.
 - **`outDir` is engine-owned; everything outside it is read-only.** The engine writes only the doc set +
@@ -181,20 +182,22 @@ Full schema + defaults: the Config block atop `docs-cycle.mjs`. Pass `args` inli
   exactly the failure it exists to prevent) · `maxRounds`
   (2; **throws** unless it is a number in 1–50) · `testbed` (how to empirically verify non-official
   claims — §3) · `target.repo` (absolute —
-  required for `repo` sources) · `models`/`efforts` (`models` and `efforts` map a role key to a value. The role keys are `gather`,
-  `scrub` and `curate`. A model is `opus | sonnet | haiku | fable` and an effort is
+  required for `repo` sources) · `models`/`efforts` (`models` and `efforts` map a role key to a value. The
+  role keys are `gather`, `scrub` and `curate`. A model is `opus | sonnet | haiku | fable` and an effort is
   `low | medium | high | xhigh | max`. The gather and curate roles default to sonnet, the scrub role
   defaults to haiku, and every role defaults to `high`. The engine **throws** at launch, naming the
   arg, on a value that is not an object, a key outside the role keys, and a value outside its set.
   Choose each role's model by the task and how much judgment the role needs, as the develop guide §3 says. One
-  launch log line names each role's model and effort) · `agentTypes` (custom subagent per role — must exist in your registry. It takes the same role keys and **throws** at launch on a value that is not an object, a key outside the role keys and a blank name) · `stateDir` (override `runs/<runId>`).
+  launch log line names each role's model and effort) · `agentTypes` (custom subagent per role — must exist in
+  your registry. It takes the same role keys and **throws** at launch on a value that is not an object, a key
+  outside the role keys and a blank name) · `stateDir` (override `runs/<runId>`).
 - **Exit survey:** `notes` (`{ dir, survey }`, two absolute paths). Set it when the user asks for
   the agents' feedback on a run. `dir` is the folder the answers go to, outside the target repo and
   outside `runs/<runId>/`, such as `<root>/runs/<runId>-notes`. `survey` is `tools/EXIT-SURVEY.md` of
   this checkout, or of the plugin folder the skill names in an installed plugin. Every agent prompt
   then ends with an instruction to append the survey's answers to its own file in `dir`.
-  A `notes` arg without both paths **throws**. Once the run ends, run `node <survey's folder>/survey.mjs <dir>`
-  and report the themes of the `SURVEY.md` it writes to the user.
+  A `notes` arg without both paths **throws**. Once the run ends, run `node <survey's folder>/survey.mjs
+  <dir>` and report the themes of the `SURVEY.md` it writes to the user.
 
 ## 8. State files (`runs/<runId>/`, outside every repo — or `outDir`)
 

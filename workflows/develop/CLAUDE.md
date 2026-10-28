@@ -69,11 +69,11 @@ shows.
    `node <project-settings.mjs> roles --root <root> --repo <target.repo>` prints. A role the user
    names for the run wins over the repo's saved value. When the user names role settings to keep for
    the repo, save them with
-   `node <project-settings.mjs> set-roles --root <root> --repo <target.repo> [--models <role>=<value>,...] [--efforts <role>=<value>,...]`,
-   where the value `default` removes a role's saved value. Also add `commit` as §4, "Choosing the
-   delivery", settles it, and set `target.repo` to the run worktree (step 4). The approval summary
-   shows each role's model and effort and where each came from: the run, the block's `model:` or
-   `effort:` line, the repo's saved settings, or the default. Several files make one run, as long as
+   `node <project-settings.mjs> set-roles --root <root> --repo <target.repo> [--models <role>=<value>,...]
+   [--efforts <role>=<value>,...]`, where the value `default` removes a role's saved value. Also add `commit`
+   as §4, "Choosing the delivery", settles it, and set `target.repo` to the run worktree (step 4). The
+   approval summary shows each role's model and effort and where each came from: the run, the block's `model:`
+   or `effort:` line, the repo's saved settings, or the default. Several files make one run, as long as
    their file keys agree. When you know the last launch's Workflow run id (`wf_...`), pass
    `--expect <id>`: it fails loudly if that run's record is missing, which is the sign Claude Code
    moved or changed its run records. For fix-mode files, add `--pack <target.repo>`: it groups the
@@ -105,9 +105,9 @@ shows.
      worktree. When the project's files reference a path outside the checkout by a relative path,
      that path resolves only when the worktree sits beside the checkout. So save the checkout's
      parent folder once with
-     `node <project-settings.mjs> set --root <root> --repo <the user's checkout> --worktree-dir <the checkout's parent folder>`.
-     `--worktree-dir default` removes the saved folder. When the project's checks walk the
-     checkout's folders or search parent folders, as `docs/worktree-batches.md` describes, save a
+     `node <project-settings.mjs> set --root <root> --repo <the user's checkout> --worktree-dir <the
+     checkout's parent folder>`. `--worktree-dir default` removes the saved folder. When the project's checks
+     walk the checkout's folders or search parent folders, as `docs/worktree-batches.md` describes, save a
      folder outside the checkout instead.
    - Then run `node <wt.mjs> open --repo <the user's checkout> --name <runId> --provision "<cmd>"`,
      leaving `--provision` out on `none` and adding `--dir <worktreeDir>` when `worktreeDir` is set,
@@ -169,20 +169,19 @@ shows.
    worktree> status --porcelain` lists a `??` file, or a `blocked` block halted as a held park,
    with `acceptance-regression` or with a commit-mode commit that did not land (step 5), settle
    the run worktree and that block first (§6). When the user stops the plan with a `todo` block
-   left, or with the run worktree unsettled, skip the build for that landing and say so in the run's summary. First apply §10 step 1 to
-   the folder, so an entry whose fix the run already made is closed. Then run
+   left, or with the run worktree unsettled, skip the build for that landing and say so in the run's summary.
+   First apply §10 step 1 to the folder, so an entry whose fix the run already made is closed. Then run
    `node <plan-edit.mjs> args --backlog <backlogDir> --pack <the run worktree>` and launch with its
    output as steps 3 and 4 say. This build takes the ready entries that no developer pulled beside its
    block (§4), since `args --backlog` leaves out an entry with a `- pulled:` line. When it exits 1 with
-   a message that ends `nothing to build`, no file holds a ready entry, so skip the launch. Whether it prints args or exits with `nothing to build`,
-   apply §10 step 5 to the folder next, since that call writes the fold of every `todo` or `done`
-   backlog file that holds an ACTIONABLE entry before it prints or exits. Step 5 there closes only
-   work an earlier run landed, since close has not yet landed this run's work. The entries that
-   launch adds wait for the next run, so one follow-up launch runs per run. An ACTIONABLE entry
-   whose fix failed has `status: needs-attention` and waits for the user (§10 step 2), and
-   `args --backlog` leaves out every file that holds one until the user skips that entry. A file
-   whose entry the user approves again is built by naming it (§10 step 4). Under `focused`, skip
-   this paragraph.
+   a message that ends `nothing to build`, no file it would add holds a ready entry, so skip the launch.
+   Whether it prints args or exits with `nothing to build`, apply §10 step 5 to the folder next, since that
+   call writes the fold of every `todo` or `done` backlog file that holds an ACTIONABLE entry before it prints
+   or exits. Step 5 there closes only work an earlier run landed, since close has not yet landed this run's
+   work. The entries that launch adds wait for the next run, so one follow-up launch runs per run. An
+   ACTIONABLE entry whose fix failed has `status: needs-attention` and waits for the user (§10 step 2), and
+   `args --backlog` leaves out every file that holds one until the user skips that entry. A file whose entry
+   the user approves again is built by naming it (§10 step 4). Under `focused`, skip this paragraph.
 
    Land the run next. First compare `git -C <the user's checkout> branch --show-current` with
    `git -C <the user's checkout> config branch.aipg/<runId>.aipgbase`, the branch `open` recorded.
@@ -336,9 +335,9 @@ to the backlog (§10). The policies differ as follows.
   pre-existing finding there, such as a nit, unchanged. A fix block leaves each pre-existing finding in
   connected code unchanged, as a fix block does under `focused`. The developer also records each cleanup
   outside task code that it noticed and did not make. A run whose plan has no `todo` block left also
-  builds every ready entry in the project's backlog that no `blocked` or `parked` block holds (§2 step 6), so it
-  fixes issues across the codebase over time. It uses more tokens per run, and fewer in total than reaching the same
-  code quality later.
+  builds every ready entry in the project's backlog that no `blocked` or `parked` block holds (§2 step 6), so
+  it fixes issues across the codebase over time. It uses more tokens per run, and fewer in total than reaching
+  the same code quality later.
 - **Pulling** happens only under `proactive`, in round 1 of every feature, section and fix block. Once
   the developer has read its block, it runs `plan-pull.mjs pullable` with the files its block will
   change. The tool decides which entries are eligible, by every rule `args --backlog` builds by, and
@@ -495,7 +494,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   stays, since the blind reviewer never reads a backlog file. When a fix it logs to `DECISIONS.md`
   closes a defect that an entry in any backlog file holds, it adds a `**Closed by:**` line to that
   entry and leaves the entry's status and decision as they are, since a park clears the fix from the
-  tree. **Must attest `unstaged_confirmed`. A missing or false attestation HALTS, even beside a
+  tree. When its block's text names a backlog entry as retired or superseded, it adds the same line to that
+  entry, with the block's change as the fix, even when it drops no defect.
+  **Must attest `unstaged_confirmed`. A missing or false attestation HALTS, even beside a
   needs-user escalation** (no reviewer reads what the staged index holds). The attestation is not the
   only guard. The round-1 developer returns the index's tree id, from `git write-tree`, as
   `baseline_index_tree` before it changes anything. Each acceptance confirms the index still holds
@@ -523,9 +524,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   unstaged or untracked change fails acceptance when no issue is claimed FIXED. Only agent that
   stages, and in commit mode the only agent that commits. It reads every earlier review file of its
   block and counts an earlier finding as a gap unless the code closes it on every sibling path with an edit
-  that breaks nothing, or the dismissal ledger declines it. A ledger line whose reason starts `SKIPPED:` declines a finding
-  only when its reason holds. Acceptance checks each such reason against the code it cites, and a
-  reason the code contradicts or one that states no checked fact declines nothing, so its finding
+  that breaks nothing, or the dismissal ledger declines it. A ledger line whose reason starts `SKIPPED:`
+  declines a finding only when its reason holds. Acceptance checks each such reason against the code it cites,
+  and a reason the code contradicts or one that states no checked fact declines nothing, so its finding
   counts as a gap. A `SKIPPED: SPEC:` line declines a finding only when the block's text prescribes
   the code it cites, or that code lies in code the block's text excludes or another block of the plan
   owns. Acceptance checks it against the block's text and the other blocks. An amendment in
@@ -534,7 +535,8 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   cannot confirm leaves that criterion unmet. Acceptance may also override a line whose reason holds.
   Each gap it writes gives a fix direction it checked against the code it would change. A line whose
   reason starts `ESCALATED:` records a default routed to the user, and acceptance holds it. It audits
-  the risk file of each round since the block's last blind review, against that round's own hunks (§6).
+  the risk file of each round since the block's last blind review or last clean risk audit, against that
+  round's own hunks (§6).
   In the closing pass it sorts each gap as
   blocking or not blocking, and it lands the block when no gap blocks. Otherwise the block parks
   (§6). Every defect it writes in its review file counts as a gap, including a regression the block
@@ -628,14 +630,14 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   that command itself and writes its exit code and first error line under the entry's `Halted:`
   line as the cause. Its `**Fix:**` says to close those gaps on top of the branch's work, so each
   origin block meets its criteria. An entry with no branch says to build each origin block on the
-  accepted baseline instead, and its `- size:` gives the size of that build, since no work was saved. The block syncs `backlogged`, and its work continues from that entry. A held
-  park syncs `blocked` instead, its entry is `NEEDS_USER` unless its park agent died or returned a
-  report that contradicts itself, and §2 step 5 says which route its work then takes. Fix mode takes
-  only gate `green`, so the park of a `red-baseline` block, or of a `build-only` block in a run with
-  no test gate, also syncs `blocked`, whatever halt parked it. Its entry is `NEEDS_USER`, and its
-  `**Fix:**` says to set the entry `stale` and the block back to `todo`, which rebuilds the block
-  under its own gate once any halt that holds the park is resolved. A round file that an agent's
-  prompt does not name may come from an earlier launch of the block, so the agent ignores it.
+  accepted baseline instead, and its `- size:` gives the size of that build, since no work was saved. The
+  block syncs `backlogged`, and its work continues from that entry. A held park syncs `blocked` instead, its
+  entry is `NEEDS_USER` unless its park agent died or returned a report that contradicts itself, and §2 step 5
+  says which route its work then takes. Fix mode takes only gate `green`, so the park of a `red-baseline`
+  block, or of a `build-only` block in a run with no test gate, also syncs `blocked`, whatever halt parked it.
+  Its entry is `NEEDS_USER`, and its `**Fix:**` says to set the entry `stale` and the block back to `todo`,
+  which rebuilds the block under its own gate once any halt that holds the park is resolved. A round file that
+  an agent's prompt does not name may come from an earlier launch of the block, so the agent ignores it.
 - **Sweep** (opus) — runs only when `sweep: goal-coverage` AND every non-skip block is done
   (launch-status `done` plus this run's accepted ids). Re-greps the surface from `goal`, runs the
   full gates, writes `SWEEP.md`, where each gap's follow-up block gives a fix direction it checked
@@ -647,8 +649,8 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
 
 ## 6. Loop, gates & verification
 
-`develop → quality (must be clean, apart from the closing pass) → acceptance (stages on pass, and commits in commit mode)`,
-up to `maxRounds` (default 5) per block, then one closing pass when the last round fails.
+`develop → quality (must be clean, apart from the closing pass) → acceptance (stages on pass, and commits in
+commit mode)`, up to `maxRounds` (default 5) per block, then one closing pass when the last round fails.
 
 **Risk-gated review.** The developer's CLASSIFY phase answers four risk questions for each change its
 round made:
@@ -659,40 +661,43 @@ round made:
 - Assumptions: does it rest on a judgment call or an assumption that an input, a platform or a caller
   could falsify?
 
-Each answer cites its evidence or is "no". A doubtful answer counts as yes, and a change is low risk
-when every answer is no. The developer writes the answers to `risk-<id>-rN.md` and returns
-`review_needed`, true when any change is not low risk. Each risk file starts with the line
-`Snapshot: <tree id>`. The tree id is a snapshot of the round's working tree, which the developer
-makes with `git add -A` and `git write-tree` on a temporary index file under `scratch/`, seeded with
-a copy of the real index, and deletes that file once it prints the tree id. The real index, which
-holds the accepted baseline, is never written. After its answers the risk file holds a `## Sweep`
-section. For each function, constant, field, message or rule phrase the round changed, it lists
-the search the developer ran and each hit, marked `updated` or `unaffected` with a few words of
-reason, and a changed field, return value, file format or output that other code or prompts read
-lists those readers as hits. A round that changed nothing writes no section. The blind review runs
-in a block's first round with a satisfied gate in a launch, a fix block that restored a parked block's
-branch included. A later round gets one when a round since the block's last blind review returned
-`review_needed` true or no boolean, or an acceptance verdict since then returned `risk_misclassified`
-true. Any other round goes from the developer straight to acceptance.
-Git holds one cumulative unstaged diff, so acceptance reads each audited round's own hunks from two
-snapshots. It runs `git diff --stat <base> <snapshot>` and then `git diff <base> <snapshot> -- <file>` per file, where `<snapshot>` is the line in that round's risk
-file and `<base>` is the line in the risk file of the round before it. The engine hands acceptance
-the `risk_snapshot` each of those rounds returned, and acceptance confirms each file's snapshot line
-equals it before it audits. A line that differs, or a round that returned no tree id, counts as a
-missing file. On every verdict, acceptance also runs the same snapshot commands on a temporary index
-file of its own, before it stages anything, and lists the paths that differ from the snapshot the
-last round returned with `git diff --name-only`. A path that differs is a risk-audit gap, since it
-changed after the developer handed its round on, unless it is untracked build output or a cache that a
-gate or test run regenerates. When the last round returned no snapshot, this check has nothing to
-compare, and an unreviewed round's missing snapshot is already a missing file. It checks each answer in
-the risk file of each round since the last blind review against that round's hunks. It also checks
-the sweep of the latest of those rounds: each changed name or phrase in that round's hunks needs a
-line, and each hit marked `unaffected` must still agree with the change. A missing file, a missing
-snapshot line in an audited round's file or in its base file, a change the file does not judge low
-risk, an answer the hunks contradict, a changed name or phrase with no sweep line, an
-`unaffected` hit that disagrees with the change and a hit that acceptance finds by running the
-line's search again and the line leaves out are each a gap, and the verdict returns
-`risk_misclassified` true, which sends the next round to a blind review.
+Each answer cites its evidence or is "no". A doubtful answer counts as yes, and a change is low risk when
+every answer is no. The developer writes the answers to `risk-<id>-rN.md` and returns `review_needed`, true
+when any change is not low risk. Each risk file starts with the line `Snapshot: <tree id>`. The tree id is a
+snapshot of the round's working tree, which the developer makes with `git add -A` and `git write-tree` on a
+temporary index file under `scratch/`, seeded with a copy of the real index, and deletes that file once it
+prints the tree id. The real index, which holds the accepted baseline, is never written. After its answers the
+risk file holds a `## Sweep` section. For each function, constant, field, message or rule phrase the round
+changed, it lists the search the developer ran and each hit, marked `updated` or `unaffected` with a few words
+of reason, and a changed field, return value, file format or output that other code or prompts read lists
+those readers as hits. A change that adds, removes or renames a field of an agent's return schema also lists
+as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and
+"nothing else". A round that changed nothing writes no section. The blind review runs in a block's first round
+with a satisfied gate in a launch, a fix block that restored a parked block's branch included. A later round
+gets one when a round since the block's last blind review returned `review_needed` true or no boolean, or an
+acceptance verdict since then returned `risk_misclassified` true. Any other round goes from the developer
+straight to acceptance. Git holds one cumulative unstaged diff, so acceptance reads each audited round's own
+hunks from two snapshots. It runs `git diff --stat <base> <snapshot>` and then `git diff <base> <snapshot> --
+<file>` per file, where `<snapshot>` is the line in that round's risk file and `<base>` is the line in the
+risk file of the round before it. The engine hands acceptance the `risk_snapshot` each of those rounds
+returned, and acceptance confirms each file's snapshot line equals it before it audits. A line that differs,
+or a round that returned no tree id, counts as a missing file. On every verdict, acceptance also runs the same
+snapshot commands on a temporary index file of its own, before it stages anything, and lists the paths that
+differ from the snapshot the last round returned with `git diff --name-only`. A path that differs is a
+risk-audit gap, since it changed after the developer handed its round on, unless it is untracked build output
+or a cache that a gate or test run regenerates. When the last round returned no snapshot, this check has
+nothing to compare, and an unreviewed round's missing snapshot is already a missing file. It checks each
+answer in the risk file of each round since the last blind review or last clean risk audit against that
+round's hunks. It also checks the sweep of the latest of those rounds: each changed name or phrase in that
+round's hunks needs a line, and each hit marked `unaffected` must still agree with the change. A round whose
+hunks add, remove or rename a field of an agent's return schema also needs a line that lists each sentence
+that lists that agent's return fields. A missing file, a missing snapshot line in an audited round's file or
+in its base file, a change the file does not judge low risk, an answer the hunks contradict, a changed name or
+phrase with no sweep line, an `unaffected` hit that disagrees with the change and a hit that acceptance finds
+by running the line's search again and the line leaves out are each a gap, and the verdict returns
+`risk_misclassified` true, which sends the next round to a blind review. A verdict that returns
+`risk_misclassified` false drops the rounds it audited, so the next acceptance audits only the rounds after
+them.
 
 **Closing pass.** When round `maxRounds` ends without a passed acceptance, one more developer runs,
 and no develop round follows it. It takes round number `maxRounds + 1` in its file names. It makes each
@@ -749,8 +754,8 @@ halt reason confirmed closed to `fixed` or `stale`, as §2 step 5 maps a landed 
 `proactive`, also run `plan-edit.mjs args --backlog <backlogDir> --fold-only`, which writes the run's
 statuses into the backlog files and prints nothing. Only then set each pulled entry that the
 acceptance file confirmed closed to `fixed` or `stale`, since a later fold overwrites a hand edit made
-before it. To reject it, unstage the block's files, set them aside as §4 describes, run §2 step 3, then set the
-block's `status:` to `todo`. Either way, run step 3 again for the launch args. `review-unwritten`
+before it. To reject it, unstage the block's files, set them aside as §4 describes, run §2 step 3, then set
+the block's `status:` to `todo`. Either way, run step 3 again for the launch args. `review-unwritten`
 means a quality reviewer or acceptance verifier failed a block without confirming its review file.
 `log-cap` stops the run before a block once no room for a status line is left in the runtime's first
 1,000 log lines, and a relaunch builds the rest. A block whose status lines overrun that room still
@@ -833,12 +838,12 @@ the branch's work, and reports one it cannot confirm as `restore_failed`. It
 skips a branch whose work the accepted baseline already holds (`git apply -R --check` accepts its
 diff), which a landed block that kept a FAILED entry's restored work leaves. When the block lands,
 acceptance deletes the branch, or in stage delivery `nextStep` says to delete it once the user
-commits the staged work (§5). A branch that is missing, fails to apply or holds a conflict the developer cannot confirm leaves the
-tree clean and every branch as it was, and the fix block syncs `blocked`. The user then rebuilds the branch on
-the accepted baseline, by rebasing or re-committing it so that `git diff <branch>^1 <branch>`
-applies there, and keeps the work on the branch, never in the tree, the index or the baseline, since
-the baseline holds only reviewed work. Or the user skips the entry and deletes the branch. In an
-ordered plan, the blocks after a parked block depend on it, so build its entry before you relaunch
+commits the staged work (§5). A branch that is missing, fails to apply or holds a conflict the developer
+cannot confirm leaves the tree clean and every branch as it was, and the fix block syncs `blocked`. The user
+then rebuilds the branch on the accepted baseline, by rebasing or re-committing it so that `git diff
+<branch>^1 <branch>` applies there, and keeps the work on the branch, never in the tree, the index or the
+baseline, since the baseline holds only reviewed work. Or the user skips the entry and deletes the branch. In
+an ordered plan, the blocks after a parked block depend on it, so build its entry before you relaunch
 them. `continueParked` is retired and throws. A park from an older engine left `parked-<id>.patch`
 and a `## Parked block:` entry in `NEEDS-USER.md` in its state dir. Restore that patch by hand with
 a plain `git apply` and finish the block, or redo it. Before you relaunch under `focused` a run that
@@ -862,8 +867,8 @@ developer's risk answers for round N, outside `gate/`, §6, starting with the li
 `Snapshot: <tree id>`) · `gate/DISMISSED-<id>.md` · `AMENDED-<id>.md` · `NEEDS-USER.md` (an ordered
 run's questions) · `question-<id>.md` (an unordered run's question for one block, which park copies
 into its entry) · `DECISIONS.md` · `PULLED-<id>.md` (under `proactive`, the ids of the backlog
-entries the block's round-1 developer pulled, §4) · `commit-<id>.txt` (commit mode: the block's title, its commit's
-message) · `SWEEP.md` · `scratch/` (the agents' plan block copies, test logs and park's temporary
+entries the block's round-1 developer pulled, §4) · `commit-<id>.txt` (commit mode: the block's title, its
+commit's message) · `SWEEP.md` · `scratch/` (the agents' plan block copies, test logs and park's temporary
 index file, never in `gate/`). A parked block's work is on a branch of `target.repo` and its entry
 is in the backlog folder (§10), so neither is in the state dir. An `<id>` past 60 characters keeps
 its first 51 characters and a hash of the whole id, so two long ids that share a prefix get separate
@@ -931,11 +936,13 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   opus. Every role defaults to `high`. A block's `model:` and `effort:` lines override
   `models.develop` and `efforts.develop` for that block's developer. The park role takes
   `models.park`, else its block's developer model, and takes `efforts.park`, else the block's
-  developer effort. `agentTypes` maps the develop, quality, acceptance and sweep keys to a custom subagent that must exist in your registry. It has no park key, so the park agent takes `agentTypes.develop` and a park key throws. The
-  engine **throws** at launch, naming the arg, on a value that is not an object, a key outside the
-  role keys, a value outside its set, and a blank `agentTypes` name. Choose the review roles' models as §3 says. Role settings
-  saved in the repo's settings (§2 step 3) count as the user asking for them, as a saved memory
-  preference does. One launch log line names each role's model and effort) · `stateDir` · `runOnly`.
+  developer effort. `agentTypes` maps the develop, quality, acceptance and sweep keys to a custom subagent
+  that must exist in your registry. It has no park key, so the park agent takes `agentTypes.develop` and a
+  park key throws. The engine **throws** at launch, naming the arg, on a value that is not an object, a key
+  outside the role keys, a value outside its set, and a blank `agentTypes` name. Choose the review roles'
+  models as §3 says. Role settings saved in the repo's settings (§2 step 3) count as the user asking for them,
+  as a saved memory preference does. One launch log line names each role's model and effort) · `stateDir` ·
+  `runOnly`.
 - **Exit survey:** `notes` (`{ dir, survey }`, two absolute paths). Set it when the user asks for
   the agents' feedback on a run. `dir` is the folder the answers go to, outside the target repo and
   outside `runs/<runId>/`, such as `<root>/runs/<runId>-notes`. `survey` is `tools/EXIT-SURVEY.md` of
@@ -1002,10 +1009,10 @@ Each file is a fix-mode plan file. Its header is
 `## Plan: <file id> - backlog from block <block id> of run <runId>`, then `mode: fix`, `gate: green`
 and `status: todo`. A writer that finds the file already there keeps its header and appends below
 its last entry. When the file's `status:` line reads `skip`, the writer sets it to `todo`, since
-`plan-edit.mjs args --backlog` builds only `todo` and `done` files. Its entries take debug's issue-file shape, with the id `<file id>-<n>` and
-a `- decision:` that the writer sets by one rule. The decision is `ACTIONABLE` when the entry is a
-defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no
-user-visible behavior, stored data or public contract. It is `NEEDS_USER` otherwise, such as a
+`plan-edit.mjs args --backlog` builds only `todo` and `done` files. Its entries take debug's issue-file shape,
+with the id `<file id>-<n>` and a `- decision:` that the writer sets by one rule. The decision is `ACTIONABLE`
+when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes
+no user-visible behavior, stored data or public contract. It is `NEEDS_USER` otherwise, such as a
 feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later
 run builds an `ACTIONABLE` entry without triage, and a
 `NEEDS_USER` entry waits for the user. A cleanup entry carries `- category: cleanup`. A feature entry
@@ -1075,10 +1082,10 @@ When the user asks to work the backlog:
    unless step 3 sets one, so `- status: open` alone never lists an entry. An entry whose `- status:`
    is `fixed` or `stale` never waits on the user either, whatever its decision. Also list each entry with
    a `**Parked with:**` line, whatever its decision, with a note naming the block that line names,
-   and leave it out of the triage in step 3 while it is held. Leave out every ACTIONABLE entry of a `backlogged` file, since that
-   file's park entry carries it and step 5 closes it once its work lands. List each other entry of
-   that file with a note naming the file, and leave it out of the triage in step 3 until step 5 sets
-   the file `done`, since an entry approved before then would be closed with entries it was never
+   and leave it out of the triage in step 3 while it is held. Leave out every ACTIONABLE entry of a
+   `backlogged` file, since that file's park entry carries it and step 5 closes it once its work lands. List
+   each other entry of that file with a note naming the file, and leave it out of the triage in step 3 until
+   step 5 sets the file `done`, since an entry approved before then would be closed with entries it was never
    built with.
    Then research each entry that step 3 triages, before you present it. First confirm that its defect
    or gap still holds in the accepted baseline, and cite the file:line. When it no longer holds,
@@ -1113,21 +1120,21 @@ When the user asks to work the backlog:
    A `status: todo` file left with no ACTIONABLE entry and no entry that waits on the user is not a
    plan, so set it to `status: skip`, as debug's triage does.
 4. Build the files that hold an ACTIONABLE entry whose status is not `fixed` or `stale` and that
-   carries no `- pulled:` or `**Parked with:**` line, with `node <plan-edit.mjs> args <file> [<file> ...] --pack <target.repo>`
-   and a develop launch in fix mode, from §2 step 3. `args --backlog <backlogDir> --pack <target.repo>`
-   takes the place of naming the files. It first cuts the `**Parked with:**` line of each open
+   carries no `- pulled:` or `**Parked with:**` line, with `node <plan-edit.mjs> args <file> [<file> ...]
+   --pack <target.repo>` and a develop launch in fix mode, from §2 step 3. `args --backlog <backlogDir> --pack
+   <target.repo>` takes the place of naming the files. It first cuts the `**Parked with:**` line of each open
    ACTIONABLE entry whose block is `done` or `skip`, as the hold paragraph above says. A file named
-   on the command line gets no cut, so its held entries stay held. It adds every `todo` or `done` file that holds an ACTIONABLE
-   entry with `- status: open` and no `- pulled:` or `**Parked with:**` line, and none with `- status: needs-attention`,
-   sets each `done` one to `todo`, and prints an unordered set, so it refuses an ordered plan file.
-   It leaves out a file while the block that wrote it is not `done`, `skip` or `backlogged` (§5). It matches the run records whose `runId`
-   arg and block id match the file's header, and whose `backlogDir` arg, when they keep one, names
-   this folder. An older record with no args stands for its run through the `runId` its result
-   echoes. The `backlogDir` test is there because a run of another project may share the `runId`
-   and block id. It finds the block's plan file in those records' block status edits or in the rows of their
-   `plans` arg. A header that names a pass or one of its members matches that pass's row. It reads the
-   block's status in its plan file with those records folded in, without writing that file. A file
-   whose block no record names, such as one whose records expired (§2 step 5), or whose plan file is
+   on the command line gets no cut, so its held entries stay held. It adds every `todo` or `done` file that
+   holds an ACTIONABLE entry with `- status: open` and no `- pulled:` or `**Parked with:**` line, and none
+   with `- status: needs-attention`, sets each `done` one to `todo`, and prints an unordered set, so it
+   refuses an ordered plan file. It leaves out a file while the block that wrote it is not `done`, `skip` or
+   `backlogged` (§5). It matches the run records whose `runId` arg and block id match the file's header, and
+   whose `backlogDir` arg, when they keep one, names this folder. An older record with no args stands for its
+   run through the `runId` its result echoes. The `backlogDir` test is there because a run of another project
+   may share the `runId` and block id. It finds the block's plan file in those records' block status edits or
+   in the rows of their `plans` arg. A header that names a pass or one of its members matches that pass's row.
+   It reads the block's status in its plan file with those records folded in, without writing that file. A
+   file whose block no record names, such as one whose records expired (§2 step 5), or whose plan file is
    gone, is not held back. A block's plan file that exists but fails to read or validate, or whose run
    records cannot be folded into it, fails the command, since that block's status is unknown. A file
    named on the command line skips this check, so name one only once its writer block is `done`,
@@ -1136,8 +1143,8 @@ When the user asks to work the backlog:
    block may change that file, and notes each held entry with that block. Those blocks are the
    `blocked` and `parked` blocks of the plans named on the command line and of every plan a run on
    this folder built. A file named on the command line skips this hold too, so name one only once
-   no such block's text names the `- file:` path of one of its ready entries. The file is held, not the entry alone,
-   since develop builds every ACTIONABLE entry of a file it builds. A file that holds an ACTIONABLE
+   no such block's text names the `- file:` path of one of its ready entries. The file is held, not the entry
+   alone, since develop builds every ACTIONABLE entry of a file it builds. A file that holds an ACTIONABLE
    entry with `- status: needs-attention`, such as one whose entry the user approved again in step
    3, is never added, so name it as a file. A file whose `status:` is not `todo`, such as a `done`
    file whose needs-attention entry the user approved again, first takes §2 step 5's order: run

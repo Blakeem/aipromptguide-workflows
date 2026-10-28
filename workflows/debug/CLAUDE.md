@@ -36,7 +36,10 @@ triaged files to develop, and land the result and report it at the end.
   globals) — you can NOT `node review.mjs`. `gen-units.mjs` IS plain Node —
   run it directly. `meta` stays a pure literal; top-level `return`/`await` are legal.
 - Syntax-check the engine (top-level return breaks `node --check`) — pass the filename in `$f`:
-  `for f in review.mjs; do node -e "const s=require('fs').readFileSync('$f','utf8').replace('export const meta','const meta'); new Function('agent','parallel','pipeline','phase','log','args','budget','workflow','return (async()=>{'+s+'})()'); console.log('$f OK')"; done`
+  `for f in review.mjs; do node -e "const s=require('fs').readFileSync('$f','utf8').replace('export const
+  meta','const meta'); new
+  Function('agent','parallel','pipeline','phase','log','args','budget','workflow','return
+  (async()=>{'+s+'})()'); console.log('$f OK')"; done`
 
 ## Roles (2)
 
@@ -81,7 +84,8 @@ Fixing roles (developer, blind quality, acceptance, park) are develop's, in `../
   writes that file. The verifier's one other write is its own temporary probe directory, outside the
   repo and run-state.
   Review-phase needs-decision items live INSIDE each unit file (a shared file written by concurrent
-  verifiers would race). `NEEDS-USER.md` and `question-<id>.md` are only for develop's fix-phase escalations, which one agent writes at a time (develop guide §5).
+  verifiers would race). `NEEDS-USER.md` and `question-<id>.md` are only for develop's fix-phase escalations,
+  which one agent writes at a time (develop guide §5).
 - **The inventory is CLOSED after `review.mjs`.** develop's fix mode never re-reviews — it only works the
   issues you approved. This is what makes medium-severity fixing converge; don't add a re-review step
   into the fix loop.
@@ -141,10 +145,10 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    is its own unit, a directory's files split at it, and a next-fit packing pass merges adjacent units
    up to it. The pass then merges a leftover group under a third of it into its smaller neighbor while
    the sum stays at or under 1.15 times it. A single-file unit past 3500 lines warns, and so does a
-   multi-file unit past 3500 lines when `--unit-loc` is set above 3500. `--no-pack` keeps per-directory units. `--cap-files` (default 24) caps files per unit only under
-   `--no-pack`, since packing checks no file count. Show the user the printed unit list; tune
-   `--unit-loc` if units look lopsided. `gen-units.mjs` skips symlinks and junctions, as git does, so
-   code reached only through a link is in no unit.
+   multi-file unit past 3500 lines when `--unit-loc` is set above 3500. `--no-pack` keeps per-directory units.
+   `--cap-files` (default 24) caps files per unit only under `--no-pack`, since packing checks no file count.
+   Show the user the printed unit list; tune `--unit-loc` if units look lopsided. `gen-units.mjs` skips
+   symlinks and junctions, as git does, so code reached only through a link is in no unit.
 2. **Read the manifest yourself** and pass its `units` array in `args`. Also pass `root` (this checkout
    — or, from the installed aipg plugin, the persistent data dir the skill resolves, never the
    version-swapped install dir — so run-state lands outside the target repo), `target.repo` (absolute),
@@ -170,9 +174,10 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    - Run the resume before any triage edit and before develop. A re-review rewrites each re-reviewed
      unit's issue file from scratch, and develop's fixes make every fixed unit read `changed`.
    - `staleUnits` carries gen-units ids and no `unit.lens`. If the run set `unit.lens`, re-attach each
-     unit's lens before passing it. For a run that passed the same files as one unit per lens, pass your own lens units instead, each with its
-     unit's current gen-units hash, and keep only those whose `issues/<fileSafe(id)>.md` is missing or
-     whose `hash:` line differs from that hash, `incomplete` included.
+     unit's lens before passing it. For a run that passed the same files as one unit per lens, pass your own
+     lens units instead, each with its unit's current gen-units hash, and keep only those whose
+     `issues/<fileSafe(id)>.md` is missing or whose `hash:` line differs from that hash, `incomplete`
+     included.
 5. **Triage by EDITING the issue files** (`runs/<runId>/issues/*.md` — the single source of truth):
    - skip → set its `- decision:` line to `SKIP` (anything ≠ ACTIONABLE is skipped by the fix loop)
    - approve a NEEDS_USER with a chosen option → set `- decision: ACTIONABLE` and REWRITE its `**Fix:**`
@@ -206,7 +211,8 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
      resolved or fixed at the landing, the NEEDS-USER questions after the research step in
      `../develop/CLAUDE.md` §6 (the settled ones with their evidence, the rest with a recommendation
      each), the entries in `DECISIONS.md`, and every parked block with its branch and the backlog entry
-     that links it (`../develop/CLAUDE.md` §7). In stage delivery, **never commit**: the user reviews and commits.
+     that links it (`../develop/CLAUDE.md` §7). In stage delivery, **never commit**: the user reviews and
+     commits.
 
 ## External inventory (skip `review.mjs`)
 
@@ -215,9 +221,10 @@ reports, or a symptom YOU diagnosed first (Bug Hunt & Repro) — develop's fix m
 since it depends on `review.mjs` only through the issue files. You act as the verifier:
 hand-author the inventory in the exact verifier format — the `## Plan: <id>` fix-block header with
 its preamble, then `### [<id>]` blocks with the `- ` header lines (including `- status: open`), an
-`**Evidence:**` line with what confirmed the finding, and a precise `**Fix:**` — anchoring each behavior-level finding to `file:line` yourself, and record
-skipped findings with `- decision: SKIP` so the triage is on file. Check it parses:
-`node <plan-block.mjs> <file> --list`. Then playbook step 6 (Build the triaged files with develop).
+`**Evidence:**` line with what confirmed the finding, and a precise `**Fix:**` — anchoring each behavior-level
+finding to `file:line` yourself, and record skipped findings with `- decision: SKIP` so the triage is on file.
+Check it parses: `node <plan-block.mjs> <file> --list`. Then playbook step 6 (Build the triaged files with
+develop).
 
 `--list` rejects a todo fix block with no `### [<id>]` entry, so a file that uses another heading fails
 the parse check above.
@@ -249,7 +256,8 @@ Verify-first makes loose anchors safe — the fixer re-confirms each issue again
 reviewer's findings with their evidence, the message its verifier and the unit's later lenses read) ·
 `issues/<unit>.md` (per-unit inventory + triage doc, verifier-written, user-editable, a fix-mode plan
 file). The fix loop's files (develop's quality and
-acceptance reviews, ledgers) land in develop's state dir, a parked block's work on a branch of the repo, listed in `../develop/CLAUDE.md`.
+acceptance reviews, ledgers) land in develop's state dir, a parked block's work on a branch of the repo,
+listed in `../develop/CLAUDE.md`.
 
 A review that starts over takes a new `runId`, since a `review.mjs` re-run rewrites each unit file it
 re-reviews, triage edits included. The resume in playbook step 4 keeps the `runId`, so it re-reviews
@@ -274,20 +282,21 @@ with `units` from `gen-units.mjs`.
   the rename. `focused` makes each **Fix:** line the minimal fix. `proactive` makes it the
   fix with the best long-term result. Neither changes what counts as a finding. The reviewer prompt and
   the verifier prompt each say the policy and that prompt's own scope and routing rules override any
-  other instruction about scope, a memory line or a CLAUDE.md included) · `models`/`efforts`/`agentTypes` (`models` and `efforts` map a role key to a value. The role keys
-  are `review` and `verify`. A model is `opus | sonnet | haiku | fable` and an effort is
-  `low | medium | high | xhigh | max`. Both roles default to opus, and every role defaults to
-  `high`. The engine **throws** at launch, naming the arg, on a value that is not an object, a key
-  outside the role keys, and a value outside its set. Choose each role's model by the task and the
-  change's risk, as the develop guide §3 says. `agentTypes` maps the same role keys to a custom subagent that must exist in your registry, and **throws** at launch on a value that is not an object, a key outside the role keys and a blank name. One launch log line names each role's model and
-  effort).
+  other instruction about scope, a memory line or a CLAUDE.md included) · `models`/`efforts`/`agentTypes`
+  (`models` and `efforts` map a role key to a value. The role keys are `review` and `verify`. A model is
+  `opus | sonnet | haiku | fable` and an effort is `low | medium | high | xhigh | max`. Both roles default to
+  opus, and every role defaults to `high`. The engine **throws** at launch, naming the arg, on a value that is
+  not an object, a key outside the role keys, and a value outside its set. Choose each role's model by the
+  task and the change's risk, as the develop guide §3 says. `agentTypes` maps the same role keys to a custom
+  subagent that must exist in your registry, and **throws** at launch on a value that is not an object, a key
+  outside the role keys and a blank name. One launch log line names each role's model and effort).
 - **Exit survey:** `notes` (`{ dir, survey }`, two absolute paths). Set it when the user asks for
   the agents' feedback on a run. `dir` is the folder the answers go to, outside the target repo and
   outside `runs/<runId>/`, such as `<root>/runs/<runId>-notes`. `survey` is `tools/EXIT-SURVEY.md` of
   this checkout, or of the plugin folder the skill names in an installed plugin. Every agent prompt
   then ends with an instruction to append the survey's answers to its own file in `dir`.
-  A `notes` arg without both paths, or with a `dir` inside `target.repo`, **throws**. Once the run ends, run `node <survey's folder>/survey.mjs <dir>`
-  and report the themes of the `SURVEY.md` it writes to the user.
+  A `notes` arg without both paths, or with a `dir` inside `target.repo`, **throws**. Once the run ends, run
+  `node <survey's folder>/survey.mjs <dir>` and report the themes of the `SURVEY.md` it writes to the user.
 - **Returns** `inventory` counts, `hottest` areas, `needsUserFiles`, and `failed`. The first three cover
   only the units this run reviewed, so after a resume they leave out the other units' issue files.
   `failed` holds every dead reviewer `{ id, stage: 'review', lens }`, every reviewer whose count is

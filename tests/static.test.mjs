@@ -577,3 +577,42 @@ section('every guide that lists the core principles lists the set the Scope sect
       `${rel} lists the core principles "${stated}" (the Scope section names ${expected})`);
   }
 }
+
+section('guide prose wraps at 110 characters');
+// A stated width spares each reviewer from deriving one from neighbouring lines. Only the files listed below are checked.
+{
+  const GUIDE_WIDTH = 110;
+  const fencePattern = /^\s*(```|~~~)/;
+  // A line is exempt when no wrap can bring it under the width, because one token is longer than the width less the line's indent.
+  const overWidthLines = (text) => {
+    const hits = [];
+    let inFence = false;
+    text.split('\n').forEach((line, index) => {
+      if (fencePattern.test(line)) { inFence = !inFence; return; }
+      if (inFence || /^\s*\|/.test(line) || line.length <= GUIDE_WIDTH) return;
+      const indent = line.match(/^\s*/)[0].length;
+      if (line.trim().split(/\s+/).some((token) => token.length > GUIDE_WIDTH - indent)) return;
+      hits.push(index + 1);
+    });
+    return hits;
+  };
+  const longProse = 'word '.repeat(23).trim();
+  const sample = [longProse, `| ${longProse} |`, '```', longProse, '```', `see https://example.com/${'a'.repeat(120)}`, 'short'].join('\n');
+  ok(overWidthLines(sample).join() === '1', 'the checker flags a long prose line and exempts a table row, a fenced line and a line holding one long token');
+  ok(overWidthLines('x'.repeat(GUIDE_WIDTH)).length === 0 && overWidthLines(`${'x '.repeat(55)}x`).length === 1, 'a line of exactly the width passes and one character more fails');
+
+  const guides = ['CLAUDE.md', 'README.md', 'tools/CLAUDE.md', 'tests/CLAUDE.md'];
+  for (const name of readdirSync(join(REPO_ROOT, 'workflows'))) {
+    for (const file of ['CLAUDE.md', 'README.md']) {
+      const rel = `workflows/${name}/${file}`;
+      if (statSync(join(REPO_ROOT, rel), { throwIfNoEntry: false })) guides.push(rel);
+    }
+  }
+  for (const name of readdirSync(join(REPO_ROOT, 'principles'))) {
+    if (name.endsWith('.md')) guides.push(`principles/${name}`);
+  }
+  for (const rel of guides) {
+    const hits = overWidthLines(readFileSync(join(REPO_ROOT, rel), 'utf8'));
+    ok(hits.length === 0, `${rel} has no prose line past ${GUIDE_WIDTH} characters${hits.length ? ` (line ${hits.slice(0, 5).join(', ')})` : ''}`);
+  }
+}

@@ -72,7 +72,8 @@ No mid-run questions — settle the rubric with the user first:
   it with `--verify` (§5a). Both run it unattended, so **pre-allowlist** the command exactly as agents
   run it, `Bash(node '<checkTool>':*)`, in the settings of the project the run works in.
 - **`target.repo` (optional):** pass it for a decision about existing code — the researchers, the
-  decider and the reviewer read it **read-only** for pattern-fit and feasibility; the engine never modifies it.
+  decider and the reviewer read it **read-only** for pattern-fit and feasibility; the engine never modifies
+  it.
 - **`testbed` (optional):** how agents may **empirically test** claims (e.g. a sqlite db + how to query
   it, a script to benchmark against). The researchers, the decider and the reviewer are told to prefer
   measured evidence — run the check, cite command + result (#14) — and the reviewer re-runs each testbed
@@ -82,9 +83,9 @@ No mid-run questions — settle the rubric with the user first:
   unattended.
 - **Relaunch vs. new run.** The engine keeps no state across invocations. A same-runId relaunch with no
   `resumeFromRunId` re-runs the run from Diverge and round 1. It overwrites the lens files and the
-  research and round files it reaches, and it leaves an earlier run's higher-numbered files in place. Extending
-  finished rounds is a relaunch with `maxRounds` raised plus the Workflow tool's `resumeFromRunId`, which
-  replays the finished agents from cache. Starting over takes a new runId, so the earlier run's files
+  research and round files it reaches, and it leaves an earlier run's higher-numbered files in place.
+  Extending finished rounds is a relaunch with `maxRounds` raised plus the Workflow tool's `resumeFromRunId`,
+  which replays the finished agents from cache. Starting over takes a new runId, so the earlier run's files
   stay intact. Never clear `runs/<runId>/`. `NEEDS-USER.md` is cumulative. Relay the return's
   `decisionFile`, never the highest-numbered file.
 
@@ -177,12 +178,12 @@ measurement, and own judgment scores at most partly met.
   yet); a fold that repairs one option against a defect another option shares repairs that option the
   same way and keeps it scored; it never adds a repaired variant as a new rival; and it changes nothing
   that an objection or a research finding does not name. After a lock mismatch or an unwritten final
-  review (§5a) it acts on every objection of the blind review instead. Escalates a user-only call to `NEEDS-USER.md` (halts on a hard
-  blocker) — **and so may the reviewer**, for a requirement contradiction (§7); those are two distinct
-  halt paths, not one. In `ranked` mode it instead ranks the strongest options (up to `shortlist`), each
-  with what it **buys**, what it **costs**, its rank rationale, plus a **combine / exclude** section and
-  a flip check over each adjacent pair, graded on rank 1 (no trade-off section) — an option violating a
-  non-negotiable is off the list entirely, and it is told not to pad.
+  review (§5a) it acts on every objection of the blind review instead. Escalates a user-only call to
+  `NEEDS-USER.md` (halts on a hard blocker) — **and so may the reviewer**, for a requirement contradiction
+  (§7); those are two distinct halt paths, not one. In `ranked` mode it instead ranks the strongest options
+  (up to `shortlist`), each with what it **buys**, what it **costs**, its rank rationale, plus a **combine /
+  exclude** section and a flip check over each adjacent pair, graded on rank 1 (no trade-off section) — an
+  option violating a non-negotiable is off the list entirely, and it is told not to pad.
 - **Final reviewer** (review · opus) — one fresh reviewer per review round, in two stages (§5a). Its
   prompt holds only the blind stage: the requirements, the ledger and its blind file
   `review/review-rN.md`. It opens the original source behind each fact that moves a score (and re-runs
@@ -269,8 +270,8 @@ hands the decider that round's final review next round; the decider revises rath
   judge against it, so the loop converges; there is no `DISMISSED.md`. A reject must keep a must
   violation or a challenger that scores higher on the same rubric, and the decider keeps the higher of
   the two, so each revision moves toward a stronger answer. `reviewRounds` on the return holds one
-  `{ round, verdict, raised, withdrawn, kept, downgraded, caveats, lockMatched }` entry per review round. A run
-  that does not converge hands back the final review, whose kept objections and WHERE NEXT section say
+  `{ round, verdict, raised, withdrawn, kept, downgraded, caveats, lockMatched }` entry per review round. A
+  run that does not converge hands back the final review, whose kept objections and WHERE NEXT section say
   whether another revision or a rubric change is the fix, and a rubric gap is fixed by refining the
   rubric rather than raising `maxRounds`. When the last round fell back to its blind review (§5a), the
   hand-back starts from that review's objections, since no WHERE NEXT section exists.
@@ -346,17 +347,17 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
   `low | medium | high | xhigh | max`. The research and check roles default to sonnet, the decide and
   review roles default to opus, and every role defaults to `high`. The engine **throws** at launch, naming
   the arg, on a value that is not an object, a key outside the role keys, and a value outside its
-  set. Choose each role's model by the task and how much judgment the role needs, as the develop guide §3 says. One
-  launch log line names each role's model and effort) · `agentTypes` (custom subagent per role — must exist
-  in your registry. It takes the same role keys and **throws** on a value that is not an object, a key
-  outside the role keys, `analyst` included, and a blank name) · `stateDir` (override `runs/<runId>`).
+  set. Choose each role's model by the task and how much judgment the role needs, as the develop guide §3
+  says. One launch log line names each role's model and effort) · `agentTypes` (custom subagent per role —
+  must exist in your registry. It takes the same role keys and **throws** on a value that is not an object, a
+  key outside the role keys, `analyst` included, and a blank name) · `stateDir` (override `runs/<runId>`).
 - **Exit survey:** `notes` (`{ dir, survey }`, two absolute paths). Set it when the user asks for
   the agents' feedback on a run. `dir` is the folder the answers go to, outside the target repo and
   outside `runs/<runId>/`, such as `<root>/runs/<runId>-notes`. `survey` is `tools/EXIT-SURVEY.md` of
   this checkout, or of the plugin folder the skill names in an installed plugin. Every agent prompt
   then ends with an instruction to append the survey's answers to its own file in `dir`.
-  A `notes` arg without both paths **throws**. Once the run ends, run `node <survey's folder>/survey.mjs <dir>`
-  and report the themes of the `SURVEY.md` it writes to the user.
+  A `notes` arg without both paths **throws**. Once the run ends, run `node <survey's folder>/survey.mjs
+  <dir>` and report the themes of the `SURVEY.md` it writes to the user.
 
 ## 9. State files (`runs/<runId>/`, outside every repo)
 

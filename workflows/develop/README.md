@@ -21,8 +21,8 @@ default to Opus, and every role runs at the `high` reasoning level unless the ru
 otherwise. A block's `effort:` line (`low`, `medium`, `high`, `xhigh` or `max`) sets its developer's level
 instead, and Claude writes one only when you ask for a level other than the run's. Claude saves the role
 models and efforts you ask to keep for a repo in the repo's project settings with `project-settings.mjs
-set-roles`, and the next run of that repo takes them from `project-settings.mjs roles`. A role you name for a run wins
-over the saved one.
+set-roles`, and the next run of that repo takes them from `project-settings.mjs roles`. A role you name for a
+run wins over the saved one.
 
 The first run in a repo asks every setup question in one prompt and saves the answers, so later runs
 ask nothing. A run's `changePolicy` is `focused` by default. The saved policy is `focused`, `proactive`
@@ -52,8 +52,9 @@ changes, up to what it can hold, and fixes them beside its block. A tool picks t
 and the developer decides which of them fit. Acceptance checks each taken entry like a fix entry. An
 entry whose fix does not hold is undone and goes back to the backlog for you, and the block's own work
 still lands. The block parks only when its own work depends on the undone fix. Each taken entry closes
-when its block lands, and the backlog build before landing takes the ready entries no developer took. It uses more tokens per run, and fewer in total than reaching the
-same code quality later. A `focused` run builds the backlog only when you ask.
+when its block lands, and the backlog build before landing takes the ready entries no developer took. It uses
+more tokens per run, and fewer in total than reaching the same code quality later. A `focused` run builds the
+backlog only when you ask.
 
 The delivery setting picks how the work lands. With `stage`, the run's entire change lands staged in your
 checkout, so you review it and commit. With `commit`, each accepted block that changed code is one commit

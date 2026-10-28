@@ -126,8 +126,8 @@ reads the earlier launch's text as the new round's. Every engine holds `REPLACE_
 sits once in each prompt whose return attests a file the agent writes with the Write tool. One
 return falls outside that rule and carries no `WROTE_NOTE`: docs' `files_cleaned`, an in-place Edit
 count. develop's park carries one for its backlog entry, and its commit is attested by the
-`commit_sha` it returns. Two replace sites add a guard after `REPLACE_NOTE`: the investigator's options files and
-docs' gatherer capture files. Each engine's test counts both notes in each such
+`commit_sha` it returns. Two replace sites add a guard after `REPLACE_NOTE`: the investigator's options files
+and docs' gatherer capture files. Each engine's test counts both notes in each such
 prompt through `pinWriteNotes`, so a new write site needs a row there.
 In every engine but develop, `WROTE_NOTE` is followed by `FILE_WRITE_NOTE`, which tells the agent to
 write file content with the file-editing tool, and `pinFileWriteNote` counts it in the same rows.
@@ -206,13 +206,13 @@ against (halt); an unreachable feature does not (flag).
 
 - **Duplication between sibling engines.** Deliberate: each is standalone and copyable. Never extract a
   shared module or import across workflows. (#11 governs *facts*, not code across independent tools.)
-  Three copies are pinned. `role-map-copies.test.mjs` fails when an engine's `roleMap`, its `agentTypeMap` or its two value sets
-  differ from develop's, so change all eight together. `convention-files-copies.test.mjs` fails when
-  refine's or develop's `conventionFilesOf` differs from debug's, so change all three together. `notes.test.mjs` fails when
-  an engine's exit-survey instruction differs from the test's copy, or when an engine calls `agent(`
-  anywhere but inside its `callAgent`, so route every new call site through `callAgent` and change all
-  eight instructions together. `relay-guard.test.mjs` fails when an engine's `RELAYED_REQUEST` line
-  differs from develop's, so change all eight together.
+  Three copies are pinned. `role-map-copies.test.mjs` fails when an engine's `roleMap`, its `agentTypeMap` or
+  its two value sets differ from develop's, so change all eight together. `convention-files-copies.test.mjs`
+  fails when refine's or develop's `conventionFilesOf` differs from debug's, so change all three together.
+  `notes.test.mjs` fails when an engine's exit-survey instruction differs from the test's copy, or when an
+  engine calls `agent(` anywhere but inside its `callAgent`, so route every new call site through `callAgent`
+  and change all eight instructions together. `relay-guard.test.mjs` fails when an engine's `RELAYED_REQUEST`
+  line differs from develop's, so change all eight together.
 - **WHY comments.** A one or two line comment stating a constraint the code cannot show is the house
   style. A long one, a history note or a restated guide is a #13 finding, not a defect: it belongs to an
   enhance conciseness pass, never to debug.
@@ -225,7 +225,13 @@ against (halt); an unreachable feature does not (flag).
 
 `node tests/run.mjs`. See [`README.md`](README.md) for the API; the short version:
 
-- **A test file runs beside the others**, so it shares no resource with them. [`README.md`](README.md) lists the rules.
+- **A test file runs beside the others**, so it shares no resource with them. [`README.md`](README.md) lists
+  the rules.
+- **Guide prose wraps at 110 characters.** `static.test.mjs` fails on a longer prose line in the root
+  `CLAUDE.md` and `README.md`, `tools/CLAUDE.md`, `tests/CLAUDE.md`, `workflows/*/CLAUDE.md`,
+  `workflows/*/README.md` and `principles/*.md`. It exempts table rows, fenced code blocks and a line with
+  one token that no wrap fits under the width, such as a URL. It does not check `docs/`,
+  `tests/README.md` or `skills/`.
 - **Test failure paths.** The happy path is exercised constantly by real runs. Halts, parks, dead agents,
   contradictory returns and bad args are what rot silently — and are where every real defect has been.
 - **`respond: { 'label': null }` simulates a dead agent** — one character, and it covers §3's number-one
@@ -248,9 +254,9 @@ against (halt); an unreachable feature does not (flag).
   also copy the changed code files over the export and apply the mutant to those copies. Never swap
   files in the working tree for a red run.
 - **Edit engine template text with the Edit tool or a script file written by the Write tool**, never
-  through a Bash heredoc, as `FILE_WRITE_NOTE` in develop-cycle.mjs tells agents. The shell alters backslashes and backticks
-  in a heredoc, so the exact-match replacement it feeds then finds nothing. The Edit tool edits only a file the Read tool has
-  read, so a Bash `cat` does not unlock it.
+  through a Bash heredoc, as `FILE_WRITE_NOTE` in develop-cycle.mjs tells agents. The shell alters backslashes
+  and backticks in a heredoc, so the exact-match replacement it feeds then finds nothing. The Edit tool edits
+  only a file the Read tool has read, so a Bash `cat` does not unlock it.
 - **A cross-engine sweep must RUN each engine, not grep it.** The numeric-bound sweep started as a source
   grep for `Number.isFinite` and was a false gate: the pattern was satisfied by a *different* arg's
   validator in the same file, so an engine could reintroduce `Number(A.maxRounds)` on the arg that
@@ -365,8 +371,8 @@ dropped information is not:
   tracked — the messages are prose full of apostrophes, and one opener leaves the scan unbalanced for the
   rest of the message. Unbalanced input falls back to the depth-blind cut, never to the whole message.
 
-**Solved — every map renders clean (8 as of 2026-09-25). Keep it that way by never putting authored text on a self-loop
-or on either edge of a marked node pair.** Both shapes are markered now: self-loops carry `L<n>`
+**Solved — every map renders clean (8 as of 2026-09-25). Keep it that way by never putting authored text on a
+self-loop or on either edge of a marked node pair.** Both shapes are markered now: self-loops carry `L<n>`
 (conditions in the Loops table), the back edge of a boundary+back pair carries `E<n>` (conditions in
 the Edges table), and the boundary edge of a marked pair renders caption-less — mermaid places both
 labels of a multi-edge pair at the same path midpoint (measured 39×22px overlap at every one of six
@@ -425,13 +431,13 @@ node tests/run.mjs                                                   # here, aft
 ```
 
 `open` cuts `aipg/<name>` from `main`, whatever branch the checkout is on. Run `close` once the change is
-committed, since finished worktrees left for later pile up in the checkout's `.claude/worktrees` folder, where a tool that walks the checkout reads them. `close` rebases the branch
-onto `main` when `main` has a commit the branch lacks, gates the exact commit `main` will point at, and
-fast-forwards `main` to it. Only then does it move the worktree folder to the trash and delete the
-branch. It refuses a worktree with modified, staged or untracked files, an unfinished operation or
-submodule git directories, a rebase that would drop a merge commit of the branch, and a rebase or
-fast-forward that would delete an ignored file. Run the suite here after the merge, since a worktree
-holds only tracked files (docs/worktree-batches.md, "untracked files"). A detached snapshot worktree
-that a read-only run audits is removed when that run ends, since its findings name the commit.
-Parallel chains use the batch verbs of `tools/wt.mjs`, whose `clean` verb moves the folder to the
+committed, since finished worktrees left for later pile up in the checkout's `.claude/worktrees` folder, where
+a tool that walks the checkout reads them. `close` rebases the branch onto `main` when `main` has a commit the
+branch lacks, gates the exact commit `main` will point at, and fast-forwards `main` to it. Only then does it
+move the worktree folder to the trash and delete the branch. It refuses a worktree with modified, staged or
+untracked files, an unfinished operation or submodule git directories, a rebase that would drop a merge commit
+of the branch, and a rebase or fast-forward that would delete an ignored file. Run the suite here after the
+merge, since a worktree holds only tracked files (docs/worktree-batches.md, "untracked files"). A detached
+snapshot worktree that a read-only run audits is removed when that run ends, since its findings name the
+commit. Parallel chains use the batch verbs of `tools/wt.mjs`, whose `clean` verb moves the folder to the
 trash, runs `git worktree prune` and keeps the branch.

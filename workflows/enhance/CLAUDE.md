@@ -114,8 +114,8 @@ noise.
   an enhancement — rejected with `is_defect`, so you can route it to debug; (5) its verified **risk
   outweighs** the cost removed, such as breaking something the system needs or leaving a required
   instruction ambiguous — rejected with `too_risky`. Then it re-scores impact/size (finders over-rate)
-  and **writes** `proposals/<lens>.md` verbatim for each of its lenses. A real candidate it scores below the floor keeps
-  `is_real` true and is rejected as below the floor.
+  and **writes** `proposals/<lens>.md` verbatim for each of its lenses. A real candidate it scores below the
+  floor keeps `is_real` true and is rejected as below the floor.
 
 ## 6. Contracts (keep intact)
 
@@ -162,11 +162,11 @@ What each decision means:
   `operator-effort` → `operator_effort.md`): the verified, impact-scored proposals, a
   `## Defects to route` section (one block per defect, written only when it has one) and a `## Rejected`
   section (one line each, and a rejection for a cost the verifier cannot substantiate starts `UNPROVEN:`
-  and names the evidence that would substantiate it). This IS the deliverable. A verifier-written file (a lens that had candidates)
-  carries `lens`, `focus`, `reviewed` and a `note` stating these are proposals requiring human triage;
-  a clean lens's finder-written marker carries only `lens` and `reviewed`. A lens reports NO file when
-  its finder died, its finder returned candidate ids without attesting its candidates file, its finder
-  returned only ids that do not read `<lens>-<n>`, its finder returned no candidate without attesting
+  and names the evidence that would substantiate it). This IS the deliverable. A verifier-written file (a lens
+  that had candidates) carries `lens`, `focus`, `reviewed` and a `note` stating these are proposals requiring
+  human triage; a clean lens's finder-written marker carries only `lens` and `reviewed`. A lens reports NO
+  file when its finder died, its finder returned candidate ids without attesting its candidates file, its
+  finder returned only ids that do not read `<lens>-<n>`, its finder returned no candidate without attesting
   its marker, its verifier died, or its verifier did not list the lens in `wrote_lenses`. Each of those
   lands the lens in `failed` as `{ id, stage }` with the stage that dropped it: `find` for the four
   finder cases, `verify` for the two verifier cases. A finder id that repeats or does not read
@@ -197,14 +197,16 @@ inline.
   `high`. The engine **throws** at launch, naming the arg, on a value that is not an object, a key
   outside the role keys, and a value outside its set. Choose each role's model by the task and how much
   judgment the role needs, as the develop guide §3 says. One launch log line names each role's model and
-  effort) · `agentTypes` (custom subagent per role — must exist in your registry. It takes the same role keys and **throws** at launch on a value that is not an object, a key outside the role keys and a blank name) · `stateDir` (override `runs/<runId>`).
+  effort) · `agentTypes` (custom subagent per role — must exist in your registry. It takes the same role keys
+  and **throws** at launch on a value that is not an object, a key outside the role keys and a blank name) ·
+  `stateDir` (override `runs/<runId>`).
 - **Exit survey:** `notes` (`{ dir, survey }`, two absolute paths). Set it when the user asks for
   the agents' feedback on a run. `dir` is the folder the answers go to, outside the target repo and
   outside `runs/<runId>/`, such as `<root>/runs/<runId>-notes`. `survey` is `tools/EXIT-SURVEY.md` of
   this checkout, or of the plugin folder the skill names in an installed plugin. Every agent prompt
   then ends with an instruction to append the survey's answers to its own file in `dir`.
-  A `notes` arg without both paths **throws**. Once the run ends, run `node <survey's folder>/survey.mjs <dir>`
-  and report the themes of the `SURVEY.md` it writes to the user.
+  A `notes` arg without both paths **throws**. Once the run ends, run `node <survey's folder>/survey.mjs
+  <dir>` and report the themes of the `SURVEY.md` it writes to the user.
 
 Agent count is bounded and visible up front: **≤ 2 × lenses** (one finder each, plus at most one
 verifier per lens with candidates, fewer when lenses share a verifier).

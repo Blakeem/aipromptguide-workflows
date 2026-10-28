@@ -12,9 +12,9 @@ one plan it keeps adding detail and never stops). Nothing here builds, stages, o
 Four things together — remove any one and the plan grows every round instead of settling:
 - **The defect bar.** The plan states what the user wants, and the critic judges only whether its
   text is correct. A gap names plan text that is wrong, in one of four classes: a contradiction within
-  the plan or with the repo or a file the plan cites, a wrong prescription (built as written, the code crashes, loses or
-  corrupts data, or gives wrong output on an input the repo or the plan accepts), a bad practice the
-  text prescribes, or a dependency-ordering error. Text a block tells the developer to write is
+  the plan or with the repo or a file the plan cites, a wrong prescription (built as written, the code
+  crashes, loses or corrupts data, or gives wrong output on an input the repo or the plan accepts), a bad
+  practice the text prescribes, or a dependency-ordering error. Text a block tells the developer to write is
   output, so a sentence the repo contradicts is a wrong prescription. The critic confirms a prescribed
   command, flag or dependency behavior the repo does not already use the same way, against the
   dependency's docs or source or a probe in a temporary directory outside the repo and the stateDir.
@@ -124,15 +124,16 @@ Full schema + defaults: the Config block atop `refine-cycle.mjs` (the canonical 
   `low | medium | high | xhigh | max`. Both roles default to opus, and every role defaults to
   `high`. The engine **throws** at launch, naming the arg, on a value that is not an object, a key
   outside the role keys, and a value outside its set. Choose each role's model by the task and the
-  change's risk, as the develop guide §3 says. `agentTypes` maps the same role keys to a custom subagent that must exist in your registry, and **throws** at launch on a value that is not an object, a key outside the role keys and a blank name. One launch log line names each role's model and
-  effort) · `stateDir`.
+  change's risk, as the develop guide §3 says. `agentTypes` maps the same role keys to a custom subagent that
+  must exist in your registry, and **throws** at launch on a value that is not an object, a key outside the
+  role keys and a blank name. One launch log line names each role's model and effort) · `stateDir`.
 - **Exit survey:** `notes` (`{ dir, survey }`, two absolute paths). Set it when the user asks for
   the agents' feedback on a run. `dir` is the folder the answers go to, outside the target repo and
   outside `runs/<runId>/`, such as `<root>/runs/<runId>-notes`. `survey` is `tools/EXIT-SURVEY.md` of
   this checkout, or of the plugin folder the skill names in an installed plugin. Every agent prompt
   then ends with an instruction to append the survey's answers to its own file in `dir`.
-  A `notes` arg without both paths, or with a `dir` inside `target.repo`, **throws**. Once the run ends, run `node <survey's folder>/survey.mjs <dir>`
-  and report the themes of the `SURVEY.md` it writes to the user.
+  A `notes` arg without both paths, or with a `dir` inside `target.repo`, **throws**. Once the run ends, run
+  `node <survey's folder>/survey.mjs <dir>` and report the themes of the `SURVEY.md` it writes to the user.
 - **Return:** `status` · `halted` (true on `needs-answers`, `dismissal-contested` and every
   `BLOCKED` halt) · `haltReason` (empty when `halted` is false) · `nextStep` (§2) · `failed` (always
   empty: both roles are solo, so a dead critic throws and a dead editor halts) · `rounds` ·

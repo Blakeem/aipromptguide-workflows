@@ -104,39 +104,41 @@ agents per run, so a fast tier buys nothing.
 
 - **Criteria Critic** (`criteria` · refine phase only) — reads the criteria, returns `gaps` (each with
   the criteria line it rests on quoted as its `evidence`, or `absent: <section>` for a section the file
-  lacks, which the refine `nextStep` has you check before you fold the gap), `questions`, and **`unfalsifiable`** (its distinctive job: criteria no evidence could settle, or that contradict each
-  other). Writes nothing. A dead critic **throws** — "no gaps" and "no critic" must never look alike.
+  lacks, which the refine `nextStep` has you check before you fold the gap), `questions`, and
+  **`unfalsifiable`** (its distinctive job: criteria no evidence could settle, or that contradict each other).
+  Writes nothing. A dead critic **throws** — "no gaps" and "no critic" must never look alike.
 - **Investigator** (`investigate`) — one per round, sequential. Reads the criteria verbatim, **both memory
   files**, and the last critique; searches; self-checks every candidate against every criterion; writes
   `options/<id>.md` per qualifier and a ledger line per reject, tagged with its round and carrying the
   source and locator that show the failure, marking `NEAR-MISS:` the ones that failed **exactly one**
   criterion; appends a `FLAG` line, never a re-proposal, for a ledger line it can contradict with a
-  citation, so the next critic rules on it; appends the avenues it swept and the one it would try next to `SEARCHED.md`;
-  writes `DETERMINATION.md` (§6) on a terminating round **and on the last round the budget allows**. From
-  round 2 it also weighs this round's genuinely-new material against the trajectory in `SEARCHED.md` and
-  claims **`saturated`** when the yield has collapsed. Escalates a user-only call to `NEEDS-USER.md` —
-  **and so may the critic**, for a criteria contradiction; those are two distinct halt paths, not one.
+  citation, so the next critic rules on it; appends the avenues it swept and the one it would try next to
+  `SEARCHED.md`; writes `DETERMINATION.md` (§6) on a terminating round **and on the last round the budget
+  allows**. From round 2 it also weighs this round's genuinely-new material against the trajectory in
+  `SEARCHED.md` and claims **`saturated`** when the yield has collapsed. Escalates a user-only call to
+  `NEEDS-USER.md` — **and so may the critic**, for a criteria contradiction; those are two distinct halt
+  paths, not one.
 - **Acceptance Critic** (`critique`) — adversarial, non-blind, **skipped only in a round that adds no
-  option, flags no ledger line, claims no termination, owes no determination and is not the run's first round**. A run's first
-  round runs it, fresh or resumed, unless its investigator stops the run first. That catches option files an
-  interrupted earlier attempt left unjudged. Verifies each new option and every unverified file in
-  `options/` against every criterion and each citation against its source, disqualifies what fails
-  (appending to the same ledger), checks every ledger line added since the last critique against its
-  source and locator, re-opens a candidate whose line the source does not support, rules on each `FLAG`
+  option, flags no ledger line, claims no termination, owes no determination and is not the run's first
+  round**. A run's first round runs it, fresh or resumed, unless its investigator stops the run first. That
+  catches option files an interrupted earlier attempt left unjudged. Verifies each new option and every
+  unverified file in `options/` against every criterion and each citation against its source, disqualifies
+  what fails (appending to the same ledger), checks every ledger line added since the last critique against
+  its source and locator, re-opens a candidate whose line the source does not support, rules on each `FLAG`
   among those lines, re-checks every `NEAR-MISS` marker among them (an over-claimed one poisons the
   determination), and attacks any exhaustion / no-solution / saturation claim. Whenever a determination
   was written, it corrects its ANSWER, COMPARISON, WHICH TO PICK WHEN and NEAR MISSES in place to match
-  its verdicts, and reports any other defect. It writes its verdict as the first line of each option file it judges:
-  `verdict: upheld rN` or `verdict: disqualified rN`. Only options whose file reads `verdict: upheld` reach
-  the caller. A resumed run's first critic instead judges every file in `options/` against the criteria
+  its verdicts, and reports any other defect. It writes its verdict as the first line of each option file it
+  judges: `verdict: upheld rN` or `verdict: disqualified rN`. Only options whose file reads `verdict: upheld`
+  reach the caller. A resumed run's first critic instead judges every file in `options/` against the criteria
   as they read now, whatever its verdict line, and re-opens every ledger line whose named failing
   criterion no longer disqualifies, so a criteria edit between runs reaches every earlier verdict. That
   round's investigator re-proposes those candidates.
 
 ## 6. Loop & contracts (keep intact)
 
-`refine (once) → [investigate → (critique, on the run's first round and whenever a round has something to check)] × maxRounds`.
-Every round **starts with the investigator**.
+`refine (once) → [investigate → (critique, on the run's first round and whenever a round has something to
+check)] × maxRounds`. Every round **starts with the investigator**.
 
 - **The ledger is the convergence mechanism.** One investigator per round, strictly sequential
   (investigator, then critic), is the *only* reason a single append-only file with two writers is safe.
@@ -166,12 +168,12 @@ Every round **starts with the investigator**.
   prompt tells it to claim exhaustion or no-solution instead whenever it can evidence either.
   `exhaustive` stays **false**.
 - **A round whose investigator adds *nothing* stops the run.** The investigator adds no option, no ledger
-  line (a `FLAG` line counts as one), no claim and no escalation, and no determination is owed → `stalled`, immediately, round 1
-  included: the next round would have nothing to diverge from. No determination was written. A stall in
-  the run's first round comes after its critic judged the files in `options/`. That critic may still
-  disqualify files an earlier attempt left and append their ledger lines. The round stalls all the same,
-  since those files are old ground. A stall in a later round ran no critic. Either way, `options` holds the
-  latest critic's verified set, or is `null` when that critic returned no `verified_ids`. A **learning
+  line (a `FLAG` line counts as one), no claim and no escalation, and no determination is owed → `stalled`,
+  immediately, round 1 included: the next round would have nothing to diverge from. No determination was
+  written. A stall in the run's first round comes after its critic judged the files in `options/`. That critic
+  may still disqualify files an earlier attempt left and append their ledger lines. The round stalls all the
+  same, since those files are old ground. A stall in a later round ran no critic. Either way, `options` holds
+  the latest critic's verified set, or is `null` when that critic returned no `verified_ids`. A **learning
   round**, where the investigator rules candidates out but adds 0 options, is *not* a stall and continues,
   because closing candidates is real progress. The final round is not a stall either, since it was ordered
   to write a determination and keeps its own terminal state.
@@ -215,9 +217,9 @@ Every round **starts with the investigator**.
   that attested its review file. That set holds every file in `options/` whose first line reads
   `verdict: upheld`, earlier rounds and earlier runs included. An id that critic also disqualified stays
   out. So does an id an earlier critic of this run disqualified, unless this round re-proposed it. An id
-  that critic upheld, or an earlier critic of this run listed or upheld, also stays out when that critic leaves it
-  out of `verified_ids` without disqualifying it. The log names it. A later critic that lists it restores
-  it. `DETERMINATION.md` still links it while its file reads `verdict: upheld`.
+  that critic upheld, or an earlier critic of this run listed or upheld, also stays out when that critic
+  leaves it out of `verified_ids` without disqualifying it. The log names it. A later critic that lists it
+  restores it. `DETERMINATION.md` still links it while its file reads `verdict: upheld`.
   `options` is `null` when the set is unknown. That happens when the critic returned no `verified_ids`,
   or when a resumed run ended before any critic attested. A fresh search that ended before any critic
   attested returns `[]`. An escalation raised alongside new options still gets those options
@@ -240,9 +242,9 @@ show, the next launch and every caveat.
 
 The return's `determinationDefects` counts the defects the critic left in the determination it last
 checked, after it corrected the ANSWER, COMPARISON, WHICH TO PICK WHEN and NEAR MISSES sections to its
-verdicts. A correction the tool rejected counts as a defect. It is null when no critic checked a determination or the critic gave no count, and null never
-reads as clean. The defects deliberately do not change `agree`, since a malformed determination is not
-an open search.
+verdicts. A correction the tool rejected counts as a defect. It is null when no critic checked a determination
+or the critic gave no count, and null never reads as clean. The defects deliberately do not change `agree`,
+since a malformed determination is not an open search.
 
 ## 8. Resume
 
@@ -281,22 +283,23 @@ inline.
   `target.lang`/`target.framework` (hints) · `maxRounds` (5; **throws** below 1 or non-numeric — it used
   to coerce, and a NaN bound silently produced a zero-round run reported as an ordinary round-budget
   exit) ·
-  `minRoundBudget` (100k) · `models`/`efforts` (`models` and `efforts` map a role key to a value. The role keys are
-  `criteria`, `investigate` and `critique`. A model is `opus | sonnet | haiku | fable` and an effort
+  `minRoundBudget` (100k) · `models`/`efforts` (`models` and `efforts` map a role key to a value. The role
+  keys are `criteria`, `investigate` and `critique`. A model is `opus | sonnet | haiku | fable` and an effort
   is `low | medium | high | xhigh | max`. All three roles default to opus, and every role defaults
   to `high`. The engine **throws** at launch, naming the arg, on a value that is not an object, a
   key outside the role keys, and a value outside its set. Choose each role's model by the task and
-  how much judgment the role needs, as the develop guide §3 says. One launch log line names each role's model and
-  effort) ·
-  `agentTypes` (custom subagent per role — must exist in your registry. It takes the same role keys and **throws** at launch on a value that is not an object, a key outside the role keys and a blank name) · `stateDir` (override
-  `runs/<runId>`).
+  how much judgment the role needs, as the develop guide §3 says. One launch log line names each role's model
+  and effort) ·
+  `agentTypes` (custom subagent per role — must exist in your registry. It takes the same role keys and
+  **throws** at launch on a value that is not an object, a key outside the role keys and a blank name) ·
+  `stateDir` (override `runs/<runId>`).
 - **Exit survey:** `notes` (`{ dir, survey }`, two absolute paths). Set it when the user asks for
   the agents' feedback on a run. `dir` is the folder the answers go to, outside the target repo and
   outside `runs/<runId>/`, such as `<root>/runs/<runId>-notes`. `survey` is `tools/EXIT-SURVEY.md` of
   this checkout, or of the plugin folder the skill names in an installed plugin. Every agent prompt
   then ends with an instruction to append the survey's answers to its own file in `dir`.
-  A `notes` arg without both paths **throws**. Once the run ends, run `node <survey's folder>/survey.mjs <dir>`
-  and report the themes of the `SURVEY.md` it writes to the user.
+  A `notes` arg without both paths **throws**. Once the run ends, run `node <survey's folder>/survey.mjs
+  <dir>` and report the themes of the `SURVEY.md` it writes to the user.
 
 ## 10. State files (`runs/<runId>/`, outside every repo)
 

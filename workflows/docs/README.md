@@ -84,9 +84,9 @@ Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the 
 
 `runs/<runId>/docs/` (or your `outDir`) holds the curated set of `<source>/*.md` verbatim docs plus
 `INDEX.md`. Start at the index. It lists one line per file, then **Coverage notes** with any
-cross-source inconsistencies, unresolved gaps, files that failed the spot-check, and sources the spot-check could not
-reach. Claude reports how many files were spot-checked when the run ends. Copy the folder into your repo
-if you want to keep it, or pass `outDir` up front.
+cross-source inconsistencies, unresolved gaps, files that failed the spot-check, and sources the spot-check
+could not reach. Claude reports how many files were spot-checked when the run ends. Copy the folder into your
+repo if you want to keep it, or pass `outDir` up front.
 
 **Give it its own folder.** The output directory belongs to the run, so the curator deletes freely
 inside it to dedup, split, and re-curate the entire set. Point it at a fresh directory per

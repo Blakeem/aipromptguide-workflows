@@ -46,16 +46,20 @@ node tools/plan-block.mjs <plan.md|plan-name> --list          # { goal, ordered,
 
 It parses the plan-bus metadata grammar: file keys (`goal`, `ordered`, `suite`, `synced`,
 `sweep`), a block preamble (`mode`, `gate`, `status`, `model`, `effort`, plus informational
-`test_selector`/`depends_on`), and `### [<id>]` issue entries in fix-mode blocks. An issue entry holds `id`, `status`, `file`, `loc`,
-`severity`, `category`, `lens`, `size`, `decision`, `theme`, a park entry's `branch`, `origin`, `ledger` and `amended`, and `pulled`, the `<runId>#<block id>` of a developer that took the entry beside its block. A `- effort:` line in an entry fails the parse with a
-message that names the entry and says the key was renamed to `size`. `plan-edit.mjs set` refuses `effort=` on an
-issue entry with the same rename. `model` takes `opus | sonnet | haiku | fable` and names the block's developer model. `effort` takes `low | medium | high | xhigh | max` and
-names the block's developer reasoning level. `--list` emits the file keys plus a `blocks`
-array of `{ id, title, mode, gate, status }`, defaults applied, and a row carries `model` or `effort` only when
-its block sets one. The file keys are the first lines of the file, after any frontmatter and before any heading, and a file key anywhere else above the first block (outside a code fence) fails the parse. Each other metadata run is the contiguous `key: value` lines under its heading, leading blank lines crossed. A
-blank line above a run is crossed to find it, never to continue one, and body prose never registers
-as metadata. Every block's gate is its preamble `gate:` line. A bare plan-name resolves
-against `<CLAUDE_CONFIG_DIR | ~/.claude>/plans/`.
+`test_selector`/`depends_on`), and `### [<id>]` issue entries in fix-mode blocks. An issue entry holds `id`,
+`status`, `file`, `loc`, `severity`, `category`, `lens`, `size`, `decision`, `theme`, a park entry's `branch`,
+`origin`, `ledger` and `amended`, and `pulled`, the `<runId>#<block id>` of a developer that took the entry
+beside its block. A `- effort:` line in an entry fails the parse with a message that names the entry and says
+the key was renamed to `size`. `plan-edit.mjs set` refuses `effort=` on an issue entry with the same rename.
+`model` takes `opus | sonnet | haiku | fable` and names the block's developer model. `effort` takes `low |
+medium | high | xhigh | max` and names the block's developer reasoning level. `--list` emits the file keys
+plus a `blocks` array of `{ id, title, mode, gate, status }`, defaults applied, and a row carries `model` or
+`effort` only when its block sets one. The file keys are the first lines of the file, after any frontmatter
+and before any heading, and a file key anywhere else above the first block (outside a code fence) fails the
+parse. Each other metadata run is the contiguous `key: value` lines under its heading, leading blank lines
+crossed. A blank line above a run is crossed to find it, never to continue one, and body prose never registers
+as metadata. Every block's gate is its preamble `gate:` line. A bare plan-name resolves against
+`<CLAUDE_CONFIG_DIR | ~/.claude>/plans/`.
 
 **Every failure is loud** — unknown id, duplicate id (across the block AND issue namespaces), empty
 body, missing or invalid gate, a gate outside its mode's set, an unknown or illegal metadata key or
@@ -98,53 +102,71 @@ carries `blockTool`, the absolute path, with forward slashes, of the `plan-block
 the `plan-edit.mjs` that ran, and develop throws without it. The CLI takes that folder from argv[1], the
 spelling the caller used, since Node realpaths the main module. The printed path then keeps the spelling
 of the permission rules the caller wrote. `plugin-access.mjs` grants its Read rules in both spellings,
-since which one a gate matches is unmeasured. An imported call, or a CLI run through a link to the `plan-edit.mjs` file
-itself, which leaves no `plan-block.mjs` beside the caller's spelling, takes the folder of its own file. develop logs each
-finished block's status edits as one `status-sync <json>` line. Claude Code writes every Workflow run to
-`<config>/projects/<project>/<session>/workflows/wf_<id>.json` when it ends, logs included, for a
-completed, failed or stopped run alike. `args` reads every develop record newer than the plan's
-`synced:` file key, applies the edits naming that plan oldest first, and moves the key to the newest run
-applied, so an operator's later edit is never overwritten. `--fold-only` writes every fold and cut that `args` writes,
-the `--backlog` files' included. It sets no `done` backlog file to `todo`, holds back nothing and prints nothing, so an
-operator reads current statuses without a launch. It refuses `--pack`. The record format is Claude Code's and
-undocumented. A completed run's edits come from its result, which holds them uncut. A failed or stopped
-run's come from its log lines, and the runtime cuts a long line short: a cut line that names a plan
-being folded fails `args`, and one that names none is skipped with a note. A changed develop record
-fails `args` loudly, `--expect <wf-id>` fails when a known run's record is missing, and
+since which one a gate matches is unmeasured. An imported call, or a CLI run through a link to the
+`plan-edit.mjs` file itself, which leaves no `plan-block.mjs` beside the caller's spelling, takes the folder
+of its own file. develop logs each finished block's status edits as one `status-sync <json>` line. Claude Code
+writes every Workflow run to `<config>/projects/<project>/<session>/workflows/wf_<id>.json` when it ends, logs
+included, for a completed, failed or stopped run alike. `args` reads every develop record newer than the
+plan's `synced:` file key, applies the edits naming that plan oldest first, and moves the key to the newest
+run applied, so an operator's later edit is never overwritten. `--fold-only` writes every fold and cut that
+`args` writes, the `--backlog` files' included. It sets no `done` backlog file to `todo`, holds back nothing
+and prints nothing, so an operator reads current statuses without a launch. It refuses `--pack`. The record
+format is Claude Code's and undocumented. A completed run's edits come from its result, which holds them
+uncut. A failed or stopped run's come from its log lines, and the runtime cuts a long line short: a cut line
+that names a plan being folded fails `args`, and one that names none is skipped with a note. A changed develop
+record fails `args` loudly, `--expect <wf-id>` fails when a known run's record is missing, and
 `tests/plan-bus.test.mjs` checks the newest records on the machine on every suite run. Records expire
 after `cleanupPeriodDays` (30 by default).
 
-`--backlog <dir>` adds each backlog file in `<dir>` whose `status:` is `todo` or `done` and that holds an entry with
-`- decision: ACTIONABLE` and `- status: open`, after folding the finished runs into it. A file that also holds an
-`ACTIONABLE` entry with `- status: needs-attention` is not added, since the fix-mode developer would rebuild that entry
-without the user. A file is not added while the block that wrote it is not `done`, `skip` or `backlogged`, since a relaunch
-of that block may still append to it. A `parked` writer, an older engine's park that develop never relaunches, holds its
-file back until the user sets it `skip` to drop it, `todo` to rebuild it, or `backlogged` only when a backlog entry carries its
-work, and the note that names the left-out file says so. The file's header names that block and its develop `runId`, and the run records
-with that `runId` arg and this `--backlog` folder as their `backlogDir` arg, or with no `backlogDir` arg, give its plan path, through their block status edits or their `plans` rows. A record with no args stands for its runId through the `runId` its result echoes. Both runIds are compared after the header title's own split at a spaced dash, rejoin with ` - ` and trim. A header that names a pass
-matches each member of that pass's row, and one that names a member matches that member. Its status is read with those records folded in memory, and its plan file is never written. A file whose block
-no record names, or whose plan file is gone, is not held back. A writer plan file that exists but fails to read or validate, or whose run records cannot be folded into it, fails the command, since its status is unknown. A file named as a plan skips this check. A file is not added either while one of its ready entries names, in its `- file:` path, a file that the text of a `blocked` block, or of an older engine's `parked` block, names, as an entire path in either slash direction, since a relaunch of that block may change that file. A file named as a plan skips this hold too, so name one only once no such block's text names the `- file:` path of one of its ready entries. Those blocks are the `blocked` and `parked` blocks of the given plans and of every plan in the `plans` rows of a run whose `backlogDir` arg is this folder, including a pass row's members, read with the records folded in memory. A note names each held entry with the block that holds it and that block's status, and for a `parked` block the statuses the user sets to release the file. Every other file builds. The file, not the entry, is held, since develop builds every ACTIONABLE entry of a file it builds. Such a plan file that is gone holds nothing, and one that exists but fails to read, validate or fold fails the command. The fold of every `todo` or `done` backlog file with an `ACTIONABLE` entry is written, built or not. An entry with no `- status:` line counts as `open`. A `done` file is
-set to `todo` on disk. A file already named as a plan is not added twice. The backlog files carry no file keys, so they take the given
-plans' keys, and the defaults when no plan is given. The flag lets the plan list be empty, and fails with a message that
-ends `nothing to build` when it then adds no file. A missing folder adds nothing. An `ordered: true` plan set is refused.
-An entry with a `- pulled:` line is not ready, so it neither makes its file buildable nor weighs in `--pack`, since
-the developer that pulled it, or that block's park entry, builds it. An entry with a line that starts with
-`**Parked with:**` at column 0 is held the same way. Before the file is judged, `--backlog` looks up the block that a
-`**Parked with:** block <id>` line names in the run the file's header names, as for the writer hold, and cuts the line,
-with its own ending, from each open `ACTIONABLE` entry whose block is `done` or `skip` in every plan file the records give
-for it. The cut is written with the fold. A block in any other status keeps the hold. A line that names no block as
-`block <id>`, a block no record names, a plan file that is gone and a plan file that no longer holds the block keep it
-too, each with a note that says to delete the line by hand once the block is `done` or `skip`. A parked block's plan file
-that exists but fails to read or validate, or whose run records cannot be folded into it, fails the command. A file named
-as a plan gets no cut. A status edit whose `value` is null removes its key's
-line, with the line's own ending, and is a no-op when the line is absent. develop removes a pulled entry's `- pulled:`
-line that way. A status edit that carries `expectPulled` applies only to an issue entry whose `- pulled:` value is
-`expectPulled`, and is skipped with a note otherwise. develop gives each status edit and removal of a pulled entry its
-block's mark, so a run never edits an entry its block did not mark. A status edit that carries `expectNoOpen` applies
-only to a `todo` block that holds no entry whose `- status:` is `open` or absent, and is skipped with a note otherwise,
-a file that holds no block of that id included.
-develop adds one such `done` edit for the backlog file of each pulled entry it closes, after that entry's edits, since
-the run cannot see the file's other entries.
+`--backlog <dir>` adds each backlog file in `<dir>` whose `status:` is `todo` or `done` and that holds an
+entry with `- decision: ACTIONABLE` and `- status: open`, after folding the finished runs into it. A file that
+also holds an `ACTIONABLE` entry with `- status: needs-attention` is not added, since the fix-mode developer
+would rebuild that entry without the user. A file is not added while the block that wrote it is not `done`,
+`skip` or `backlogged`, since a relaunch of that block may still append to it. A `parked` writer, an older
+engine's park that develop never relaunches, holds its file back until the user sets it `skip` to drop it,
+`todo` to rebuild it, or `backlogged` only when a backlog entry carries its work, and the note that names the
+left-out file says so. The file's header names that block and its develop `runId`, and the run records with
+that `runId` arg and this `--backlog` folder as their `backlogDir` arg, or with no `backlogDir` arg, give its
+plan path, through their block status edits or their `plans` rows. A record with no args stands for its runId
+through the `runId` its result echoes. Both runIds are compared after the header title's own split at a spaced
+dash, rejoin with ` - ` and trim. A header that names a pass matches each member of that pass's row, and one
+that names a member matches that member. Its status is read with those records folded in memory, and its plan
+file is never written. A file whose block no record names, or whose plan file is gone, is not held back. A
+writer plan file that exists but fails to read or validate, or whose run records cannot be folded into it,
+fails the command, since its status is unknown. A file named as a plan skips this check. A file is not added
+either while one of its ready entries names, in its `- file:` path, a file that the text of a `blocked` block,
+or of an older engine's `parked` block, names, as an entire path in either slash direction, since a relaunch
+of that block may change that file. A file named as a plan skips this hold too, so name one only once no such
+block's text names the `- file:` path of one of its ready entries. Those blocks are the `blocked` and `parked`
+blocks of the given plans and of every plan in the `plans` rows of a run whose `backlogDir` arg is this
+folder, including a pass row's members, read with the records folded in memory. A note names each held entry
+with the block that holds it and that block's status, and for a `parked` block the statuses the user sets to
+release the file. Every other file builds. The file, not the entry, is held, since develop builds every
+ACTIONABLE entry of a file it builds. Such a plan file that is gone holds nothing, and one that exists but
+fails to read, validate or fold fails the command. The fold of every `todo` or `done` backlog file with an
+`ACTIONABLE` entry is written, built or not. An entry with no `- status:` line counts as `open`. A `done` file
+is set to `todo` on disk. A file already named as a plan is not added twice. The backlog files carry no file
+keys, so they take the given plans' keys, and the defaults when no plan is given. The flag lets the plan list
+be empty, and fails with a message that ends `nothing to build` when it then adds no file. A missing folder
+adds nothing. An `ordered: true` plan set is refused. An entry with a `- pulled:` line is not ready, so it
+neither makes its file buildable nor weighs in `--pack`, since the developer that pulled it, or that block's
+park entry, builds it. An entry with a line that starts with `**Parked with:**` at column 0 is held the same
+way. Before the file is judged, `--backlog` looks up the block that a `**Parked with:** block <id>` line names
+in the run the file's header names, as for the writer hold, and cuts the line, with its own ending, from each
+open `ACTIONABLE` entry whose block is `done` or `skip` in every plan file the records give for it. The cut is
+written with the fold. A block in any other status keeps the hold. A line that names no block as `block <id>`,
+a block no record names, a plan file that is gone and a plan file that no longer holds the block keep it too,
+each with a note that says to delete the line by hand once the block is `done` or `skip`. A parked block's
+plan file that exists but fails to read or validate, or whose run records cannot be folded into it, fails the
+command. A file named as a plan gets no cut. A status edit whose `value` is null removes its key's line, with
+the line's own ending, and is a no-op when the line is absent. develop removes a pulled entry's `- pulled:`
+line that way. A status edit that carries `expectPulled` applies only to an issue entry whose `- pulled:`
+value is `expectPulled`, and is skipped with a note otherwise. develop gives each status edit and removal of a
+pulled entry its block's mark, so a run never edits an entry its block did not mark. A status edit that
+carries `expectNoOpen` applies only to a `todo` block that holds no entry whose `- status:` is `open` or
+absent, and is skipped with a note otherwise, a file that holds no block of that id included. develop adds one
+such `done` edit for the backlog file of each pulled entry it closes, after that entry's edits, since the run
+cannot see the file's other entries.
 
 `--pack <repo>` groups the todo fix blocks into passes, so one set of agents builds several small ones.
 A block's weight is the line count of each distinct file its open ACTIONABLE issues name: the `- loc:`
@@ -172,18 +194,18 @@ file is refused.
 node tools/plan-pull.mjs pullable --backlog <dir> --files <path,...> [--exclude <plan.md,...>]
 ```
 
-Prints a JSON array of `{ id, title, planPath, file, size }`, one per entry a `plan-edit.mjs args --backlog <dir>`
-launch would build whose `- file:` path names one of `--files`, compared with forward slashes and no leading `./`.
-It folds the run records into each backlog file in memory and applies every file and entry rule of `--backlog`,
-the writer hold, the blocked-block hold, and the parked-with hold and its cut included. It also leaves out an entry with a `- branch:` line, which restores parked work and
-builds alone, an entry with a `- pulled:` line, an entry whose id is not its file's name and `-<n>`, since develop
-finds a pulled entry's file from its id, and every entry of an `--exclude` file, which develop passes as the run's
-own plan files. It writes nothing, and each fold note it passes on starts `in memory only:`. So a listed entry
-may still carry its released `**Parked with:**` line on disk, and develop's developer deletes that line when it
-takes the entry. Exit 0 prints the
-array, a missing folder prints `[]`, and exit 1 prints the reason on stderr. develop's proactive round-1
-developer runs it, so the command needs its own allowlist rule beside `blockTool`'s, and the file holds no write
-verb for the reason `plan-edit.mjs` is a separate file.
+Prints a JSON array of `{ id, title, planPath, file, size }`, one per entry a `plan-edit.mjs args --backlog
+<dir>` launch would build whose `- file:` path names one of `--files`, compared with forward slashes and no
+leading `./`. It folds the run records into each backlog file in memory and applies every file and entry rule
+of `--backlog`, the writer hold, the blocked-block hold, and the parked-with hold and its cut included. It
+also leaves out an entry with a `- branch:` line, which restores parked work and builds alone, an entry with a
+`- pulled:` line, an entry whose id is not its file's name and `-<n>`, since develop finds a pulled entry's
+file from its id, and every entry of an `--exclude` file, which develop passes as the run's own plan files. It
+writes nothing, and each fold note it passes on starts `in memory only:`. So a listed entry may still carry
+its released `**Parked with:**` line on disk, and develop's developer deletes that line when it takes the
+entry. Exit 0 prints the array, a missing folder prints `[]`, and exit 1 prints the reason on stderr.
+develop's proactive round-1 developer runs it, so the command needs its own allowlist rule beside
+`blockTool`'s, and the file holds no write verb for the reason `plan-edit.mjs` is a separate file.
 
 ## review-check.mjs
 

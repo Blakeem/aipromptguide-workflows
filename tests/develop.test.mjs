@@ -298,7 +298,7 @@ section('the developer\'s risk judgment decides when a later round gets a blind 
   const low = await run({ develop: firstRound(DEV_OK, LOW), quality: firstRound(FLAGGED, CLEAN), acceptance: ACC_PASS }, ONE_BLOCK);
   ok(!low.labels.includes('quality block-a r2') && low.labels.includes('acceptance block-a r2'),
     'a later round whose developer returns review_needed false goes straight to acceptance');
-  ok(low.logs.some((l) => /r2: the developer judged every change since the block's last blind review low risk → no blind review; acceptance audits the judgment/.test(l)),
+  ok(low.logs.some((l) => /r2: the developer judged every change since the block's last blind review or last clean risk audit low risk → no blind review; acceptance audits the judgment/.test(l)),
     'and the log says why no blind review ran');
   eq(low.out.status, 'done (all blocks staged)', 'and acceptance stages it');
 
@@ -335,7 +335,7 @@ section('the developer\'s risk judgment decides when a later round gets a blind 
   eq(mis.out.status, 'done (all blocks staged)', 'and the block lands');
 }
 
-section('acceptance audits the risk file of each round since the block\'s last blind review');
+section('acceptance audits the risk file of each round since the block\'s last blind review or last clean risk audit');
 {
   const LOW = { ...DEV_OK, review_needed: false };
   const r = await run({ develop: LOW, quality: CLEAN, acceptance: (label) => (/r[12]$/.test(label) ? ACC_FAIL : ACC_PASS) }, ONE_BLOCK);
@@ -373,14 +373,28 @@ section('acceptance audits the risk file of each round since the block\'s last b
     'a failed risk audit is a gap, and a pass needs a clean one');
   ok(a3.includes("A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review after the verdict that names it and before any later acceptance."),
     'an earlier risk gap or tree-check gap counts as closed');
-  ok(a3.includes("This round's blind code review passed, or did not run because the developer judged each change since the block's last blind review low risk, which your RISK AUDIT checks.")
+  ok(a3.includes("This round's blind code review passed, or did not run because the developer judged each change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks.")
     && !/skipped because the developer changed nothing/.test(a3), 'the opening says why no blind review may have run');
+  // A clean risk audit drops the rounds it audited, so the next acceptance audits only the rounds after them.
+  const cleanAudit = await run({
+    develop: LOW, quality: CLEAN,
+    acceptance: (label) => (/r1$/.test(label) ? ACC_FAIL : /r2$/.test(label) ? { ...ACC_FAIL, risk_misclassified: false } : ACC_PASS),
+  }, ONE_BLOCK);
+  const cleanA2 = flat(cleanAudit.prompt('acceptance block-a r2'));
+  const cleanA3 = flat(cleanAudit.prompt('acceptance block-a r3'));
+  ok(cleanA2.includes('developer judged each change low risk: E:/r/runs/t/risk-block-a-r2.md The first line of each risk file'),
+    'the acceptance of round 2 audits round 2, which no blind review judged');
+  ok(cleanA3.includes('developer judged each change low risk: E:/r/runs/t/risk-block-a-r3.md The first line of each risk file')
+    && !cleanA3.includes('round 2, base in') && cleanA3.includes('round 3, base in E:/r/runs/t/risk-block-a-r2.md, snapshot in E:/r/runs/t/risk-block-a-r3.md'),
+  'after a clean audit of round 2, the acceptance of round 3 audits only round 3, with the snapshot of round 2 as its base');
+  ok(a3.includes('round 2, base in') && a3.includes('developer judged each change low risk: E:/r/runs/t/risk-block-a-r2.md E:/r/runs/t/risk-block-a-r3.md'),
+    'a verdict that returns no risk_misclassified boolean drops no round from the next audit');
   const accSchema = r.byLabel('acceptance block-a r3')[0]?.opts?.schema ?? {};
   ok(String(accSchema.required ?? '').includes('risk_misclassified') && accSchema.properties?.risk_misclassified?.type === 'boolean', 'risk_misclassified is a required boolean');
   // The sweep: the developer records it in CLASSIFY and acceptance's risk audit checks the latest audited round's.
   const d1 = flat(r.prompt('develop block-a r1'));
   const q1 = flat(r.prompt('quality block-a r1'));
-  ok(d1.includes('Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed, list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A changed field, return value, file format or output that other code or prompts read lists those readers as hits. A round that changed nothing writes "No changes." and no `## Sweep` section.'),
+  ok(d1.includes('Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed, list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A changed field, return value, file format or output that other code or prompts read lists those readers as hits. A change that adds, removes or renames a field of an agent\'s return schema also lists as hits each sentence in the repo\'s prose that lists that agent\'s return fields, such as "returns", "only" and "nothing else". A round that changed nothing writes "No changes." and no `## Sweep` section.'),
     'CLASSIFY has the developer write a Sweep section for each changed name or phrase');
   ok(a3.includes('SWEEP CHECK. Read the `## Sweep` section of E:/r/runs/t/risk-block-a-r3.md, the file of the latest round named above.')
     && a3.includes('A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap.')
@@ -390,6 +404,13 @@ section('acceptance audits the risk file of each round since the block\'s last b
   'a missing sweep line or an unaffected hit that disagrees is a gap in the latest audited round, and a reviewed round has no sweep to audit');
   ok(d1.includes("that the sweep of the latest such round lists each changed name or phrase of that round's hunks and each hit it marks unaffected still agrees with the change and a rerun of each line's search finds no hit the line leaves out"),
     'the developer is told the acceptance check on the sweep');
+  // A changed return schema is searched for the prose that lists the agent's return fields, which a search for the changed names misses.
+  const SCHEMA_PROSE = `each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else"`;
+  ok(d1.includes(`A change that adds, removes or renames a field of an agent's return schema also lists as hits ${SCHEMA_PROSE}.`),
+    'CLASSIFY has the developer list each sentence that lists the return fields of an agent whose schema changed');
+  ok(a3.includes(`A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists ${SCHEMA_PROSE}, and a sentence a rerun of that search finds and the line leaves out is a gap.`)
+    && !a1.includes('return schema'),
+  'the sweep check of acceptance flags a missing line for the prose that lists the return fields of an agent whose schema changed');
   const REACH_SENTENCE = 'When a fact must be stated in more than one place, keep it in as few places as possible, at most one copy for users and one for agents, and update every copy in the same change.';
   ok(d1.includes(REACH_SENTENCE) && q1.includes(REACH_SENTENCE), 'the REACH step of the developer and the blind reviewer states a fact in as few places as possible');
   // A rule that two prompts state renders from one constant.
@@ -821,12 +842,13 @@ section('a developer records each real defect its zone routing leaves unchanged 
   const DISMISSED_TOO = 'Write the defect\'s DISMISSED line too, since the blind reviewer reads that file and never this one.';
   const NO_ENTRY = { focused: 'A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.', proactive: 'A false positive gets no entry, and a nit dropped under rule 2 or SIBLINGS goes under CLEANUP below.' };
   // Its own bullet after RECORD's closing-line rule, since its trigger is a cleanup and not a dropped defect.
-  const CLEANUP = `Leave its status and decision as they are, since a park clears the fix from the tree. • CLEANUP (this run's change policy): append ONE entry for each cleanup outside task code, ${OWNED_CODE}, that you noticed and did not make, such as a nit. Route, count, dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: cleanup" and no "- severity:" line, since severity takes only critical, high, medium or low. Its **What:** names the cleanup, the code it touches and what it improves.`;
+  const CLEANUP = `Leave its status and decision as they are, since a park clears the change from the tree. • CLEANUP (this run's change policy): append ONE entry for each cleanup outside task code, ${OWNED_CODE}, that you noticed and did not make, such as a nit. Route, count, dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: cleanup" and no "- severity:" line, since severity takes only critical, high, medium or low. Its **What:** names the cleanup, the code it touches and what it improves.`;
   // Both policies, after the CLEANUP bullet when there is one.
   const FEATURE = `• FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside this block's scope, ${OWNED_CODE}, instead of building it. Route, count, dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line. Its **What:** names the feature or refactor, the code it touches and what it adds or improves. • AMEND (6a)`;
   const ESCALATION_ENTRY = (id) => `Also append ONE backlog entry for it when the choice lies ${OWNED_CODE}, routed, counted, deduped and numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER" and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:** states the other option. When the default lies in code this block's diff adds or changes, add the line "**Parked with:** block ${id}. Hold this entry until that block is done or skip." after the **Fix:** line, since a park removes that code from the tree. Write to`;
   const CLASS_ENTRY = 'A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first place, and its **What:** names the class.';
   const CLOSE = (tag, id) => `When you append a ${tag} line below, ${GREP('the path of the file the fix changes', 'the fix')}. When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's **Fix:** line in that file: **Closed by:** block ${id} r1 of run ${baseArgs.runId}. Confirm before the entry is built that the accepted baseline holds the fix. Leave its status and decision as they are, since a park clears the fix from the tree.`;
+  const RETIRE = (id) => `• RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded, grep the *.md files in ${BACKLOG}/ for that entry's id and add one line after its **Fix:** line, with the block's change as the fix: **Closed by:** block ${id} r1 of run ${baseArgs.runId}. Confirm before the entry is built that the accepted baseline holds the fix. Leave its status and decision as they are, since a park clears the change from the tree.`;
   const FILE_A = backlogFile('fix-a');
   const FILE_B = backlogFile('fix-b');
   const recordRule = (dev, policy, id, where) => {
@@ -834,7 +856,7 @@ section('a developer records each real defect its zone routing leaves unchanged 
     ok(dev.includes(DISMISSED_TOO) && dev.includes(NO_ENTRY[policy]), `${where}: a false positive gets no entry, and the DISMISSED line stays`);
     ok(policy === 'proactive'
       ? dev.includes(`${CLEANUP} ${FEATURE}`) && !dev.includes(NO_ENTRY.focused)
-      : dev.includes(`since a park clears the fix from the tree. ${FEATURE}`) && !dev.includes('CLEANUP') && !dev.includes('category: cleanup'),
+      : dev.includes(`since a park clears the change from the tree. ${FEATURE}`) && !dev.includes('CLEANUP') && !dev.includes('category: cleanup'),
     policy === 'proactive' ? `${where}: a cleanup outside task code gets an entry with no severity` : `${where}: a nit or other cleanup gets no entry`);
     ok(dev.includes(HEADER(backlogFileId(id), id)), `${where}: a new file takes the backlog header naming the block and the run`);
     ok(dev.includes(DEDUP('defect')) && !dev.includes('read every *.md'), `${where}: the folder is grepped for the file path and the name at the defect, and each matching entry is read, so nothing open is appended twice`);
@@ -844,6 +866,7 @@ section('a developer records each real defect its zone routing leaves unchanged 
     ok(dev.includes(FEATURE), `${where}: a feature or refactor outside the block's scope gets a NEEDS_USER entry with no severity`);
     ok(dev.includes(ESCALATION_ENTRY(id)), `${where}: an escalated choice the developer proceeds past gets a NEEDS_USER entry that states the question, the default and the other option`);
     ok(dev.includes(CLOSE(policy.toUpperCase(), id)), `${where}: a logged fix of a recorded defect finds its entry by the path and the name at the fix, and marks it closed in whichever file holds it`);
+    ok(dev.includes(RETIRE(id)), `${where}: a backlog entry the block retires gets its own Closed by bullet, apart from the RECORD trigger`);
   };
 
   for (const policy of ['focused', 'proactive']) {

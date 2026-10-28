@@ -6,61 +6,61 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 31546 | every block accepts first time |
+| develop | 1 | 1 | 32261 | every block accepts first time |
 | quality | 1 | 1 | 8941 | every block accepts first time |
-| acceptance | 1 | 1 | 15994 | every block accepts first time |
-| develop | 2 | 1 | 31971 | every block accepts first time |
-| acceptance | 2 | 2 | 16275 | every block accepts first time |
+| acceptance | 1 | 1 | 16019 | every block accepts first time |
+| develop | 2 | 1 | 32686 | every block accepts first time |
+| acceptance | 2 | 2 | 16300 | every block accepts first time |
 | final-sweep | 1 | 1 | 4557 | every block accepts first time |
-| develop | 3 | 2 | 34796 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 3 | 17155 | a feature block accepts under the proactive policy |
+| develop | 3 | 2 | 35511 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 3 | 17180 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 4548 | a feature block accepts under the proactive policy |
-| develop | 4 | 1 | 30804 | quality flags the first round |
-| acceptance | 4 | 1 | 15993 | quality flags the first round |
-| develop | 5 | 1 | 31174 | quality flags the first round |
-| acceptance | 5 | 2 | 16274 | quality flags the first round |
-| develop | 6 | 1 | 30800 | acceptance finds gaps, then passes |
-| acceptance | 6 | 1 | 15991 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 31170 | acceptance finds gaps, then passes |
-| acceptance | 7 | 2 | 16272 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 18707 | a later round is judged low risk |
-| acceptance | 9 | 2 | 18988 | a later round is judged low risk |
-| develop | 8 | 1 | 29452 | the gate never goes green |
-| develop-closing | 1 | 1 | 31002 | the gate never goes green |
+| develop | 4 | 1 | 31519 | quality flags the first round |
+| acceptance | 4 | 1 | 16018 | quality flags the first round |
+| develop | 5 | 1 | 31889 | quality flags the first round |
+| acceptance | 5 | 2 | 16299 | quality flags the first round |
+| develop | 6 | 1 | 31515 | acceptance finds gaps, then passes |
+| acceptance | 6 | 1 | 16016 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 31885 | acceptance finds gaps, then passes |
+| acceptance | 7 | 2 | 16297 | acceptance finds gaps, then passes |
+| acceptance | 8 | 1 | 19031 | a later round is judged low risk |
+| acceptance | 9 | 2 | 19312 | a later round is judged low risk |
+| develop | 8 | 1 | 30167 | the gate never goes green |
+| develop-closing | 1 | 1 | 31717 | the gate never goes green |
 | quality | 2 | 1 | 9001 | the gate never goes green |
-| acceptance | 10 | 4 | 19375 | the gate never goes green |
+| acceptance | 10 | 4 | 19400 | the gate never goes green |
 | park | 1 | 1 | 10683 | the gate never goes green |
-| develop | 9 | 1 | 29877 | the gate never goes green |
-| develop-closing | 2 | 1 | 31372 | the gate never goes green |
-| acceptance | 11 | 5 | 19656 | the gate never goes green |
-| acceptance | 12 | 1 | 16046 | a parked block, and the run carries on |
-| acceptance | 13 | 1 | 16101 | a parked block, and the run carries on |
-| acceptance | 14 | 1 | 16156 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 32216 | a parked block, and the run carries on |
-| acceptance | 15 | 4 | 22306 | a parked block, and the run carries on |
-| develop | 10 | 1 | 31528 | an ordered run stops at a parked block |
-| acceptance | 16 | 1 | 15988 | an ordered run stops at a parked block |
-| develop | 11 | 1 | 30782 | an ordered run stops at a parked block |
-| acceptance | 17 | 1 | 15985 | an ordered run stops at a parked block |
-| acceptance | 18 | 1 | 16040 | an ordered run stops at a parked block |
-| acceptance | 19 | 1 | 16095 | an ordered run stops at a parked block |
-| acceptance | 20 | 1 | 16150 | an ordered run stops at a parked block |
-| develop-closing | 4 | 1 | 32198 | an ordered run stops at a parked block |
-| acceptance | 21 | 4 | 22300 | an ordered run stops at a parked block |
+| develop | 9 | 1 | 30592 | the gate never goes green |
+| develop-closing | 2 | 1 | 32087 | the gate never goes green |
+| acceptance | 11 | 5 | 19681 | the gate never goes green |
+| acceptance | 12 | 1 | 16071 | a parked block, and the run carries on |
+| acceptance | 13 | 1 | 16126 | a parked block, and the run carries on |
+| acceptance | 14 | 1 | 16181 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 32931 | a parked block, and the run carries on |
+| acceptance | 15 | 4 | 22630 | a parked block, and the run carries on |
+| develop | 10 | 1 | 32243 | an ordered run stops at a parked block |
+| acceptance | 16 | 1 | 16013 | an ordered run stops at a parked block |
+| develop | 11 | 1 | 31497 | an ordered run stops at a parked block |
+| acceptance | 17 | 1 | 16010 | an ordered run stops at a parked block |
+| acceptance | 18 | 1 | 16065 | an ordered run stops at a parked block |
+| acceptance | 19 | 1 | 16120 | an ordered run stops at a parked block |
+| acceptance | 20 | 1 | 16175 | an ordered run stops at a parked block |
+| develop-closing | 4 | 1 | 32913 | an ordered run stops at a parked block |
+| acceptance | 21 | 4 | 22624 | an ordered run stops at a parked block |
 | park | 2 | 1 | 10695 | an ordered run stops at a parked block |
-| develop | 12 | 3 | 40350 | a fix block closes its issues |
-| acceptance | 22 | 6 | 23606 | a fix block closes its issues |
+| develop | 12 | 3 | 41065 | a fix block closes its issues |
+| acceptance | 22 | 6 | 23631 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 4548 | a fix block closes its issues |
-| develop | 13 | 4 | 43817 | a fix block closes its issues under the proactive policy |
-| acceptance | 23 | 7 | 25113 | a fix block closes its issues under the proactive policy |
-| acceptance | 24 | 7 | 25127 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 14 | 4 | 35169 | a proactive fix block starts round 2 from the statuses it last reported |
-| acceptance | 25 | 7 | 24926 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 15 | 3 | 40805 | a pass of two fix blocks closes its issues |
-| acceptance | 26 | 6 | 24032 | a pass of two fix blocks closes its issues |
+| develop | 13 | 4 | 44532 | a fix block closes its issues under the proactive policy |
+| acceptance | 23 | 7 | 25138 | a fix block closes its issues under the proactive policy |
+| acceptance | 24 | 7 | 25152 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 14 | 4 | 35884 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 25 | 7 | 24951 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 15 | 3 | 41527 | a pass of two fix blocks closes its issues |
+| acceptance | 26 | 6 | 24057 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 4578 | a pass of two fix blocks closes its issues |
-| acceptance | 27 | 6 | 23605 | every issue is already fixed |
-| develop | 16 | 3 | 40332 | an ordered run stops on a fix block that closes nothing |
+| acceptance | 27 | 6 | 23630 | every issue is already fixed |
+| develop | 16 | 3 | 41047 | an ordered run stops on a fix block that closes nothing |
 | park | 3 | 1 | 10998 | passed with a regression, not staged |
 | park | 4 | 1 | 10290 | acceptance stages a rejected block |
 | park | 5 | 1 | 10851 | the quality reviewer fails a block without its file |
@@ -74,24 +74,24 @@ this file is stale.
 | park | 13 | 1 | 10596 | the acceptance verifier dies |
 | park | 14 | 1 | 10100 | developer escalates |
 | park | 15 | 1 | 10090 | developer escalates in an ordered run |
-| acceptance | 28 | 6 | 26059 | log line cap before the sweep |
-| acceptance | 29 | 4 | 22086 | a closing acceptance lands the block |
-| develop-closing | 5 | 1 | 32586 | a closing acceptance lands the block |
-| acceptance | 30 | 5 | 22367 | a closing acceptance lands the block |
-| acceptance | 31 | 4 | 19429 | a closing pass gets a blind review |
-| acceptance | 32 | 5 | 19710 | a closing pass gets a blind review |
-| acceptance | 33 | 4 | 22379 | a closing acceptance finds a blocking gap |
+| acceptance | 28 | 6 | 26084 | log line cap before the sweep |
+| acceptance | 29 | 4 | 22410 | a closing acceptance lands the block |
+| develop-closing | 5 | 1 | 33301 | a closing acceptance lands the block |
+| acceptance | 30 | 5 | 22691 | a closing acceptance lands the block |
+| acceptance | 31 | 4 | 19454 | a closing pass gets a blind review |
+| acceptance | 32 | 5 | 19735 | a closing pass gets a blind review |
+| acceptance | 33 | 4 | 22703 | a closing acceptance finds a blocking gap |
 | park | 16 | 1 | 10833 | a closing acceptance finds a blocking gap |
-| acceptance | 34 | 5 | 22660 | a closing acceptance finds a blocking gap |
+| acceptance | 34 | 5 | 22984 | a closing acceptance finds a blocking gap |
 | park | 17 | 1 | 10833 | a closing acceptance finds a blocking gap |
-| develop | 17 | 5 | 31717 | every block commits first time |
+| develop | 17 | 5 | 32432 | every block commits first time |
 | quality | 3 | 1 | 8894 | every block commits first time |
-| acceptance | 35 | 8 | 17533 | every block commits first time |
-| develop | 18 | 5 | 32142 | every block commits first time |
-| acceptance | 36 | 9 | 17814 | every block commits first time |
+| acceptance | 35 | 8 | 17558 | every block commits first time |
+| develop | 18 | 5 | 32857 | every block commits first time |
+| acceptance | 36 | 9 | 17839 | every block commits first time |
 | final-sweep | 5 | 1 | 4869 | every block commits first time |
-| develop | 19 | 6 | 40552 | a fix block commits |
-| acceptance | 37 | 10 | 25362 | a fix block commits |
+| develop | 19 | 6 | 41267 | a fix block commits |
+| acceptance | 37 | 10 | 25387 | a fix block commits |
 | final-sweep | 6 | 1 | 4776 | a fix block commits |
 | park | 18 | 1 | 10296 | acceptance commits a rejected block |
 
@@ -267,6 +267,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -369,6 +370,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-a r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-a r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -671,7 +677,7 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -1067,6 +1073,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -1169,6 +1176,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-b r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-b r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -1335,7 +1347,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -1836,6 +1848,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -1938,6 +1951,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-a r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-a r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • CLEANUP (this run's change policy): append ONE entry for each cleanup outside task code,
     in code no other block of the plan owns, that you noticed and did not make, such as a nit. Route, count,
     dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: cleanup" and no
@@ -2135,7 +2153,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -2621,6 +2639,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -2723,6 +2742,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-a r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-a r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -2889,7 +2913,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -3264,6 +3288,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -3366,6 +3391,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-b r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-b r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -3532,7 +3562,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -3906,6 +3936,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -4008,6 +4039,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-a r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-a r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -4174,7 +4210,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -4549,6 +4585,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -4651,6 +4688,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-b r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-b r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -4817,7 +4859,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -5048,7 +5090,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -5184,7 +5226,7 @@ PROCEDURE:
    SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-a-r2.md, the file of the latest
    round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there. Run the search each line names again, and read each hit marked `unaffected` against the change. A changed name or
-   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose file reads "No changes." has no section and no gap here.
+   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is a gap. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2-acceptance.index"
@@ -5306,7 +5348,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -5445,7 +5487,7 @@ PROCEDURE:
    SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-b-r2.md, the file of the latest
    round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there. Run the search each line names again, and read each hit marked `unaffected` against the change. A changed name or
-   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose file reads "No changes." has no section and no gap here.
+   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is a gap. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2-acceptance.index"
@@ -5710,6 +5752,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -5812,6 +5855,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-a r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-a r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -6134,6 +6182,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -6237,6 +6286,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-a r6 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-a r6 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -6547,7 +6601,7 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
-when it found issues. When none ran, the developer judged each change since the block's last blind review
+when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
@@ -7096,6 +7150,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -7198,6 +7253,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-b r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-b r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -7524,6 +7584,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -7627,6 +7688,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-b r6 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-b r6 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -7801,7 +7867,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
-when it found issues. When none ran, the developer judged each change since the block's last blind review
+when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
@@ -8070,7 +8136,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -8299,7 +8365,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -8529,7 +8595,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -8917,6 +8983,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -9020,6 +9087,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-a r6 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-a r6 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -9194,7 +9266,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
-when it found issues. When none ran, the developer judged each change since the block's last blind review
+when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
@@ -9344,7 +9416,7 @@ PROCEDURE:
    SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-a-r6.md, the file of the latest
    round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there. Run the search each line names again, and read each hit marked `unaffected` against the change. A changed name or
-   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose file reads "No changes." has no section and no gap here.
+   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is a gap. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6-acceptance.index"
@@ -9658,6 +9730,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -9760,6 +9833,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-a r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-a r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -9926,7 +10004,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -10297,6 +10375,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -10399,6 +10478,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-a r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-a r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -10565,7 +10649,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -10793,7 +10877,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -11022,7 +11106,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -11252,7 +11336,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -11640,6 +11724,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -11743,6 +11828,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-a r6 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-a r6 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -11917,7 +12007,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
-when it found issues. When none ran, the developer judged each change since the block's last blind review
+when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
@@ -12067,7 +12157,7 @@ PROCEDURE:
    SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-a-r6.md, the file of the latest
    round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there. Run the search each line names again, and read each hit marked `unaffected` against the change. A changed name or
-   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose file reads "No changes." has no section and no gap here.
+   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is a gap. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6-acceptance.index"
@@ -12583,6 +12673,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -12685,6 +12776,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-c r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-c r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -12888,7 +12984,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -13543,6 +13639,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -13645,6 +13742,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-c r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-c r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • CLEANUP (this run's change policy): append ONE entry for each cleanup outside task code,
     in code no other block of the plan owns, that you noticed and did not make, such as a nit. Route, count,
     dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: cleanup" and no
@@ -13879,7 +13981,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -14236,7 +14338,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -14767,6 +14869,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -14869,6 +14972,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-c r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-c r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • CLEANUP (this run's change policy): append ONE entry for each cleanup outside task code,
     in code no other block of the plan owns, that you noticed and did not make, such as a nit. Route, count,
     dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: cleanup" and no
@@ -15103,7 +15211,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -15690,6 +15798,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -15794,6 +15903,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-c-plus-1 r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-c-plus-1 r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -15997,7 +16111,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of each command below, one block per command:
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of each command below, one block per command:
   node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/one.md' 'block-c'
   node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/two.md' 'block-d'
 Run every one, each redirected to its own file under E:/flow/runs/flow/scratch/ (create it if needed), never
@@ -16400,7 +16514,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -16950,6 +17064,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -17052,6 +17167,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-c r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-c r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -19023,7 +19143,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -19541,7 +19661,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
-when it found issues. When none ran, the developer judged each change since the block's last blind review
+when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
@@ -19687,7 +19807,7 @@ PROCEDURE:
    SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-a-r2.md, the file of the latest
    round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there. Run the search each line names again, and read each hit marked `unaffected` against the change. A changed name or
-   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose file reads "No changes." has no section and no gap here.
+   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is a gap. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2-acceptance.index"
@@ -19998,6 +20118,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -20101,6 +20222,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-b r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-b r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -20275,7 +20401,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
-when it found issues. When none ran, the developer judged each change since the block's last blind review
+when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
@@ -20424,7 +20550,7 @@ PROCEDURE:
    SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-b-r2.md, the file of the latest
    round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there. Run the search each line names again, and read each hit marked `unaffected` against the change. A changed name or
-   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose file reads "No changes." has no section and no gap here.
+   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is a gap. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2-acceptance.index"
@@ -20574,7 +20700,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
-when it found issues. When none ran, the developer judged each change since the block's last blind review
+when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
@@ -20841,7 +20967,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
-when it found issues. When none ran, the developer judged each change since the block's last blind review
+when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
@@ -21111,7 +21237,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
-when it found issues. When none ran, the developer judged each change since the block's last blind review
+when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
@@ -21261,7 +21387,7 @@ PROCEDURE:
    SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-a-r2.md, the file of the latest
    round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there. Run the search each line names again, and read each hit marked `unaffected` against the change. A changed name or
-   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose file reads "No changes." has no section and no gap here.
+   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is a gap. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2-acceptance.index"
@@ -21547,7 +21673,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
-when it found issues. When none ran, the developer judged each change since the block's last blind review
+when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
@@ -21700,7 +21826,7 @@ PROCEDURE:
    SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-b-r2.md, the file of the latest
    round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there. Run the search each line names again, and read each hit marked `unaffected` against the change. A changed name or
-   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose file reads "No changes." has no section and no gap here.
+   phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A line whose search, run again, finds a hit the line leaves out is a gap too. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is a gap. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2-acceptance.index"
@@ -22151,6 +22277,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -22253,6 +22380,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-a r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-a r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -22560,7 +22692,7 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -22994,6 +23126,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -23096,6 +23229,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-b r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-b r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -23267,7 +23405,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -23847,6 +23985,7 @@ CHECKLIST:
    Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
    list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A
    changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
+   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
    round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
    risk, and false only when every change is low risk. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
@@ -23949,6 +24088,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     **Fix:** line in that file:
       **Closed by:** block block-c r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • RETIRED (a backlog entry the block retires): when the block's text names a backlog entry as retired or superseded,
+    grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for that entry's id and add one line after its **Fix:** line, with the
+    block's change as the fix:
+      **Closed by:** block block-c r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
+    Leave its status and decision as they are, since a park clears the change from the tree.
   • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
     this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
@@ -24157,7 +24301,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks.
 This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you

@@ -72,7 +72,8 @@ Ships in the [AI Prompt Guide workflows](../../README.md) repo. Install the `aip
 (`/plugin marketplace add Blakeem/aipromptguide-workflows` → `/plugin install aipg@aipromptguide`),
 or clone the repo as `aipg/` and drive it by path. Trigger it:
 
-- **Skill:** `/aipg:investigate find a queue we can run on Node 20 with no paid tier, at-least-once delivery, and a maintained TypeScript client`
+- **Skill:** `/aipg:investigate find a queue we can run on Node 20 with no paid tier, at-least-once delivery,
+  and a maintained TypeScript client`
 - **Plain pointer:** tell Claude to *use the investigate-cycle **workflow** in `aipg/workflows/investigate/`*
   and what you need to know.
 
@@ -101,8 +102,8 @@ round covered and what it would try next (`SEARCHED.md`), the critic's round-by-
 (`acceptance-review-rN.md`), and the conclusion (`DETERMINATION.md`). The critic writes its verdict as
 the first line of each option file it judges, then corrects `DETERMINATION.md` to match those verdicts.
 The file of an option the critic disqualified stays in
-`options/`. The run's `options` result lists the options whose verdict reads upheld, earlier runs included. It is
-`null` when the run could not learn that set.
+`options/`. The run's `options` result lists the options whose verdict reads upheld, earlier runs included. It
+is `null` when the run could not learn that set.
 
 **Read the status first.** `exhaustive` means the answer set is complete as far as your criteria reach.
 `not exhaustive (round budget spent)` means the options may be fine but nothing was proved complete. You
