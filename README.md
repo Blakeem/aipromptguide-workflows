@@ -190,7 +190,14 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   or removed rule phrase, message or name by its old wording, and by its new wording too when other
   text must repeat it.
 - **develop's restore regenerates generated files.** A clean 3-way apply no longer ends the restore.
-  The developer regenerates a file the project generates from the restored files before the gate run.
+  Once every branch has applied, the developer regenerates a file the project generates from the
+  restored files, before the gate run.
+- **`tools/plan-entry.mjs` writes develop's backlog entries.** Each backlog writer runs its `new` verb,
+  which numbers the entry, writes a missing file's header, sets a `skip` file to `todo` and leaves the
+  title, `**What:**` and `**Fix:**` for the agent to fill. Its `check` verb reports a grammar error and
+  each placeholder left in place. `plan-edit.mjs args --backlog` leaves out a file with an open
+  ACTIONABLE entry its writer left unfilled, and names that entry. The prompts no longer hold the entry
+  shape or the id rule. Allowlist `plan-entry.mjs` beside `plan-block.mjs` for every develop run.
 
 ### 2026-10-27
 

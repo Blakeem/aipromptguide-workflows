@@ -12,7 +12,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // `id — title`: the separator needs surrounding space, so a kebab id keeps its own hyphens.
 export const TITLE_SPLIT_RE = /[ \t]+[—–-][ \t]+/;
-const KEBAB_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const KEBAB_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 // =============================================================================
 // Parsing — pure functions over the file's text. Exported for the test suite.

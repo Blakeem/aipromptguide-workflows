@@ -13,7 +13,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, sep } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
 import { RUN_KEYS, parseBlocks, resolveRoadmap, validate, run as planBlock } from '../tools/plan-block.mjs';
-import { STRENGTH, run } from '../tools/plan-edit.mjs';
+import { PLACEHOLDER, STRENGTH, run } from '../tools/plan-edit.mjs';
 
 const CLI = join(REPO_ROOT, 'tools/plan-edit.mjs');
 const BOM = '\uFEFF';   // escaped: the character itself is invisible in an editor
@@ -1279,6 +1279,30 @@ section('--backlog never builds an entry another block\'s developer pulled');
   backlogFile(pack, 'next', 'todo', [{ id: 'next-1', file: 'other.js', loc: 2000, status: 'open' }]);
   const packedOut = argsWith(configWith([]), '--backlog', pack, '--pack', pack, '--loc-cap', '2500');
   eq(packedOut.err ? packedOut.err : JSON.parse(packedOut.out).plans.map((r) => r.id).join(','), 'mixed-plus-1', '--pack weighs only the files of entries a developer will work, so a pulled entry\'s file adds no lines');
+}
+
+section('--backlog leaves out a file whose open ACTIONABLE entry still holds a plan-entry.mjs placeholder, and names the entry');
+{
+  const backlog = tmpDir();
+  const unfilled = backlogFile(backlog, 'unfilled', 'todo', [{ id: 'unfilled-1', file: 'a.js', status: 'open' }, { id: 'unfilled-2', file: 'a.js', status: 'open' }]);
+  writeFileSync(unfilled, read(unfilled).replace('### [unfilled-2] unfilled-2', `### [unfilled-2] ${PLACEHOLDER}`));
+  const asked = backlogFile(backlog, 'asked', 'todo', [{ id: 'asked-1', file: 'b.js', status: 'open' }, { id: 'asked-2', file: 'b.js', decision: 'NEEDS_USER', status: 'open' }]);
+  writeFileSync(asked, read(asked).replace(/What\.\n$/, `**Fix:** ${PLACEHOLDER}\n`));
+  const quoted = backlogFile(backlog, 'quoted', 'todo', [{ id: 'quoted-1', file: 'c.js', status: 'open' }]);
+  writeFileSync(quoted, read(quoted).replace('What.', `**What:** a check that flags "${PLACEHOLDER}"\n\n    **Fix:** ${PLACEHOLDER}`));
+  const before = read(unfilled);
+
+  const { out, notes, err } = withBacklog(configWith([]), backlog);
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  eq(JSON.parse(out).plans.map((r) => r.id).join(','), 'asked,quoted',
+    'only the file with an unfilled ACTIONABLE entry is left out: an unfilled NEEDS_USER entry waits for triage anyway, and a quoted or indented placeholder is filled text');
+  ok(/left out .*unfilled\.md: entry unfilled-2 still holds the placeholder/.test(notes) && !/unfilled-1/.test(notes), `the note names only the unfilled entry: ${notes.trim()}`);
+  eq(read(unfilled), before, 'the left-out file keeps its bytes');
+
+  const only = tmpDir();
+  const lone = backlogFile(only, 'lone', 'todo', [{ id: 'lone-1', file: 'a.js', status: 'open' }]);
+  writeFileSync(lone, read(lone).replace('What.', `**What:** ${PLACEHOLDER}`));
+  ok(/unfilled placeholder.*nothing to build/.test(withBacklog(configWith([]), only).err ?? ''), 'with no other ready file there is nothing to build, which the message says');
 }
 
 section('--backlog holds a parked-with entry until its block is done or skip, then cuts the line and builds it');

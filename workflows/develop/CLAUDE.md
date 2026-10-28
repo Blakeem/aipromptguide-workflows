@@ -290,7 +290,9 @@ since `high` suits every model.
 - **`root` REQUIRED**: the run-state base, outside the target repo. `blockTool`, the
   `plan-block.mjs` every agent reads its block through, is a key of the object `plan-edit.mjs args`
   prints, so the spread args carry it, and the engine throws without it. Never pass it by hand.
-  Pre-allowlist the command exactly as agents run it: `Bash(node '<blockTool>':*)`. Under
+  Pre-allowlist the command exactly as agents run it: `Bash(node '<blockTool>':*)`. Also
+  pre-allowlist `Bash(node '<plan-entry.mjs>':*)`, where `<plan-entry.mjs>` is the `plan-entry.mjs`
+  beside `blockTool`, since every backlog writer runs it (§10). Under
   `proactive`, also pre-allowlist `Bash(node '<plan-pull.mjs>':*)`, where `<plan-pull.mjs>` is the
   `plan-pull.mjs` beside `blockTool`, since every round-1 developer runs it (§4).
 - **Relaunch vs. new run:** relaunch a halted or parked run with the same `runId` and no
@@ -844,16 +846,16 @@ round-1 developer restores the branch into the unstaged tree after the clean-bas
 `git diff --binary <branch>^1 <branch> | git apply -3` on a copy of the index (`GIT_INDEX_FILE`), so
 both reviewers judge the restored work. The 3-way apply carries the branch onto blocks that landed
 after its parent, and the copy keeps the real index unstaged, since `-3` implies `--index`. A clean apply
-leaves no conflict, and the developer regenerates a file the project generates from the restored files
-before the gate run, since the apply may leave it stale. The developer resolves a conflict only when it
-confirms the resolution against the accepted baseline and the branch's work, and reports one it cannot
-confirm as `restore_failed`. It
-skips a branch whose work the accepted baseline already holds (`git apply -R --check` accepts its
-diff), which a landed block that kept a FAILED entry's restored work leaves. When the block lands,
-acceptance deletes the branch, or in stage delivery `nextStep` says to delete it once the user
-commits the staged work (§5). A branch that is missing, fails to apply or holds a conflict the developer
-cannot confirm leaves the tree clean and every branch as it was, and the fix block syncs `blocked`. The user
-then rebuilds the branch on the accepted baseline, by rebasing or re-committing it so that `git diff
+leaves no conflict. Once every branch has applied, the developer regenerates a file the project generates
+from the restored files before the gate run, since the applies may leave it stale. The developer resolves
+a conflict only when it confirms the resolution against the accepted baseline and the branch's work,
+and reports one it cannot confirm as `restore_failed`. It skips a branch whose work the accepted
+baseline already holds (`git apply -R --check` accepts its diff), which a landed block that kept a
+FAILED entry's restored work leaves. When the block lands, acceptance deletes the branch, or in stage
+delivery `nextStep` says to delete it once the user commits the staged work (§5). A branch that is missing,
+fails to apply or holds a conflict the developer cannot confirm leaves the tree clean and every branch as it
+was, and the fix block syncs `blocked`. The user then rebuilds the branch on the accepted baseline, by
+rebasing or re-committing it so that `git diff
 <branch>^1 <branch>` applies there, and keeps the work on the branch, never in the tree, the index or the
 baseline, since the baseline holds only reviewed work. Or the user skips the entry and deletes the branch. In
 an ordered plan, the blocks after a parked block depend on it, so build its entry before you relaunch
@@ -1020,21 +1022,22 @@ there, `<file id>.md`, created with the first entry. `<file id>` is
 
 Each file is a fix-mode plan file. Its header is
 `## Plan: <file id> - backlog from block <block id> of run <runId>`, then `mode: fix`, `gate: green`
-and `status: todo`. A writer that finds the file already there keeps its header and appends below
-its last entry. When the file's `status:` line reads `skip`, the writer sets it to `todo`, since
-`plan-edit.mjs args --backlog` builds only `todo` and `done` files. Its entries take debug's issue-file shape,
-with the id `<file id>-<n>` and a `- decision:` that the writer sets by one rule. The decision is `ACTIONABLE`
-when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes
-no user-visible behavior, stored data or public contract. It is `NEEDS_USER` otherwise, such as a
-feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later
-run builds an `ACTIONABLE` entry without triage, and a
-`NEEDS_USER` entry waits for the user. A cleanup entry carries `- category: cleanup`. A feature entry
-carries `- category: feature` and a decision entry `- category: decision`, and both carry
-`- decision: NEEDS_USER`. An unfinished entry carries `- category: unfinished`, a `- branch:` line
-naming the branch that holds the work when that branch exists, and an `- origin: <planPath>#<block id>`
-line naming the block the work was built for. It carries a `- ledger:` line naming the block's
-`DISMISSED-<id>.md` and an `- amended:` line naming its `AMENDED-<id>.md`, each only when that file
-exists. Its `**What:**` indents every line it copies from a
+and `status: todo`. Every writer appends an entry with `tools/plan-entry.mjs new` (`tools/CLAUDE.md`),
+which writes that header when the file is missing, keeps an existing header, appends below the last
+entry with the id `<file id>-<n>`, and sets a `skip` file to `todo`, since `plan-edit.mjs args --backlog`
+builds only `todo` and `done` files. The writer then fills the entry's title, `**What:**` and `**Fix:**`
+and runs `plan-entry.mjs check` on the file. Each entry takes a `- decision:` that the writer sets by one
+rule. The decision is `ACTIONABLE` when the entry is a defect or a cleanup with one clear fix, its size
+is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. It is
+`NEEDS_USER` otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes
+user-visible behavior. A later run builds an `ACTIONABLE` entry without triage, and a `NEEDS_USER` entry
+waits for the user. A cleanup entry carries `- category: cleanup`. A feature entry carries
+`- category: feature` and a decision entry `- category: decision`, and both carry `- decision: NEEDS_USER`.
+An unfinished entry carries `- category: unfinished`, a `- branch:` line naming the branch that holds the
+work when that branch exists, and an `- origin: <planPath>#<block id>` line naming the block the work was
+built for. It carries a `- ledger:` line naming the block's `DISMISSED-<id>.md` and an `- amended:` line
+naming its `AMENDED-<id>.md`, each only when that file exists. Its `**What:**` indents every line it copies
+from a
 file by four spaces, so a copied heading, fence or `- <key>:` line never ends the entry or starts
 another. These four kinds carry no `- severity:` line.
 An entry a developer pulled beside its block carries `- pulled: <runId>#<block id>` (§4). No launch
@@ -1090,7 +1093,10 @@ When the user asks to work the backlog:
 2. List only the entries that wait on the user, grouped by severity, highest first, with the entries
    that carry no severity last. An entry waits on the user while its `- decision:` is `NEEDS_USER` or
    `DEFER`, or while it is ACTIONABLE and its `- status:` is `needs-attention`, which a fix that failed
-   or did not land sets.
+   or did not land sets, or while it is ACTIONABLE and open and its title, `**What:**` or `**Fix:**` still
+   starts with the `plan-entry.mjs` placeholder, which a writer that stopped early leaves. An entry also
+   holds the placeholder while its writer is still running, so act on such an entry only once the block
+   that wrote its file is `done`, `skip` or `backlogged`.
    An entry whose decision is SKIP never waits on the user, whatever its status. It keeps its status
    unless step 3 sets one, so `- status: open` alone never lists an entry. An entry whose `- status:`
    is `fixed` or `stale` never waits on the user either, whatever its decision. Also list each entry with
@@ -1139,8 +1145,9 @@ When the user asks to work the backlog:
    ACTIONABLE entry whose block is `done` or `skip`, as the hold paragraph above says. A file named
    on the command line gets no cut, so its held entries stay held. It adds every `todo` or `done` file that
    holds an ACTIONABLE entry with `- status: open` and no `- pulled:` or `**Parked with:**` line, and none
-   with `- status: needs-attention`, sets each `done` one to `todo`, and prints an unordered set, so it
-   refuses an ordered plan file. It leaves out a file while the block that wrote it is not `done`, `skip` or
+   with `- status: needs-attention` and no open one its writer left with a `plan-entry.mjs` placeholder,
+   sets each `done` one to `todo`, and prints an unordered set, so it refuses an ordered plan file. A note
+   names each such unfilled entry. It leaves out a file while the block that wrote it is not `done`, `skip` or
    `backlogged` (§5). It matches the run records whose `runId` arg and block id match the file's header, and
    whose `backlogDir` arg, when they keep one, names this folder. An older record with no args stands for its
    run through the `runId` its result echoes. The `backlogDir` test is there because a run of another project

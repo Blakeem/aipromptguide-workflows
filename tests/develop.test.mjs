@@ -42,6 +42,14 @@ const GREP = (pathOf, nameAt) => `grep the *.md files in ${BACKLOG}/ for ${pathO
 const DEDUP = (item) => `Before you append, create ${BACKLOG}/ if it does not exist, then ${GREP('the path of the file the new entry names', `the ${item}`)}. Never append a ${item} that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the ${item} is back in the code, so append a new entry whose **What:** names their ids.`;
 // The plan-block.mjs path `plan-edit.mjs args` prints, which a launch spreads in.
 const BLOCK_TOOL = 'E:/r/tools/plan-block.mjs';
+// Every backlog writer appends through plan-entry.mjs beside blockTool, so no prompt holds the entry shape or id rule.
+const ENTRY_TOOL = 'E:/r/tools/plan-entry.mjs';
+const ENTRY_INTRO = 'with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo';
+const ENTRY_NEW = (file, block, runId = 't') => `node '${ENTRY_TOOL}' new --file '${file}' --block '${block}' --run '${runId}'`;
+const ENTRY_FLAGS = "--file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>";
+const ENTRY_CHECK = (file) => `Then run \`node '${ENTRY_TOOL}' check '${file}'\` and fix each problem it prints.`;
+// The flattened RECORD entry instruction for one file and block, the item named in its **What:** placeholder.
+const ENTRY_RULE = (file, block, item) => `Write each entry ${ENTRY_INTRO}: ${ENTRY_NEW(file, block)} ${ENTRY_FLAGS} It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>, its **What:** placeholder with <the ${item}, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>. ${ENTRY_CHECK(file)}`;
 const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, backlogDir: BACKLOG, blockTool: BLOCK_TOOL, plans: BLOCKS };
 const ONE_BLOCK = { ...baseArgs, plans: [BLOCKS[0]] };
 const PRO_ONE_BLOCK = { ...ONE_BLOCK, changePolicy: 'proactive' };
@@ -413,6 +421,9 @@ section('acceptance audits the risk file of each round since the block\'s last b
   const engineText = readFileSync(join(REPO_ROOT, ENGINE), 'utf8');
   ok(engineText.includes('(a changed or removed one by its old wording, and by its new wording too when other text must repeat it)'),
     'the Develop meta states the same search wording as the developer prompt');
+  ok(engineText.includes("own search of a changed or removed name or phrase by its old wording, and by its new wording too when other text must repeat it, finds no hit the change left wrong")
+    && !engineText.includes('Sweep section lists each changed name or phrase, searches'),
+    'the Acceptance meta credits the old-wording search to acceptance, never to the Sweep section');
   // A changed return schema is searched for the prose that lists the agent's return fields, which a search for the changed names misses.
   const SCHEMA_PROSE = `each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else"`;
   ok(d1.includes(`A change that adds, removes or renames a field of an agent's return schema also lists as hits ${SCHEMA_PROSE}.`),
@@ -606,7 +617,7 @@ section('a block whose last round fails gets one closing pass, whose acceptance 
     'an earlier round keeps the bar where every gap fails acceptance');
   ok(closingAcc.includes(`• No blocking gap → APPEND each not blocking gap as ONE backlog entry to ${backlogFile('block-a')} only. Count it in backlog_entries and name "block-a" in backlog_blocks.`)
     && closingAcc.includes(DEDUP('gap')) && closingAcc.includes(DECISION_RULE)
-    && closingAcc.includes('**What:** <the gap, the input or path that reaches it, and its harm>')
+    && closingAcc.includes('its **What:** placeholder with <the gap, the input or path that reaches it, and its harm>')
     && closingAcc.includes('A nit or a cleanup takes "- category: cleanup" and no "- severity:" line.')
     && closingAcc.includes('Then `git -C E:/repo add <this block\'s changed AND newly-created files>` (NEVER commit); return pass=true, staged=true, gap_count=0.'),
     'with no blocking gap it appends each not blocking gap as one backlog entry with its decision, then stages the block');
@@ -626,7 +637,7 @@ section('a block whose last round fails gets one closing pass, whose acceptance 
   const blocked = await run({ develop: develop({ ...CLOSING_OK, recorded_entries: ['t-block-a-x-1'] }), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, ONE_ROUND);
   ok(blocked.labels.includes('acceptance block-a r2') && blocked.labels.includes('park:block-a'), 'a recorded entry reaches the closing acceptance, and a blocking gap parks the block');
   eq(blocked.out.ledger[0].status, 'backlogged (not accepted within round budget)', 'as a budget park');
-  ok(parkText(blocked).includes('**What:** <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/r/runs/t/acceptance-review-block-a-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: t-block-a-x-1.">'),
+  ok(parkText(blocked).includes('its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/r/runs/t/acceptance-review-block-a-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: t-block-a-x-1.">'),
     'its park entry lists the blocking gaps first, then the rest, then the entries the closing pass listed');
   ok(blocked.logs.some((l) => /the closing acceptance found 2 gap\(s\) that block its landing/.test(l)), 'the log says the gaps block the landing');
   const recorded = await run({ develop: develop({ ...CLOSING_OK, recorded_entries: ['t-block-a-x-1'] }), quality: CLEAN, acceptance: firstRound(ACC_FAIL, LANDS) }, ONE_ROUND);
@@ -736,13 +747,11 @@ section('fix acceptance records a harm with a separate cause in its block\'s bac
   const TO_CHECK = (...files) => `so check these files in the project's backlog folder ${BACKLOG}/ for entries this run added: ${files.join(', ')}.`;
   const found = await run({ develop: DEV_FIXED, quality: CLEAN, acceptance: { ...FIX_PASS, backlog_entries: 2, backlog_blocks: ['fix-a'] } }, FIX_ONE);
   const acc = flat(found.prompt('acceptance'));
-  ok(acc.includes(`${FILE_A} only, never to your review file`) && acc.includes('"- status: open" and a **What:** that names the source issue id.')
-    && !acc.includes('so that the user triages it before anything fixes it')
-    && acc.includes(`"## Plan: ${backlogFileId('fix-a')} - backlog from block fix-a of run t", "mode: fix", "gate: green" and "status: todo"`),
-    'the verifier is told its block\'s backlog file, that a new issue stays out of the review file, and how the file is shaped');
-  ok(acc.includes(`with the id "${backlogFileId('fix-a')}-<n>" (n one past the highest n in that file's entry ids)`)
-    && acc.includes('a **What:** that names the source issue id'),
-    'an entry id continues its file\'s numbering, and the entry names the issue it came from');
+  ok(acc.includes(`${FILE_A} only, never to your review file`) && !acc.includes('so that the user triages it before anything fixes it')
+    && acc.includes(ENTRY_RULE(FILE_A, 'fix-a', 'harm')) && !acc.includes('one past the highest n'),
+    'the verifier is told its block\'s backlog file, that a new issue stays out of the review file, and to append it with the entry tool');
+  ok(acc.includes(`${ENTRY_CHECK(FILE_A)} Its **What:** names the source issue id.`),
+    'the entry names the issue it came from');
   ok(acc.includes(DEDUP('harm')) && !acc.includes('read every *.md'),
     'and to grep the folder for the file path and the name at the harm, and read each matching entry, so a harm two blocks or two runs see is recorded once, unless its entries say it was fixed');
   ok(acc.includes('a cause that shares no code path with the root cause you re-derived')
@@ -775,7 +784,7 @@ section('fix acceptance records a harm with a separate cause in its block\'s bac
   ok(passAcc.includes(`i-1, i-2 → ${FILE_A}`) && passAcc.includes(`i-3 → ${FILE_B}`),
     'a pass verifier maps each member\'s issue ids to that member\'s file');
   ok(!passAcc.includes('/t-fix-a-plus-1'), 'and names no file for the pass\'s own id');
-  ok(passAcc.includes('with the id "<that file\'s name without .md>-<n>"'), 'and numbers an entry by the file it lands in');
+  ok(passAcc.includes(`${ENTRY_NEW('<that file>', '<that block id>')} ${ENTRY_FLAGS}`), 'and appends an entry to the file and block it lands in');
   eq(JSON.stringify(pass.out.backlogFiles), JSON.stringify([FILE_A, FILE_B]), 'the return\'s files are sorted and de-duplicated');
   const passClosing = await run({
     develop: (label) => ({ ...passDev([{ issue_id: 'i-1', status: 'FIXED' }]), ...(label.startsWith('develop-closing') ? { review_needed: false, recorded_entries: [] } : {}) }),
@@ -846,8 +855,6 @@ section('a developer records each real defect its zone routing leaves unchanged 
 {
   const RECORD = `• RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above ${OWNED_CODE}, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also append ONE entry for it`;
   const OWN_FILE = (id) => ` to ${backlogFile(id)} only. Count it in backlog_entries and name "${id}" in backlog_blocks.`;
-  const HEADER = (fileId, id) => `A new file starts with the four lines "## Plan: ${fileId} - backlog from block ${id} of run t", "mode: fix", "gate: green" and "status: todo", then a blank line.`;
-  const ENTRY = (fileId) => `with n one past the highest n in that file's entry ids: ### [${fileId}-<n>] <title> - id: ${fileId}-<n> - status: open - file: <path>:<line> - severity: <low | medium | high | critical> - category: <category> - size: <trivial | small | medium | large> - decision: <ACTIONABLE | NEEDS_USER> **What:** <the defect, the input or path that reaches it, and its harm> **Fix:** <the change that closes it>`;
   const DISMISSED_TOO = 'Write the defect\'s DISMISSED line too, since the blind reviewer reads that file and never this one.';
   const NO_ENTRY = { focused: 'A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.', proactive: 'A false positive gets no entry, and a nit dropped under rule 2 or SIBLINGS goes under CLEANUP below.' };
   // Its own bullet after RECORD's closing-line rule, since its trigger is a cleanup and not a dropped defect.
@@ -867,9 +874,9 @@ section('a developer records each real defect its zone routing leaves unchanged 
       ? dev.includes(`${CLEANUP} ${FEATURE}`) && !dev.includes(NO_ENTRY.focused)
       : dev.includes(`since a park clears the change from the tree. ${FEATURE}`) && !dev.includes('CLEANUP') && !dev.includes('category: cleanup'),
     policy === 'proactive' ? `${where}: a cleanup outside task code gets an entry with no severity` : `${where}: a nit or other cleanup gets no entry`);
-    ok(dev.includes(HEADER(backlogFileId(id), id)), `${where}: a new file takes the backlog header naming the block and the run`);
+    ok(!dev.includes('A new file starts with') && !dev.includes('one past the highest n in that file'), `${where}: no prompt copy of the header or the id rule is left`);
     ok(dev.includes(DEDUP('defect')) && !dev.includes('read every *.md'), `${where}: the folder is grepped for the file path and the name at the defect, and each matching entry is read, so nothing open is appended twice`);
-    ok(dev.includes(ENTRY(backlogFileId(id))), `${where}: each entry copies debug's issue-file shape, numbered within its file, its decision set by the decision rule`);
+    ok(dev.includes(ENTRY_RULE(backlogFile(id), id, 'defect')), `${where}: each entry is appended with the entry tool to its block's file, then filled and checked`);
     ok(dev.includes(CLASS_ENTRY), `${where}: a class-level DISMISSED line gets one entry`);
     ok(dev.includes(DECISION_RULE) && !dev.includes('NEEDS_USER holds the entry'), `${where}: the entry's decision follows the one rule, and the old always-NEEDS_USER sentence is gone`);
     ok(dev.includes(FEATURE), `${where}: a feature or refactor outside the block's scope gets a NEEDS_USER entry with no severity`);
@@ -885,7 +892,7 @@ section('a developer records each real defect its zone routing leaves unchanged 
     const fixed = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS },
       { ...FIX_ONE, changePolicy: policy });
     recordRule(flat(fixed.prompt('develop')), policy, 'fix-a', `${policy} fix`);
-    ok(flat(fixed.prompt('acceptance')).includes(HEADER(backlogFileId('fix-a'), 'fix-a')), `${policy} fix: acceptance's fix frame takes the same header`);
+    ok(flat(fixed.prompt('acceptance')).includes(ENTRY_RULE(backlogFile('fix-a'), 'fix-a', 'harm')), `${policy} fix: acceptance's fix frame appends with the same tool`);
     ok(!flat(fixed.prompt('acceptance')).includes('CLEANUP'), `${policy} fix: acceptance records no cleanup`);
     ok(flat(fixed.prompt('acceptance')).includes(DECISION_RULE), `${policy} fix: acceptance sets a new issue's decision by the same rule`);
 
@@ -908,10 +915,10 @@ section('a developer records each real defect its zone routing leaves unchanged 
   const passDevPrompt = flat(pass.prompt('develop'));
   ok(passDevPrompt.includes(`${RECORD} only to the file of the block whose entry's fix led you to the defect: - i-1, i-2 → ${FILE_A} (block "fix-a") - i-3 → ${FILE_B} (block "fix-b") Count it in backlog_entries and name that block in backlog_blocks.`),
     'a pass developer routes each entry to the file of the member whose entry\'s fix led to it');
-  ok(passDevPrompt.includes(HEADER('<that file\'s name without .md>', '<that block\'s id>')) && passDevPrompt.includes(ENTRY('<that file\'s name without .md>')),
-    'and names that member\'s file in the header and the entry id');
+  ok(passDevPrompt.includes(ENTRY_RULE('<that file>', '<that block id>', 'defect')),
+    'and appends to that member\'s file under that member\'s block id');
   ok(passDevPrompt.includes(CLOSE('FOCUSED', 'fix-a-plus-1')), 'a pass developer\'s closing line names the pass, as its DECISIONS lines do');
-  ok(flat(pass.prompt('acceptance')).includes(HEADER('<that file\'s name without .md>', '<that block\'s id>')), 'a pass verifier takes the same header');
+  ok(flat(pass.prompt('acceptance')).includes(`${ENTRY_NEW('<that file>', '<that block id>')} ${ENTRY_FLAGS}`), 'a pass verifier appends the same way');
   eq(pass.out.backlogEntries, 3, 'fix mode sums the developer\'s and the verifier\'s entries');
   eq(JSON.stringify(pass.out.backlogFiles), JSON.stringify([FILE_A, FILE_B]), 'and names both writers\' files');
 
@@ -941,8 +948,10 @@ section('a backlog file\'s id is the run\'s slug, the block\'s slug and a hash o
   const fileIdOf = (prompt, prefix) => prompt.match(new RegExp(` to ${escape(BACKLOG)}/(${prefix}-[0-9a-f]{8})\\.md only\\.`))?.[1];
   const named = flat((await run(GREEN_RUN, { ...ONE_BLOCK, runId: 'Judgment Review' })).prompt('develop'));
   const namedId = fileIdOf(named, 'judgment-review-block-a');
-  ok(!!namedId && named.includes(`"## Plan: ${namedId} - backlog from block block-a of run Judgment Review"`),
-    'a runId slugs into the file name and the header id, and the header keeps the runId as given');
+  ok(!!namedId && named.includes(ENTRY_NEW(`${BACKLOG}/${namedId}.md`, 'block-a', 'Judgment Review')),
+    'a runId slugs into the file name, and the entry tool gets the runId as given for the header');
+  const quoted = flat((await run(GREEN_RUN, { ...ONE_BLOCK, runId: "Bob's run" })).prompt('develop'));
+  ok(quoted.includes("--run 'Bob'\\''s run'"), 'a quote in the runId is escaped for a POSIX shell');
   const symbols = fileIdOf(flat((await run(GREEN_RUN, { ...ONE_BLOCK, runId: '#!' })).prompt('develop')), 'run-[0-9a-f]{8}-block-a');
   ok(!!symbols, 'a runId with no ASCII letter or digit takes run- and its hash');
   const other = fileIdOf(flat((await run(GREEN_RUN, { ...ONE_BLOCK, runId: '?!' })).prompt('develop')), 'run-[0-9a-f]{8}-block-a');
@@ -1480,34 +1489,33 @@ section('a park builds its commit with plumbing through a temporary index, and c
 
 section('every park appends one backlog entry that links its branch');
 {
-  const ENTRY = backlogFileId('block-a');
+  const FILE = backlogFile('block-a');
   const budget = flat((await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 })).prompt('park:block-a'));
   for (const line of [
-    `3. RECORD. Append ONE entry to ${backlogFile('block-a')}, creating ${BACKLOG}/ if it does not exist.`,
-    `A new file starts with the four lines "## Plan: ${ENTRY} - backlog from block block-a of run t", "mode: fix", "gate: green" and "status: todo", then a blank line.`,
-    `### [${ENTRY}-<n>] unfinished: <block title>`,
-    '- category: unfinished',
-    `- branch: ${UNFINISHED('block-a')}`,
-    '- origin: E:/plans/bus.md#block-a',
-    '**Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.',
+    `3. RECORD. Append ONE entry to ${FILE} ${ENTRY_INTRO}:`,
+    `${ENTRY_NEW(FILE, 'block-a')} --file-ref '<the first path \`git -C E:/repo diff --name-only ${UNFINISHED('block-a')}^1 ${UNFINISHED('block-a')}\` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch '${UNFINISHED('block-a')}' --origin 'E:/plans/bus.md#block-a'`,
+    'Its --decision value follows the decision sentence at the end of this step.',
+    'With the Edit tool, replace the entry\'s placeholder title with "unfinished: <block title>",',
+    'and its **Fix:** placeholder with this text: Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.',
+    ENTRY_CHECK(FILE),
     `When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. ${DECISION_RULE}`,
     // A copied `## Question:` or `### [id]` heading at column 0 would end the entry or start a phantom one.
     'Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the plan file is parsed.',
     'Then return entry_written=true.',
   ]) ok(budget.includes(line), `the park entry carries: ${line}`);
   // An earlier park of the same block may have left the branch, so the commit, not the branch, decides.
-  ok(budget.includes('When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even when aipg-unfinished/')
-    && budget.includes('holds an earlier park\'s work, give "- file:"') && !budget.includes('does not exist after step 1'),
+  ok(budget.includes('When step 1 made no commit, this park saved no work to restore, so pass no --branch, even when aipg-unfinished/')
+    && budget.includes('holds an earlier park\'s work, pass --file-ref') && !budget.includes('does not exist after step 1'),
     'an entry links a branch only when this park made a commit');
 
   const asked = flat((await run({ develop: { ...DEV_OK, needs_user: true }, park: PARK_OK }, ONE_BLOCK)).prompt('park:block-a'));
-  ok(asked.includes('**What:** <the latest `## Question: block-a r<n>` entry in E:/r/runs/t/question-block-a.md, copied verbatim>'),
+  ok(asked.includes('its **What:** placeholder with <the latest `## Question: block-a r<n>` entry in E:/r/runs/t/question-block-a.md, copied verbatim>'),
     'a needs-user park copies the escalated question');
   ok(asked.includes('Set "- decision: NEEDS_USER", since this park waits on a question only the user can answer.') && !asked.includes(DECISION_RULE),
     'and is always NEEDS_USER');
   // A staging halt keeps its own kind, but the developer's question still waits on the user.
   const stagedAsk = flat((await run({ develop: { ...DEV_OK, needs_user: true, unstaged_confirmed: false }, park: PARK_OK }, ONE_BLOCK)).prompt('park:block-a'));
-  ok(stagedAsk.includes('**What:** <the line "Halted: ') && stagedAsk.includes(', then the latest `## Question: block-a r<n>` entry in E:/r/runs/t/question-block-a.md, copied verbatim>'),
+  ok(stagedAsk.includes('its **What:** placeholder with <the line "Halted: ') && stagedAsk.includes(', then the latest `## Question: block-a r<n>` entry in E:/r/runs/t/question-block-a.md, copied verbatim>'),
     'a staging halt of a block that escalated copies the halt reason, then the question');
   ok(stagedAsk.includes('Set "- decision: NEEDS_USER", since this park waits on a question only the user can answer.') && !stagedAsk.includes(DECISION_RULE),
     'and is always NEEDS_USER');
@@ -1517,13 +1525,13 @@ section('every park appends one backlog entry that links its branch');
     && !stagedOnly.includes(DECISION_RULE) && !stagedOnly.includes('## Question:'), 'a staging halt with no question is NEEDS_USER and copies no question');
 
   const dead = flat((await run({ develop: null, park: PARK_OK }, ONE_BLOCK)).prompt('park:block-a'));
-  ok(dead.includes('**What:** <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Developer for block block-a returned nothing in round 1'),
+  ok(dead.includes('its **What:** placeholder with <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Developer for block block-a returned nothing in round 1'),
     'a halt park copies the halt reason');
 
   const PASS_PLANS = [{ planPath: 'E:/plans/a.md', id: 'fix-a', issues: ['i-1', 'i-2'] }, { planPath: 'E:/plans/b.md', id: 'fix-b', issues: ['i-3'] }];
   const pass = flat((await run({ develop: passDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_GAP, park: PARK_OK },
     { ...baseArgs, maxRounds: 1, plans: [{ id: 'fix-a-plus-1', mode: 'fix', gate: 'green', blocks: PASS_PLANS }] })).prompt('park:fix-a-plus-1'));
-  ok(pass.includes('- origin: E:/plans/a.md#fix-a, E:/plans/b.md#fix-b') && pass.includes(`- branch: ${UNFINISHED('fix-a-plus-1')}`),
+  ok(pass.includes("--origin 'E:/plans/a.md#fix-a, E:/plans/b.md#fix-b'") && pass.includes(`--branch '${UNFINISHED('fix-a-plus-1')}'`),
     'a pass names each member\'s plan block, and its branch is the pass\'s own');
 
   const unwritten = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: { ...PARK_OK, entry_written: false } }, ONE_BLOCK);
@@ -1549,7 +1557,7 @@ section('a park that saved no commit writes an entry built from the accepted bas
 // The fix block built from it restores nothing, so its Fix must name the origin block, never work on a branch.
 {
   const empty = flat((await run({ develop: { ...DEV_OK, needs_user: true }, park: PARK_EMPTY }, ONE_BLOCK)).prompt('park:block-a'));
-  ok(empty.includes('give "- file:" the path E:/plans/bus.md, give "- size:" the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead: **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.'),
+  ok(empty.includes('pass --file-ref the path E:/plans/bus.md, and pass --size the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead: Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.'),
     'an entry with no branch says to build its origin block on the accepted baseline');
 }
 
@@ -1598,7 +1606,7 @@ section('a park whose entry no green fix block can build stays blocked and is re
 // cannot continue from its park entry.
 {
   const REBUILD = 'For each, set its park entry\'s "- status:" to stale and set the block back to todo, which rebuilds it under its own gate.';
-  const UNBUILDABLE_FIX = '**Fix:** Fix mode cannot build this entry, since the fix mode that builds a backlog entry takes only gate green,';
+  const UNBUILDABLE_FIX = 'and its **Fix:** placeholder with this text: Fix mode cannot build this entry, since the fix mode that builds a backlog entry takes only gate green,';
   const red = await run({ develop: { ...DEV_OK, test_outcome: 'failed-expected' }, quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK },
     { ...baseArgs, maxRounds: 1, plans: [onBus({ id: 'block-a', mode: 'section', gate: 'red-baseline' })] });
   eq(syncOf(red.out), 'block-a=blocked', 'a red-baseline park syncs blocked, never backlogged');
@@ -1839,16 +1847,16 @@ section('a fix block restores each branch its ACTIONABLE entries link, in round 
   // apply -3 implies --index, so the index copy is what keeps the restored work out of the real index.
   ok(r1.includes('a 3-way apply onto the accepted baseline, since a block that landed after the branch was cut may have changed a file the branch touches.')
     && r1.includes('Never run it without that GIT_INDEX_FILE, and never with `--index` or `--cached`'), 'the 3-way restore runs on an index copy, never --index or --cached');
-  ok(r1.includes('A clean apply leaves no conflict to resolve, and a file the project generates from the restored files may still be stale, so regenerate it before the gate run.')
-    && !r1.includes('A clean apply needs nothing more'), 'a clean restore is not called finished, since a generated file may be stale');
+  ok(r1.includes('A clean apply leaves no conflict to resolve. An apply that exits non-zero') && !r1.includes('A clean apply needs nothing more'),
+    'a clean restore is not called finished');
   const copy = r1.indexOf(`cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "${INDEX_COPY}"`);
   ok(copy > clean && copy < apply, 'it copies the real index after the clean-baseline check and before the first apply');
   ok(!/a PLAIN apply/.test(r1), 'it no longer restores with a plain apply');
   ok(r1.includes(`Resolve each such file only when you confirm the resolution against the accepted baseline and the work the branch holds, then run \`GIT_INDEX_FILE="${INDEX_COPY}" git -C E:/repo add -- <file>\``)
     && r1.includes('A conflict you cannot confirm FAILS the restore for the branch (below).'), 'a conflict is resolved only when confirmed, else the restore fails');
   // Intent-to-add follows every apply, so a reversed restore leaves no index entry behind.
-  ok(r1.indexOf('c. Once every branch has applied and no conflict marker is left, delete that index copy. Then run `git -C E:/repo add -N -- <file>` on each new file the restores created') > apply,
-    'it deletes the index copy, then marks the restored new files intent-to-add once every branch applied');
+  ok(r1.indexOf('c. Once every branch has applied and no conflict marker is left, delete that index copy. A file the project generates from the restored files may still be stale, so regenerate it now, before the gate run. Then run `git -C E:/repo add -N -- <file>` on each new file the restores or that regeneration created') > apply,
+    'once every branch applied, it deletes the index copy, regenerates generated files, then marks the new files intent-to-add, so one branch\'s regeneration never conflicts with the next apply');
   ok(/Confirm `git -C E:\/repo diff --cached --stat` is the same/.test(r1), 'it confirms the staged index is unchanged');
   ok(r1.includes(`An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished work. On top of its branch's work, which step b restored or the accepted baseline already holds, or on the accepted baseline when it carries no "- branch:" line, close the gaps its **What:** lists and meet ${ORIGIN_CRITERIA}. Those gaps are copied from a review. A review is another agent's claim.`)
     && r1.includes("A gap you refute gets its DISMISSED line under rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line and the origin criteria hold, never STALE."),
@@ -4599,26 +4607,26 @@ section('a plan-unreadable halt names the bare plan command, and its park record
   const acc = await run({ ...GREEN_RUN, acceptance: { ...ACC_FAIL, plan_obtained: false }, park: PARK_OK }, ONE_BLOCK);
   ok(String(acc.out.haltReason ?? '').includes(`Its plan command was ${COMMAND}. Run it yourself. A non-zero exit names the cause.`),
     'so does the acceptance halt');
-  ok(flat(dev.prompt('park:block-a')).includes(`**What:** <the line "Halted: an agent could not obtain its plan.", then the cause: run ${COMMAND} yourself, and for each command write the line "Cause: <the command> exited <its exit code>: <the first line of its error output>", or "Cause: <the command> exited 0, so it reads the plan now" when it exits 0, then this halt reason, copied verbatim:`),
+  ok(flat(dev.prompt('park:block-a')).includes(`its **What:** placeholder with <the line "Halted: an agent could not obtain its plan.", then the cause: run ${COMMAND} yourself, and for each command write the line "Cause: <the command> exited <its exit code>: <the first line of its error output>", or "Cause: <the command> exited 0, so it reads the plan now" when it exits 0, then this halt reason, copied verbatim:`),
     'the park runs the command and writes its exit code and first error line under the Halted line');
   const dead = await run({ ...GREEN_RUN, quality: null, park: PARK_OK }, ONE_BLOCK);
   const deadPark = flat(dead.prompt('park:block-a'));
-  ok(deadPark.includes('**What:** <the line "Halted: an agent returned nothing') && !deadPark.includes('"Cause: '),
+  ok(deadPark.includes('its **What:** placeholder with <the line "Halted: an agent returned nothing') && !deadPark.includes('"Cause: '),
     'a park for any other halt runs no plan command');
   const pass = await run({ develop: { ...passDev([]), plan_obtained: false }, park: PARK_OK }, PASS_ARGS);
   ok(String(pass.out.haltReason ?? '').includes("Its plan commands were `node 'E:/r/tools/plan-block.mjs' 'E:/plans/one.md' 'fix-a'`, `node 'E:/r/tools/plan-block.mjs' 'E:/plans/two.md' 'fix-b'`. Run each yourself."),
     'a pass names each member\'s command');
 }
 
-section('every backlog writer keeps an existing file\'s header and reopens a skipped file');
+section('every backlog writer appends through the entry tool, which keeps an existing header and reopens a skipped file');
 {
-  const RULE = 'An existing file keeps its header, and a new entry goes below its last entry. When the file\'s "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.';
+  const RULE = `${ENTRY_INTRO}:`;
   const closingLands = await run({ develop: (label) => (label.startsWith('develop-closing') ? { ...DEV_OK, review_needed: false, recorded_entries: [] } : DEV_OK),
     quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS) }, { ...ONE_BLOCK, maxRounds: 1 });
   const park = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 });
   for (const [where, prompt] of [['the developer', bus.prompt('develop block-a r1')], ['fix acceptance', fixBus.prompt('acceptance fix-a r1')],
     ['the closing acceptance', closingLands.prompt('acceptance block-a r2')], ['park', park.prompt('park:block-a')]]) {
-    ok(flat(prompt).includes(RULE), `${where} carries the rule`);
+    ok(flat(prompt).includes(RULE) && !flat(prompt).includes('set it to todo, since the backlog build'), `${where} names the tool and keeps no copy of its rule`);
   }
 }
 
@@ -4991,12 +4999,12 @@ section('develop hands each later agent what an earlier agent settled');
   const AMENDED = (id) => `${STATE}/AMENDED-${id}.md`;
   // A park entry names its block's ledger and amendments, so the fix block built from it reads both.
   const parked = flat((await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 })).prompt('park:block-a'));
-  ok(parked.includes(`- origin: ${BUS}#block-a - ledger: ${LEDGER('block-a')} - amended: ${AMENDED('block-a')} **What:**`), 'the park entry carries the ledger and amended lines after its origin');
-  ok(parked.includes(`Write the "- ledger:" line only when ${LEDGER('block-a')} exists, and the "- amended:" line only when ${AMENDED('block-a')} exists, so the block built from this entry reads this block's declined findings and plan amendments.`),
+  ok(parked.includes(`--origin '${BUS}#block-a' --ledger '${LEDGER('block-a')}' --amended '${AMENDED('block-a')}' Its --decision`), 'the park entry carries the ledger and amended lines after its origin');
+  ok(parked.includes(`Pass --ledger only when ${LEDGER('block-a')} exists, and --amended only when ${AMENDED('block-a')} exists, so the block built from this entry reads this block's declined findings and plan amendments.`),
     'each line is written only when its file exists');
   ok(!parked.includes('Append to its "- amended:" line'), 'a park that supersedes nothing carries no amendments over');
   const fixParked = flat((await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_GAP, park: PARK_OK }, { ...FIX_ONE, maxRounds: 1 })).prompt('park:fix-a'));
-  ok(fixParked.includes(`Append to its "- amended:" line the same way every path that the "- amended:" line of those entries holds and this line does not, writing that line when this entry has none, since those blocks' criteria stay judged under their amendments. Their "- ledger:" lines carry over through ${LEDGER('fix-a')}, into which round 1 copied each line it kept.`),
+  ok(fixParked.includes(`Append to its "- amended:" line the same way every path that the "- amended:" line of those entries holds and this line does not, writing that line directly under this entry's "- origin:" line when this entry has none, since those blocks' criteria stay judged under their amendments. Their "- ledger:" lines carry over through ${LEDGER('fix-a')}, into which round 1 copied each line it kept.`),
     'a superseding park carries the superseded entries\' amendments, and their ledgers through its own');
 
   // The fix block built from such an entry: round 1 copies each kept ledger line where the blind reviewer reads.
@@ -5117,27 +5125,27 @@ section('the park prompt renders the ledger and amended lines and their existenc
   const NONE_FILES = { ...DEV_OK, earlier_files: false, dismissed_count: 0, plan_amendments: 0 };
   const parkArgs = { ...ONE_BLOCK, maxRounds: 1 };
   const parkOf = async (develop) => flat((await run({ develop, quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, parkArgs)).prompt('park:block-a'));
-  const LEDGER_LINE = `- ledger: ${STATE}/gate/DISMISSED-block-a.md`;
-  const AMENDED_LINE = `- amended: ${STATE}/AMENDED-block-a.md`;
-  const LEDGER_CHECK = `the "- ledger:" line only when ${STATE}/gate/DISMISSED-block-a.md exists`;
-  const AMENDED_CHECK = `the "- amended:" line only when ${STATE}/AMENDED-block-a.md exists`;
+  const LEDGER_LINE = `--ledger '${STATE}/gate/DISMISSED-block-a.md'`;
+  const AMENDED_LINE = `--amended '${STATE}/AMENDED-block-a.md'`;
+  const LEDGER_CHECK = `--ledger only when ${STATE}/gate/DISMISSED-block-a.md exists`;
+  const AMENDED_CHECK = `--amended only when ${STATE}/AMENDED-block-a.md exists`;
   const lacks = (prompt, ...texts) => texts.every((t) => !prompt.includes(t));
 
   const gone = await parkOf(NONE_FILES);
-  ok(lacks(gone, LEDGER_LINE, AMENDED_LINE, LEDGER_CHECK, AMENDED_CHECK, 'Write neither', 'so the block built from this entry reads'),
+  ok(lacks(gone, LEDGER_LINE, AMENDED_LINE, LEDGER_CHECK, AMENDED_CHECK, 'Pass neither', 'so the block built from this entry reads'),
     'a park whose developers wrote neither file renders neither line and no rule about them');
   const dismissed = await parkOf({ ...NONE_FILES, dismissed_count: 1 });
-  ok(dismissed.includes(LEDGER_LINE) && dismissed.includes(`Write ${LEDGER_CHECK}, so the block built from this entry reads this block's declined findings.`)
+  ok(dismissed.includes(LEDGER_LINE) && dismissed.includes(`Pass ${LEDGER_CHECK}, so the block built from this entry reads this block's declined findings.`)
     && lacks(dismissed, AMENDED_LINE, AMENDED_CHECK, '"- amended:" line, since'),
   'a park renders only the ledger line and its check when only DISMISSED was written');
   const amended = await parkOf({ ...NONE_FILES, plan_amendments: 1 });
-  ok(amended.includes(AMENDED_LINE) && amended.includes(`Write ${AMENDED_CHECK}, so the block built from this entry reads this block's plan amendments.`)
+  ok(amended.includes(AMENDED_LINE) && amended.includes(`Pass ${AMENDED_CHECK}, so the block built from this entry reads this block's plan amendments.`)
     && lacks(amended, LEDGER_LINE, LEDGER_CHECK, '"- ledger:" line, since'),
   'a park renders only the amended line and its check when only AMENDED was written');
   for (const [label, dev] of [['an earlier launch left a file', { ...NONE_FILES, earlier_files: true }], ['round 1 stopped at its plan', { ...NONE_FILES, plan_obtained: false }], ['round 1 returned no earlier_files', { ...NONE_FILES, earlier_files: undefined }]]) {
     const kept = await parkOf(dev);
-    ok(kept.includes(`${LEDGER_LINE} ${AMENDED_LINE} **What:**`)
-      && kept.includes(`Write ${LEDGER_CHECK}, and ${AMENDED_CHECK}, so the block built from this entry reads this block's declined findings and plan amendments.`),
+    ok(kept.includes(`${LEDGER_LINE} ${AMENDED_LINE} Its --decision`)
+      && kept.includes(`Pass ${LEDGER_CHECK}, and ${AMENDED_CHECK}, so the block built from this entry reads this block's declined findings and plan amendments.`),
     `a park renders both lines and both existence checks when ${label}`);
   }
 }

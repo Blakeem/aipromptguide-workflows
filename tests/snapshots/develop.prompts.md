@@ -6,94 +6,94 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 32827 | every block accepts first time |
+| develop | 1 | 1 | 32798 | every block accepts first time |
 | quality | 1 | 1 | 8941 | every block accepts first time |
 | acceptance | 1 | 1 | 16430 | every block accepts first time |
-| develop | 2 | 1 | 33252 | every block accepts first time |
+| develop | 2 | 1 | 33223 | every block accepts first time |
 | acceptance | 2 | 2 | 16711 | every block accepts first time |
 | final-sweep | 1 | 1 | 4678 | every block accepts first time |
-| develop | 3 | 2 | 36073 | a feature block accepts under the proactive policy |
+| develop | 3 | 2 | 36044 | a feature block accepts under the proactive policy |
 | acceptance | 3 | 3 | 17591 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 4669 | a feature block accepts under the proactive policy |
-| develop | 4 | 1 | 31911 | quality flags the first round |
+| develop | 4 | 1 | 31882 | quality flags the first round |
 | acceptance | 4 | 1 | 16429 | quality flags the first round |
-| develop | 5 | 1 | 32281 | quality flags the first round |
+| develop | 5 | 1 | 32252 | quality flags the first round |
 | acceptance | 5 | 2 | 16710 | quality flags the first round |
-| develop | 6 | 1 | 31907 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 31878 | acceptance finds gaps, then passes |
 | acceptance | 6 | 1 | 16427 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 32277 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 32248 | acceptance finds gaps, then passes |
 | acceptance | 7 | 2 | 16708 | acceptance finds gaps, then passes |
 | acceptance | 8 | 1 | 19869 | a later round is judged low risk |
 | acceptance | 9 | 2 | 20150 | a later round is judged low risk |
-| develop | 8 | 1 | 30733 | the gate never goes green |
-| develop-closing | 1 | 1 | 32355 | the gate never goes green |
+| develop | 8 | 1 | 30704 | the gate never goes green |
+| develop-closing | 1 | 1 | 32326 | the gate never goes green |
 | quality | 2 | 1 | 9001 | the gate never goes green |
-| acceptance | 10 | 4 | 19833 | the gate never goes green |
-| park | 1 | 1 | 10605 | the gate never goes green |
-| develop | 9 | 1 | 31158 | the gate never goes green |
-| develop-closing | 2 | 1 | 32725 | the gate never goes green |
-| acceptance | 11 | 5 | 20114 | the gate never goes green |
+| acceptance | 10 | 4 | 19797 | the gate never goes green |
+| park | 1 | 1 | 10634 | the gate never goes green |
+| develop | 9 | 1 | 31129 | the gate never goes green |
+| develop-closing | 2 | 1 | 32696 | the gate never goes green |
+| acceptance | 11 | 5 | 20078 | the gate never goes green |
 | acceptance | 12 | 1 | 16482 | a parked block, and the run carries on |
 | acceptance | 13 | 1 | 16537 | a parked block, and the run carries on |
 | acceptance | 14 | 1 | 16592 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 33373 | a parked block, and the run carries on |
-| acceptance | 15 | 4 | 23490 | a parked block, and the run carries on |
-| develop | 10 | 1 | 32809 | an ordered run stops at a parked block |
+| develop-closing | 3 | 1 | 33344 | a parked block, and the run carries on |
+| acceptance | 15 | 4 | 23454 | a parked block, and the run carries on |
+| develop | 10 | 1 | 32780 | an ordered run stops at a parked block |
 | acceptance | 16 | 1 | 16424 | an ordered run stops at a parked block |
-| develop | 11 | 1 | 31889 | an ordered run stops at a parked block |
+| develop | 11 | 1 | 31860 | an ordered run stops at a parked block |
 | acceptance | 17 | 1 | 16421 | an ordered run stops at a parked block |
 | acceptance | 18 | 1 | 16476 | an ordered run stops at a parked block |
 | acceptance | 19 | 1 | 16531 | an ordered run stops at a parked block |
 | acceptance | 20 | 1 | 16586 | an ordered run stops at a parked block |
-| develop-closing | 4 | 1 | 33355 | an ordered run stops at a parked block |
-| acceptance | 21 | 4 | 23484 | an ordered run stops at a parked block |
-| park | 2 | 1 | 10617 | an ordered run stops at a parked block |
-| develop | 12 | 3 | 41515 | a fix block closes its issues |
-| acceptance | 22 | 6 | 24064 | a fix block closes its issues |
+| develop-closing | 4 | 1 | 33326 | an ordered run stops at a parked block |
+| acceptance | 21 | 4 | 23448 | an ordered run stops at a parked block |
+| park | 2 | 1 | 10646 | an ordered run stops at a parked block |
+| develop | 12 | 3 | 41513 | a fix block closes its issues |
+| acceptance | 22 | 6 | 24389 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 4669 | a fix block closes its issues |
-| develop | 13 | 4 | 44982 | a fix block closes its issues under the proactive policy |
-| acceptance | 23 | 7 | 25571 | a fix block closes its issues under the proactive policy |
-| acceptance | 24 | 7 | 25585 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 14 | 4 | 36208 | a proactive fix block starts round 2 from the statuses it last reported |
-| acceptance | 25 | 7 | 25384 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 15 | 3 | 41977 | a pass of two fix blocks closes its issues |
-| acceptance | 26 | 6 | 24490 | a pass of two fix blocks closes its issues |
+| develop | 13 | 4 | 44980 | a fix block closes its issues under the proactive policy |
+| acceptance | 23 | 7 | 25896 | a fix block closes its issues under the proactive policy |
+| acceptance | 24 | 7 | 25910 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 14 | 4 | 36179 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 25 | 7 | 25709 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 15 | 3 | 41860 | a pass of two fix blocks closes its issues |
+| acceptance | 26 | 6 | 24709 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 4699 | a pass of two fix blocks closes its issues |
-| acceptance | 27 | 6 | 24063 | every issue is already fixed |
-| develop | 16 | 3 | 41497 | an ordered run stops on a fix block that closes nothing |
-| park | 3 | 1 | 10920 | passed with a regression, not staged |
-| park | 4 | 1 | 10212 | acceptance stages a rejected block |
-| park | 5 | 1 | 10773 | the quality reviewer fails a block without its file |
-| park | 6 | 1 | 10773 | acceptance fails a block without its file |
-| park | 7 | 1 | 10557 | the developer staged its own work |
-| park | 8 | 1 | 10618 | the index changed outside acceptance |
-| park | 9 | 1 | 10682 | developer never got its block |
-| park | 10 | 1 | 10195 | acceptance never got its block |
-| park | 11 | 1 | 10518 | the developer dies |
-| park | 12 | 1 | 10140 | the quality reviewer dies |
-| park | 13 | 1 | 10518 | the acceptance verifier dies |
-| park | 14 | 1 | 10221 | developer escalates |
-| park | 15 | 1 | 10211 | developer escalates in an ordered run |
-| acceptance | 28 | 6 | 26517 | log line cap before the sweep |
-| acceptance | 29 | 4 | 23270 | a closing acceptance lands the block |
-| develop-closing | 5 | 1 | 33743 | a closing acceptance lands the block |
-| acceptance | 30 | 5 | 23551 | a closing acceptance lands the block |
-| acceptance | 31 | 4 | 19887 | a closing pass gets a blind review |
-| acceptance | 32 | 5 | 20168 | a closing pass gets a blind review |
-| acceptance | 33 | 4 | 23563 | a closing acceptance finds a blocking gap |
-| park | 16 | 1 | 10755 | a closing acceptance finds a blocking gap |
-| acceptance | 34 | 5 | 23844 | a closing acceptance finds a blocking gap |
-| park | 17 | 1 | 10755 | a closing acceptance finds a blocking gap |
-| develop | 17 | 5 | 32998 | every block commits first time |
+| acceptance | 27 | 6 | 24388 | every issue is already fixed |
+| develop | 16 | 3 | 41495 | an ordered run stops on a fix block that closes nothing |
+| park | 3 | 1 | 10949 | passed with a regression, not staged |
+| park | 4 | 1 | 10241 | acceptance stages a rejected block |
+| park | 5 | 1 | 10802 | the quality reviewer fails a block without its file |
+| park | 6 | 1 | 10802 | acceptance fails a block without its file |
+| park | 7 | 1 | 10586 | the developer staged its own work |
+| park | 8 | 1 | 10647 | the index changed outside acceptance |
+| park | 9 | 1 | 10678 | developer never got its block |
+| park | 10 | 1 | 10224 | acceptance never got its block |
+| park | 11 | 1 | 10514 | the developer dies |
+| park | 12 | 1 | 10169 | the quality reviewer dies |
+| park | 13 | 1 | 10547 | the acceptance verifier dies |
+| park | 14 | 1 | 10217 | developer escalates |
+| park | 15 | 1 | 10207 | developer escalates in an ordered run |
+| acceptance | 28 | 6 | 26842 | log line cap before the sweep |
+| acceptance | 29 | 4 | 23234 | a closing acceptance lands the block |
+| develop-closing | 5 | 1 | 33714 | a closing acceptance lands the block |
+| acceptance | 30 | 5 | 23515 | a closing acceptance lands the block |
+| acceptance | 31 | 4 | 19851 | a closing pass gets a blind review |
+| acceptance | 32 | 5 | 20132 | a closing pass gets a blind review |
+| acceptance | 33 | 4 | 23527 | a closing acceptance finds a blocking gap |
+| park | 16 | 1 | 10784 | a closing acceptance finds a blocking gap |
+| acceptance | 34 | 5 | 23808 | a closing acceptance finds a blocking gap |
+| park | 17 | 1 | 10784 | a closing acceptance finds a blocking gap |
+| develop | 17 | 5 | 32969 | every block commits first time |
 | quality | 3 | 1 | 8894 | every block commits first time |
 | acceptance | 35 | 8 | 17969 | every block commits first time |
-| develop | 18 | 5 | 33423 | every block commits first time |
+| develop | 18 | 5 | 33394 | every block commits first time |
 | acceptance | 36 | 9 | 18250 | every block commits first time |
 | final-sweep | 5 | 1 | 4990 | every block commits first time |
-| develop | 19 | 6 | 41717 | a fix block commits |
-| acceptance | 37 | 10 | 25820 | a fix block commits |
+| develop | 19 | 6 | 41715 | a fix block commits |
+| acceptance | 37 | 10 | 26145 | a fix block commits |
 | final-sweep | 6 | 1 | 4897 | a fix block commits |
-| park | 18 | 1 | 10218 | acceptance commits a rejected block |
+| park | 18 | 1 | 10247 | acceptance commits a rejected block |
 
 ## develop · variant 1 · schema 1
 
@@ -350,19 +350,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-a-d48cf78a-<n>] <title>
-      - id: flow-block-a-d48cf78a-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -1158,19 +1151,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-b" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-b-7d7451b3-<n>] <title>
-      - id: flow-block-b-7d7451b3-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -1934,19 +1920,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive gets no entry, and a nit dropped under rule 2 or SIBLINGS goes under CLEANUP below.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-a-d48cf78a-<n>] <title>
-      - id: flow-block-a-d48cf78a-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -2727,19 +2706,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-a-d48cf78a-<n>] <title>
-      - id: flow-block-a-d48cf78a-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -3378,19 +3350,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-b" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-b-7d7451b3-<n>] <title>
-      - id: flow-block-b-7d7451b3-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -4028,19 +3993,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-a-d48cf78a-<n>] <title>
-      - id: flow-block-a-d48cf78a-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -4679,19 +4637,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-b" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-b-7d7451b3-<n>] <title>
-      - id: flow-block-b-7d7451b3-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -5850,19 +5801,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-a-d48cf78a-<n>] <title>
-      - id: flow-block-a-d48cf78a-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -6282,19 +6226,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-a-d48cf78a-<n>] <title>
-      - id: flow-block-a-d48cf78a-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -6768,19 +6705,12 @@ PROCEDURE:
    finish step 8: run it again after your `git add` when you stage, and otherwise return the id this check printed.
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
      Count it in backlog_entries and name "block-a" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
-     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-       ### [flow-block-a-d48cf78a-<n>] <title>
-       - id: flow-block-a-d48cf78a-<n>
-       - status: open
-       - file: <path>:<line>
-       - severity: <low | medium | high | critical>
-       - category: <category>
-       - size: <trivial | small | medium | large>
-       - decision: <ACTIONABLE | NEEDS_USER>
-       **What:** <the gap, the input or path that reaches it, and its harm>
-       **Fix:** <the change that closes it>
+     Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
      Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
      staged=true, gap_count=0.
@@ -6945,24 +6875,17 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r6.md, then every other finding and gap in it, each copied verbatim>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r6.md, then every other finding and gap in it, each copied verbatim> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -7248,19 +7171,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-b" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-b-7d7451b3-<n>] <title>
-      - id: flow-block-b-7d7451b3-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -7684,19 +7600,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-b" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-b-7d7451b3-<n>] <title>
-      - id: flow-block-b-7d7451b3-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -8037,19 +7946,12 @@ PROCEDURE:
    finish step 8: run it again after your `git add` when you stage, and otherwise return the id this check printed.
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md only.
      Count it in backlog_entries and name "block-b" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
-     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-       ### [flow-block-b-7d7451b3-<n>] <title>
-       - id: flow-block-b-7d7451b3-<n>
-       - status: open
-       - file: <path>:<line>
-       - severity: <low | medium | high | critical>
-       - category: <category>
-       - size: <trivial | small | medium | large>
-       - decision: <ACTIONABLE | NEEDS_USER>
-       **What:** <the gap, the input or path that reaches it, and its harm>
-       **Fix:** <the change that closes it>
+     Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
      Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
      staged=true, gap_count=0.
@@ -9088,19 +8990,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-a-d48cf78a-<n>] <title>
-      - id: flow-block-a-d48cf78a-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -9472,19 +9367,12 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
    finish step 8: run it again after your `git add` when you stage, and otherwise return the id this check printed.
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
      Count it in backlog_entries and name "block-a" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
-     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-       ### [flow-block-a-d48cf78a-<n>] <title>
-       - id: flow-block-a-d48cf78a-<n>
-       - status: open
-       - file: <path>:<line>
-       - severity: <low | medium | high | critical>
-       - category: <category>
-       - size: <trivial | small | medium | large>
-       - decision: <ACTIONABLE | NEEDS_USER>
-       **What:** <the gap, the input or path that reaches it, and its harm>
-       **Fix:** <the change that closes it>
+     Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
      Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
      staged=true, gap_count=0.
@@ -9836,19 +9724,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-a-d48cf78a-<n>] <title>
-      - id: flow-block-a-d48cf78a-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -10483,19 +10364,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-a-d48cf78a-<n>] <title>
-      - id: flow-block-a-d48cf78a-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -11838,19 +11712,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-a-d48cf78a-<n>] <title>
-      - id: flow-block-a-d48cf78a-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -12222,19 +12089,12 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
    finish step 8: run it again after your `git add` when you stage, and otherwise return the id this check printed.
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
      Count it in backlog_entries and name "block-a" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
-     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-       ### [flow-block-a-d48cf78a-<n>] <title>
-       - id: flow-block-a-d48cf78a-<n>
-       - status: open
-       - file: <path>:<line>
-       - severity: <low | medium | high | critical>
-       - category: <category>
-       - size: <trivial | small | medium | large>
-       - decision: <ACTIONABLE | NEEDS_USER>
-       **What:** <the gap, the input or path that reaches it, and its harm>
-       **Fix:** <the change that closes it>
+     Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
      Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
      staged=true, gap_count=0.
@@ -12399,24 +12259,17 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r6.md, then every other finding and gap in it, each copied verbatim>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r6.md, then every other finding and gap in it, each copied verbatim> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -12519,13 +12372,14 @@ The branch of each ACTIONABLE entry whose "- status:" is absent, open or needs-a
      a 3-way apply onto the accepted baseline, since a block that landed after the branch was cut may
      have changed a file the branch touches. Never run it without that GIT_INDEX_FILE, and never with
      `--index` or `--cached`: each of those stages the restored work into the accepted baseline. A clean apply leaves no conflict to
-     resolve, and a file the project generates from the restored files may still be stale, so regenerate it before the gate run. An apply that exits non-zero leaves conflict markers in each file it reports "with
+     resolve. An apply that exits non-zero leaves conflict markers in each file it reports "with
      conflicts". Resolve each such file only when you confirm the resolution against the accepted
      baseline and the work the branch holds, then run
      `GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c.index" git -C E:/repo add -- <file>`, so the next apply sees the
      resolution. A conflict you cannot confirm FAILS the restore for the branch (below).
-  c. Once every branch has applied and no conflict marker is left, delete that index copy. Then run
-     `git -C E:/repo add -N -- <file>` on each new file the restores created
+  c. Once every branch has applied and no conflict marker is left, delete that index copy. A file the
+     project generates from the restored files may still be stale, so regenerate it now, before the gate run.
+     Then run `git -C E:/repo add -N -- <file>` on each new file the restores or that regeneration created
      (`git -C E:/repo status --porcelain` lists it as `??`).
   d. Confirm `git -C E:/repo diff --cached --stat` is the same as the output step a kept.
 The restored diff is THIS block's own unstaged work, and it is the work of the entry whose branch it is.
@@ -12784,19 +12638,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-c" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-c-eb03ab84-<n>] <title>
-      - id: flow-block-c-eb03ab84-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -13141,11 +12988,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
    new issue to E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md only, never to your review file.
    Count it in backlog_entries and name "block-c" in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
-   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
-   Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
-   the highest n in that file's entry ids), "- status: open" and a **What:** that
-   names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+   Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
+   Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -13459,13 +13308,14 @@ The branch of each ACTIONABLE entry whose "- status:" is absent, open or needs-a
      a 3-way apply onto the accepted baseline, since a block that landed after the branch was cut may
      have changed a file the branch touches. Never run it without that GIT_INDEX_FILE, and never with
      `--index` or `--cached`: each of those stages the restored work into the accepted baseline. A clean apply leaves no conflict to
-     resolve, and a file the project generates from the restored files may still be stale, so regenerate it before the gate run. An apply that exits non-zero leaves conflict markers in each file it reports "with
+     resolve. An apply that exits non-zero leaves conflict markers in each file it reports "with
      conflicts". Resolve each such file only when you confirm the resolution against the accepted
      baseline and the work the branch holds, then run
      `GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c.index" git -C E:/repo add -- <file>`, so the next apply sees the
      resolution. A conflict you cannot confirm FAILS the restore for the branch (below).
-  c. Once every branch has applied and no conflict marker is left, delete that index copy. Then run
-     `git -C E:/repo add -N -- <file>` on each new file the restores created
+  c. Once every branch has applied and no conflict marker is left, delete that index copy. A file the
+     project generates from the restored files may still be stale, so regenerate it now, before the gate run.
+     Then run `git -C E:/repo add -N -- <file>` on each new file the restores or that regeneration created
      (`git -C E:/repo status --porcelain` lists it as `??`).
   d. Confirm `git -C E:/repo diff --cached --stat` is the same as the output step a kept.
 The restored diff is THIS block's own unstaged work, and it is the work of the entry whose branch it is.
@@ -13751,19 +13601,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-c" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive gets no entry, and a nit dropped under rule 2 or SIBLINGS goes under CLEANUP below.
-    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-c-eb03ab84-<n>] <title>
-      - id: flow-block-c-eb03ab84-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -14155,11 +13998,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
    new issue to E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md only, never to your review file.
    Count it in backlog_entries and name "block-c" in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
-   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
-   Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
-   the highest n in that file's entry ids), "- status: open" and a **What:** that
-   names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+   Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
+   Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -14513,11 +14358,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
    new issue to E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md only, never to your review file.
    Count it in backlog_entries and name "block-c" in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
-   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
-   Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
-   the highest n in that file's entry ids), "- status: open" and a **What:** that
-   names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+   Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
+   Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -14983,19 +14830,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-c" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive gets no entry, and a nit dropped under rule 2 or SIBLINGS goes under CLEANUP below.
-    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-c-eb03ab84-<n>] <title>
-      - id: flow-block-c-eb03ab84-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -15387,11 +15227,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
    new issue to E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md only, never to your review file.
    Count it in backlog_entries and name "block-c" in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
-   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
-   Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
-   the highest n in that file's entry ids), "- status: open" and a **What:** that
-   names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+   Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
+   Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -15648,13 +15490,14 @@ The branch of each ACTIONABLE entry whose "- status:" is absent, open or needs-a
      a 3-way apply onto the accepted baseline, since a block that landed after the branch was cut may
      have changed a file the branch touches. Never run it without that GIT_INDEX_FILE, and never with
      `--index` or `--cached`: each of those stages the restored work into the accepted baseline. A clean apply leaves no conflict to
-     resolve, and a file the project generates from the restored files may still be stale, so regenerate it before the gate run. An apply that exits non-zero leaves conflict markers in each file it reports "with
+     resolve. An apply that exits non-zero leaves conflict markers in each file it reports "with
      conflicts". Resolve each such file only when you confirm the resolution against the accepted
      baseline and the work the branch holds, then run
      `GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c-plus-1.index" git -C E:/repo add -- <file>`, so the next apply sees the
      resolution. A conflict you cannot confirm FAILS the restore for the branch (below).
-  c. Once every branch has applied and no conflict marker is left, delete that index copy. Then run
-     `git -C E:/repo add -N -- <file>` on each new file the restores created
+  c. Once every branch has applied and no conflict marker is left, delete that index copy. A file the
+     project generates from the restored files may still be stale, so regenerate it now, before the gate run.
+     Then run `git -C E:/repo add -N -- <file>` on each new file the restores or that regeneration created
      (`git -C E:/repo status --porcelain` lists it as `??`).
   d. Confirm `git -C E:/repo diff --cached --stat` is the same as the output step a kept.
 The restored diff is THIS block's own unstaged work, and it is the work of the entry whose branch it is.
@@ -15915,19 +15758,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name that block in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: <that file's name without .md> - backlog from block <that block's id> of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [<that file's name without .md>-<n>] <title>
-      - id: <that file's name without .md>-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file '<that file>' --block '<that block id>' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check '<that file>'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -16276,11 +16112,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
      - i-2 → E:/flow/backlog/repo-0a1b2c3d/flow-block-d-1bea48c5.md (block "block-d")
    Count it in backlog_entries and name that block in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
-   A new file starts with the four lines "## Plan: <that file's name without .md> - backlog from block <that block's id> of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
-   Each entry copies the shape of the block's own entries, with the id "<that file's name without .md>-<n>" (n one past
-   the highest n in that file's entry ids), "- status: open" and a **What:** that
-   names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+   Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file '<that file>' --block '<that block id>' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check '<that file>'` and fix each problem it prints.
+   Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -16676,11 +16514,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
    new issue to E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md only, never to your review file.
    Count it in backlog_entries and name "block-c" in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
-   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
-   Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
-   the highest n in that file's entry ids), "- status: open" and a **What:** that
-   names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+   Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
+   Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    The developer reports these issues STALE (already absent from the current code):
      - i-1
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -16916,13 +16756,14 @@ The branch of each ACTIONABLE entry whose "- status:" is absent, open or needs-a
      a 3-way apply onto the accepted baseline, since a block that landed after the branch was cut may
      have changed a file the branch touches. Never run it without that GIT_INDEX_FILE, and never with
      `--index` or `--cached`: each of those stages the restored work into the accepted baseline. A clean apply leaves no conflict to
-     resolve, and a file the project generates from the restored files may still be stale, so regenerate it before the gate run. An apply that exits non-zero leaves conflict markers in each file it reports "with
+     resolve. An apply that exits non-zero leaves conflict markers in each file it reports "with
      conflicts". Resolve each such file only when you confirm the resolution against the accepted
      baseline and the work the branch holds, then run
      `GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c.index" git -C E:/repo add -- <file>`, so the next apply sees the
      resolution. A conflict you cannot confirm FAILS the restore for the branch (below).
-  c. Once every branch has applied and no conflict marker is left, delete that index copy. Then run
-     `git -C E:/repo add -N -- <file>` on each new file the restores created
+  c. Once every branch has applied and no conflict marker is left, delete that index copy. A file the
+     project generates from the restored files may still be stale, so regenerate it now, before the gate run.
+     Then run `git -C E:/repo add -N -- <file>` on each new file the restores or that regeneration created
      (`git -C E:/repo status --porcelain` lists it as `??`).
   d. Confirm `git -C E:/repo diff --cached --stat` is the same as the output step a kept.
 The restored diff is THIS block's own unstaged work, and it is the work of the entry whose branch it is.
@@ -17181,19 +17022,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-c" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-c-eb03ab84-<n>] <title>
-      - id: flow-block-c-eb03ab84-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -17470,24 +17304,17 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Halted: acceptance passed the block but flagged a regression and staged nothing, so its work must never be staged as it is.", then this halt reason, copied verbatim: Acceptance PASSED block block-a in round 1 but flagged a regression and staged nothing (see E:/flow/runs/flow/acceptance-review-block-a-r1.md). Its work was left UNSTAGED and is flagged as a regression, so never stage it as it is., then every finding and gap in E:/flow/runs/flow/acceptance-review-block-a-r1.md, copied verbatim>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Halted: acceptance passed the block but flagged a regression and staged nothing, so its work must never be staged as it is.", then this halt reason, copied verbatim: Acceptance PASSED block block-a in round 1 but flagged a regression and staged nothing (see E:/flow/runs/flow/acceptance-review-block-a-r1.md). Its work was left UNSTAGED and is flagged as a regression, so never stage it as it is., then every finding and gap in E:/flow/runs/flow/acceptance-review-block-a-r1.md, copied verbatim> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -17603,24 +17430,17 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Halted: acceptance rejected the block but staged it anyway; inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage this block's files.", then this halt reason, copied verbatim: Acceptance REJECTED block block-a in round 1 but reported staged=true (see E:/flow/runs/flow/acceptance-review-block-a-r1.md), so work it failed may now sit in the accepted baseline. Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage this block's files before resuming.>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Halted: acceptance rejected the block but staged it anyway; inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage this block's files.", then this halt reason, copied verbatim: Acceptance REJECTED block block-a in round 1 but reported staged=true (see E:/flow/runs/flow/acceptance-review-block-a-r1.md), so work it failed may now sit in the accepted baseline. Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage this block's files before resuming.> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -17736,24 +17556,17 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Quality reviewer for block block-a reported findings in round 1 but did not confirm writing E:/flow/runs/flow/gate/quality-review-block-a-r1.md, so there is no review file for the next stage to read. Check whether that file exists before resuming.>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Quality reviewer for block block-a reported findings in round 1 but did not confirm writing E:/flow/runs/flow/gate/quality-review-block-a-r1.md, so there is no review file for the next stage to read. Check whether that file exists before resuming.> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -17869,24 +17682,17 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Acceptance verifier for block block-a failed the block in round 1 but did not confirm writing E:/flow/runs/flow/acceptance-review-block-a-r1.md, so there is no review file for the next stage to read. Check whether that file exists before resuming.>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Acceptance verifier for block block-a failed the block in round 1 but did not confirm writing E:/flow/runs/flow/acceptance-review-block-a-r1.md, so there is no review file for the next stage to read. Check whether that file exists before resuming.> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -18002,24 +17808,17 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Halted: the staged index may hold work no reviewer read, since the developer did not confirm its work stayed unstaged or acceptance found the index changed outside acceptance; inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` for self-staged work.", then this halt reason, copied verbatim: Developer for block block-a did not confirm its work stayed UNSTAGED in round 1 (unstaged_confirmed=false). Neither reviewer reads what the staged index holds — the blind critic reads `git diff`, acceptance treats `git diff --staged` as the accepted baseline — so anything staged here would be reviewed by nobody and then inherited as known-good. Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` before resuming.>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Halted: the staged index may hold work no reviewer read, since the developer did not confirm its work stayed unstaged or acceptance found the index changed outside acceptance; inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` for self-staged work.", then this halt reason, copied verbatim: Developer for block block-a did not confirm its work stayed UNSTAGED in round 1 (unstaged_confirmed=false). Neither reviewer reads what the staged index holds — the blind critic reads `git diff`, acceptance treats `git diff --staged` as the accepted baseline — so anything staged here would be reviewed by nobody and then inherited as known-good. Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` before resuming.> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -18135,24 +17934,17 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Halted: the staged index may hold work no reviewer read, since the developer did not confirm its work stayed unstaged or acceptance found the index changed outside acceptance; inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` for self-staged work.", then this halt reason, copied verbatim: Acceptance for block block-a found in round 1 that the staged index no longer holds tree c0ffee0000000000000000000000000000000001, the tree id this run last recorded for the index, so work that no reviewer read may sit in the accepted baseline (see E:/flow/runs/flow/acceptance-review-block-a-r1.md). It still reported staged=true, so its own staging may sit there too. Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage what no acceptance staged before resuming.>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Halted: the staged index may hold work no reviewer read, since the developer did not confirm its work stayed unstaged or acceptance found the index changed outside acceptance; inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` for self-staged work.", then this halt reason, copied verbatim: Acceptance for block block-a found in round 1 that the staged index no longer holds tree c0ffee0000000000000000000000000000000001, the tree id this run last recorded for the index, so work that no reviewer read may sit in the accepted baseline (see E:/flow/runs/flow/acceptance-review-block-a-r1.md). It still reported staged=true, so its own staging may sit there too. Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage what no acceptance staged before resuming.> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -18268,27 +18060,18 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     - ledger: E:/flow/runs/flow/gate/DISMISSED-block-a.md
-     - amended: E:/flow/runs/flow/AMENDED-block-a.md
-     **What:** <the line "Halted: an agent could not obtain its plan.", then the cause: run `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'` yourself, and for each command write the line "Cause: <the command> exited <its exit code>: <the first line of its error output>", or "Cause: <the command> exited 0, so it reads the plan now" when it exits 0, then this halt reason, copied verbatim: Developer for block block-a could not obtain its plan (round 1). Its plan command was `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'`. Run it yourself. A non-zero exit names the cause (an id matching no "## Plan:" block, a pruned or mistyped plan file, or the command not permitted in this environment). Nothing was built from a guess.>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
-   Write the "- ledger:" line only when E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, and the "- amended:" line only when E:/flow/runs/flow/AMENDED-block-a.md exists, so the block built from this entry reads this block's declined findings and plan amendments.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a' --ledger 'E:/flow/runs/flow/gate/DISMISSED-block-a.md' --amended 'E:/flow/runs/flow/AMENDED-block-a.md'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Halted: an agent could not obtain its plan.", then the cause: run `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'` yourself, and for each command write the line "Cause: <the command> exited <its exit code>: <the first line of its error output>", or "Cause: <the command> exited 0, so it reads the plan now" when it exits 0, then this halt reason, copied verbatim: Developer for block block-a could not obtain its plan (round 1). Its plan command was `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'`. Run it yourself. A non-zero exit names the cause (an id matching no "## Plan:" block, a pruned or mistyped plan file, or the command not permitted in this environment). Nothing was built from a guess.> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+   Pass --ledger only when E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, and --amended only when E:/flow/runs/flow/AMENDED-block-a.md exists, so the block built from this entry reads this block's declined findings and plan amendments.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -18404,24 +18187,17 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Halted: an agent could not obtain its plan.", then the cause: run `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'` yourself, and for each command write the line "Cause: <the command> exited <its exit code>: <the first line of its error output>", or "Cause: <the command> exited 0, so it reads the plan now" when it exits 0, then this halt reason, copied verbatim: Acceptance verifier for block block-a could not obtain its plan (round 1), so it had no criteria to judge. Its plan command was `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'`. Run it yourself. A non-zero exit names the cause.>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Halted: an agent could not obtain its plan.", then the cause: run `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'` yourself, and for each command write the line "Cause: <the command> exited <its exit code>: <the first line of its error output>", or "Cause: <the command> exited 0, so it reads the plan now" when it exits 0, then this halt reason, copied verbatim: Acceptance verifier for block block-a could not obtain its plan (round 1), so it had no criteria to judge. Its plan command was `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'`. Run it yourself. A non-zero exit names the cause.> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -18537,27 +18313,18 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     - ledger: E:/flow/runs/flow/gate/DISMISSED-block-a.md
-     - amended: E:/flow/runs/flow/AMENDED-block-a.md
-     **What:** <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Developer for block block-a returned nothing in round 1 (agent skipped or died) — no work can be assumed either way. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
-   Write the "- ledger:" line only when E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, and the "- amended:" line only when E:/flow/runs/flow/AMENDED-block-a.md exists, so the block built from this entry reads this block's declined findings and plan amendments.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a' --ledger 'E:/flow/runs/flow/gate/DISMISSED-block-a.md' --amended 'E:/flow/runs/flow/AMENDED-block-a.md'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Developer for block block-a returned nothing in round 1 (agent skipped or died) — no work can be assumed either way. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+   Pass --ledger only when E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, and --amended only when E:/flow/runs/flow/AMENDED-block-a.md exists, so the block built from this entry reads this block's declined findings and plan amendments.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -18673,24 +18440,17 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Quality reviewer for block block-a returned nothing in round 1 (agent skipped or died) — that is NOT a clean review. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Quality reviewer for block block-a returned nothing in round 1 (agent skipped or died) — that is NOT a clean review. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -18806,24 +18566,17 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Acceptance verifier for block block-a returned nothing in round 1 (agent skipped or died) — that is NOT a gap verdict. It may have staged the block's files before it died: check `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001 --stat` for them before you pick the route the held-park rule gives this block. Any such work is in the branch's first parent, the staged index, so it is outside the park's branch diff, and that branch then does not hold all of the block's work. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Acceptance verifier for block block-a returned nothing in round 1 (agent skipped or died) — that is NOT a gap verdict. It may have staged the block's files before it died: check `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001 --stat` for them before you pick the route the held-park rule gives this block. Any such work is in the branch's first parent, the staged index, so it is outside the park's branch diff, and that branch then does not hold all of the block's work. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -18939,27 +18692,18 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     - ledger: E:/flow/runs/flow/gate/DISMISSED-block-a.md
-     - amended: E:/flow/runs/flow/AMENDED-block-a.md
-     **What:** <the latest `## Question: block-a r<n>` entry in E:/flow/runs/flow/question-block-a.md, copied verbatim>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
-   Write the "- ledger:" line only when E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, and the "- amended:" line only when E:/flow/runs/flow/AMENDED-block-a.md exists, so the block built from this entry reads this block's declined findings and plan amendments.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a' --ledger 'E:/flow/runs/flow/gate/DISMISSED-block-a.md' --amended 'E:/flow/runs/flow/AMENDED-block-a.md'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the latest `## Question: block-a r<n>` entry in E:/flow/runs/flow/question-block-a.md, copied verbatim> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+   Pass --ledger only when E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, and --amended only when E:/flow/runs/flow/AMENDED-block-a.md exists, so the block built from this entry reads this block's declined findings and plan amendments.
    Set "- decision: NEEDS_USER", since this park waits on a question only the user can answer.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -19075,27 +18819,18 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     - ledger: E:/flow/runs/flow/gate/DISMISSED-block-a.md
-     - amended: E:/flow/runs/flow/AMENDED-block-a.md
-     **What:** <the latest `## Question: block-a r<n>` entry in E:/flow/runs/flow/NEEDS-USER.md, copied verbatim>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
-   Write the "- ledger:" line only when E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, and the "- amended:" line only when E:/flow/runs/flow/AMENDED-block-a.md exists, so the block built from this entry reads this block's declined findings and plan amendments.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a' --ledger 'E:/flow/runs/flow/gate/DISMISSED-block-a.md' --amended 'E:/flow/runs/flow/AMENDED-block-a.md'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the latest `## Question: block-a r<n>` entry in E:/flow/runs/flow/NEEDS-USER.md, copied verbatim> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+   Pass --ledger only when E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, and --amended only when E:/flow/runs/flow/AMENDED-block-a.md exists, so the block built from this entry reads this block's declined findings and plan amendments.
    Set "- decision: NEEDS_USER", since this park waits on a question only the user can answer.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -19279,11 +19014,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
    new issue to E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md only, never to your review file.
    Count it in backlog_entries and name "block-c" in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
-   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
-   Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
-   the highest n in that file's entry ids), "- status: open" and a **What:** that
-   names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+   Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
+   Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -19850,19 +19587,12 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
    finish step 8: run it again after your `git add` when you stage, and otherwise return the id this check printed.
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
      Count it in backlog_entries and name "block-a" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
-     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-       ### [flow-block-a-d48cf78a-<n>] <title>
-       - id: flow-block-a-d48cf78a-<n>
-       - status: open
-       - file: <path>:<line>
-       - severity: <low | medium | high | critical>
-       - category: <category>
-       - size: <trivial | small | medium | large>
-       - decision: <ACTIONABLE | NEEDS_USER>
-       **What:** <the gap, the input or path that reaches it, and its harm>
-       **Fix:** <the change that closes it>
+     Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
      Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
      staged=true, gap_count=0.
@@ -20212,19 +19942,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-b" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-b-7d7451b3-<n>] <title>
-      - id: flow-block-b-7d7451b3-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -20595,19 +20318,12 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
    finish step 8: run it again after your `git add` when you stage, and otherwise return the id this check printed.
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md only.
      Count it in backlog_entries and name "block-b" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
-     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-       ### [flow-block-b-7d7451b3-<n>] <title>
-       - id: flow-block-b-7d7451b3-<n>
-       - status: open
-       - file: <path>:<line>
-       - severity: <low | medium | high | critical>
-       - category: <category>
-       - size: <trivial | small | medium | large>
-       - decision: <ACTIONABLE | NEEDS_USER>
-       **What:** <the gap, the input or path that reaches it, and its harm>
-       **Fix:** <the change that closes it>
+     Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
      Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
      staged=true, gap_count=0.
@@ -20863,19 +20579,12 @@ PROCEDURE:
    finish step 8: run it again after your `git add` when you stage, and otherwise return the id this check printed.
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
      Count it in backlog_entries and name "block-a" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
-     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-       ### [flow-block-a-d48cf78a-<n>] <title>
-       - id: flow-block-a-d48cf78a-<n>
-       - status: open
-       - file: <path>:<line>
-       - severity: <low | medium | high | critical>
-       - category: <category>
-       - size: <trivial | small | medium | large>
-       - decision: <ACTIONABLE | NEEDS_USER>
-       **What:** <the gap, the input or path that reaches it, and its harm>
-       **Fix:** <the change that closes it>
+     Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
      Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
      staged=true, gap_count=0.
@@ -21134,19 +20843,12 @@ PROCEDURE:
    finish step 8: run it again after your `git add` when you stage, and otherwise return the id this check printed.
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md only.
      Count it in backlog_entries and name "block-b" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
-     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-       ### [flow-block-b-7d7451b3-<n>] <title>
-       - id: flow-block-b-7d7451b3-<n>
-       - status: open
-       - file: <path>:<line>
-       - severity: <low | medium | high | critical>
-       - category: <category>
-       - size: <trivial | small | medium | large>
-       - decision: <ACTIONABLE | NEEDS_USER>
-       **What:** <the gap, the input or path that reaches it, and its harm>
-       **Fix:** <the change that closes it>
+     Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
      Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
      staged=true, gap_count=0.
@@ -21435,19 +21137,12 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
    finish step 8: run it again after your `git add` when you stage, and otherwise return the id this check printed.
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
      Count it in backlog_entries and name "block-a" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
-     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-       ### [flow-block-a-d48cf78a-<n>] <title>
-       - id: flow-block-a-d48cf78a-<n>
-       - status: open
-       - file: <path>:<line>
-       - severity: <low | medium | high | critical>
-       - category: <category>
-       - size: <trivial | small | medium | large>
-       - decision: <ACTIONABLE | NEEDS_USER>
-       **What:** <the gap, the input or path that reaches it, and its harm>
-       **Fix:** <the change that closes it>
+     Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
      Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
      staged=true, gap_count=0.
@@ -21612,24 +21307,17 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1.">
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1."> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -21872,19 +21560,12 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
    finish step 8: run it again after your `git add` when you stage, and otherwise return the id this check printed.
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md only.
      Count it in backlog_entries and name "block-b" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
-     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-       ### [flow-block-b-7d7451b3-<n>] <title>
-       - id: flow-block-b-7d7451b3-<n>
-       - status: open
-       - file: <path>:<line>
-       - severity: <low | medium | high | critical>
-       - category: <category>
-       - size: <trivial | small | medium | large>
-       - decision: <ACTIONABLE | NEEDS_USER>
-       **What:** <the gap, the input or path that reaches it, and its harm>
-       **Fix:** <the change that closes it>
+     Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
      Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
      staged=true, gap_count=0.
@@ -22049,24 +21730,17 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-b-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-b-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-b-7d7451b3-<n>] unfinished: <block title>
-     - id: flow-block-b-7d7451b3-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-b-7d7451b3^1 aipg-unfinished/flow-block-b-7d7451b3` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-b-7d7451b3
-     - origin: E:/flow/plans/bus.md#block-b
-     **What:** <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-b-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1.">
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-b-7d7451b3 holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-b-7d7451b3^1 aipg-unfinished/flow-block-b-7d7451b3` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-b-7d7451b3' --origin 'E:/flow/plans/bus.md#block-b'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-b-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1."> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-b-7d7451b3 holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -22370,19 +22044,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-a-d48cf78a-<n>] <title>
-      - id: flow-block-a-d48cf78a-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -23221,19 +22888,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-b" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-b-7d7451b3-<n>] <title>
-      - id: flow-block-b-7d7451b3-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -23816,13 +23476,14 @@ The branch of each ACTIONABLE entry whose "- status:" is absent, open or needs-a
      a 3-way apply onto the accepted baseline, since a block that landed after the branch was cut may
      have changed a file the branch touches. Never run it without that GIT_INDEX_FILE, and never with
      `--index` or `--cached`: each of those stages the restored work where no reviewer reads it and the next commit carries it. A clean apply leaves no conflict to
-     resolve, and a file the project generates from the restored files may still be stale, so regenerate it before the gate run. An apply that exits non-zero leaves conflict markers in each file it reports "with
+     resolve. An apply that exits non-zero leaves conflict markers in each file it reports "with
      conflicts". Resolve each such file only when you confirm the resolution against the accepted
      baseline and the work the branch holds, then run
      `GIT_INDEX_FILE="E:/flow/runs/flow/scratch/restore-block-c.index" git -C E:/repo add -- <file>`, so the next apply sees the
      resolution. A conflict you cannot confirm FAILS the restore for the branch (below).
-  c. Once every branch has applied and no conflict marker is left, delete that index copy. Then run
-     `git -C E:/repo add -N -- <file>` on each new file the restores created
+  c. Once every branch has applied and no conflict marker is left, delete that index copy. A file the
+     project generates from the restored files may still be stale, so regenerate it now, before the gate run.
+     Then run `git -C E:/repo add -N -- <file>` on each new file the restores or that regeneration created
      (`git -C E:/repo status --porcelain` lists it as `??`).
   d. Confirm `git -C E:/repo diff --cached --stat` is the same as the output step a kept.
 The restored diff is THIS block's own unstaged work, and it is the work of the entry whose branch it is.
@@ -24081,19 +23742,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-c" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
-    Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
-      ### [flow-block-c-eb03ab84-<n>] <title>
-      - id: flow-block-c-eb03ab84-<n>
-      - status: open
-      - file: <path>:<line>
-      - severity: <low | medium | high | critical>
-      - category: <category>
-      - size: <trivial | small | medium | large>
-      - decision: <ACTIONABLE | NEEDS_USER>
-      **What:** <the defect, the input or path that reaches it, and its harm>
-      **Fix:** <the change that closes it>
+    Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -24443,11 +24097,13 @@ prints a block), and, for a feature or section block, the reachability of its wo
    new issue to E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md only, never to your review file.
    Count it in backlog_entries and name "block-c" in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
-   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
-   Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
-   the highest n in that file's entry ids), "- status: open" and a **What:** that
-   names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+   Write each entry with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
+   Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -24812,24 +24468,17 @@ PROCEDURE:
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
    run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Halted: acceptance rejected the block but staged or committed it anyway; inspect `git -C E:/repo diff --cached` and `git -C E:/repo log -1`, then unstage this block's files or revert its commit with `git -C E:/repo revert <sha>`.", then this halt reason, copied verbatim: Acceptance REJECTED block block-a in round 1 but reported commit a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 (see E:/flow/runs/flow/acceptance-review-block-a-r1.md), so work it failed may now sit in the accepted baseline. Inspect `git -C E:/repo show --stat a1b2c3d4e5f60718293a4b5c6d7e8f9012345678` and revert it with `git -C E:/repo revert a1b2c3d4e5f60718293a4b5c6d7e8f9012345678` before resuming.>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
-   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
+3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
+     node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
+   Its --decision value follows the decision sentence at the end of this step.
+   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   its **What:** placeholder with <the line "Halted: acceptance rejected the block but staged or committed it anyway; inspect `git -C E:/repo diff --cached` and `git -C E:/repo log -1`, then unstage this block's files or revert its commit with `git -C E:/repo revert <sha>`.", then this halt reason, copied verbatim: Acceptance REJECTED block block-a in round 1 but reported commit a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 (see E:/flow/runs/flow/acceptance-review-block-a-r1.md), so work it failed may now sit in the accepted baseline. Inspect `git -C E:/repo show --stat a1b2c3d4e5f60718293a4b5c6d7e8f9012345678` and revert it with `git -C E:/repo revert a1b2c3d4e5f60718293a4b5c6d7e8f9012345678` before resuming.> and its **Fix:** placeholder with this text:
+     Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
+   Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
+   When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, pass --file-ref the path E:/flow/plans/bus.md, and pass --size
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
+     Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the

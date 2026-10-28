@@ -1,5 +1,6 @@
-// tools/plan-edit.mjs — the ONE tool that WRITES a plan file: upsert one metadata line, move one issue
+// tools/plan-edit.mjs — the ONE tool that REWRITES a plan file: upsert one metadata line, move one issue
 // entry between blocks, or fold finished develop runs into the plans and print the next launch's args.
+// plan-entry.mjs only appends a new entry to a backlog file.
 //
 // Why this is a separate file from plan-block.mjs rather than two more subcommands of it. The run-time
 // permission rule allowlists every subcommand of the file it names, so a write subcommand sharing that file
@@ -47,7 +48,8 @@ const USAGE = `usage:
       beside this tool. --expect fails unless that run's record exists.
       --backlog adds each backlog file in <dir> whose status is todo or done and that holds an open
       ACTIONABLE entry with no "- pulled:" or "**Parked with:**" line and no needs-attention
-      ACTIONABLE entry, and sets a done one to todo. It leaves out a file while the block that wrote
+      ACTIONABLE entry or open ACTIONABLE entry that still holds a plan-entry.mjs placeholder,
+      and sets a done one to todo. It leaves out a file while the block that wrote
       it, which the run records name, is not done, skip or backlogged in its plan file. It also
       leaves out a file whose ready entry names, in its "- file:" line, a file that the text of a
       blocked or parked block names, in a given plan or in a plan a develop run on <dir> built. It cuts the
@@ -70,7 +72,7 @@ a bare plan-name resolves to <CLAUDE_CONFIG_DIR | ~/.claude>/plans/<name>.md`;
 const splice = (text, from, to, insert) => text.slice(0, from) + insert + text.slice(to);
 
 /** The file's dominant line ending, which a newly appended line inherits. A file with none takes LF. */
-function dominantEol(text) {
+export function dominantEol(text) {
   const crlf = (text.match(/\r\n/g) ?? []).length;
   const lf = (text.match(/\n/g) ?? []).length;
   return crlf > lf - crlf ? '\r\n' : '\n';
@@ -594,12 +596,30 @@ const isHeld = (entry, block) => Boolean(parkedLine(block.text, entry, block.sta
  */
 export const isReady = (entry, block) => isOpenActionable(entry) && !keyOf(entry, 'pulled') && !isHeld(entry, block);
 
-/** An ACTIONABLE entry whose fix failed. A fix-mode developer rebuilds it with its file, so its file waits for triage. */
-const waitsOnUser = (entry) => keyOf(entry, 'decision') === 'ACTIONABLE' && keyOf(entry, 'status') === 'needs-attention';
+// plan-entry.mjs writes this into a new entry's title, **What:** and **Fix:** for its writer to replace.
+export const PLACEHOLDER = 'TODO: replace this text.';
+// An entry's title or a **What:** or **Fix:** line at column 0, since a filled **What:** indents what it quotes.
+const PLACEHOLDER_FIELD = /^(?:###[ \t]+\[[^\]]*\]|\*\*(?:What|Fix):\*\*)[ \t]*/;
+
+/** Whether `line` still opens an entry's title, **What:** or **Fix:** with the placeholder. */
+export function isPlaceholderLine(line) {
+  const field = line.match(PLACEHOLDER_FIELD);
+  return Boolean(field) && line.slice(field[0].length).startsWith(PLACEHOLDER);
+}
+const isUnfilled = (entry, block) => block.text.slice(entry.start - block.start, entry.end - block.start).split('\n').some(isPlaceholderLine);
+// An open ACTIONABLE entry whose writer stopped, or has not yet replaced every placeholder: its **What:** and **Fix:** say nothing to build.
+const isUnfilledActionable = (entry, block) => isOpenActionable(entry) && isUnfilled(entry, block);
+
+/**
+ * An ACTIONABLE entry whose fix failed, or one its writer left unfilled. A fix-mode developer builds every ACTIONABLE
+ * entry of its file, so its file waits for the user.
+ */
+const waitsOnUser = (entry, block) => (keyOf(entry, 'decision') === 'ACTIONABLE' && keyOf(entry, 'status') === 'needs-attention')
+  || isUnfilledActionable(entry, block);
 
 /** A block a --backlog launch builds: a todo block, or a done one that took a new ready entry, with no entry waiting on the user. */
 export const isBacklogBlock = (block) => BACKLOG_STATUSES.includes(blockStatus(block))
-  && block.issues.some((e) => isReady(e, block)) && !block.issues.some(waitsOnUser);
+  && block.issues.some((e) => isReady(e, block)) && !block.issues.some((e) => waitsOnUser(e, block));
 
 /** The `.md` files of the backlog folder. A folder no run has written an entry to yet does not exist, and holds none. */
 function backlogPaths(dir, note) {
@@ -622,7 +642,7 @@ function reopenDone(plan) {
   return next;
 }
 
-// The title develop-cycle's headerLines gives a backlog file's block. A block id is a kebab slug, so the first
+// The title plan-entry.mjs writes into a backlog file's header. A block id is a kebab slug, so the first
 // " of run " ends it.
 const WRITER_TITLE = /^backlog from block ([a-z0-9]+(?:-[a-z0-9]+)*) of run (.+)$/;
 // A relaunch of the writing block may still append to its file, so develop works the file only after these.
@@ -833,6 +853,11 @@ export function foldBacklog(dir, given, records, note, { choose = true } = {}) {
     const holdsActionable = plan.blocks.some((b) => BACKLOG_STATUSES.includes(blockStatus(b)) && b.issues.some((e) => keyOf(e, 'decision') === 'ACTIONABLE'));
     if (!holdsActionable) continue;
     const folded = releaseParked(foldRecords(plan, records, note), dir, records, note);
+    for (const block of choose ? folded.blocks.filter((b) => BACKLOG_STATUSES.includes(blockStatus(b))) : []) {
+      for (const entry of block.issues.filter((e) => isUnfilledActionable(e, block))) {
+        note(`left out ${path}: entry ${entry.id} still holds the placeholder "${PLACEHOLDER}" that plan-entry.mjs wrote, so its writer stopped before it filled the entry or is still filling it. Once the block that wrote the file is done, skip or backlogged, fill its title, **What:** and **Fix:**, or delete the entry\n`);
+      }
+    }
     const buildable = choose && folded.blocks.some(isBacklogBlock);
     const writer = buildable ? unfinishedWriter(folded, dir, records, note) : null;
     if (writer) note(heldBackNote(path, writer));
@@ -1013,7 +1038,7 @@ function runArgs(argv, note, invokedScript) {
   }
   if (!folded.length && !added.length) {
     flush();
-    throw new Error(`no backlog file in ${flags['--backlog']} is todo or done and holds an entry with decision ACTIONABLE, status open and no pulled line or held Parked with line, and no ACTIONABLE entry with status needs-attention, with the block that wrote it done, skip or backlogged, and no ready entry whose file a blocked or parked block names, so there is nothing to build`);
+    throw new Error(`no backlog file in ${flags['--backlog']} is todo or done and holds an entry with decision ACTIONABLE, status open and no pulled line or held Parked with line, and no ACTIONABLE entry with status needs-attention or an unfilled placeholder, with the block that wrote it done, skip or backlogged, and no ready entry whose file a blocked or parked block names, so there is nothing to build`);
   }
   const merged = mergeArgs(folded, added);
   if (flags['--backlog'] && merged.ordered) throw new Error('--backlog adds fix files that build unordered, so it needs a plan set with ordered: false');

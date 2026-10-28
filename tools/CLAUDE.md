@@ -11,15 +11,18 @@ DURING a workflow**, invoked by agents that develop-cycle and refine-cycle hand 
 shape, its stdout bytes and its exit codes are a run-time contract two engines depend on — change them
 and you change what a developer agent receives, so treat it as engine surface, not dev machinery.
 `plan-pull.mjs` runs during a develop run too, invoked by a proactive round-1 developer, so its argv and
-its JSON output are engine surface the same way. `review-check.mjs` runs during a decide run, invoked by
+its JSON output are engine surface the same way. `plan-entry.mjs` runs during a develop run too, invoked
+by every agent that appends a backlog entry, so its argv, its printed id and its exit codes are engine
+surface the same way. `review-check.mjs` runs during a decide run, invoked by
 the final reviewer and the check agent, so its argv, its printed lines and its exit codes are engine
 surface too.
 
 | File | What it does |
 |---|---|
 | `plan-block.mjs` | Prints ONE `## Plan: <id>` block out of a multi-unit plan file, byte-exact, or `--list`s the file's control data. It reads the plan-bus metadata grammar. **Called by agents at run time** (see above). Keeps a multi-unit plan out of every agent's context and makes the block's end a parser's decision rather than an agent's. |
-| `plan-edit.mjs` | Writes plan files, the only tool that does: `set` upserts one block or issue metadata line, `move` relocates an issue entry (a cut, never a copy), `args` folds finished develop runs' statuses into the plans and prints the next launch's args. **Operator-invoked between runs**, never handed to a run-time agent. It is a separate file from `plan-block.mjs` because the run-time allowlist rule covers every subcommand of the file it names. Imports plan-block's exported grammar. |
+| `plan-edit.mjs` | Rewrites plan files, the only tool that does: `set` upserts one block or issue metadata line, `move` relocates an issue entry (a cut, never a copy), `args` folds finished develop runs' statuses into the plans and prints the next launch's args. **Operator-invoked between runs**, never handed to a run-time agent. It is a separate file from `plan-block.mjs` because the run-time allowlist rule covers every subcommand of the file it names. Imports plan-block's exported grammar. |
 | `plan-pull.mjs` | Prints, read-only, the ready backlog entries in the files a block changes: `pullable --backlog <dir> --files <path,...> [--exclude <plan.md,...>]`. **Called by a proactive round-1 developer at run time**, so it holds no write verb. Imports the backlog rules from `plan-edit.mjs`. |
+| `plan-entry.mjs` | The backlog entry writer and the only copy of a backlog file's header and entry shape: `new` appends an entry with the next free id and the given metadata lines, and `check` reports a grammar error and each placeholder left in place. **Called by develop's backlog writers at run time.** It only appends to a backlog file, so it is a separate file from `plan-edit.mjs` for the same allowlist reason. Imports plan-block's grammar. |
 | `review-check.mjs` | The staged-review checker and the only copy of the review file format: `<review file>` writes a missing blind review's skeleton, checks a written one's format, then locks it, writes the final file's skeleton and prints the reveal text, and on later runs checks the final file against the lock and the decision file. `--verify <review file>` reports the lock state and the counts. **Called by decide's final reviewer and check agent at run time** (see above). Its spec and lock are below. |
 | `plugin-access.mjs` | `check`s for, and on the user's yes `grant`s, the Read allow rule in the user settings that lets the Workflow tool launch an **installed** plugin's engines. A plugin path through a link gets a second rule for the resolved folder. The tool refuses a scriptPath the session cannot already read, and a plugin cannot grant itself its own folder. **Run by each skill's first step**, operator-side, never by a run-time agent, apart from the develop and debug skills, whose `onboard.mjs` check asks for access through the exported `accessState`. A cache install is granted the plugin folder above the version folder, so updates keep the rule. |
 | `onboard.mjs` | Asks every setup answer a build needs from the user once per repo, together. `check --root --repo` prints `ready <key> policy=<policy> delivery=<commit\|stage>` when nothing is missing. Otherwise it prints `ask <key>`, then each open question with its options and the one `save` command. The questions are plugin access (skipped when the working directory holds the plugin folder, or when `--access session` says the user declined it and ran `/add-dir` for this session), the change policy, the delivery, and, only beside the delivery, whether to hide Claude's author details. The policy and delivery options list the recommendation first: `proactive` and `commit` when every commit of the repo is the user's own, else `focused` and `stage`. `check` takes `--access session`, which writes nothing. `save` takes `--access allow\|session`, `--policy`, `--delivery commit\|stage` and `--attribution hide\|keep`, writes the user settings once for access and attribution and the store through `project-settings.mjs`, then prints what `check` prints. It reads every answer from where its tool keeps it, so a skill runs it before every run. **Operator-invoked** by the develop and debug skills' first step, never by a run-time agent. |
@@ -89,9 +92,10 @@ node tools/plan-edit.mjs args [<plan.md> ...] [--expect <wf-id>] [--backlog <dir
 
 The write surface, kept out of plan-block.mjs on purpose: the run-time allowlist rule
 (`Bash(node '<blockTool>':*)`) covers every subcommand of the file it names, and an agent must never
-hold a write path to a plan. `set` addresses a block or an issue through the file's single id space
-and rewrites exactly one line, or appends it to the right run. `move` cuts an entry's bytes verbatim
-into another fix-mode block, same file or another. Failures are loud and leave every file untouched:
+hold a tool that rewrites a plan. `plan-entry.mjs` only appends an entry to a backlog file. `set`
+addresses a block or an issue through the file's single id space and rewrites exactly one line, or
+appends it to the right run. `move` cuts an entry's bytes verbatim into another fix-mode block, same
+file or another. Failures are loud and leave every file untouched:
 unknown id, unrecognized key, illegal value, a gate the target's mode forbids, a duplicate id at the
 destination, a non-fix destination block. Paths resolve through the same `resolveRoadmap` as
 plan-block, so a bare name addresses the same file in both tools. BOM'd and CRLF files round-trip
@@ -121,8 +125,12 @@ after `cleanupPeriodDays` (30 by default).
 `--backlog <dir>` adds each backlog file in `<dir>` whose `status:` is `todo` or `done` and that holds an
 entry with `- decision: ACTIONABLE` and `- status: open`, after folding the finished runs into it. A file that
 also holds an `ACTIONABLE` entry with `- status: needs-attention` is not added, since the fix-mode developer
-would rebuild that entry without the user. A file is not added while the block that wrote it is not `done`,
-`skip` or `backlogged`, since a relaunch of that block may still append to it. A `parked` writer, an older
+would rebuild that entry without the user. A file that holds an open `ACTIONABLE` entry whose title,
+`**What:**` or `**Fix:**` line still starts with the `plan-entry.mjs` placeholder at column 0 is not added
+either, and a note names that entry, since its writer stopped before it filled the entry or is still
+filling it. A file is not added while the block that wrote it is not `done`, `skip` or `backlogged`,
+since a relaunch of that block
+may still append to it. A `parked` writer, an older
 engine's park that develop never relaunches, holds its file back until the user sets it `skip` to drop it,
 `todo` to rebuild it, or `backlogged` only when a backlog entry carries its work, and the note that names the
 left-out file says so. The file's header names that block and its develop `runId`, and the run records with
@@ -206,6 +214,33 @@ its released `**Parked with:**` line on disk, and develop's developer deletes th
 entry. Exit 0 prints the array, a missing folder prints `[]`, and exit 1 prints the reason on stderr.
 develop's proactive round-1 developer runs it, so the command needs its own allowlist rule beside
 `blockTool`'s, and the file holds no write verb for the reason `plan-edit.mjs` is a separate file.
+
+## plan-entry.mjs
+
+```bash
+node tools/plan-entry.mjs new --file <backlog.md> --block <id> --run <runId> --file-ref <path:line> --category <c> \
+  --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER> [--severity <s>] [--branch <b>] [--origin <o>] \
+  [--ledger <path>] [--amended <paths>]
+node tools/plan-entry.mjs check <backlog.md>
+```
+
+A backlog file holds one fix-mode block whose id is the file's name without `.md`. `new` writes the header
+`## Plan: <file id> - backlog from block <id> of run <runId>`, `mode: fix`, `gate: green` and `status: todo`
+when the file is missing or blank, and otherwise keeps the header and sets a `status: skip` to `todo`. It
+appends, after one blank line, an entry whose id is `<file id>-<n>`, n one past the highest such n in the
+file. The entry holds `- id:`, `- status: open` and one line per flag given, in the order `file`, `severity`,
+`category`, `size`, `decision`, `branch`, `origin`, `ledger`, `amended`. Its title, `**What:**` and
+`**Fix:**` hold the placeholder `TODO: replace this text.` It prints the id on its first line and a line
+that says what to fill. The appended text goes back through plan-block's parser before the write, and the
+entry inherits the file's dominant line ending. A file that is not one fix-mode block of its own name, a
+missing required flag, an unknown or repeated flag, a blank or multi-line value, a `--file` that does not
+end `.md`, a `--block` that is not a kebab slug, which the `WRITER_TITLE` pattern in `plan-edit.mjs`
+could not read, a `--size` or `--decision` outside the sets above, and a `--severity` outside the grammar's
+set each exit 1 with the reason on stderr and write nothing. `check` exits 0 and prints `ok: <file>`, or
+exits 1 and lists the file's first grammar error and each title, `**What:**` or `**Fix:**` line that still
+starts with the placeholder, with its line number and entry id. `plan-edit.mjs` holds the placeholder text
+and that line rule, since `args --backlog` leaves out a file with such an entry. The prompts keep the
+content rules, such as what a `**What:**` holds, the decision rule and the dedup.
 
 ## review-check.mjs
 

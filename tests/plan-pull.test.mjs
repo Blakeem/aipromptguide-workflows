@@ -9,6 +9,7 @@ import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSyn
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
+import { PLACEHOLDER } from '../tools/plan-edit.mjs';
 import { run } from '../tools/plan-pull.mjs';
 
 const CLI = join(REPO_ROOT, 'tools/plan-pull.mjs');
@@ -132,6 +133,30 @@ section('pullable leaves out an entry whose file a blocked block names, in a bui
   ok(!err, `it succeeds: ${err ?? ''}`);
   eq((entries ?? []).map((e) => e.id).join(','), 'free-1', 'only the entry no blocked block names is listed');
   ok(/in memory only: held held-1 .*block stuck \(blocked\)/.test(notes) && /in memory only: held mine-1 .*block halted \(blocked\)/.test(notes), `each note names the blocked block: ${notes.trim()}`);
+}
+
+section('pullable leaves out a file whose open ACTIONABLE entry still holds a plan-entry.mjs placeholder');
+{
+  const backlog = tmpDir();
+  const half = backlogFile(backlog, 'half', 'todo', [{ id: 'half-1', file: 'src/a.js:1' }, { id: 'half-2', file: 'src/a.js:2' }]);
+  writeFileSync(half, read(half).replace('### [half-2] half-2 title', `### [half-2] ${PLACEHOLDER}`));
+  const before = snapshot(backlog);
+  const { entries, notes, err } = pullable(configWith([]), '--backlog', backlog, '--files', 'src/a.js');
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  eq(JSON.stringify(entries), '[]', 'neither the unfilled entry nor its filled neighbour is listed, as args --backlog leaves the file out');
+  ok(/in memory only: left out .*half\.md: entry half-2 still holds the placeholder/.test(notes), `the note names the unfilled entry: ${notes.trim()}`);
+  eq(JSON.stringify(snapshot(backlog)), JSON.stringify(before), 'it writes nothing');
+}
+
+section('pullable lists a ready entry beside an unfilled NEEDS_USER entry, since only an unfilled ACTIONABLE entry holds its file out');
+{
+  const backlog = tmpDir();
+  const mixed = backlogFile(backlog, 'mixed', 'todo', [{ id: 'mixed-1', file: 'src/a.js:1' }, { id: 'mixed-2', file: 'src/a.js:2', decision: 'NEEDS_USER' }]);
+  writeFileSync(mixed, read(mixed).replace('### [mixed-2] mixed-2 title', `### [mixed-2] ${PLACEHOLDER}`));
+  const { entries, notes, err } = pullable(configWith([]), '--backlog', backlog, '--files', 'src/a.js');
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  eq((entries ?? []).map((e) => e.id).join(','), 'mixed-1', 'the ready ACTIONABLE entry is listed');
+  ok(!/still holds the placeholder/.test(notes), `no note names the NEEDS_USER entry: ${notes.trim()}`);
 }
 
 section('pullable fails on a missing flag or file list, and a missing folder lists nothing');
