@@ -28,8 +28,9 @@ const DECIDE  = { wrote_file: true, chosen: 'in-process LRU', meets_all_requirem
 const ACCEPT  = { wrote_file: true, verdict: 'accept', needs_user: false };
 const REJECT  = { ...ACCEPT, verdict: 'reject' };
 // One object answers both check-agent calls: the setup reads wrote_file, the verify the other three.
-const CHECK   = { wrote_file: true, exit_code: 0, final_line: 'raised 0, withdrawn 0, kept 0, downgraded 0', stage1_verdict: '' };
-const KEPT    = { ...CHECK, final_line: 'raised 2, withdrawn 1, kept 1, downgraded 0' };
+const CHECK   = { wrote_file: true, exit_code: 0, final_line: 'raised 0, withdrawn 0, kept 0, downgraded 0, caveats 0', stage1_verdict: '' };
+const KEPT    = { ...CHECK, final_line: 'raised 2, withdrawn 1, kept 1, downgraded 0, caveats 0' };
+const CAVEATED = { ...CHECK, final_line: 'raised 1, withdrawn 0, kept 0, downgraded 1, caveats 2' };
 const NO_LOCK = { ...CHECK, exit_code: 2 };
 const MISMATCH = (verdict) => ({ ...CHECK, exit_code: 3, stage1_verdict: verdict });
 const CLEAN = { research: LENS, decide: DECIDE, review: ACCEPT, check: CHECK };
@@ -55,11 +56,11 @@ section('the reviewer accepting ends the loop inside the round budget');
   eq(JSON.stringify(out.reviewFiles), JSON.stringify([`${S}/review/review-r1.md`, `${S}/decide/review-r1-final.md`]),
     'reviewFiles names the blind review and the final review');
   eq(out.needsUserFile, '', 'and no escalation file — nothing was escalated');
-  eq(JSON.stringify(out.reviewRounds), JSON.stringify([{ round: 1, verdict: 'accept', raised: 0, withdrawn: 0, kept: 0, downgraded: 0, lockMatched: true }]),
+  eq(JSON.stringify(out.reviewRounds), JSON.stringify([{ round: 1, verdict: 'accept', raised: 0, withdrawn: 0, kept: 0, downgraded: 0, caveats: 0, lockMatched: true }]),
     'reviewRounds records the round\'s counts');
-  ok(!['gapRounds', 'caveats', 'caveatFiles'].some((k) => k in out), 'the retired gap and caveat fields are gone');
-  ok(String(out.nextStep).startsWith(`Carry each caveat under "## Caveats" in ${S}/decide/review-r1-final.md into the plan's design section.`),
-    `nextStep leads with the caveat note: ${String(out.nextStep).slice(0, 120)}`);
+  ok(!['gapRounds', 'caveatFiles'].some((k) => k in out), 'the retired gap and caveat file fields are gone');
+  eq(out.caveats, 0, 'caveats counts none');
+  ok(String(out.nextStep).startsWith('Present the conclusion'), `with no caveat, nextStep carries no caveat note: ${String(out.nextStep).slice(0, 120)}`);
   ok(flat(out.nextStep).includes('Present the conclusion the final reviewer accepted in round 1:')
     && flat(out.nextStep).includes('(the matrix + rationale + why-not-others + trade-off + flip check)'),
   'the hand-back names the acceptance, its round and what to relay');
@@ -69,6 +70,35 @@ section('the reviewer accepting ends the loop inside the round budget');
     && flat(ranked.nextStep).includes('the combine-vs-exclusive section + the flip check)')
     && ranked.nextStep.includes('(several picks become several blocks of one plan file)'),
   'and so does a ranked run\'s, with the flip check and the several-picks note');
+}
+
+section('an accept that names caveats ends decided with caveats, counted from the check\'s counts line');
+{
+  const { out, logs } = await run({ ...CLEAN, check: CAVEATED });
+  eq(out.status, 'decided with caveats (the final reviewer accepts the decision and names 2 caveats)', 'the status names the caveat count');
+  ok(out.agreed === true, 'and the run agreed');
+  eq(out.caveats, 2, 'caveats returns the count');
+  eq(out.reviewRounds?.[0]?.caveats, 2, 'and reviewRounds records it');
+  ok(String(out.nextStep).startsWith(`Carry the 2 caveat(s) under "## Caveats" in ${S}/decide/review-r1-final.md into the plan's design section.`),
+    `nextStep leads with the caveat note: ${String(out.nextStep).slice(0, 120)}`);
+  ok(logs.some((l) => l === '  ✓ r1: the reviewer ACCEPTS (raised 1, withdrawn 0, kept 0, downgraded 1, caveats 2)'), 'the log names the caveats');
+  const { out: one } = await run({ ...CLEAN, check: { ...CHECK, final_line: 'raised 0, withdrawn 0, kept 0, downgraded 0, caveats 1' } });
+  eq(one.status, 'decided with caveats (the final reviewer accepts the decision and names 1 caveat)', 'one caveat reads singular');
+  const { out: rejected } = await run({ ...CLEAN, review: REJECT, check: { ...KEPT, final_line: 'raised 2, withdrawn 1, kept 1, downgraded 0, caveats 3' } }, { ...baseArgs, maxRounds: 1 });
+  ok(rejected.status.startsWith('needs-attention') && rejected.caveats === 3, `a reject keeps its status and still returns the count: ${rejected.status}`);
+  // A counts line with no caveat count is not one the tool prints, so it never reads as zero caveats.
+  const msg = await throwsWith(ENGINE, { args: baseArgs, respond: { ...CLEAN, check: { ...CHECK, final_line: 'raised 0, withdrawn 0, kept 0, downgraded 0' } } });
+  ok(msg.startsWith('Check agent returned an unreadable result in round 1'), `a counts line without caveats throws: ${msg.slice(0, 80)}`);
+}
+
+section('the reviewer and the reveal name the caveat line shape, and the reveal names the objections heading');
+{
+  const { byLabel } = await run(CLEAN);
+  const rev = flat(byLabel('review r1')[0]?.prompt);
+  ok(rev.includes('a `## Caveats` section: one line per caveat, `- C<n>: <the caveat>. Evidence: <the evidence>`, numbered from C1, or "None.";'), 'the blind review format names - C<n>:');
+  const reveal = flat(revealOf(byLabel('check-setup r1')[0]?.prompt));
+  ok(reveal.includes('Write a `## Objections` section with one line per objection of your review,') && reveal.includes('one line each, `- C<n>: <the caveat>`, numbered from C1, or "None."'),
+    `the reveal names the objections heading and the caveat shape: ${reveal.slice(reveal.indexOf('WRITE'), reveal.indexOf('WRITE') + 200)}`);
 }
 
 section('each review round runs the check agent, one reviewer, then the check, in sequence, with a neutral review schema');
@@ -166,8 +196,8 @@ section('a kept objection sends the decider the final review, and a fresh review
     ok(d2.includes(`Then redo the totals, ${sel === 'ranked' ? 'the order' : 'the trade-off'} and the flip check.`), `${sel}: the closing fold rule matches its selection`);
     ok(d2.includes(`WRITE ${S}/review/ledger-r2.md`), `${sel}: the revision writes a new ledger`);
     ok(String(byLabel('review r2')[0]?.prompt).includes(`${S}/review/ledger-r2.md`), `${sel}: the round-2 reviewer judges the revision's ledger`);
-    ok(logs.some((l) => l === '  ↻ r1: the reviewer REJECTS (raised 2, withdrawn 1, kept 1, downgraded 0) → decider revises'), `${sel}: the log names the counts`);
-    eq(JSON.stringify(out.reviewRounds?.[0]), JSON.stringify({ round: 1, verdict: 'reject', raised: 2, withdrawn: 1, kept: 1, downgraded: 0, lockMatched: true }), `${sel}: and so does reviewRounds`);
+    ok(logs.some((l) => l === '  ↻ r1: the reviewer REJECTS (raised 2, withdrawn 1, kept 1, downgraded 0, caveats 0) → decider revises'), `${sel}: the log names the counts`);
+    eq(JSON.stringify(out.reviewRounds?.[0]), JSON.stringify({ round: 1, verdict: 'reject', raised: 2, withdrawn: 1, kept: 1, downgraded: 0, caveats: 0, lockMatched: true }), `${sel}: and so does reviewRounds`);
     eq(out.status, 'decided (the final reviewer accepts the decision)', `${sel}: round 2 accepts`);
     ok(!flat(byLabel('decide r1')[0]?.prompt).includes('THE REVIEWER REJECTED'), `${sel}: round 1 has no review to act on`);
   }
@@ -192,7 +222,7 @@ section('a lock mismatch falls back to the locked blind verdict');
 {
   const { out, byLabel, logs } = await run({ ...CLEAN, check: (label) => (roundOf(label) === 1 ? MISMATCH('reject') : CHECK) }, { ...baseArgs, maxRounds: 2 });
   ok(logs.some((l) => l.includes(`⚠ r1: ${S}/review/review-r1.md does not match its lock → the locked blind verdict "reject" stands`)), 'the fallback is logged');
-  eq(JSON.stringify(out.reviewRounds?.[0]), JSON.stringify({ round: 1, verdict: 'reject', raised: 0, withdrawn: 0, kept: 0, downgraded: 0, lockMatched: false }), 'the locked verdict outranks the counts');
+  eq(JSON.stringify(out.reviewRounds?.[0]), JSON.stringify({ round: 1, verdict: 'reject', raised: 0, withdrawn: 0, kept: 0, downgraded: 0, caveats: 0, lockMatched: false }), 'the locked verdict outranks the counts');
   const d2 = flat(byLabel('decide r2')[0]?.prompt);
   ok(d2.includes(`Its blind review changed after its lock, so act on every objection in the blind review ${S}/review/review-r1.md.`)
     && !d2.includes('READ its final review'), 'the decider acts on the blind review alone');
@@ -207,17 +237,17 @@ section('a lock mismatch falls back to the locked blind verdict');
 
 section('a locked blind review with no final review stands, and its file is the one handed on');
 {
-  const BLIND_ONLY = (verdict, n) => ({ ...CHECK, final_line: `raised ${n}, withdrawn 0, kept ${n}, downgraded 0`, stage1_verdict: verdict });
+  const BLIND_ONLY = (verdict, n) => ({ ...CHECK, final_line: `raised ${n}, withdrawn 0, kept ${n}, downgraded 0, caveats 1`, stage1_verdict: verdict });
   const { out, logs } = await run({ ...CLEAN, check: BLIND_ONLY('accept', 0) });
-  eq(out.status, 'decided (the final reviewer accepts the decision)', 'a blind accept with no final review is an accept');
+  eq(out.status, 'decided with caveats (the final reviewer accepts the decision and names 1 caveat)', 'a blind accept with no final review is an accept, with the blind review\'s caveat');
   eq(JSON.stringify(out.reviewFiles), JSON.stringify([`${S}/review/review-r1.md`]), 'reviewFiles names only the blind review');
-  ok(String(out.nextStep ?? '').includes(`Carry each caveat under "## Caveats" in ${S}/review/review-r1.md into the plan's design section.`),
+  ok(String(out.nextStep ?? '').includes(`Carry the 1 caveat(s) under "## Caveats" in ${S}/review/review-r1.md into the plan's design section.`),
     'the caveats are carried from the blind review, not the unwritten final file');
   ok(logs.some((l) => l.includes(`⚠ r1: the reviewer wrote no final review ${S}/decide/review-r1-final.md → its locked blind verdict "accept" stands`)), 'the fallback is logged');
-  eq(JSON.stringify(out.reviewRounds?.[0]), JSON.stringify({ round: 1, verdict: 'accept', raised: 0, withdrawn: 0, kept: 0, downgraded: 0, lockMatched: true }), 'the lock still matched');
+  eq(JSON.stringify(out.reviewRounds?.[0]), JSON.stringify({ round: 1, verdict: 'accept', raised: 0, withdrawn: 0, kept: 0, downgraded: 0, caveats: 1, lockMatched: true }), 'the lock still matched');
 
   const { out: rejected, byLabel } = await run({ ...CLEAN, review: (label) => (roundOf(label) === 1 ? REJECT : ACCEPT), check: (label) => (roundOf(label) === 1 ? BLIND_ONLY('reject', 2) : CHECK) }, { ...baseArgs, maxRounds: 2 });
-  eq(JSON.stringify(rejected.reviewRounds?.[0]), JSON.stringify({ round: 1, verdict: 'reject', raised: 2, withdrawn: 0, kept: 2, downgraded: 0, lockMatched: true }), 'a blind reject keeps every objection');
+  eq(JSON.stringify(rejected.reviewRounds?.[0]), JSON.stringify({ round: 1, verdict: 'reject', raised: 2, withdrawn: 0, kept: 2, downgraded: 0, caveats: 1, lockMatched: true }), 'a blind reject keeps every objection');
   const d2 = flat(byLabel('decide r2')[0]?.prompt);
   ok(d2.includes(`It wrote no final review, so act on every objection in the blind review ${S}/review/review-r1.md.`)
     && !d2.includes('READ its final review'), 'the decider acts on the blind review alone');
@@ -328,12 +358,12 @@ section('flip returns the grade, and nextStep carries the FRAGILE and DOMINANT n
     for (const grade of ['fragile', 'dominant']) {
       const { out, logs } = await run({ ...CLEAN, decide: { ...DECIDE, flip: grade } }, args);
       eq(String(out.flip ?? ''), grade, `${sel}: flip returns ${grade}`);
-      ok(String(out.nextStep).startsWith(NOTES[sel][grade] + 'Carry each caveat'), `${sel}: the ${grade} note leads, before the caveat note: ${String(out.nextStep).slice(0, 90)}`);
+      ok(String(out.nextStep).startsWith(NOTES[sel][grade] + 'Present the'), `${sel}: the ${grade} note leads: ${String(out.nextStep).slice(0, 90)}`);
       ok(logs.some((l) => l.includes(`flip=${grade}, open=0, checks=0)`)), `${sel}: the decider's log line reads flip, open issues and checks`);
     }
     const { out: robust } = await run(CLEAN, args);
     eq(String(robust.flip ?? ''), 'robust', `${sel}: robust is returned`);
-    ok(/^Carry each caveat/.test(robust.nextStep), `${sel}: and adds no note`);
+    ok(/^Present the/.test(robust.nextStep), `${sel}: and adds no note`);
     const { out: junk, logs } = await run({ ...CLEAN, decide: { ...DECIDE, flip: 'shaky' } }, args);
     ok(junk.flip === '', `${sel}: a grade outside the enum returns '' (got ${JSON.stringify(junk.flip)})`);
     ok(logs.some((l) => l.includes('flip=?, open=0, checks=0)')), `${sel}: and logs as ?`);
@@ -345,9 +375,9 @@ section('flip returns the grade, and nextStep carries the FRAGILE and DOMINANT n
   }, { ...baseArgs, maxRounds: 3 });
   eq(String(out.flip ?? ''), 'dominant', 'the latest round\'s grade wins');
   // Notes compose in order: the audit, the flip note, the caveat note, then the present sentence.
-  const { out: all } = await run({ ...CLEAN, decide: { ...DECIDE, flip: 'fragile', meets_all_requirements: false } });
+  const { out: all } = await run({ ...CLEAN, check: CAVEATED, decide: { ...DECIDE, flip: 'fragile', meets_all_requirements: false } });
   const n = String(all.nextStep);
-  const at = ['The decider itself reported', 'The decider graded the choice FRAGILE', 'Carry each caveat', 'Present the conclusion'].map((s) => n.indexOf(s));
+  const at = ['The decider itself reported', 'The decider graded the choice FRAGILE', 'Carry the 2 caveat(s)', 'Present the conclusion'].map((s) => n.indexOf(s));
   ok(at.every((i, k) => i >= 0 && (k === 0 || i > at[k - 1])), `audit, flip, caveat, present, in that order: ${n.slice(0, 160)}`);
 }
 
@@ -446,7 +476,7 @@ section('rejects every round spend the round budget and report it as needs-atten
   ok(out.agreed === false && out.halted === false, 'nothing claims agreement');
   eq(out.rounds, 3, 'and the round count is reported');
   eq(out.reviewRounds?.length, 3, 'one reviewRounds entry per round');
-  ok(logs.some((l) => l.includes(`⚠ r3: the reviewer REJECTS (raised 2, withdrawn 1, kept 1, downgraded 0) at the round budget (see ${S}/review/review-r3.md, ${S}/decide/review-r3-final.md)`)), 'the last round logs the budget');
+  ok(logs.some((l) => l.includes(`⚠ r3: the reviewer REJECTS (raised 2, withdrawn 1, kept 1, downgraded 0, caveats 0) at the round budget (see ${S}/review/review-r3.md, ${S}/decide/review-r3-final.md)`)), 'the last round logs the budget');
   ok(flat(out.nextStep).includes(`Read the latest ${S}/decide/decision-r3.md + ${S}/review/review-r3.md, ${S}/decide/review-r3-final.md with the user, starting with the kept objections and the WHERE NEXT section of the final review`),
     `nextStep starts the user at the final review: ${flat(out.nextStep).slice(0, 200)}`);
   ok(!/UNDER-SPECIFIED|not RESOLVING/.test(out.nextStep), 'and gives no slug-based churn diagnosis');
@@ -459,7 +489,7 @@ section('rejects every round spend the round budget and report it as needs-atten
 
 section('a budget spent on a round that fell back to its blind review names no WHERE NEXT section');
 {
-  const blindOnly = { ...CHECK, final_line: 'raised 1, withdrawn 0, kept 1, downgraded 0', stage1_verdict: 'reject' };
+  const blindOnly = { ...CHECK, final_line: 'raised 1, withdrawn 0, kept 1, downgraded 0, caveats 0', stage1_verdict: 'reject' };
   for (const [what, check] of [['a lock mismatch', MISMATCH('reject')], ['an unwritten final review', blindOnly]]) {
     const { out } = await run({ ...CLEAN, review: REJECT, check }, { ...baseArgs, maxRounds: 1 });
     const next = flat(out.nextStep ?? '');
@@ -631,6 +661,48 @@ section('research stops on the cap, run-wide, and maxResearchRounds 0 runs none'
   for (const bad of [-1, 'three', 51]) {
     const msg = await throwsWith(ENGINE, { args: { ...baseArgs, maxResearchRounds: bad }, respond: {} });
     ok(/^Invalid numeric arg: args\.maxResearchRounds must be a number between 0 and 50/.test(msg), `maxResearchRounds ${JSON.stringify(bad)} throws: ${msg.slice(0, 80)}`);
+  }
+}
+
+section('a research round launches at most maxResearchers researchers, carries the rest, and the hand-back names them');
+{
+  const many = Array.from({ length: 12 }, (_, i) => `issue-${i + 1}`);
+  const { labels: defaultLabels } = await run({ research: LENS, 'research-issue': ISSUE, decide: openFor(1, ...many), review: ACCEPT, check: CHECK });
+  eq(defaultLabels.filter((l) => l.startsWith('research-issue r1 ')).join(','), many.slice(0, 10).map((id) => `research-issue r1 ${id}`).join(','), 'the default cap is 10, and the first 10 issues are researched');
+
+  for (const [sel, args] of [['single', baseArgs], ['ranked', RANKED]]) {
+    const capped = { ...args, maxResearchers: 2 };
+    const { out, labels, logs, byLabel } = await run({
+      research: LENS, 'research-issue': ISSUE, decide: opens('p99-unproven', 'cost-axis', 'ops-burden'), review: ACCEPT, check: CHECK,
+    }, capped);
+    eq(labels.filter((l) => l.startsWith('research-issue r1 ')).join(','), 'research-issue r1 p99-unproven,research-issue r1 cost-axis', `${sel}: the first maxResearchers issues are researched`);
+    ok(logs.some((l) => l === '  ⚠ research r1: 3 open issues, over maxResearchers (2) → researching the first 2, carried: ops-burden'), `${sel}: the carried issue is logged`);
+    const d2 = flat(byLabel('decide r2')[0]?.prompt);
+    ok(d2.includes('RESEARCH ROUND 1 answered the first 2 of your open issues.') && d2.includes('No researcher took these issues, since a round researches at most 2: ops-burden. Keep each one open under that rule'),
+      `${sel}: the next decider pass keeps the carried issue open: ${d2.slice(d2.indexOf('RESEARCH ROUND'), d2.indexOf('RESEARCH ROUND') + 160)}`);
+    const d1 = flat(byLabel('decide r1')[0]?.prompt);
+    ok(d1.includes('A research round launches at most 2 researchers, one per issue, so merge the issues that one researcher would settle from the same sources or within the same domain into one issue that holds several questions.'),
+      `${sel}: the decider is told the cap and the merge rule`);
+    ok(d1.includes(`in order of how far each could move ${sel === 'ranked' ? 'rank 1 or an adjacent pair' : 'the winner'}, the furthest first: a round researches the first 2, and the rest stay open for a later round.`),
+      `${sel}: and the order rule`);
+    const next = flat(out.nextStep);
+    ok(next.includes('3 open issue(s) on record (p99-unproven, cost-axis, ops-burden)') && next.includes('The latest decision lists 3 open issues, more than the 2 one research round takes (maxResearchers). The issues past that cap are the ones after the first 2 in that list. The decision may need splitting into narrower decide runs.'),
+      `${sel}: nextStep names the carried issue and the split: ${next.slice(0, 200)}`);
+    eq(next.split('ops-burden').length - 1, 1, `${sel}: and names the carried issue once`);
+    const { out: fits } = await run({ research: LENS, 'research-issue': ISSUE, decide: opens('p99-unproven', 'cost-axis'), review: ACCEPT, check: CHECK }, capped);
+    ok(!flat(fits.nextStep).includes('past that cap'), `${sel}: a decision within the cap carries nothing`);
+  }
+  const { out: unagreed } = await run({ research: LENS, 'research-issue': ISSUE, decide: opens('a', 'b', 'c'), review: REJECT, check: KEPT }, { ...baseArgs, maxResearchers: 2, maxRounds: 1 });
+  ok(flat(unagreed.nextStep).includes('on record (a, b, c)') && flat(unagreed.nextStep).includes('The issues past that cap are the ones after the first 2 in that list.'), 'a run with no agreement names the carried issue too');
+  const { out: noResearch, labels: noResearchLabels } = await run({ research: LENS, 'research-issue': ISSUE, decide: opens('a', 'b', 'c'), review: ACCEPT, check: CHECK }, { ...baseArgs, maxResearchers: 2, maxResearchRounds: 0 });
+  ok(!noResearchLabels.some((l) => l.startsWith('research-issue ')) && flat(noResearch.nextStep).includes('on record (a, b, c)') && flat(noResearch.nextStep).includes('The latest decision lists 3 open issues, more than the 2 one research round takes (maxResearchers). The issues past that cap are the ones after the first 2 in that list.'),
+    `a run with no research round names the issues past the cap as a fact about the decision: ${flat(noResearch.nextStep).slice(0, 200)}`);
+  const { calls: one } = await run({ research: LENS, 'research-issue': ISSUE, decide: opens('p99-unproven'), review: ACCEPT, check: CHECK });
+  ok(!flat(one.find((c) => c.label === 'decide r2')?.prompt).includes('No researcher took these issues'), 'a round within the cap names no carried issue');
+
+  for (const bad of [0, -2, 'ten', 51]) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, maxResearchers: bad }, respond: {} });
+    ok(/^Invalid numeric arg: args\.maxResearchers must be a number between 1 and 50/.test(msg), `maxResearchers ${JSON.stringify(bad)} throws: ${msg.slice(0, 80)}`);
   }
 }
 

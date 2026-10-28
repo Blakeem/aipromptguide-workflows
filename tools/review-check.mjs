@@ -15,7 +15,12 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const EXIT = { ok: 0, error: 1, noLock: 2, mismatch: 3 };
 const USAGE = 'usage: node review-check.mjs [--verify] <review file>';
 const VERDICT_RE = /^Verdict:[ \t]*(accept|reject)[ \t]*$/i;
+// A line counts by the section it sits in, so an objection line under the caveats is never an objection.
+const OBJECTIONS_HEADING = '## Objections';
+const CAVEATS_HEADING = '## Caveats';
 const OBJECTION_RE = /^[ \t]*[-*][ \t]+(O\d+)[ \t]*:/;
+const CAVEAT_RE = /^[ \t]*[-*][ \t]+C\d+[ \t]*:/;
+const NONE_RE = /^None\.?$/i;
 const SORT_RE = /^[ \t]*[-*][ \t]+(O\d+)[ \t]*:[ \t]*(withdrawn|kept|downgraded)\b(.*)$/i;
 const QUOTE_RE = /"([^"]+)"|“([^”]+)”/;
 // A short quote matches nearly any decision file, so it proves no fact answers the objection.
@@ -38,6 +43,8 @@ function parseSpec(text, path) {
   try { spec = JSON.parse(text); } catch (e) { return { error: `the check spec ${path} is not JSON (${e.message})` }; }
   const headingsOk = Array.isArray(spec?.headings) && spec.headings.length > 0 && spec.headings.every((h) => typeof h === 'string' && h.trim());
   if (!headingsOk) return { error: `the check spec ${path} needs "headings", a non-empty array of heading lines` };
+  const unread = [OBJECTIONS_HEADING, CAVEATS_HEADING].filter((h) => !spec.headings.some((s) => s.trim() === h));
+  if (unread.length) return { error: `the check spec ${path} "headings" lacks ${unread.map((h) => `"${h}"`).join(', ')}, the sections objections and caveats are read from` };
   const missing = ['stage2', 'decision', 'reveal'].filter((k) => typeof spec[k] !== 'string' || !spec[k].trim());
   if (missing.length) return { error: `the check spec ${path} needs the file paths ${missing.map((k) => `"${k}"`).join(', ')}` };
   return { spec };
@@ -47,16 +54,46 @@ const linesOf = (text) => String(text).split(/\r?\n/);
 const squash = (s) => String(s).replace(/\s+/g, ' ').trim();
 const verdictsOf = (text) => linesOf(text).map((l) => l.match(VERDICT_RE)?.[1]?.toLowerCase()).filter(Boolean);
 
-/** The objection ids of a blind review, in file order, duplicates included. */
-const objectionIds = (text) => linesOf(text).map((l) => l.match(OBJECTION_RE)?.[1]).filter(Boolean);
+/** The lines between a heading line and the next `## ` heading, or null when the file lacks the heading. */
+function sectionLines(text, heading) {
+  const lines = linesOf(text);
+  const start = lines.findIndex((l) => l.trim() === heading);
+  if (start < 0) return null;
+  const rest = lines.slice(start + 1);
+  const end = rest.findIndex((l) => l.trim().startsWith('## '));
+  return end < 0 ? rest : rest.slice(0, end);
+}
+
+/** The objection ids under the objections heading, in file order, duplicates included. */
+const objectionIds = (text) => (sectionLines(text, OBJECTIONS_HEADING) ?? []).map((l) => l.match(OBJECTION_RE)?.[1]).filter(Boolean);
+
+/**
+ * The caveat count under the caveats heading, null when the file lacks that heading, and an error for each
+ * line there that is no caveat. A malformed line still counts, so a format error never drops a caveat.
+ */
+function caveatsOf(text) {
+  const section = sectionLines(text, CAVEATS_HEADING);
+  const errors = [];
+  let count = 0;
+  if (section === null) return { errors, count: null };
+  for (const line of section) {
+    const trimmed = line.trim();
+    if (!trimmed || NONE_RE.test(trimmed) || VERDICT_RE.test(trimmed)) continue;
+    count++;
+    if (!CAVEAT_RE.test(line)) errors.push(`a line under "${CAVEATS_HEADING}" is neither a caveat "- C<n>: ..." nor "None.": "${trimmed.slice(0, 80)}". Put each caveat on one "- C<n>:" line, and each objection under "${OBJECTIONS_HEADING}"`);
+  }
+  return { errors, count };
+}
+
+/** Each heading line the text lacks, as an error. */
+const missingHeadings = (text, headings) => {
+  const lines = linesOf(text).map((l) => l.trim());
+  return headings.filter((h) => !lines.includes(h.trim())).map((h) => `missing the heading line "${h.trim()}"`);
+};
 
 /** The blind review's format errors, its objection ids and its verdict. */
 function checkStage1(text, headings) {
-  const errors = [];
-  const lines = linesOf(text).map((l) => l.trim());
-  for (const h of headings) {
-    if (!lines.includes(h.trim())) errors.push(`missing the heading line "${h.trim()}"`);
-  }
+  const errors = [...missingHeadings(text, headings), ...caveatsOf(text).errors];
   const ids = objectionIds(text);
   const dupes = [...new Set(ids.filter((id, i) => ids.indexOf(id) !== i))];
   if (dupes.length) errors.push(`objection id(s) used twice: ${dupes.join(', ')}. Give each objection its own O<n>`);
@@ -73,11 +110,13 @@ function checkStage1(text, headings) {
  * The final file checked against the blind review's objection ids and the decision file. Counts treat an
  * unsorted objection, and a withdrawal whose quote is missing or not found, as kept.
  */
-function checkStage2(text, ids, decisionText) {
-  const errors = [];
+function checkStage2(text, ids, decisionText, blindCaveats) {
+  const errors = missingHeadings(text, [OBJECTIONS_HEADING, CAVEATS_HEADING]);
+  const caveats = caveatsOf(text);
+  errors.push(...caveats.errors);
   const decision = squash(decisionText);
   const sorted = new Map();
-  for (const line of linesOf(text)) {
+  for (const line of sectionLines(text, OBJECTIONS_HEADING) ?? []) {
     const m = line.match(SORT_RE);
     if (!m) continue;
     const [, id, rawSort, rest] = m;
@@ -98,7 +137,9 @@ function checkStage2(text, ids, decisionText) {
     if (!sorted.has(id)) { errors.push(`${id} is not sorted: mark it withdrawn, kept or downgraded`); sorted.set(id, 'kept'); }
   }
   const tally = (s) => [...sorted.values()].filter((v) => v === s).length;
-  const counts = { raised: ids.length, withdrawn: tally('withdrawn'), kept: tally('kept'), downgraded: tally('downgraded') };
+  // A final file with no caveats heading still owes the blind review's caveats and each downgraded objection.
+  const caveatCount = caveats.count ?? blindCaveats + tally('downgraded');
+  const counts = { raised: ids.length, withdrawn: tally('withdrawn'), kept: tally('kept'), downgraded: tally('downgraded'), caveats: caveatCount };
   const verdicts = verdictsOf(text);
   if (!verdicts.length) errors.push('no verdict line: end the final file with "Verdict: accept" or "Verdict: reject"');
   if (verdicts.length > 1) errors.push(`${verdicts.length} verdict lines in the final file: keep one`);
@@ -107,7 +148,7 @@ function checkStage2(text, ids, decisionText) {
   return { errors, counts };
 }
 
-const countsLine = (c) => `raised ${c.raised}, withdrawn ${c.withdrawn}, kept ${c.kept}, downgraded ${c.downgraded}`;
+const countsLine = (c) => `raised ${c.raised}, withdrawn ${c.withdrawn}, kept ${c.kept}, downgraded ${c.downgraded}, caveats ${c.caveats}`;
 const sha256 = (text) => createHash('sha256').update(text).digest('hex');
 
 // =============================================================================
@@ -125,14 +166,19 @@ const lockOf = (text) => {
 };
 const fail = (lines) => ({ lines, code: EXIT.error });
 
-/** The final-file check: its errors, its counts, every objection kept when a file is missing, and whether the final file is written. */
-function finalCheck(spec, ids) {
+/** Every objection kept, with the caveat count of the file that stands. */
+const allKept = (ids, caveats) => ({ raised: ids.length, withdrawn: 0, kept: ids.length, downgraded: 0, caveats });
+
+/**
+ * The final-file check: its errors, its counts, every objection kept when a file is missing, and whether the
+ * final file is written. The caveats come from the final file once it is written, else from the blind review.
+ */
+function finalCheck(spec, ids, blindCaveats) {
   const stage2 = written(readOr(spec.stage2));
   const decision = readOr(spec.decision);
-  const allKept = { raised: ids.length, withdrawn: 0, kept: ids.length, downgraded: 0 };
-  if (stage2 === null) return { errors: [`no final file at ${spec.stage2}`], counts: allKept, finalWritten: false };
-  if (decision === null) return { errors: [`no decision file at ${spec.decision}`], counts: allKept, finalWritten: true };
-  return { ...checkStage2(stage2, ids, decision), finalWritten: true };
+  if (stage2 === null) return { errors: [`no final file at ${spec.stage2}`], counts: allKept(ids, blindCaveats), finalWritten: false };
+  if (decision === null) return { errors: [`no decision file at ${spec.decision}`], counts: allKept(ids, caveatsOf(stage2).count ?? blindCaveats), finalWritten: true };
+  return { ...checkStage2(stage2, ids, decision, blindCaveats), finalWritten: true };
 }
 
 export function run(argv) {
@@ -152,11 +198,12 @@ export function run(argv) {
 
   // Process and output: --verify
   const ids = [...new Set(objectionIds(review ?? ''))];
+  const blindCaveats = caveatsOf(review ?? '').count ?? 0;
   if (verify) {
     if (!lock) {
-      return { lines: [`no lock at ${paths.lock}: the reviewer never ran the check on ${file}`, countsLine({ raised: ids.length, withdrawn: 0, kept: ids.length, downgraded: 0 })], code: EXIT.noLock };
+      return { lines: [`no lock at ${paths.lock}: the reviewer never ran the check on ${file}`, countsLine(allKept(ids, blindCaveats))], code: EXIT.noLock };
     }
-    const { errors, counts, finalWritten } = finalCheck(spec, ids);
+    const { errors, counts, finalWritten } = finalCheck(spec, ids, blindCaveats);
     const lockedVerdict = `locked verdict: ${lock.verdict ?? ''}`;
     if (review === null || lock.sha256 !== sha256(review)) {
       return { lines: [`${file} does not match its lock`, lockedVerdict, countsLine(counts)], code: EXIT.mismatch };
@@ -184,7 +231,7 @@ export function run(argv) {
     const reveal = readOr(spec.reveal);
     return reveal === null ? fail([`no reveal text at ${spec.reveal}`]) : { lines: [reveal.replace(/\s+$/, '')], code: EXIT.ok };
   }
-  const { errors, counts } = finalCheck(spec, ids);
+  const { errors, counts } = finalCheck(spec, ids, blindCaveats);
   return errors.length ? fail(errors) : { lines: [countsLine(counts)], code: EXIT.ok };
 }
 

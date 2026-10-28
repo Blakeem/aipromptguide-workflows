@@ -93,21 +93,21 @@ section('a blind review edited after its lock fails the check, and --verify exit
   const v = cli('--verify', p.file);
   eq(v.code, 3, '--verify exits 3');
   ok(v.out.includes('locked verdict: reject'), 'and prints the locked verdict');
-  ok(/^raised \d+, withdrawn \d+, kept \d+, downgraded \d+$/.test(lastLine(v.out)), `with the counts line last: ${lastLine(v.out)}`);
+  ok(/^raised \d+, withdrawn \d+, kept \d+, downgraded \d+, caveats \d+$/.test(lastLine(v.out)), `with the counts line last: ${lastLine(v.out)}`);
 }
 
 section('a withdrawal stands only on a quote the decision file holds word for word');
 {
-  const final = (o1, verdict) => `- ${o1}\n- O2: downgraded: the must holds at the depth the rubric states\n## Caveats\nNone.\nVerdict: ${verdict}\n`;
+  const final = (o1, verdict) => `## Objections\n- ${o1}\n- O2: downgraded: the must holds at the depth the rubric states\n## Caveats\nNone.\nVerdict: ${verdict}\n`;
   const found = fixture(BLIND_REJECT);
   cli(found.file);
   // The quote spans a line break in the decision file, and curly quotes delimit it.
   writeFileSync(found.final, final(`O1: withdrawn \u201c${FACT}\u201d`, 'accept'));
   const okRun = cli(found.file);
   eq(okRun.code, 0, `a found quote passes: ${okRun.out.trim()}`);
-  eq(okRun.out.trim(), 'raised 2, withdrawn 1, kept 0, downgraded 1', 'and prints the counts');
+  eq(okRun.out.trim(), 'raised 2, withdrawn 1, kept 0, downgraded 1, caveats 0', 'and prints the counts');
   const v = cli('--verify', found.file);
-  ok(v.code === 0 && lastLine(v.out) === 'raised 2, withdrawn 1, kept 0, downgraded 1', `--verify exits 0 with the same counts: ${v.out.trim()}`);
+  ok(v.code === 0 && lastLine(v.out) === 'raised 2, withdrawn 1, kept 0, downgraded 1, caveats 0', `--verify exits 0 with the same counts: ${v.out.trim()}`);
   ok(!v.out.includes('locked verdict:'), 'and prints no locked verdict once the final file is written');
 
   const missing = fixture(BLIND_REJECT);
@@ -119,7 +119,7 @@ section('a withdrawal stands only on a quote the decision file holds word for wo
   ok(bad.out.includes('an accept keeps no objection, and 1 are kept'), 'and the accept that now keeps it');
   const vBad = cli('--verify', missing.file);
   eq(vBad.code, 0, '--verify still exits 0 on a matching lock');
-  eq(lastLine(vBad.out), 'raised 2, withdrawn 0, kept 1, downgraded 1', 'and counts the unfound withdrawal as kept');
+  eq(lastLine(vBad.out), 'raised 2, withdrawn 0, kept 1, downgraded 1, caveats 0', 'and counts the unfound withdrawal as kept');
 
   const short = fixture(BLIND_REJECT);
   cli(short.file);
@@ -130,11 +130,11 @@ section('a withdrawal stands only on a quote the decision file holds word for wo
 section('the final file sorts every objection once, and its verdict agrees with what it keeps');
 {
   const cases = [
-    ['an unsorted objection', '- O1: kept: still stands\n## Caveats\nNone.\nVerdict: reject\n', 'O2 is not sorted'],
-    ['an unknown id', '- O1: kept: x\n- O2: kept: y\n- O3: kept: z\nVerdict: reject\n', 'O3 is not an objection of the blind review'],
-    ['an objection sorted twice', '- O1: kept: x\n- O1: downgraded: y\n- O2: kept: z\nVerdict: reject\n', 'O1 is sorted twice'],
-    ['a reject that keeps nothing', '- O1: downgraded: x\n- O2: downgraded: y\nVerdict: reject\n', 'a reject keeps at least one objection'],
-    ['no verdict line', '- O1: kept: x\n- O2: kept: y\n', 'no verdict line'],
+    ['an unsorted objection', '## Objections\n- O1: kept: still stands\n## Caveats\nNone.\nVerdict: reject\n', 'O2 is not sorted'],
+    ['an unknown id', '## Objections\n- O1: kept: x\n- O2: kept: y\n- O3: kept: z\nVerdict: reject\n', 'O3 is not an objection of the blind review'],
+    ['an objection sorted twice', '## Objections\n- O1: kept: x\n- O1: downgraded: y\n- O2: kept: z\nVerdict: reject\n', 'O1 is sorted twice'],
+    ['a reject that keeps nothing', '## Objections\n- O1: downgraded: x\n- O2: downgraded: y\nVerdict: reject\n', 'a reject keeps at least one objection'],
+    ['no verdict line', '## Objections\n- O1: kept: x\n- O2: kept: y\n', 'no verdict line'],
   ];
   for (const [what, text, error] of cases) {
     const p = fixture(BLIND_REJECT);
@@ -145,9 +145,57 @@ section('the final file sorts every objection once, and its verdict agrees with 
   }
   const kept = fixture(BLIND_REJECT);
   cli(kept.file);
-  writeFileSync(kept.final, '- O1: kept: redis scores 7.5 against 6.0\n- O2: downgraded: no breach on the default path\n## Caveats\nNone.\nVerdict: reject\n');
+  writeFileSync(kept.final, '## Objections\n- O1: kept: redis scores 7.5 against 6.0\n- O2: downgraded: no breach on the default path\n## Caveats\nNone.\nVerdict: reject\n');
   const r = cli(kept.file);
-  ok(r.code === 0 && r.out.trim() === 'raised 2, withdrawn 0, kept 1, downgraded 1', `a reject that keeps one passes: ${r.out.trim()}`);
+  ok(r.code === 0 && r.out.trim() === 'raised 2, withdrawn 0, kept 1, downgraded 1, caveats 0', `a reject that keeps one passes: ${r.out.trim()}`);
+}
+
+section('a line counts by its section: an objection line under the caveats is no objection, and a caveats line is a caveat or "None."');
+{
+  const PROSE = 'a format error';
+  const blindCases = [
+    ['an objection line under the caveats of an accept', BLIND_ACCEPT.replace('## Caveats\nNone.', '## Caveats\n- O1: redis beats the winner'), '- O1: redis beats the winner'],
+    ['a prose line under the caveats', BLIND_ACCEPT.replace('## Caveats\nNone.', '## Caveats\nThe cache may grow.'), 'The cache may grow.'],
+  ];
+  for (const [what, text, line] of blindCases) {
+    const p = fixture(text);
+    const { out, code } = cli(p.file);
+    ok(code === 1 && out.includes(`a line under "## Caveats" is neither a caveat "- C<n>: ..." nor "None.": "${line}"`), `${what}: ${PROSE} that quotes the line: ${out.trim().slice(0, 160)}`);
+    ok(!out.includes('an accept holds no objection'), `${what}: the line is no objection of the accept`);
+    ok(!existsSync(p.lock), `${what}: writes no lock`);
+  }
+  const p = fixture(BLIND_REJECT);
+  cli(p.file);
+  writeFileSync(p.final, '## Objections\n- O1: kept: redis scores 7.5 against 6.0\n- O2: downgraded: no breach on the default path\n## Caveats\n- O1: kept: the p99 must fails\nVerdict: reject\n');
+  const r = cli(p.file);
+  ok(r.code === 1 && r.out.includes('neither a caveat'), `the final file: an objection line under the caveats is ${PROSE}: ${r.out.trim().slice(0, 160)}`);
+  ok(!r.out.includes('O1 is sorted twice'), 'and is no second sort of O1');
+  writeFileSync(p.final, '- O1: kept: redis scores 7.5 against 6.0\n- O2: downgraded: no breach on the default path\nVerdict: reject\n');
+  const bare = cli(p.file);
+  ok(bare.code === 1 && bare.out.includes('missing the heading line "## Objections"') && bare.out.includes('missing the heading line "## Caveats"') && bare.out.includes('O1 is not sorted'),
+    `a final file with no headings names both and sorts nothing: ${bare.out.trim().slice(0, 160)}`);
+}
+
+section('the counts line counts the caveats of the final file once it is written, and of the blind review before');
+{
+  const blind = BLIND_REJECT.replace('## Caveats\nNone.', '## Caveats\n- C1: the cache may grow. Evidence: x\n- C2: the docs lag. Evidence: y');
+  const p = fixture(blind);
+  eq(lastLine(cli('--verify', p.file).out), 'raised 2, withdrawn 0, kept 2, downgraded 0, caveats 2', 'no lock: the blind review\'s caveats');
+  eq(cli(p.file).code, 0, 'a blind review with caveat lines locks');
+  eq(lastLine(cli('--verify', p.file).out), 'raised 2, withdrawn 0, kept 2, downgraded 0, caveats 2', 'no final file: the blind review\'s caveats');
+  writeFileSync(p.final, '## Objections\n- O1: kept: redis scores 7.5 against 6.0\n- O2: downgraded: no breach on the default path\n## Caveats\n- C1: the cache may grow\n- C2: the docs lag\n- C3: O2, downgraded\n\n## WHERE NEXT\nAnother revision could answer O1.\nVerdict: reject\n');
+  const r = cli(p.file);
+  ok(r.code === 0 && r.out.trim() === 'raised 2, withdrawn 0, kept 1, downgraded 1, caveats 3', `the final file's caveats, ended by the next heading: ${r.out.trim()}`);
+  eq(lastLine(cli('--verify', p.file).out), 'raised 2, withdrawn 0, kept 1, downgraded 1, caveats 3', '--verify counts the same caveats');
+  const sorts = '## Objections\n- O1: kept: redis scores 7.5 against 6.0\n- O2: downgraded: no breach on the default path\n';
+  writeFileSync(p.final, `${sorts}## Caveats\nThe cache may grow.\nVerdict: reject\n`);
+  const prose = cli('--verify', p.file);
+  ok(prose.code === 0 && prose.out.includes('neither a caveat') && lastLine(prose.out) === 'raised 2, withdrawn 0, kept 1, downgraded 1, caveats 1',
+    `--verify counts a prose caveat line beside its format error: ${prose.out.trim().slice(-160)}`);
+  writeFileSync(p.final, `${sorts}Verdict: reject\n`);
+  const headless = cli('--verify', p.file);
+  ok(headless.out.includes('missing the heading line "## Caveats"') && lastLine(headless.out) === 'raised 2, withdrawn 0, kept 1, downgraded 1, caveats 3',
+    `a final file with no caveats heading counts the blind review's caveats and the downgraded objection: ${headless.out.trim().slice(-160)}`);
 }
 
 section('--verify exits 2 with no lock, and counts every objection kept');
@@ -156,11 +204,11 @@ section('--verify exits 2 with no lock, and counts every objection kept');
   const v = cli('--verify', p.file);
   eq(v.code, 2, 'exit 2');
   ok(v.out.includes('no lock at'), `names the missing lock: ${v.out.trim()}`);
-  eq(lastLine(v.out), 'raised 2, withdrawn 0, kept 2, downgraded 0', 'with the counts line last');
+  eq(lastLine(v.out), 'raised 2, withdrawn 0, kept 2, downgraded 0, caveats 0', 'with the counts line last');
   const lockedAccept = fixture(BLIND_ACCEPT);
   cli(lockedAccept.file);
   const clean = cli('--verify', lockedAccept.file);
-  ok(clean.code === 0 && lastLine(clean.out) === 'raised 0, withdrawn 0, kept 0, downgraded 0', `a locked accept with no final file verifies clean: ${clean.out.trim()}`);
+  ok(clean.code === 0 && lastLine(clean.out) === 'raised 0, withdrawn 0, kept 0, downgraded 0, caveats 0', `a locked accept with no final file verifies clean: ${clean.out.trim()}`);
   ok(clean.out.includes('locked verdict: accept'), 'and prints the locked verdict, since the blind review is the only one written');
 }
 
@@ -177,7 +225,7 @@ section('a reset lock and a blank final file count as unwritten, so an earlier l
   ok(JSON.parse(readFileSync(p.lock, 'utf8')).sha256, 'and writes a real lock over the reset one');
   ok(cli(p.file).out.trim() === REVEAL, 'a blank final file reads as not written, so the reveal prints again');
   const vBlank = cli('--verify', p.file);
-  ok(vBlank.code === 0 && lastLine(vBlank.out) === 'raised 2, withdrawn 0, kept 2, downgraded 0', `--verify counts every objection kept: ${vBlank.out.trim()}`);
+  ok(vBlank.code === 0 && lastLine(vBlank.out) === 'raised 2, withdrawn 0, kept 2, downgraded 0, caveats 0', `--verify counts every objection kept: ${vBlank.out.trim()}`);
   ok(vBlank.out.includes('locked verdict: reject'), 'and prints the locked verdict for a blank final file');
   const garbled = fixture(BLIND_REJECT);
   writeFileSync(garbled.lock, 'not json');
@@ -211,6 +259,11 @@ section('a missing spec, review file or argument fails loudly');
   const badSpec = fixture(BLIND_REJECT);
   writeFileSync(join(badSpec.file, '..', '..', 'locks', 'review-r1.json'), '{"headings":[]}');
   ok(cli(badSpec.file).out.includes('needs "headings"'), 'a spec with no headings fails naming the field');
+  const otherSections = fixture(BLIND_REJECT);
+  writeFileSync(join(otherSections.file, '..', '..', 'locks', 'review-r1.json'), JSON.stringify({ headings: ['## Scores', '## Concerns'], stage2: otherSections.final, decision: otherSections.decision, reveal: otherSections.reveal }));
+  const other = cli(otherSections.file);
+  ok(other.code === 1 && other.out.includes('lacks "## Objections", "## Caveats"') && !existsSync(otherSections.lock),
+    `a spec whose headings omit the sections the counts read from fails before any lock: ${other.out.trim()}`);
 }
 
 section('a missing reveal text leaves no lock, and a missing decision file keeps every objection');
@@ -229,13 +282,13 @@ section('a missing reveal text leaves no lock, and a missing decision file keeps
 
   const noDecision = fixture(BLIND_REJECT);
   cli(noDecision.file);
-  writeFileSync(noDecision.final, `- O1: withdrawn "${FACT}"\n- O2: kept: the p99 must fails\n## Caveats\nNone.\nVerdict: reject\n`);
+  writeFileSync(noDecision.final, `## Objections\n- O1: withdrawn "${FACT}"\n- O2: kept: the p99 must fails\n## Caveats\nNone.\nVerdict: reject\n`);
   rmSync(noDecision.decision);
   const r = cli(noDecision.file);
   ok(r.code === 1 && r.out.includes(`no decision file at ${noDecision.decision}`), `a later run names the missing decision file: ${r.out.trim()}`);
   const v = cli('--verify', noDecision.file);
   ok(v.code === 0 && v.out.includes('no decision file at'), `--verify exits 0 on a matching lock and names the missing file: ${v.out.trim()}`);
-  eq(lastLine(v.out), 'raised 2, withdrawn 0, kept 2, downgraded 0', 'and counts every objection kept');
+  eq(lastLine(v.out), 'raised 2, withdrawn 0, kept 2, downgraded 0, caveats 0', 'and counts every objection kept');
   ok(!v.out.includes('locked verdict:'), 'and prints no locked verdict, since the final file is written');
 }
 

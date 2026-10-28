@@ -24,12 +24,13 @@ flowchart TD
   x5[/"throw: Invalid role map"/]
   x6[/"throw: Unknown role key in a role map"/]
   x7[/"throw: Illegal role value in a role map"/]
-  x8[/"throw: Invalid notes arg"/]
-  x9[/"throw: args.scope is required"/]
-  x10[/"throw: args.target.repo is required when any args.scope path is relative"/]
-  x11[/"throw: args.lenses is required"/]
-  x12[/"throw: lens ids collide after slugging"/]
-  x13[/"throw: A user request was relayed into the context of the finder for ... ahead of its task"/]
+  x8[/"throw: Invalid agentTypes arg"/]
+  x9[/"throw: Invalid notes arg"/]
+  x10[/"throw: args.scope is required"/]
+  x11[/"throw: args.target.repo is required when any args.scope path is relative"/]
+  x12[/"throw: args.lenses is required"/]
+  x13[/"throw: lens ids collide after slugging"/]
+  x14[/"throw: A user request was relayed into the context of the finder for ... ahead of its task"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -43,13 +44,14 @@ flowchart TD
   S0 --> x10
   S0 --> x11
   S0 --> x12
+  S0 --> x13
   a1 --> a2
   a1 --> t2
   a1 --> t3
   a1 --> t4
   a1 --> t5
   a1 --> t6
-  a1 --> x13
+  a1 --> x14
   a2 --> t1
 ```
 
@@ -74,16 +76,17 @@ flowchart TD
 | throw: args must include at least { runId, root, target, scope, lenses } | args carry no runId | throw (line 42) |
 | throw: args.root is required | args.root is missing | throw (line 46) |
 | throw: args.minImpact must be one of ... | args.minImpact names no rank | throw (line 60) |
-| throw: Invalid role map | models is an array in place of an object | throw (line 88) |
-| throw: Unknown role key in a role map | models carries a key outside find \| verify | throw (line 93) |
-| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 96) |
-| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 115) |
-| throw: args.scope is required | args.scope is empty | throw (line 151) |
-| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 157) |
-| throw: args.lenses is required | args.lenses is empty | throw (line 167) |
-| throw: lens ids collide after slugging | two lenses slug to one id | throw (line 171) |
-| throw: A user request was relayed into the context of the finder for ... ahead of its task | a finder reports a user request relayed into its context, so no verifier runs | throw (line 488) |
+| throw: Invalid role map | models is an array in place of an object | throw (line 87) |
+| throw: Unknown role key in a role map | models carries a key outside find \| verify | throw (line 92) |
+| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 95) |
+| throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside find \| verify, or maps one to a blank name | throw (line 109) |
+| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 126) |
+| throw: args.scope is required | args.scope is empty | throw (line 162) |
+| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 168) |
+| throw: args.lenses is required | args.lenses is empty | throw (line 178) |
+| throw: lens ids collide after slugging | two lenses slug to one id | throw (line 182) |
+| throw: A user request was relayed into the context of the finder for ... ahead of its task | a finder reports a user request relayed into its context, so no verifier runs | throw (line 499) |
 
 ## Coverage
 
-20 scenarios · 2/2 roles · 13/13 throw sites · 0/0 halt statuses · 19 terminal states.
+21 scenarios · 2/2 roles · 14/14 throw sites · 0/0 halt statuses · 20 terminal states.

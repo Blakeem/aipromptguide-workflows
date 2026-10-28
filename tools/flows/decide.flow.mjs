@@ -2,9 +2,9 @@
 // Contract + every derivation rule: the header of ../gen-flows.mjs. Regenerate with
 // `node tools/gen-flows.mjs decide`; `--check` fails the gate while FLOW.md is stale.
 //
-// Coverage aimed at here: all five terminal states, the reviewer accepting versus a reject that buys
+// Coverage aimed at here: all six terminal states, the reviewer accepting with and without caveats versus a reject that buys
 // another round (a challenger and a must violation take the same engine path, so each gets its own
-// scenario only to name it on the map), the research loop's three stops (covered, saturated, cap), the
+// scenario only to name it on the map), the research loop's three stops (covered, saturated, cap) and its researcher cap, the
 // staged review's check results (a matching lock, a lock mismatch that falls back to the locked blind
 // verdict, a missing lock rerun once and then BLOCKED), BOTH needs-user escalations (the decider's and the
 // reviewer's — two separate exits landing on ONE status string, so terminal coverage alone leaves half the
@@ -29,8 +29,8 @@ const OPEN_ONCE = (label) => (label === 'decide r1' ? OPEN : DECIDE);
 const ACCEPT  = { wrote_file: true, verdict: 'accept', needs_user: false };
 const REJECT  = { ...ACCEPT, verdict: 'reject' };
 // One object answers both check-agent calls: the setup reads wrote_file, the verify the other three.
-const CHECK   = { wrote_file: true, exit_code: 0, final_line: 'raised 0, withdrawn 0, kept 0, downgraded 0', stage1_verdict: '' };
-const KEPT    = { ...CHECK, final_line: 'raised 2, withdrawn 1, kept 1, downgraded 0' };
+const CHECK   = { wrote_file: true, exit_code: 0, final_line: 'raised 0, withdrawn 0, kept 0, downgraded 0, caveats 0', stage1_verdict: '' };
+const KEPT    = { ...CHECK, final_line: 'raised 2, withdrawn 1, kept 1, downgraded 0, caveats 0' };
 const NO_LOCK = { ...CHECK, exit_code: 2 };
 // Round 1's reviewer keeps an objection, and round 2's withdraws or downgrades it.
 const REJECT_ONCE = (label) => (label.startsWith('check r1') ? KEPT : CHECK);
@@ -46,6 +46,12 @@ export default {
       when: 'the reviewer keeps no objection',
       args: base,
       respond: { research: LENS, decide: DECIDE, review: ACCEPT, check: CHECK },
+    },
+    {
+      name: 'reviewer accepts with caveats',
+      when: 'the reviewer keeps no objection and names caveats',
+      args: base,
+      respond: { research: LENS, decide: DECIDE, review: ACCEPT, check: { ...CHECK, final_line: 'raised 1, withdrawn 0, kept 0, downgraded 1, caveats 2' } },
     },
     {
       name: 'reject with a challenger',
@@ -103,6 +109,13 @@ export default {
       when: 'every research round finds new evidence until maxResearchRounds is spent',
       args: base,
       respond: { research: LENS, 'research-issue': ISSUE, decide: OPEN, review: ACCEPT, check: CHECK },
+    },
+    {
+      // The researchers take the first maxResearchers issues, and the rest are carried to the next decider pass.
+      name: 'more open issues than maxResearchers',
+      when: 'the decider lists more open issues than maxResearchers, so the rest are carried',
+      args: { ...base, maxResearchers: 2 },
+      respond: { research: LENS, 'research-issue': ISSUE, decide: { ...OPEN, open_issue_ids: ['p99-unproven', 'cost-unknown', 'ops-burden'] }, review: ACCEPT, check: CHECK },
     },
     {
       name: 'researcher does not attest its file',

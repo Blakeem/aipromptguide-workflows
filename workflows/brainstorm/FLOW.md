@@ -18,11 +18,12 @@ flowchart TD
   x4[/"throw: Invalid role map"/]
   x5[/"throw: Unknown role key in a role map"/]
   x6[/"throw: Illegal role value in a role map"/]
-  x7[/"throw: Invalid notes arg"/]
-  x8[/"throw: Provide the problem framing"/]
-  x9[/"throw: args.lenses is required"/]
-  x10[/"throw: lens ids collide after slugging"/]
-  x11[/"throw: A user request was relayed into the context of the generator for ... ahead of its task"/]
+  x7[/"throw: Invalid agentTypes arg"/]
+  x8[/"throw: Invalid notes arg"/]
+  x9[/"throw: Provide the problem framing"/]
+  x10[/"throw: args.lenses is required"/]
+  x11[/"throw: lens ids collide after slugging"/]
+  x12[/"throw: A user request was relayed into the context of the generator for ... ahead of its task"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -34,9 +35,10 @@ flowchart TD
   S0 --> x8
   S0 --> x9
   S0 --> x10
+  S0 --> x11
   a1 --> t1
   a1 --> t2
-  a1 --> x11
+  a1 --> x12
 ```
 
 ## Phases
@@ -57,12 +59,13 @@ flowchart TD
 | throw: Invalid role map | models is an array in place of an object | throw (line 49) |
 | throw: Unknown role key in a role map | models carries a key outside generate | throw (line 54) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 57) |
-| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 77) |
-| throw: Provide the problem framing | neither brief nor planPath | throw (line 99) |
-| throw: args.lenses is required | args.lenses is empty | throw (line 114) |
-| throw: lens ids collide after slugging | two lenses slug to one folder | throw (line 118) |
-| throw: A user request was relayed into the context of the generator for ... ahead of its task | a generator reports a user request relayed into its context | throw (line 184) |
+| throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside generate, or maps one to a blank name | throw (line 71) |
+| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 88) |
+| throw: Provide the problem framing | neither brief nor planPath | throw (line 110) |
+| throw: args.lenses is required | args.lenses is empty | throw (line 125) |
+| throw: lens ids collide after slugging | two lenses slug to one folder | throw (line 129) |
+| throw: A user request was relayed into the context of the generator for ... ahead of its task | a generator reports a user request relayed into its context | throw (line 195) |
 
 ## Coverage
 
-15 scenarios · 1/1 roles · 11/11 throw sites · 0/0 halt statuses · 13 terminal states.
+16 scenarios · 1/1 roles · 12/12 throw sites · 0/0 halt statuses · 14 terminal states.

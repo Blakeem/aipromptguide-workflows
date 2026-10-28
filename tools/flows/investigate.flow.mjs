@@ -196,6 +196,7 @@ export default {
     { name: 'models names an unknown role', when: 'models carries a key outside criteria | investigate | critique', args: { ...base, models: { planner: 'opus' } } },
     { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { criteria: 'gpt' } } },
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { criteria: 'ultra' } } },
+    { name: 'agentTypes names an unknown role', when: 'agentTypes is not an object, carries a key outside criteria | investigate | critique, or maps one to a blank name', args: { ...base, agentTypes: { planner: 'my-planner' } } },
     { name: 'notes missing a path', when: 'notes lacks dir or survey, or names a relative path', args: { ...base, notes: { dir: 'E:/flow/notes' } } },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },

@@ -195,22 +195,29 @@ node tools/review-check.mjs --verify <review file>   # lock state and counts; ex
 A generic two-stage review check. Its only path argument is the review file, and it finds the rest by a
 fixed convention: the spec is `<parent of the review file's folder>/locks/<stem>.json` and the lock is
 `<stem>.lock` beside it. The spec is JSON, `{ headings, stage2, decision, reveal }`: the heading lines the
-blind file must hold, the final file's path, the decision file's path and the reveal text's path. decide's
-check agent writes the spec and the reveal text before each review.
+blind file must hold, `## Objections` and `## Caveats` among them, the final file's path, the decision
+file's path and the reveal text's path. decide's check agent writes the spec and the reveal text before
+each review.
 
-The blind file holds every spec heading as a line of its own, one line per objection that starts
-`- O<n>:`, and exactly one `Verdict: accept` or `Verdict: reject` line. A reject holds at least one
-objection, and an accept holds none. The final file sorts each objection on one line,
-`- O<n>: withdrawn "<quote>"`, `- O<n>: kept: ...` or `- O<n>: downgraded: ...`, and ends with one verdict
-line. A withdrawal's quote, in straight or curly double quotes, is at least `MIN_QUOTE_CHARS` (20)
-characters, and the decision file holds it word for word once runs of whitespace are folded to one
-space. A reject keeps at least one objection, and an accept keeps none.
+A line counts by its section, the lines between a heading line and the next `## ` heading. An objection
+is a line that starts `- O<n>:` under `## Objections`, and a caveat is a line that starts `- C<n>:` under
+`## Caveats`. Any other non-blank line under `## Caveats` is a format error, apart from `None.` and a
+verdict line. Such a line still counts as a caveat, so a format error never drops a caveat from the
+count. A final file with no `## Caveats` heading counts the blind file's caveats plus one per downgraded
+objection. The blind file holds every spec heading as a line of its own, one objection line per
+objection, and exactly one `Verdict: accept` or `Verdict: reject` line. A reject holds at least one
+objection, and an accept holds none. The final file holds an `## Objections` section that sorts each
+objection on one line, `- O<n>: withdrawn "<quote>"`, `- O<n>: kept: ...` or `- O<n>: downgraded: ...`,
+a `## Caveats` section, and one verdict line. A withdrawal's quote, in straight or curly double quotes,
+is at least `MIN_QUOTE_CHARS` (20) characters, and the decision file holds it word for word once runs
+of whitespace are folded to one space. A reject keeps at least one objection, and an accept keeps none.
 
 - **First run** (no lock): an incomplete blind file prints its format errors, writes nothing and exits 1.
   A complete one writes the lock, `{ sha256, verdict }`, prints the reveal text and exits 0.
 - **Later runs**: a blind file that no longer matches its lock exits 1. While the final file does not
   exist, the reveal text prints again. Then each final-file error prints with exit 1, or the counts
-  line `raised N, withdrawn N, kept N, downgraded N` prints with exit 0.
+  line `raised N, withdrawn N, kept N, downgraded N, caveats N` prints with exit 0. The caveat count
+  comes from the final file once it is written, and from the blind file before.
 - **`--verify`** prints any final-file errors, then the counts line last. An unsorted objection, and a
   withdrawal whose quote is missing, short or not found, counts as kept. Exit 0 when the lock matches,
   2 when there is no lock, and 3 when the blind file does not match its lock. Exit 3, and exit 0 while

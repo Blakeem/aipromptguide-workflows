@@ -25,9 +25,14 @@ A **diverge-then-converge** workflow built on the shared [Workflow Principles](.
   original source or is marked as own judgment, and the final reviewer re-checks the sources behind the
   facts that decide the outcome.
 - **Research inside the decision.** The decider lists each open issue: a question whose answer could
-  change the winner. One researcher per issue searches for the answer, and the decider revises. Research
-  stops when no issue is open, after two rounds in a row find no new evidence, or at
-  `maxResearchRounds` (default 3). Issues still open go to you with the decision. A question no agent
+  change the winner. One researcher per issue searches for the answer, and the decider revises. A round
+  researches at most `maxResearchers` issues (default 10). So the decider merges the issues one
+  researcher could answer from the same sources or in the same domain and lists them by how far each
+  could move the winner.
+  Research stops when no issue is open, after two rounds in a row find no new evidence, or at
+  `maxResearchRounds` (default 3). Issues still open go to you with the decision. When more issues are
+  open than one round researches, the hand-back names the extra ones and says the decision may need
+  splitting into narrower runs. A question no agent
   can settle, such as one that needs your hardware, becomes a check for you, with the result that would
   change the answer. When the decision is about what to test, these checks are part of the answer.
 - **A fixed rubric both sides judge against.** The requirements file is the single source of truth for
@@ -40,7 +45,8 @@ A **diverge-then-converge** workflow built on the shared [Workflow Principles](.
 - **Objections and caveats.** An objection is a broken non-negotiable or a challenger that scores
   higher on the same rubric. The decider answers a challenger by scoring both side by side and keeping
   the higher, so each round moves toward a stronger answer. Every other concern is a caveat. A caveat
-  never blocks, and the run hands it to your plan.
+  never blocks. An accepted run with caveats ends `decided with caveats` with their count, and the
+  hand-back tells you to carry them into your plan.
 - **Trade-off and flip check.** The decision states what the winner gives up against the runner-up,
   criterion by criterion. Its flip check names the smallest change that would swap the winner. The
   decider grades the choice `dominant`, `robust` or `fragile`, and you settle a `fragile` one.

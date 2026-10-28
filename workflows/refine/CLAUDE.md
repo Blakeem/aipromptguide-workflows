@@ -124,7 +124,7 @@ Full schema + defaults: the Config block atop `refine-cycle.mjs` (the canonical 
   `low | medium | high | xhigh | max`. Both roles default to opus, and every role defaults to
   `high`. The engine **throws** at launch, naming the arg, on a value that is not an object, a key
   outside the role keys, and a value outside its set. Choose each role's model by the task and the
-  change's risk, as the develop guide §3 says. One launch log line names each role's model and
+  change's risk, as the develop guide §3 says. `agentTypes` maps the same role keys to a custom subagent that must exist in your registry, and **throws** at launch on a value that is not an object, a key outside the role keys and a blank name. One launch log line names each role's model and
   effort) · `stateDir`.
 - **Exit survey:** `notes` (`{ dir, survey }`, two absolute paths). Set it when the user asks for
   the agents' feedback on a run. `dir` is the folder the answers go to, outside the target repo and

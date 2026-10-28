@@ -176,8 +176,18 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   the reviewer the decision. The reviewer withdraws an objection only by quoting a sourced fact. A
   reject keeps a broken non-negotiable or a challenger that scores higher, and the decider keeps the
   higher of the two. decide needs the new `checkTool` arg and has a new `check` role key. The
-  `decided with caveats` status and the `gapRounds`, `caveats` and `caveatFiles` fields are gone, and
-  `reviewRounds` holds each round's counts.
+  `gapRounds` and `caveatFiles` fields are gone, and `reviewRounds` holds each round's counts.
+- **decide counts caveats again.** An accepted run whose review names caveats ends `decided with
+  caveats` with their count, and the `caveats` return field holds it. `tools/review-check.mjs` reads an
+  objection only under `## Objections` and a caveat only under `## Caveats`. Each caveat is one
+  `- C<n>:` line, and any other line under `## Caveats` is a format error.
+- **decide caps the researchers of a research round.** The new `maxResearchers` arg (default 10)
+  bounds the open issues one round researches. The decider merges the issues one researcher could
+  answer and lists them by how far each could move the winner. Issues past the cap wait for a later
+  round, and the hand-back names them when the run ends with more open issues than the cap.
+- **Every engine checks its `agentTypes` keys.** A key outside the engine's role keys, a value that is
+  not an object, or a blank name throws at launch, as `models` and `efforts` do. In develop,
+  `agentTypes.park` throws, since the park agent takes `agentTypes.develop`.
 - **decide researches inside the decision.** The decider lists each open issue, a question whose answer
   could change the winner, and one researcher per issue searches for the answer before the review. Research
   stops when no issue is open, after two rounds in a row find no new evidence, or at the new

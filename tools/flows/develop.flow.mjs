@@ -148,6 +148,7 @@ export default {
     { name: 'models names an unknown role', when: 'models carries a key outside the five role keys', args: { ...base, models: { planner: 'opus' } } },
     { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { develop: 'gpt' } } },
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { develop: 'ultra' } } },
+    { name: 'agentTypes names an unknown role', when: 'agentTypes is not an object, carries park or another key outside develop | quality | acceptance | sweep, or maps one to a blank name', args: { ...base, agentTypes: { park: 'my-parker' } } },
     { name: 'notes missing a path', when: 'notes lacks dir or survey, or names a relative path', args: { ...base, notes: { dir: 'E:/flow/notes' } } },
     // Every agent reads its block through the plan-block tool, and an installed plugin keeps it apart from root.
     { name: 'no block tool', when: 'blockTool is missing or blank', args: { ...base, blockTool: '' } },

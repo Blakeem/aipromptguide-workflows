@@ -118,8 +118,19 @@ const roleMap = (name, value, legal) => {
 // opus too: the runtime relays the launching user message to every agent, and a sonnet agent may follow it over its task.
 const M  = { develop: 'opus', quality: 'opus', acceptance: 'opus', sweep: 'opus', ...roleMap('models', A.models, VALID_MODELS) };
 const EF = { develop: DEFAULT_EFFORT, quality: DEFAULT_EFFORT, acceptance: DEFAULT_EFFORT, sweep: DEFAULT_EFFORT, ...roleMap('efforts', A.efforts, VALID_EFFORTS) };
-// Set an agentType only when it exists in your registry.
-const AT = { ...(A.agentTypes ?? {}) };
+// agentTypes values name subagents in the caller's registry, so only the keys have a fixed set. A key
+// outside them must throw, or its subagent is dropped without a word. A test pins the copies equal.
+const agentTypeMap = (value, keys) => {
+  if (value === undefined) return {};
+  const entries = (value !== null && typeof value === 'object' && !Array.isArray(value)) ? Object.entries(value) : null;
+  const invalid = !entries || entries.some(([role, type]) => !keys.includes(role) || typeof type !== 'string' || !type.trim());
+  if (invalid) {
+    throw new Error(`Invalid agentTypes arg: args.agentTypes must map a role key (${keys.join(' | ')}) to a subagent type name; got ${JSON.stringify(value)}.`);
+  }
+  return Object.fromEntries(entries);
+};
+// The park agent takes agentTypes.develop, so a park key would be dropped.
+const AT = agentTypeMap(A.agentTypes, ROLE_KEYS.filter((role) => role !== 'park'));
 const roleOpts = (role, extra) => ({ model: M[role], effort: EF[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
 
 // Every engine line goes through logLine: a bare log() escapes the budget and can push status lines past the cap.

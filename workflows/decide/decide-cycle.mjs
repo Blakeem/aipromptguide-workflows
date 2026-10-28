@@ -1,12 +1,12 @@
 export const meta = {
   name: 'decide-cycle',
-  description: 'Convergent decision, lean/file-bus design: fan out ONE researcher per lens (each finds options through its lens, gathers cited evidence for them and scores them, written to its own file), then a DECIDER funnels them into one conclusion via a global weighted decision matrix that pulls in the best of each. Each open issue the decider names (a question whose answer could change the winner) gets a researcher, round after round, until the issues are covered, two research rounds in a row find no new evidence, or maxResearchRounds is spent. Then ONE final reviewer per review round judges the answer in two stages: first BLIND, scoring every candidate on the fixed requirements from an evidence ledger that holds the sourced facts and no score, then, once a check tool locks that judgment, against the decision file, where it may withdraw an objection only by quoting a sourced fact. An objection is a non-negotiable the winner violates or a challenger that scores higher on the same rubric; every other concern is a caveat. A check agent verifies the lock and counts the objections, and a kept objection sends the decision back to the decider. Looped until the reviewer accepts. The harness only routes paths + verdicts; rich content lives in files.',
+  description: 'Convergent decision, lean/file-bus design: fan out ONE researcher per lens (each finds options through its lens, gathers cited evidence for them and scores them, written to its own file), then a DECIDER funnels them into one conclusion via a global weighted decision matrix that pulls in the best of each. Each open issue the decider names (a question whose answer could change the winner) gets a researcher, up to maxResearchers per round, round after round, until the issues are covered, two research rounds in a row find no new evidence, or maxResearchRounds is spent. Then ONE final reviewer per review round judges the answer in two stages: first BLIND, scoring every candidate on the fixed requirements from an evidence ledger that holds the sourced facts and no score, then, once a check tool locks that judgment, against the decision file, where it may withdraw an objection only by quoting a sourced fact. An objection is a non-negotiable the winner violates or a challenger that scores higher on the same rubric; every other concern is a caveat. A check agent verifies the lock and counts the objections and caveats, and a kept objection sends the decision back to the decider. Looped until the reviewer accepts. The harness only routes paths + verdicts; rich content lives in files.',
   whenToUse: 'Have the AI reach a JUSTIFIED conclusion among approaches, weighing real trade-offs. Set selection:"ranked" instead when the answer is legitimately a PORTFOLIO rather than a choice — "give me the best N, I will pick or combine" — e.g. ranking a large pool of candidates surfaced by many agents over a big corpus; same matrix, same citation discipline, same adversarial review, but the output is an ordered shortlist with combine/exclusive notes and no single winner. The main agent authors the REQUIREMENTS (non-negotiable constraints + weighted criteria — the rubric both the decider and reviewer judge against) in PLAN MODE, approves them with the user, picks the LENSES (e.g. efficiency, simplest, robustness, best-practice), then runs this engine. It diverges into lensed option-generation, then converges via a decider ⇄ research loop gated by a decider ⇄ review loop. To explore open-ended creative variations for a HUMAN to pick (no AI verdict) use brainstorm-cycle; to BUILD the chosen approach, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.',
   phases: [
     { title: 'Diverge', detail: 'One researcher per lens (CONCURRENT). Each reads the requirements (verbatim) + its lens, generates 2–4 options, gathers cited evidence for them, scores them under its lens, recommends one, and writes lenses/<lens>.md. Returns a thin index.' },
     { title: 'Decide', detail: 'The decider reads the requirements + every lens file (+ the research files of the latest research round, + the previous review round\'s final review), combines the best elements, builds a GLOBAL weighted decision matrix: musts pass/fail, wants met / partly met / missed, every cell citing its evidence or marked own judgment. It picks the winner, writes decide/decision-rN.md with an Open issues section and a Checks for the user section, writes review/ledger-rN.md (the answer under review, the candidates and the sourced facts, no score or reasoning), and returns the choice + the open issue slugs.' },
-    { title: 'Research', detail: 'One researcher per open issue (CONCURRENT). Each reads the requirements, the issue in the decision file and the files the decider names for it, searches with the tools it has, and writes research/r<N>-<slug>.md with its findings cited, or a check for the user when no agent can settle it. Returns whether it found new evidence. The decider then runs again. Research stops on covered (no open issue), saturated (two research rounds in a row with no new evidence) or cap (maxResearchRounds).' },
-    { title: 'Review', detail: 'A check agent writes the round\'s check spec and reveal text to locks/. ONE fresh reviewer reads the requirements + the ledger, scores every candidate blind and writes review/review-rN.md with its objections and verdict, then runs review-check.mjs, which locks that file and prints the reveal: read the decision file, sort each objection into withdrawn (by a quoted sourced fact), kept or downgraded, write the final file and run the check again. The check agent then runs review-check.mjs --verify: a matching lock gives the verdict from the kept count, a mismatch falls back to the locked blind verdict, and a missing lock reruns the reviewer once, then blocks. A kept objection drives another Decide round.' },
+    { title: 'Research', detail: 'One researcher per open issue, for the first maxResearchers issues the decider lists (CONCURRENT). The rest are carried to the next decider pass. Each reads the requirements, the issue in the decision file and the files the decider names for it, searches with the tools it has, and writes research/r<N>-<slug>.md with its findings cited, or a check for the user when no agent can settle it. Returns whether it found new evidence. The decider then runs again. Research stops on covered (no open issue), saturated (two research rounds in a row with no new evidence) or cap (maxResearchRounds).' },
+    { title: 'Review', detail: 'A check agent writes the round\'s check spec and reveal text to locks/. ONE fresh reviewer reads the requirements + the ledger, scores every candidate blind and writes review/review-rN.md with its objections and verdict, then runs review-check.mjs, which locks that file and prints the reveal: read the decision file, sort each objection into withdrawn (by a quoted sourced fact), kept or downgraded, write the final file and run the check again. The check agent then runs review-check.mjs --verify: a matching lock gives the verdict from the kept count and names the caveat count, a mismatch falls back to the locked blind verdict, and a missing lock reruns the reviewer once, then blocks. A kept objection drives another Decide round.' },
   ],
 };
 
@@ -49,6 +49,8 @@ const num = (v, name, min, dflt, max = 1_000_000) => {
 };
 const MAX_ROUNDS  = num(A.maxRounds, 'maxRounds', 1, 3, 50);    // decider ⇄ reviewer rounds before "needs-attention"
 const MAX_RESEARCH_ROUNDS = num(A.maxResearchRounds, 'maxResearchRounds', 0, 3, 50);   // run-wide research rounds
+// The decider sets the open issue count, so this bounds the researchers one research round launches at once.
+const MAX_RESEARCHERS = num(A.maxResearchers, 'maxResearchers', 1, 10, 50);
 
 // SELECTION — what the decider is asked to produce.
 //   'single' (default) : ONE justified winner + why-not-each-runner-up. The normal decision.
@@ -93,18 +95,18 @@ const roleMap = (name, value, legal) => {
 };
 const M  = { research: 'sonnet', decide: 'opus', review: 'opus', check: 'sonnet', ...roleMap('models', A.models, VALID_MODELS) };
 const EF = { research: DEFAULT_EFFORT, decide: DEFAULT_EFFORT, review: DEFAULT_EFFORT, check: DEFAULT_EFFORT, ...roleMap('efforts', A.efforts, VALID_EFFORTS) };
-// agentTypes values name subagents in the caller's registry, so only the keys have a fixed set. A
-// retired key such as analyst must throw, or its subagent is dropped without a word.
-const agentTypeMap = (value) => {
+// agentTypes values name subagents in the caller's registry, so only the keys have a fixed set. A key
+// outside them must throw, or its subagent is dropped without a word. A test pins the copies equal.
+const agentTypeMap = (value, keys) => {
   if (value === undefined) return {};
   const entries = (value !== null && typeof value === 'object' && !Array.isArray(value)) ? Object.entries(value) : null;
-  const invalid = !entries || entries.some(([role, type]) => !ROLE_KEYS.includes(role) || typeof type !== 'string' || !type.trim());
+  const invalid = !entries || entries.some(([role, type]) => !keys.includes(role) || typeof type !== 'string' || !type.trim());
   if (invalid) {
-    throw new Error(`Invalid agentTypes arg: args.agentTypes must map a role key (${ROLE_KEYS.join(' | ')}) to a subagent type name; got ${JSON.stringify(value)}.`);
+    throw new Error(`Invalid agentTypes arg: args.agentTypes must map a role key (${keys.join(' | ')}) to a subagent type name; got ${JSON.stringify(value)}.`);
   }
   return Object.fromEntries(entries);
 };
-const AT = agentTypeMap(A.agentTypes);
+const AT = agentTypeMap(A.agentTypes, ROLE_KEYS);
 const roleOpts = (role, extra) => ({ model: M[role], effort: EF[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
 log(`decide: roles ${ROLE_KEYS.map((r) => `${r}=${M[r]}/${EF[r]}`).join(', ')}`);
 
@@ -314,7 +316,11 @@ Return via the schema.`;
 const OPEN_ISSUES = `OPEN ISSUES: an open issue is a question whose answer could change ${RANKED ? 'rank 1 or the order of an adjacent pair' : 'the winner'}: one the flip
 check names, or a non-negotiable or criterion the evidence does not yet settle. Write each one under
 \`## Open issues\` with a short kebab-case slug, the question, the requirement it bears on and the files a
-researcher should read for it, and return the slugs in open_issue_ids. A question whose answer cannot
+researcher should read for it, and return the slugs in open_issue_ids. A research round launches at most
+${MAX_RESEARCHERS} researchers, one per issue, so merge the issues that one researcher would settle from the same
+sources or within the same domain into one issue that holds several questions. List the issues, and their
+slugs in open_issue_ids, in order of how far each could move ${RANKED ? 'rank 1 or an adjacent pair' : 'the winner'}, the furthest first: a round
+researches the first ${MAX_RESEARCHERS}, and the rest stay open for a later round. A question whose answer cannot
 change ${RANKED ? 'rank 1 or an adjacent pair' : 'the winner'} is a caveat: note it in the file, never as an open issue. A question no agent can
 settle, ${NO_AGENT_CHECK}, goes under \`## Checks for the user\` with
 the check and the result that would change the answer, and never becomes an open issue again. When the
@@ -335,7 +341,7 @@ The ledger holds no score, weight, total, rationale or lens recommendation, and 
 research or decision file: copy the original source such a file cites instead. A fact with no original
 source stays out.`;
 
-const decidePrompt = (pass, { review, researchRound, researchPaths, olderResearch }) => `
+const decidePrompt = (pass, { review, researchRound, researchPaths, carried, olderResearch }) => `
 You are the DECIDER. Converge the lensed analyses into ${RANKED
     ? `a RANKED SHORTLIST of the strongest options (up to ${SHORTLIST_N}) via a global weighted decision
 matrix. You are NOT picking one winner: the user wants the best options in order, to choose among or
@@ -347,12 +353,14 @@ ${LIVE.map((l) => `  - ${lensFile(l.id)}  (lens: ${l.focus})`).join('\n')}
 ${olderResearch.length ? `EARLIER RESEARCH FILES, which the decision you revise cites:
 ${list(olderResearch)}
 ` : ''}${pass === 1 ? '' : `REVISE your decision at ${decisionFile(pass - 1)} into a complete new file.
-`}${!researchPaths.length ? '' : `RESEARCH ROUND ${researchRound} answered your open issues. READ every research file of that round:
+`}${!researchPaths.length ? '' : `RESEARCH ROUND ${researchRound} answered ${carried.length ? `the first ${MAX_RESEARCHERS} of ` : ''}your open issues. READ every research file of that round:
 ${list(researchPaths)}
 Fold each finding by its cited source: rescore each cell it settles and close the open issue it answers.
 A finding written as a check for the user moves its issue under \`## Checks for the user\`. Keep an issue
 open only while its answer can still change ${RANKED ? 'rank 1 or an adjacent pair' : 'the winner'} and a researcher could still settle it.
-`}${!review ? '' : `THE REVIEWER REJECTED the decision of review round ${review.round}. ${review.fallback
+${carried.length ? `No researcher took these issues, since a round researches at most ${MAX_RESEARCHERS}: ${carried.join(', ')}. Keep each one
+open under that rule, since no research has answered it yet.
+` : ''}`}${!review ? '' : `THE REVIEWER REJECTED the decision of review round ${review.round}. ${review.fallback
     ? `${review.fallback}, so act on every objection in the blind review ${review.blind}.`
     : `READ its final review ${review.final}, which sorts each objection of its blind review
 ${review.blind} into withdrawn, kept or downgraded to a caveat. Act on each KEPT objection.`}
@@ -492,7 +500,8 @@ WRITE ${blindFile(round)} (create ${REVIEW_DIR}/ if needed). ${REPLACE_NOTE} ${W
   evidence, and each candidate's weighted total;
 - a \`${BLIND_HEADINGS[1]}\` section: one line per objection, \`- O<n>: <the objection>. Requirement: <the
   requirement>. Evidence: <the evidence>\`, numbered from O1, or "None.";
-- a \`${BLIND_HEADINGS[2]}\` section: one line per caveat with its evidence, or "None.";
+- a \`${BLIND_HEADINGS[2]}\` section: one line per caveat, \`- C<n>: <the caveat>. Evidence: <the evidence>\`,
+  numbered from C1, or "None.";
 - a last line \`Verdict: accept\` or \`Verdict: reject\`.
 Do NOT modify any repo, stage, or commit. If a requirement contradiction only the user can resolve
 surfaces, append it to ${NEEDS_USER} and set needs_user=true. Return via the schema once you are done.
@@ -505,10 +514,11 @@ matrix and reasoning, and sort each objection of your review into one of three:
   double quotes. The decider's opinion, weight or argument never withdraws an objection.
 - kept: it still stands. Restate it in full with its evidence.
 - downgraded: it is a caveat after all. Say why.
-WRITE ${finalFile(round)}. ${REPLACE_NOTE} ${FILE_WRITE_NOTE} Write one line per objection of your review,
-\`- O<n>: withdrawn "<the quoted fact>"\`, \`- O<n>: kept: <the objection and its evidence>\` or
-\`- O<n>: downgraded: <why>\`, then a \`## Caveats\` section with every caveat, your review's and the
-downgraded objections', or "None.", then a last line \`Verdict: accept\` or \`Verdict: reject\`.
+WRITE ${finalFile(round)}. ${REPLACE_NOTE} ${FILE_WRITE_NOTE} Write a \`${BLIND_HEADINGS[1]}\` section with one line per
+objection of your review, \`- O<n>: withdrawn "<the quoted fact>"\`, \`- O<n>: kept: <the objection and its
+evidence>\` or \`- O<n>: downgraded: <why>\`, then a \`${BLIND_HEADINGS[2]}\` section with every caveat, your
+review's and the downgraded objections', one line each, \`- C<n>: <the caveat>\`, numbered from C1, or
+"None.", then a last line \`Verdict: accept\` or \`Verdict: reject\`.
 A reject keeps at least one objection: ${RANKED
     ? 'a listed option that violates a non-negotiable, a challenger with its scores, or a combine or exclude claim the evidence contradicts'
     : 'a non-negotiable the winner violates, or a challenger with its scores'}. An accept keeps none.${isFinal ? `
@@ -544,17 +554,17 @@ line that starts "locked verdict:", return the word after it in stage1_verdict, 
 Return via the schema.`;
 
 // review-check.mjs --verify prints this line last on every exit it documents.
-const COUNTS_RE = /^raised (\d+), withdrawn (\d+), kept (\d+), downgraded (\d+)$/;
+const COUNTS_RE = /^raised (\d+), withdrawn (\d+), kept (\d+), downgraded (\d+), caveats (\d+)$/;
 const countsOf = (line) => {
   const m = String(line ?? '').trim().match(COUNTS_RE);
-  return m ? { raised: Number(m[1]), withdrawn: Number(m[2]), kept: Number(m[3]), downgraded: Number(m[4]) } : null;
+  return m ? { raised: Number(m[1]), withdrawn: Number(m[2]), kept: Number(m[3]), downgraded: Number(m[4]), caveats: Number(m[5]) } : null;
 };
 
 // =============================================================================
 // DIVERGE — fan out one researcher per lens, concurrently (read-only, write own lens file).
 // =============================================================================
 phase('Diverge');
-log(`decide: ${LENSES.length} lens(es) → ${LENS_DIR} [selection=${SELECTION}${RANKED ? ` (top ${SHORTLIST_N})` : ''}, maxRounds=${MAX_ROUNDS}, maxResearchRounds=${MAX_RESEARCH_ROUNDS}]`);
+log(`decide: ${LENSES.length} lens(es) → ${LENS_DIR} [selection=${SELECTION}${RANKED ? ` (top ${SHORTLIST_N})` : ''}, maxRounds=${MAX_ROUNDS}, maxResearchRounds=${MAX_RESEARCH_ROUNDS}, maxResearchers=${MAX_RESEARCHERS}]`);
 const lensResearch = await parallel(LENSES.map((lens) => () =>
   callAgent(lensPrompt(lens), roleOpts('research', {
     schema: LENS_SCHEMA, phase: 'Diverge', label: `research:${lens.id}`,
@@ -582,6 +592,7 @@ let pass = 0;                   // decider passes, run-wide: each one writes dec
 let researchRound = 0;          // research rounds, run-wide, bounded by MAX_RESEARCH_ROUNDS
 let researchStop = '';          // why research last handed the decision to review: '' | covered | saturated | cap
 let researchPaths = [];         // the latest research round's files the next decider pass must fold
+let carriedIssues = [];         // the latest research round's open issues past MAX_RESEARCHERS, which no researcher took
 const researchFiles = [];       // every attested research file of the run, in round order
 let lastOpenIssues = [];        // the latest attested decision's open issue slugs
 let lastUserChecks = 0;         // the latest attested decision's count of checks for the user
@@ -593,7 +604,7 @@ const RESEARCH_STOPS = {
 let haltKind = '';              // '' (not halted) | 'needs-user' | 'write-unattested' | 'review-incomplete'
 let review = null;              // the latest rejecting review the decider must act on: { round, blind, final, fallback }, fallback naming why the blind review stands, or ''
 let lastReviewFiles = [];       // the latest round's review files: the blind file, plus the final file when its lock matched and it was written
-const reviewRounds = [];        // [{ round, verdict, raised, withdrawn, kept, downgraded, lockMatched }] — counts only (#8)
+const reviewRounds = [];        // [{ round, verdict, raised, withdrawn, kept, downgraded, caveats, lockMatched }] — counts only (#8)
 let contradicted = false;       // the latest reviewer returned a verdict its own check counts overturn
 let lastDecisionFile = '';      // latest decision whose writer attested it: a same-runId re-run can leave stale ones
 let lastLedgerFile = '';        // the evidence ledger the same decider pass attested with it
@@ -615,11 +626,12 @@ converge: while (round < MAX_ROUNDS) {
     pass++;
     phase('Decide');
     const dec = await callAgent(decidePrompt(pass, {
-      review, researchRound, researchPaths,
+      review, researchRound, researchPaths, carried: carriedIssues,
       olderResearch: researchFiles.filter((f) => !researchPaths.includes(f)),
     }), roleOpts('decide', { schema: DECIDE_SCHEMA, phase: 'Decide', label: `decide r${pass}` }));
     if (!dec) throw new Error(`Decider returned nothing in round ${round} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
     researchPaths = [];
+    carriedIssues = [];
     // The reviewer and the return would name these paths, and a same-runId re-run can leave stale files there.
     if (dec.wrote_file !== true && dec.needs_user !== true) {
       haltKind = 'write-unattested'; haltReason = `The decider did not confirm writing ${decisionFile(pass)} and ${ledgerFile(pass)} in round ${round}.`;
@@ -674,10 +686,13 @@ converge: while (round < MAX_ROUNDS) {
     researchRound++;
     phase('Research');
     const earlier = [...researchFiles];
-    const issues = lastOpenIssues.map((entry) => {
+    // The decider lists the issues by how far each could move the answer, so the cap keeps the first ones.
+    const issues = lastOpenIssues.slice(0, MAX_RESEARCHERS).map((entry) => {
       const id = slug(entry);
       return { entry, file: researchFile(researchRound, id), label: `research-issue r${researchRound} ${id}` };
     });
+    const carried = lastOpenIssues.slice(MAX_RESEARCHERS);
+    if (carried.length) log(`  ⚠ research r${researchRound}: ${lastOpenIssues.length} open issues, over maxResearchers (${MAX_RESEARCHERS}) → researching the first ${MAX_RESEARCHERS}, carried: ${carried.join(', ')}`);
     const found = await parallel(issues.map((u) => () =>
       callAgent(researchPrompt(u.entry, u.file, lastDecisionFile, earlier), roleOpts('research', {
         schema: RESEARCH_SCHEMA, phase: 'Research', label: u.label,
@@ -692,6 +707,7 @@ converge: while (round < MAX_ROUNDS) {
       break converge;
     }
     researchPaths = issues.map((u) => u.file);
+    carriedIssues = carried;
     researchFiles.push(...researchPaths);
     const fresh = found.filter((r) => r.new_evidence === true).length;
     dryRounds = fresh ? 0 : dryRounds + 1;
@@ -756,7 +772,7 @@ converge: while (round < MAX_ROUNDS) {
   }
   // With no final review every objection counts as kept, so the counts give the locked blind verdict.
   const verdict = lockMatched ? (counts.kept > 0 ? 'reject' : 'accept') : lockedVerdict;
-  const tally = `raised ${counts.raised}, withdrawn ${counts.withdrawn}, kept ${counts.kept}, downgraded ${counts.downgraded}`;
+  const tally = `raised ${counts.raised}, withdrawn ${counts.withdrawn}, kept ${counts.kept}, downgraded ${counts.downgraded}, caveats ${counts.caveats}`;
   reviewRounds.push({ round, verdict, ...counts, lockMatched });
   lastReviewFiles = finalWritten ? [blind, finalFile(round)] : [blind];
   const verdictFile = lastReviewFiles[lastReviewFiles.length - 1];
@@ -783,12 +799,15 @@ const HALT_STATUS = {
   'needs-user': 'BLOCKED (needs user input)',
   'review-incomplete': 'BLOCKED (the reviewer did not complete its review)',
 };
+const lastReview = reviewRounds.length ? reviewRounds[reviewRounds.length - 1] : null;
+// review-check.mjs counts the caveats of the final review once it is written, else of the blind review.
+const caveatCount = lastReview ? lastReview.caveats : 0;
 const status = halted ? HALT_STATUS[haltKind]
+  : agreed && caveatCount > 0 ? `decided with caveats (the final reviewer accepts the decision and names ${caveatCount} caveat${caveatCount === 1 ? '' : 's'})`
   : agreed ? 'decided (the final reviewer accepts the decision)'
   : 'needs-attention (no agreement within round budget)';
 log(`decide: ${status} after ${round} round(s)`);
 
-const lastReview = reviewRounds.length ? reviewRounds[reviewRounds.length - 1] : null;
 const agreeCaveats = [
   agreed && contradicted ? `The reviewer returned reject while its review keeps no objection: audit ${lastReviewFiles[lastReviewFiles.length - 1]} before presenting. ` : '',
   agreed && lastReview && !lastReview.lockMatched ? `The reviewer's blind review ${blindFile(round)} changed after its lock, so its locked verdict stands: audit it before presenting. ` : '',
@@ -808,12 +827,16 @@ const flipNote = FLIP_NOTES[lastFlip] ?? '';
 const researchNote = (researchStop === 'saturated' || researchStop === 'cap') && lastOpenIssues.length
   ? `Research stopped on ${researchStop} (${RESEARCH_STOPS[researchStop]}) with ${lastOpenIssues.length} open issue(s) on record (${lastOpenIssues.join(', ')}). Present the \`## Open issues\` section of ${lastDecisionFile} with the decision, since each could still change ${RANKED ? 'rank 1 or an adjacent pair' : 'the winner'}. `
   : '';
+// More open issues than one research round takes is a sign the decision holds more questions than one run settles.
+// An unhalted run with open issues stopped research on saturated or cap, so researchNote lists them all first.
+const carriedNote = lastOpenIssues.length > MAX_RESEARCHERS
+  ? `The latest decision lists ${lastOpenIssues.length} open issues, more than the ${MAX_RESEARCHERS} one research round takes (maxResearchers). The issues past that cap are the ones after the first ${MAX_RESEARCHERS} in that list. The decision may need splitting into narrower decide runs. `
+  : '';
 const checksNote = lastUserChecks
   ? `Present the ${lastUserChecks} check(s) under \`## Checks for the user\` in ${lastDecisionFile}: each names the result that would change the answer. `
   : '';
-// The engine reads no caveat count, since the reviewer's return names no section, so the note points at the file.
-const caveatNote = lastReviewFiles.length
-  ? `Carry each caveat under "## Caveats" in ${lastReviewFiles[lastReviewFiles.length - 1]} into the plan's design section. The reviewer judged that none changes the choice, but each is a gap the plan must close, so refine the plan before building. `
+const caveatNote = caveatCount > 0 && lastReviewFiles.length
+  ? `Carry the ${caveatCount} caveat(s) under "## Caveats" in ${lastReviewFiles[lastReviewFiles.length - 1]} into the plan's design section. The reviewer judged that none changes the choice, but each is a gap the plan must close, so refine the plan before building. `
   : '';
 // A lock mismatch or an unwritten final review leaves only the blind review, which has no WHERE NEXT section.
 const budgetStart = lastReviewFiles.length > 1
@@ -841,6 +864,7 @@ return {
   openIssues: lastOpenIssues,
   userChecks: lastUserChecks,
   reviewRounds,
+  caveats: caveatCount,
   stateDir: STATE_DIR,
   haltReason: halted ? haltReason : '',
   decisionFile: lastDecisionFile,
@@ -859,8 +883,8 @@ return {
       ? `Run halted — ${haltReason} Check that this project's settings allow Bash(node '${CHECK_TOOL}':*), so the reviewer can run the check unattended, then relaunch with the same args and no resumeFromRunId: a resume replays the cached returns and halts the same way. ${relaunchFromStart}`
       : `Run halted — ${haltReason} Check that file, then relaunch with the same args and no resumeFromRunId: a resume replays the cached return and halts the same way. ${relaunchFromStart}`)
     : (agreed
-      ? agreeCaveats + flipNote + researchNote + checksNote + caveatNote + (RANKED
+      ? agreeCaveats + flipNote + researchNote + carriedNote + checksNote + caveatNote + (RANKED
         ? `Present the SHORTLIST the final reviewer accepted in round ${round}: relay ${lastDecisionFile} (the matrix + the ranked options with what each buys/costs + the combine-vs-exclusive section + the flip check) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. There is deliberately NO single winner — the user picks, or combines the options marked as composable. To build what they pick, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle (several picks become several blocks of one plan file).`
         : `Present the conclusion the final reviewer accepted in round ${round}: relay ${lastDecisionFile} (the matrix + rationale + why-not-others + trade-off + flip check) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. To build the chosen approach, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.`)
-      : `No agreement within ${MAX_ROUNDS} rounds. ${researchNote}${checksNote}Read the latest ${lastDecisionFile} + ${lastReviewFiles.join(', ')} with the user, ${budgetStart}. Refine the requirements, then relaunch with the same args and no resumeFromRunId: the relaunch re-runs the run from the lens analyses and round 1 and overwrites the round files, while a resume would replay the cached returns and never read the edit. Or raise maxRounds and relaunch with the same args plus the Workflow tool's resumeFromRunId: the finished rounds replay from cache and the loop continues past round ${round}.`)) + droppedLenses,
+      : `No agreement within ${MAX_ROUNDS} rounds. ${researchNote}${carriedNote}${checksNote}Read the latest ${lastDecisionFile} + ${lastReviewFiles.join(', ')} with the user, ${budgetStart}. Refine the requirements, then relaunch with the same args and no resumeFromRunId: the relaunch re-runs the run from the lens analyses and round 1 and overwrites the round files, while a resume would replay the cached returns and never read the edit. Or raise maxRounds and relaunch with the same args plus the Workflow tool's resumeFromRunId: the finished rounds replay from cache and the loop continues past round ${round}.`)) + droppedLenses,
 };

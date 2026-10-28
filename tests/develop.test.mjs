@@ -1298,6 +1298,20 @@ section('models and efforts throw at launch, naming the arg, on a bad shape, key
   }
 }
 
+section('agentTypes takes the develop, quality, acceptance and sweep keys, throws on park, and park takes agentTypes.develop');
+{
+  for (const agentTypes of [['my-dev'], null, 'my-dev', { park: 'my-parker' }, { planner: 'my-planner' }, { develop: '  ' }, { develop: 7 }]) {
+    const msg = await throwsWith(ENGINE, { args: { ...ONE_BLOCK, agentTypes }, respond: {} });
+    ok(msg.startsWith('Invalid agentTypes arg') && msg.includes('develop | quality | acceptance | sweep'), `agentTypes ${JSON.stringify(agentTypes)} throws listing the four keys: ${msg.slice(0, 100)}`);
+  }
+  const typeOf = (calls, prefix) => calls.filter((c) => c.label.startsWith(prefix)).map((c) => c.opts.agentType ?? '-').join(',');
+  const agentTypes = { develop: 'my-dev', quality: 'my-critic' };
+  const green = await run(GREEN_RUN, { ...ONE_BLOCK, agentTypes });
+  eq(['develop', 'quality', 'acceptance'].map((p) => typeOf(green.calls, p)).join('|'), 'my-dev|my-critic|-', 'each agentTypes entry reaches only its own role');
+  const parked = await run({ develop: { ...DEV_OK, needs_user: true }, park: PARK_OK }, { ...ONE_BLOCK, ordered: true, agentTypes });
+  eq(typeOf(parked.calls, 'park'), 'my-dev', 'the park agent takes agentTypes.develop');
+}
+
 section('a gate that never goes green surfaces the developer\'s own diagnostics');
 // The developer re-runs the gate live, so once the round budget is gone the run log holds the only copy of
 // why it was red. Without these the operator has to re-run the gate to find out.

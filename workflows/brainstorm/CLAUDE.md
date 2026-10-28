@@ -90,7 +90,7 @@ Full schema + defaults: the Config block atop `brainstorm-cycle.mjs`. Pass `args
   **throws** at launch, naming the arg, on a value that is not an object, a key outside the role
   keys, and a value outside its set. Choose each role's model by the task and how much judgment the role needs, as
   the develop guide §3 says. One launch log line names each role's model and effort) ·
-  `agentTypes.generate` (custom subagent — must exist in your registry) · `stateDir` (override
+  `agentTypes.generate` (custom subagent — must exist in your registry. The engine **throws** at launch on an `agentTypes` value that is not an object, a key other than `generate` and a blank name) · `stateDir` (override
   `runs/<runId>`).
 - **Exit survey:** `notes` (`{ dir, survey }`, two absolute paths). Set it when the user asks for
   the agents' feedback on a run. `dir` is the folder the answers go to, outside the target repo and

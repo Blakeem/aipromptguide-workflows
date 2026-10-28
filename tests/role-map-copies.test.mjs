@@ -1,21 +1,23 @@
-// Every engine holds its own copy of develop's roleMap function and its two value sets, since an engine
-// cannot import. A copy that drifts would accept a model or effort that develop rejects, or the reverse.
+// Every engine holds its own copy of develop's roleMap and agentTypeMap functions and its two value sets,
+// since an engine cannot import. A copy that drifts would accept a model, effort or agent type key that
+// develop rejects, or the reverse.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ENGINES, REPO_ROOT, section, ok } from './harness.mjs';
 
 const DEVELOP = ENGINES[0];
 
-/** The roleMap function and the two value-set lines of one engine's source, or null for a part it lacks. */
+/** The roleMap and agentTypeMap functions and the two value-set lines of one engine's source, or null for a part it lacks. */
 function rolePartsOf(src) {
   const fn = src.match(/^const roleMap = [\s\S]*?\n\};\n/m);
+  const types = src.match(/^const agentTypeMap = [\s\S]*?\n\};\n/m);
   const models = src.match(/^const VALID_MODELS = .*$/m);
   const efforts = src.match(/^const VALID_EFFORTS = .*$/m);
-  return { roleMap: fn?.[0] ?? null, VALID_MODELS: models?.[0] ?? null, VALID_EFFORTS: efforts?.[0] ?? null };
+  return { roleMap: fn?.[0] ?? null, agentTypeMap: types?.[0] ?? null, VALID_MODELS: models?.[0] ?? null, VALID_EFFORTS: efforts?.[0] ?? null };
 }
 const sourceOf = (rel) => readFileSync(join(REPO_ROOT, rel), 'utf8');
 
-section('every engine holds develop\'s roleMap function and value sets, byte for byte');
+section('every engine holds develop\'s roleMap and agentTypeMap functions and value sets, byte for byte');
 {
   const reference = rolePartsOf(sourceOf(DEVELOP));
   for (const [part, text] of Object.entries(reference)) ok(text !== null, `develop holds ${part}`);
@@ -33,6 +35,7 @@ section('a copy that differs from develop in one word is caught');
   const mutations = [
     ['roleMap', src.replace('Unknown role key in a role map', 'Unknown role key')],
     ['roleMap', src.replace('ROLE_KEYS.includes(role)', 'role in M')],
+    ['agentTypeMap', src.replace('!keys.includes(role) || ', '')],
     ['VALID_MODELS', src.replace("'fable'", "'gpt'")],
     ['VALID_EFFORTS', src.replace("'xhigh', ", '')],
   ];

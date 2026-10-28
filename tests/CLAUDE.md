@@ -206,7 +206,7 @@ against (halt); an unreachable feature does not (flag).
 
 - **Duplication between sibling engines.** Deliberate: each is standalone and copyable. Never extract a
   shared module or import across workflows. (#11 governs *facts*, not code across independent tools.)
-  Three copies are pinned. `role-map-copies.test.mjs` fails when an engine's `roleMap` or its two value sets
+  Three copies are pinned. `role-map-copies.test.mjs` fails when an engine's `roleMap`, its `agentTypeMap` or its two value sets
   differ from develop's, so change all eight together. `convention-files-copies.test.mjs` fails when
   refine's or develop's `conventionFilesOf` differs from debug's, so change all three together. `notes.test.mjs` fails when
   an engine's exit-survey instruction differs from the test's copy, or when an engine calls `agent(`

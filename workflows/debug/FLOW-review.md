@@ -24,13 +24,14 @@ flowchart TD
   x7[/"throw: Invalid role map"/]
   x8[/"throw: Unknown role key in a role map"/]
   x9[/"throw: Illegal role value in a role map"/]
-  x10[/"throw: Invalid notes arg"/]
-  x11[/"throw: Invalid args.conventionFiles"/]
-  x12[/"throw: args.notes.dir is inside the target repo"/]
-  x13[/"throw: review requires a non-empty args.units array"/]
-  x14[/"throw: Issue file collision"/]
-  x15[/"throw: Plan id collision"/]
-  x16[/"throw: A user request was relayed into the context of the reviewer for ... ahead of its task"/]
+  x10[/"throw: Invalid agentTypes arg"/]
+  x11[/"throw: Invalid notes arg"/]
+  x12[/"throw: Invalid args.conventionFiles"/]
+  x13[/"throw: args.notes.dir is inside the target repo"/]
+  x14[/"throw: review requires a non-empty args.units array"/]
+  x15[/"throw: Issue file collision"/]
+  x16[/"throw: Plan id collision"/]
+  x17[/"throw: A user request was relayed into the context of the reviewer for ... ahead of its task"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -47,12 +48,13 @@ flowchart TD
   S0 --> x13
   S0 --> x14
   S0 --> x15
+  S0 --> x16
   a1 -.->|"L1 ×2"| a1
   a1 --> a2
   a1 --> t1
   a1 --> t2
   a1 --> t3
-  a1 --> x16
+  a1 --> x17
   a2 --> t1
   a2 --> t4
 ```
@@ -84,17 +86,18 @@ flowchart TD
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 38) |
 | throw: reviewSeverity "..." is not one of low\|medium\|high\|critical | args.reviewSeverity is not a known severity | throw (line 54) |
 | throw: Invalid args.changePolicy | args.changePolicy is outside focused \| proactive | throw (line 60) |
-| throw: Invalid role map | models is an array in place of an object | throw (line 134) |
-| throw: Unknown role key in a role map | models carries a key outside review \| verify | throw (line 139) |
-| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 142) |
-| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 163) |
-| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 183) |
-| throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 202) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 510) |
-| throw: Issue file collision | two unit ids map to one issue file | throw (line 520) |
-| throw: Plan id collision | two unit ids map to one plan id | throw (line 521) |
-| throw: A user request was relayed into the context of the reviewer for ... ahead of its task | a reviewer reports a user request relayed into its context, so no verifier runs | throw (line 649) |
+| throw: Invalid role map | models is an array in place of an object | throw (line 133) |
+| throw: Unknown role key in a role map | models carries a key outside review \| verify | throw (line 138) |
+| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 141) |
+| throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside review \| verify, or maps one to a blank name | throw (line 155) |
+| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 174) |
+| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 194) |
+| throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 213) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 521) |
+| throw: Issue file collision | two unit ids map to one issue file | throw (line 531) |
+| throw: Plan id collision | two unit ids map to one plan id | throw (line 532) |
+| throw: A user request was relayed into the context of the reviewer for ... ahead of its task | a reviewer reports a user request relayed into its context, so no verifier runs | throw (line 660) |
 
 ## Coverage
 
-21 scenarios · 2/2 roles · 16/16 throw sites · 0/0 halt statuses · 20 terminal states.
+22 scenarios · 2/2 roles · 17/17 throw sites · 0/0 halt statuses · 21 terminal states.

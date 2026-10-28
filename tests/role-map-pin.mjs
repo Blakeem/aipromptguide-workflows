@@ -1,4 +1,4 @@
-// Shared by each engine's test file: `pinRoleMaps` pins what an engine promises for its `models` and `efforts` args,
+// Shared by each engine's test file: `pinRoleMaps` pins what an engine promises for its `models`, `efforts` and `agentTypes` args,
 // and `pinWriteNotes` pins the relaunch notes in each prompt that writes a file.
 import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
 
@@ -75,6 +75,27 @@ export async function pinRoleMaps({ engine, name, defaults, runs }) {
     ok(value.includes(`args.${arg}.${keys[0]} is "${bad}"`) && value.includes(set), `${arg} value ${bad} throws naming the role, the value and the legal set: ${value.slice(0, 90)}`);
     const inherited = await throwsWith(engine, { args: { ...runs[0].args, [arg]: { [keys[0]]: 'constructor' } }, respond: {} });
     ok(inherited.includes(`args.${arg}.${keys[0]} is "constructor"`), `a value named like an inherited member throws: ${inherited.slice(0, 70)}`);
+  }
+
+  section(`${name}: agentTypes throws at launch on a bad shape, key or name, and a set type reaches only its own role`);
+  {
+    const bad = [['an array', '["x"]'], ['null', 'null'], ['a string', '"my-agent"'],
+      ...['planner', 'constructor', '__proto__'].map((key) => [`key ${key}`, `{"${key}":"my-agent"}`]),
+      ['a blank name', `{"${keys[0]}":"  "}`], ['a number', `{"${keys[0]}":7}`]];
+    for (const [shape, mapJson] of bad) {
+      const msg = await throwsWith(engine, { args: jsonArgs('agentTypes', mapJson), respond: {} });
+      ok(msg.startsWith('Invalid agentTypes arg: args.agentTypes must map a role key') && msg.includes(`(${roles})`), `agentTypes as ${shape} throws and lists the role keys: ${msg.slice(0, 110)}`);
+    }
+    const own = [];
+    const others = [];
+    for (const run of runs) {
+      const { calls } = await runEngine(engine, { args: { ...run.args, agentTypes: { [keys[0]]: 'my-agent' } }, respond: run.respond });
+      for (const [key, label] of Object.entries(run.labels)) {
+        (key === keys[0] ? own : others).push(...calls.filter((c) => c.label.startsWith(label)));
+      }
+    }
+    ok(own.length > 0 && own.every((c) => c.opts.agentType === 'my-agent'), `agentTypes.${keys[0]} reaches each of its agents: ${own.map((c) => c.label).join(', ')}`);
+    ok(others.every((c) => c.opts.agentType === undefined), `agentTypes.${keys[0]} reaches no other role: ${others.filter((c) => c.opts.agentType !== undefined).map((c) => c.label).join(', ')}`);
   }
 }
 

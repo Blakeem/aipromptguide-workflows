@@ -21,13 +21,14 @@ flowchart TD
   x5[/"throw: Invalid role map"/]
   x6[/"throw: Unknown role key in a role map"/]
   x7[/"throw: Illegal role value in a role map"/]
-  x8[/"throw: Invalid notes arg"/]
-  x9[/"throw: Provide the brief"/]
-  x10[/"throw: args.sources is required"/]
-  x11[/"throw: source ids collide after slugging"/]
-  x12[/"throw: A user request was relayed into the context of the gatherer for ... ahead of its task"/]
-  x13[/"throw: Every source reported zero doc files"/]
-  x14[/"throw: Curator returned nothing in round ..."/]
+  x8[/"throw: Invalid agentTypes arg"/]
+  x9[/"throw: Invalid notes arg"/]
+  x10[/"throw: Provide the brief"/]
+  x11[/"throw: args.sources is required"/]
+  x12[/"throw: source ids collide after slugging"/]
+  x13[/"throw: A user request was relayed into the context of the gatherer for ... ahead of its task"/]
+  x14[/"throw: Every source reported zero doc files"/]
+  x15[/"throw: Curator returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -40,15 +41,16 @@ flowchart TD
   S0 --> x9
   S0 --> x10
   S0 --> x11
+  S0 --> x12
   a1 --> a2
   a1 --> a3
-  a1 --> x12
   a1 --> x13
+  a1 --> x14
   a2 --> a3
   a3 -.->|"the curator returns a gap the next round fills · +3 more (×2)"| a1
   a3 --> t1
   a3 --> t2
-  a3 --> x14
+  a3 --> x15
 ```
 
 ## Phases
@@ -72,14 +74,15 @@ flowchart TD
 | throw: Invalid role map | models is an array in place of an object | throw (line 79) |
 | throw: Unknown role key in a role map | models carries a key outside gather \| scrub \| curate | throw (line 84) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 87) |
-| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 107) |
-| throw: Provide the brief | neither brief nor planPath | throw (line 130) |
-| throw: args.sources is required | args.sources is empty | throw (line 143) |
-| throw: source ids collide after slugging | two sources slug to one directory | throw (line 147) |
-| throw: A user request was relayed into the context of the gatherer for ... ahead of its task | a gatherer reports a user request relayed into its context, so the scrubbers and the curator never run · the gap-fill gatherer reports a user request relayed into its context | throw (line 392) |
-| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 440) |
-| throw: Curator returned nothing in round ... | the curator dies | throw (line 471) |
+| throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside gather \| scrub \| curate, or maps one to a blank name | throw (line 101) |
+| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 118) |
+| throw: Provide the brief | neither brief nor planPath | throw (line 141) |
+| throw: args.sources is required | args.sources is empty | throw (line 154) |
+| throw: source ids collide after slugging | two sources slug to one directory | throw (line 158) |
+| throw: A user request was relayed into the context of the gatherer for ... ahead of its task | a gatherer reports a user request relayed into its context, so the scrubbers and the curator never run · the gap-fill gatherer reports a user request relayed into its context | throw (line 403) |
+| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 451) |
+| throw: Curator returned nothing in round ... | the curator dies | throw (line 482) |
 
 ## Coverage
 
-23 scenarios · 3/3 roles · 14/14 throw sites · 0/0 halt statuses · 16 terminal states.
+24 scenarios · 3/3 roles · 15/15 throw sites · 0/0 halt statuses · 17 terminal states.

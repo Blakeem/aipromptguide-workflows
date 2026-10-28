@@ -63,6 +63,7 @@ export default {
     { name: 'models names an unknown role', when: 'models carries a key outside critic | editor', args: { ...base, models: { planner: 'opus' } } },
     { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { critic: 'gpt' } } },
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { critic: 'ultra' } } },
+    { name: 'agentTypes names an unknown role', when: 'agentTypes is not an object, carries a key outside critic | editor, or maps one to a blank name', args: { ...base, agentTypes: { planner: 'my-planner' } } },
     { name: 'notes missing a path', when: 'notes lacks dir or survey, or names a relative path', args: { ...base, notes: { dir: 'E:/flow/notes' } } },
     // A coerced path list would hand both roles a file that is not there, or none of the target's rules.
     { name: 'conventionFiles is not a path list', when: 'args.conventionFiles is not an array of non-empty paths', args: { ...base, conventionFiles: 'CLAUDE.md' } },

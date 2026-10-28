@@ -931,9 +931,9 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   opus. Every role defaults to `high`. A block's `model:` and `effort:` lines override
   `models.develop` and `efforts.develop` for that block's developer. The park role takes
   `models.park`, else its block's developer model, and takes `efforts.park`, else the block's
-  developer effort. `agentTypes` has no park key, so the park agent takes `agentTypes.develop`. The
+  developer effort. `agentTypes` maps the develop, quality, acceptance and sweep keys to a custom subagent that must exist in your registry. It has no park key, so the park agent takes `agentTypes.develop` and a park key throws. The
   engine **throws** at launch, naming the arg, on a value that is not an object, a key outside the
-  role keys, and a value outside its set. Choose the review roles' models as §3 says. Role settings
+  role keys, a value outside its set, and a blank `agentTypes` name. Choose the review roles' models as §3 says. Role settings
   saved in the repo's settings (§2 step 3) count as the user asking for them, as a saved memory
   preference does. One launch log line names each role's model and effort) · `stateDir` · `runOnly`.
 - **Exit survey:** `notes` (`{ dir, survey }`, two absolute paths). Set it when the user asks for

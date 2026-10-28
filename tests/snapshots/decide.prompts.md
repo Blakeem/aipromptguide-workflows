@@ -7,19 +7,27 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | research | 1 | 1 | 2700 | reviewer accepts |
-| decide | 1 | 1 | 6081 | reviewer accepts |
-| check-setup | 1 | 1 | 3092 | reviewer accepts |
-| review | 1 | 1 | 3710 | reviewer accepts |
+| decide | 1 | 1 | 6487 | reviewer accepts |
+| check-setup | 1 | 1 | 3180 | reviewer accepts |
+| review | 1 | 1 | 3762 | reviewer accepts |
 | check | 1 | 1 | 411 | reviewer accepts |
-| decide | 2 | 1 | 8209 | reject with a challenger |
-| check-setup | 2 | 1 | 3628 | rejects to the round budget |
+| decide | 2 | 1 | 8615 | reject with a challenger |
+| check-setup | 2 | 1 | 3716 | rejects to the round budget |
 | research-issue | 1 | 1 | 2601 | research covers the open issues |
-| decide | 3 | 1 | 6665 | research covers the open issues |
+| decide | 3 | 1 | 7071 | research covers the open issues |
 | research-issue | 2 | 1 | 2667 | research saturates |
-| decide | 4 | 1 | 6776 | research saturates |
+| decide | 4 | 1 | 7182 | research saturates |
 | research-issue | 3 | 1 | 2714 | research hits the cap |
-| decide | 5 | 1 | 6826 | research hits the cap |
-| decide | 6 | 1 | 6018 | one lens dies |
+| decide | 5 | 1 | 7232 | research hits the cap |
+| research-issue | 4 | 1 | 2601 | more open issues than maxResearchers |
+| decide | 6 | 1 | 7290 | more open issues than maxResearchers |
+| research-issue | 5 | 1 | 2714 | more open issues than maxResearchers |
+| research-issue | 6 | 1 | 2714 | more open issues than maxResearchers |
+| decide | 7 | 1 | 7451 | more open issues than maxResearchers |
+| research-issue | 7 | 1 | 2808 | more open issues than maxResearchers |
+| research-issue | 8 | 1 | 2808 | more open issues than maxResearchers |
+| decide | 8 | 1 | 7551 | more open issues than maxResearchers |
+| decide | 9 | 1 | 6424 | one lens dies |
 
 ## research · variant 1 · schema 1
 
@@ -141,7 +149,11 @@ source stays out.
 OPEN ISSUES: an open issue is a question whose answer could change the winner: one the flip
 check names, or a non-negotiable or criterion the evidence does not yet settle. Write each one under
 `## Open issues` with a short kebab-case slug, the question, the requirement it bears on and the files a
-researcher should read for it, and return the slugs in open_issue_ids. A question whose answer cannot
+researcher should read for it, and return the slugs in open_issue_ids. A research round launches at most
+10 researchers, one per issue, so merge the issues that one researcher would settle from the same
+sources or within the same domain into one issue that holds several questions. List the issues, and their
+slugs in open_issue_ids, in order of how far each could move the winner, the furthest first: a round
+researches the first 10, and the rest stay open for a later round. A question whose answer cannot
 change the winner is a caveat: note it in the file, never as an open issue. A question no agent can
 settle, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, goes under `## Checks for the user` with
 the check and the result that would change the answer, and never becomes an open issue again. When the
@@ -232,10 +244,11 @@ matrix and reasoning, and sort each objection of your review into one of three:
   double quotes. The decider's opinion, weight or argument never withdraws an objection.
 - kept: it still stands. Restate it in full with its evidence.
 - downgraded: it is a caveat after all. Say why.
-WRITE E:/flow/runs/flow/decide/review-r1-final.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write one line per objection of your review,
-`- O<n>: withdrawn "<the quoted fact>"`, `- O<n>: kept: <the objection and its evidence>` or
-`- O<n>: downgraded: <why>`, then a `## Caveats` section with every caveat, your review's and the
-downgraded objections', or "None.", then a last line `Verdict: accept` or `Verdict: reject`.
+WRITE E:/flow/runs/flow/decide/review-r1-final.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write a `## Objections` section with one line per
+objection of your review, `- O<n>: withdrawn "<the quoted fact>"`, `- O<n>: kept: <the objection and its
+evidence>` or `- O<n>: downgraded: <why>`, then a `## Caveats` section with every caveat, your
+review's and the downgraded objections', one line each, `- C<n>: <the caveat>`, numbered from C1, or
+"None.", then a last line `Verdict: accept` or `Verdict: reject`.
 A reject keeps at least one objection: a non-negotiable the winner violates, or a challenger with its scores. An accept keeps none.
 Leave your blind review unchanged, since the check compares it with its lock. Then run
 `node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r1.md'` again, fix each error it prints, and return via the schema with
@@ -301,7 +314,8 @@ WRITE E:/flow/runs/flow/review/review-r1.md (create E:/flow/runs/flow/review/ if
   evidence, and each candidate's weighted total;
 - a `## Objections` section: one line per objection, `- O<n>: <the objection>. Requirement: <the
   requirement>. Evidence: <the evidence>`, numbered from O1, or "None.";
-- a `## Caveats` section: one line per caveat with its evidence, or "None.";
+- a `## Caveats` section: one line per caveat, `- C<n>: <the caveat>. Evidence: <the evidence>`,
+  numbered from C1, or "None.";
 - a last line `Verdict: accept` or `Verdict: reject`.
 Do NOT modify any repo, stage, or commit. If a requirement contradiction only the user can resolve
 surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true. Return via the schema once you are done.
@@ -460,7 +474,11 @@ source stays out.
 OPEN ISSUES: an open issue is a question whose answer could change the winner: one the flip
 check names, or a non-negotiable or criterion the evidence does not yet settle. Write each one under
 `## Open issues` with a short kebab-case slug, the question, the requirement it bears on and the files a
-researcher should read for it, and return the slugs in open_issue_ids. A question whose answer cannot
+researcher should read for it, and return the slugs in open_issue_ids. A research round launches at most
+10 researchers, one per issue, so merge the issues that one researcher would settle from the same
+sources or within the same domain into one issue that holds several questions. List the issues, and their
+slugs in open_issue_ids, in order of how far each could move the winner, the furthest first: a round
+researches the first 10, and the rest stay open for a later round. A question whose answer cannot
 change the winner is a caveat: note it in the file, never as an open issue. A question no agent can
 settle, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, goes under `## Checks for the user` with
 the check and the result that would change the answer, and never becomes an open issue again. When the
@@ -551,10 +569,11 @@ matrix and reasoning, and sort each objection of your review into one of three:
   double quotes. The decider's opinion, weight or argument never withdraws an objection.
 - kept: it still stands. Restate it in full with its evidence.
 - downgraded: it is a caveat after all. Say why.
-WRITE E:/flow/runs/flow/decide/review-r3-final.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write one line per objection of your review,
-`- O<n>: withdrawn "<the quoted fact>"`, `- O<n>: kept: <the objection and its evidence>` or
-`- O<n>: downgraded: <why>`, then a `## Caveats` section with every caveat, your review's and the
-downgraded objections', or "None.", then a last line `Verdict: accept` or `Verdict: reject`.
+WRITE E:/flow/runs/flow/decide/review-r3-final.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write a `## Objections` section with one line per
+objection of your review, `- O<n>: withdrawn "<the quoted fact>"`, `- O<n>: kept: <the objection and its
+evidence>` or `- O<n>: downgraded: <why>`, then a `## Caveats` section with every caveat, your
+review's and the downgraded objections', one line each, `- C<n>: <the caveat>`, numbered from C1, or
+"None.", then a last line `Verdict: accept` or `Verdict: reject`.
 A reject keeps at least one objection: a non-negotiable the winner violates, or a challenger with its scores. An accept keeps none.
 This is the run's LAST round: no decider round follows. If your final verdict is reject, put a
 `## WHERE NEXT` section just above the verdict line. Say whether the kept objections rest on evidence
@@ -707,7 +726,11 @@ source stays out.
 OPEN ISSUES: an open issue is a question whose answer could change the winner: one the flip
 check names, or a non-negotiable or criterion the evidence does not yet settle. Write each one under
 `## Open issues` with a short kebab-case slug, the question, the requirement it bears on and the files a
-researcher should read for it, and return the slugs in open_issue_ids. A question whose answer cannot
+researcher should read for it, and return the slugs in open_issue_ids. A research round launches at most
+10 researchers, one per issue, so merge the issues that one researcher would settle from the same
+sources or within the same domain into one issue that holds several questions. List the issues, and their
+slugs in open_issue_ids, in order of how far each could move the winner, the furthest first: a round
+researches the first 10, and the rest stay open for a later round. A question whose answer cannot
 change the winner is a caveat: note it in the file, never as an open issue. A question no agent can
 settle, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, goes under `## Checks for the user` with
 the check and the result that would change the answer, and never becomes an open issue again. When the
@@ -893,7 +916,11 @@ source stays out.
 OPEN ISSUES: an open issue is a question whose answer could change the winner: one the flip
 check names, or a non-negotiable or criterion the evidence does not yet settle. Write each one under
 `## Open issues` with a short kebab-case slug, the question, the requirement it bears on and the files a
-researcher should read for it, and return the slugs in open_issue_ids. A question whose answer cannot
+researcher should read for it, and return the slugs in open_issue_ids. A research round launches at most
+10 researchers, one per issue, so merge the issues that one researcher would settle from the same
+sources or within the same domain into one issue that holds several questions. List the issues, and their
+slugs in open_issue_ids, in order of how far each could move the winner, the furthest first: a round
+researches the first 10, and the rest stay open for a later round. A question whose answer cannot
 change the winner is a caveat: note it in the file, never as an open issue. A question no agent can
 settle, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, goes under `## Checks for the user` with
 the check and the result that would change the answer, and never becomes an open issue again. When the
@@ -1080,7 +1107,11 @@ source stays out.
 OPEN ISSUES: an open issue is a question whose answer could change the winner: one the flip
 check names, or a non-negotiable or criterion the evidence does not yet settle. Write each one under
 `## Open issues` with a short kebab-case slug, the question, the requirement it bears on and the files a
-researcher should read for it, and return the slugs in open_issue_ids. A question whose answer cannot
+researcher should read for it, and return the slugs in open_issue_ids. A research round launches at most
+10 researchers, one per issue, so merge the issues that one researcher would settle from the same
+sources or within the same domain into one issue that holds several questions. List the issues, and their
+slugs in open_issue_ids, in order of how far each could move the winner, the furthest first: a round
+researches the first 10, and the rest stay open for a later round. A question whose answer cannot
 change the winner is a caveat: note it in the file, never as an open issue. A question no agent can
 settle, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, goes under `## Checks for the user` with
 the check and the result that would change the answer, and never becomes an open issue again. When the
@@ -1144,7 +1175,692 @@ Return via the schema.
 }
 ~~~~
 
+## research-issue · variant 4 · schema 1
+
+`research-issue r1 cost-unknown` in "more open issues than maxResearchers"
+
+~~~~text
+
+You are a RESEARCHER settling ONE open issue of a decision. Find the evidence that answers it.
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
+NON-NEGOTIABLES (musts) are pass/fail: an option that fails one cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
+WEIGHTED CRITERIA (wants) are scored per option as MET, PARTLY MET or MISSED, each with its cited evidence.
+The weighted total counts met as the criterion's full weight, partly met as half its weight and missed as
+zero. A want scores met only on a cited source or a measurement, and own judgment scores at most partly met.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+THE OPEN ISSUE: the entry "cost-unknown" under `## Open issues` in E:/flow/runs/flow/decide/decision-r1.md. Read that entry: it holds
+the question, the requirement it bears on and the files to read for it. Read those files.
+
+PROCEDURE:
+1. Search with the tools you have for the evidence that answers the question: read the sources, search,
+   and measure where you can.
+2. State the answer with its evidence, or say the question stays open and what you searched. Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
+3. When no agent can settle the question, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, write it as a
+   CHECK FOR THE USER: the check to run and the result that would change the answer.
+WRITE E:/flow/runs/flow/research/r1-cost-unknown.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Set new_evidence=true only when your file holds a cited fact that no earlier file of this run holds: the
+lens files in E:/flow/runs/flow/lenses/ and E:/flow/runs/flow/decide/decision-r1.md.
+Do NOT modify any repo, stage, or commit.
+Return via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "new_evidence"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true if you wrote your research file"
+    },
+    "new_evidence": {
+      "type": "boolean",
+      "description": "true when your file holds a cited fact that no earlier file of the run holds"
+    }
+  }
+}
+~~~~
+
 ## decide · variant 6 · schema 1
+
+`decide r2` in "more open issues than maxResearchers"
+
+~~~~text
+
+You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted decision matrix.
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
+NON-NEGOTIABLES (musts) are pass/fail: an option that fails one cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
+WEIGHTED CRITERIA (wants) are scored per option as MET, PARTLY MET or MISSED, each with its cited evidence.
+The weighted total counts met as the criterion's full weight, partly met as half its weight and missed as
+zero. A want scores met only on a cited source or a measurement, and own judgment scores at most partly met.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+LENS ANALYSES — read each VERBATIM:
+  - E:/flow/runs/flow/lenses/efficiency.md  (lens: efficiency)
+  - E:/flow/runs/flow/lenses/simplest.md  (lens: simplest)
+  - E:/flow/runs/flow/lenses/robustness.md  (lens: robustness)
+REVISE your decision at E:/flow/runs/flow/decide/decision-r1.md into a complete new file.
+RESEARCH ROUND 1 answered the first 2 of your open issues. READ every research file of that round:
+  - E:/flow/runs/flow/research/r1-p99-unproven.md
+  - E:/flow/runs/flow/research/r1-cost-unknown.md
+Fold each finding by its cited source: rescore each cell it settles and close the open issue it answers.
+A finding written as a check for the user moves its issue under `## Checks for the user`. Keep an issue
+open only while its answer can still change the winner and a researcher could still settle it.
+No researcher took these issues, since a round researches at most 2: ops-burden. Keep each one
+open under that rule, since no research has answered it yet.
+Then redo the totals, the trade-off and the flip check.
+
+PROCEDURE:
+1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
+   of the best elements of several, but only where they genuinely compose (no Frankenstein).
+2. Take the non-negotiables, the weighted CRITERIA and their weights from the requirements. Build a
+   decision matrix: each candidate (incl. any hybrid) judged pass or fail on every non-negotiable and
+   scored on every weighted criterion under the scoring rule above, with its weighted total. The highest
+   defensible total wins.
+   GROUND every cell: cite the evidence behind the score (the lens or research file and the specific
+   claim, with the original source it cites). Where none exists (a legitimate cross-lens synthesis), mark
+   it "own judgment, low-confidence". Never fabricate a citation. Each option you rule out, by a
+   non-negotiable or as a runner-up, cites what rules it out and names the one observation that would
+   reverse that.
+3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
+   satisfies every non-negotiable and criterion. Note any residual risk or follow-up.
+4. TRADE-OFF: the winner against the runner-up as two columns, GAINS and GIVES UP, one row per criterion
+   where they differ, written as weight x credit gap, where credit is 1 for met, 0.5 for partly met and 0
+   for missed, so the columns net to the difference in totals. An
+   empty GIVES UP column means the winner dominates: say so. A consideration the requirements have no
+   criterion for goes below the table, unweighted and marked outside the rubric.
+5. FLIP CHECK: the smallest single change to one cell or one weight that changes the winner (from, to),
+   and the joint effect of moving every low-confidence cell by its uncertainty together. Grade the choice
+   DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
+   of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
+   evidence or user call that would settle it: an open issue, or a check for the user.
+WRITE E:/flow/runs/flow/decide/decision-r2.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, an
+`## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
+EVIDENCE LEDGER: also WRITE E:/flow/runs/flow/review/ledger-r2.md (create E:/flow/runs/flow/review/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
+A reviewer scores the candidates from this file alone before it sees your decision, so it holds facts,
+never judgment, in three sections:
+- `## Answer under review`: the winner.
+- `## Candidates`: every candidate your matrix scored, one line each saying what it is.
+- `## Facts`: for each candidate, every fact its scores rest on, each with its original source: a
+  file:line, a measurement (the exact command and its result) or a source URL.
+The ledger holds no score, weight, total, rationale or lens recommendation, and it cites no lens,
+research or decision file: copy the original source such a file cites instead. A fact with no original
+source stays out.
+OPEN ISSUES: an open issue is a question whose answer could change the winner: one the flip
+check names, or a non-negotiable or criterion the evidence does not yet settle. Write each one under
+`## Open issues` with a short kebab-case slug, the question, the requirement it bears on and the files a
+researcher should read for it, and return the slugs in open_issue_ids. A research round launches at most
+2 researchers, one per issue, so merge the issues that one researcher would settle from the same
+sources or within the same domain into one issue that holds several questions. List the issues, and their
+slugs in open_issue_ids, in order of how far each could move the winner, the furthest first: a round
+researches the first 2, and the rest stay open for a later round. A question whose answer cannot
+change the winner is a caveat: note it in the file, never as an open issue. A question no agent can
+settle, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, goes under `## Checks for the user` with
+the check and the result that would change the answer, and never becomes an open issue again. When the
+decision is about what to test, these checks are part of the deliverable. Return their count in
+user_checks. An empty section says "None."
+If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
+full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
+Return via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "chosen",
+    "meets_all_requirements",
+    "flip",
+    "open_issue_ids",
+    "user_checks",
+    "needs_user"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true only if you wrote both the decision file and the evidence ledger"
+    },
+    "chosen": {
+      "type": "string",
+      "description": "short title of the chosen conclusion (may be a hybrid)"
+    },
+    "meets_all_requirements": {
+      "type": "boolean",
+      "description": "true if the conclusion satisfies every non-negotiable + criterion in the requirements (your own honest assessment)"
+    },
+    "flip": {
+      "type": "string",
+      "enum": [
+        "robust",
+        "fragile",
+        "dominant"
+      ],
+      "description": "your flip-check grade from the decision file: dominant = the winner gives up nothing against the runner-up, robust = the smallest flip is larger than the uncertainty of the input it moves, fragile = it is not"
+    },
+    "open_issue_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug of at most 50 characters per entry under `## Open issues` in the decision file. Reuse an issue's slug while it stays open. [] when the section says \"None.\""
+    },
+    "user_checks": {
+      "type": "integer",
+      "description": "count of entries under `## Checks for the user` in the decision file (0 if none)"
+    },
+    "needs_user": {
+      "type": "boolean",
+      "description": "true ONLY if a genuine choice/contradiction only the USER can resolve blocks you; you wrote a full entry to NEEDS-USER.md and cannot proceed"
+    }
+  }
+}
+~~~~
+
+## research-issue · variant 5 · schema 1
+
+`research-issue r2 p99-unproven` in "more open issues than maxResearchers"
+
+~~~~text
+
+You are a RESEARCHER settling ONE open issue of a decision. Find the evidence that answers it.
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
+NON-NEGOTIABLES (musts) are pass/fail: an option that fails one cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
+WEIGHTED CRITERIA (wants) are scored per option as MET, PARTLY MET or MISSED, each with its cited evidence.
+The weighted total counts met as the criterion's full weight, partly met as half its weight and missed as
+zero. A want scores met only on a cited source or a measurement, and own judgment scores at most partly met.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+THE OPEN ISSUE: the entry "p99-unproven" under `## Open issues` in E:/flow/runs/flow/decide/decision-r2.md. Read that entry: it holds
+the question, the requirement it bears on and the files to read for it. Read those files.
+
+PROCEDURE:
+1. Search with the tools you have for the evidence that answers the question: read the sources, search,
+   and measure where you can.
+2. State the answer with its evidence, or say the question stays open and what you searched. Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
+3. When no agent can settle the question, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, write it as a
+   CHECK FOR THE USER: the check to run and the result that would change the answer.
+WRITE E:/flow/runs/flow/research/r2-p99-unproven.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Set new_evidence=true only when your file holds a cited fact that no earlier file of this run holds: the
+lens files in E:/flow/runs/flow/lenses/, E:/flow/runs/flow/decide/decision-r2.md and the research files E:/flow/runs/flow/research/r1-p99-unproven.md, E:/flow/runs/flow/research/r1-cost-unknown.md.
+Do NOT modify any repo, stage, or commit.
+Return via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "new_evidence"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true if you wrote your research file"
+    },
+    "new_evidence": {
+      "type": "boolean",
+      "description": "true when your file holds a cited fact that no earlier file of the run holds"
+    }
+  }
+}
+~~~~
+
+## research-issue · variant 6 · schema 1
+
+`research-issue r2 cost-unknown` in "more open issues than maxResearchers"
+
+~~~~text
+
+You are a RESEARCHER settling ONE open issue of a decision. Find the evidence that answers it.
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
+NON-NEGOTIABLES (musts) are pass/fail: an option that fails one cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
+WEIGHTED CRITERIA (wants) are scored per option as MET, PARTLY MET or MISSED, each with its cited evidence.
+The weighted total counts met as the criterion's full weight, partly met as half its weight and missed as
+zero. A want scores met only on a cited source or a measurement, and own judgment scores at most partly met.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+THE OPEN ISSUE: the entry "cost-unknown" under `## Open issues` in E:/flow/runs/flow/decide/decision-r2.md. Read that entry: it holds
+the question, the requirement it bears on and the files to read for it. Read those files.
+
+PROCEDURE:
+1. Search with the tools you have for the evidence that answers the question: read the sources, search,
+   and measure where you can.
+2. State the answer with its evidence, or say the question stays open and what you searched. Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
+3. When no agent can settle the question, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, write it as a
+   CHECK FOR THE USER: the check to run and the result that would change the answer.
+WRITE E:/flow/runs/flow/research/r2-cost-unknown.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Set new_evidence=true only when your file holds a cited fact that no earlier file of this run holds: the
+lens files in E:/flow/runs/flow/lenses/, E:/flow/runs/flow/decide/decision-r2.md and the research files E:/flow/runs/flow/research/r1-p99-unproven.md, E:/flow/runs/flow/research/r1-cost-unknown.md.
+Do NOT modify any repo, stage, or commit.
+Return via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "new_evidence"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true if you wrote your research file"
+    },
+    "new_evidence": {
+      "type": "boolean",
+      "description": "true when your file holds a cited fact that no earlier file of the run holds"
+    }
+  }
+}
+~~~~
+
+## decide · variant 7 · schema 1
+
+`decide r3` in "more open issues than maxResearchers"
+
+~~~~text
+
+You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted decision matrix.
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
+NON-NEGOTIABLES (musts) are pass/fail: an option that fails one cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
+WEIGHTED CRITERIA (wants) are scored per option as MET, PARTLY MET or MISSED, each with its cited evidence.
+The weighted total counts met as the criterion's full weight, partly met as half its weight and missed as
+zero. A want scores met only on a cited source or a measurement, and own judgment scores at most partly met.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+LENS ANALYSES — read each VERBATIM:
+  - E:/flow/runs/flow/lenses/efficiency.md  (lens: efficiency)
+  - E:/flow/runs/flow/lenses/simplest.md  (lens: simplest)
+  - E:/flow/runs/flow/lenses/robustness.md  (lens: robustness)
+EARLIER RESEARCH FILES, which the decision you revise cites:
+  - E:/flow/runs/flow/research/r1-p99-unproven.md
+  - E:/flow/runs/flow/research/r1-cost-unknown.md
+REVISE your decision at E:/flow/runs/flow/decide/decision-r2.md into a complete new file.
+RESEARCH ROUND 2 answered the first 2 of your open issues. READ every research file of that round:
+  - E:/flow/runs/flow/research/r2-p99-unproven.md
+  - E:/flow/runs/flow/research/r2-cost-unknown.md
+Fold each finding by its cited source: rescore each cell it settles and close the open issue it answers.
+A finding written as a check for the user moves its issue under `## Checks for the user`. Keep an issue
+open only while its answer can still change the winner and a researcher could still settle it.
+No researcher took these issues, since a round researches at most 2: ops-burden. Keep each one
+open under that rule, since no research has answered it yet.
+Then redo the totals, the trade-off and the flip check.
+
+PROCEDURE:
+1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
+   of the best elements of several, but only where they genuinely compose (no Frankenstein).
+2. Take the non-negotiables, the weighted CRITERIA and their weights from the requirements. Build a
+   decision matrix: each candidate (incl. any hybrid) judged pass or fail on every non-negotiable and
+   scored on every weighted criterion under the scoring rule above, with its weighted total. The highest
+   defensible total wins.
+   GROUND every cell: cite the evidence behind the score (the lens or research file and the specific
+   claim, with the original source it cites). Where none exists (a legitimate cross-lens synthesis), mark
+   it "own judgment, low-confidence". Never fabricate a citation. Each option you rule out, by a
+   non-negotiable or as a runner-up, cites what rules it out and names the one observation that would
+   reverse that.
+3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
+   satisfies every non-negotiable and criterion. Note any residual risk or follow-up.
+4. TRADE-OFF: the winner against the runner-up as two columns, GAINS and GIVES UP, one row per criterion
+   where they differ, written as weight x credit gap, where credit is 1 for met, 0.5 for partly met and 0
+   for missed, so the columns net to the difference in totals. An
+   empty GIVES UP column means the winner dominates: say so. A consideration the requirements have no
+   criterion for goes below the table, unweighted and marked outside the rubric.
+5. FLIP CHECK: the smallest single change to one cell or one weight that changes the winner (from, to),
+   and the joint effect of moving every low-confidence cell by its uncertainty together. Grade the choice
+   DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
+   of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
+   evidence or user call that would settle it: an open issue, or a check for the user.
+WRITE E:/flow/runs/flow/decide/decision-r3.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, an
+`## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
+EVIDENCE LEDGER: also WRITE E:/flow/runs/flow/review/ledger-r3.md (create E:/flow/runs/flow/review/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
+A reviewer scores the candidates from this file alone before it sees your decision, so it holds facts,
+never judgment, in three sections:
+- `## Answer under review`: the winner.
+- `## Candidates`: every candidate your matrix scored, one line each saying what it is.
+- `## Facts`: for each candidate, every fact its scores rest on, each with its original source: a
+  file:line, a measurement (the exact command and its result) or a source URL.
+The ledger holds no score, weight, total, rationale or lens recommendation, and it cites no lens,
+research or decision file: copy the original source such a file cites instead. A fact with no original
+source stays out.
+OPEN ISSUES: an open issue is a question whose answer could change the winner: one the flip
+check names, or a non-negotiable or criterion the evidence does not yet settle. Write each one under
+`## Open issues` with a short kebab-case slug, the question, the requirement it bears on and the files a
+researcher should read for it, and return the slugs in open_issue_ids. A research round launches at most
+2 researchers, one per issue, so merge the issues that one researcher would settle from the same
+sources or within the same domain into one issue that holds several questions. List the issues, and their
+slugs in open_issue_ids, in order of how far each could move the winner, the furthest first: a round
+researches the first 2, and the rest stay open for a later round. A question whose answer cannot
+change the winner is a caveat: note it in the file, never as an open issue. A question no agent can
+settle, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, goes under `## Checks for the user` with
+the check and the result that would change the answer, and never becomes an open issue again. When the
+decision is about what to test, these checks are part of the deliverable. Return their count in
+user_checks. An empty section says "None."
+If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
+full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
+Return via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "chosen",
+    "meets_all_requirements",
+    "flip",
+    "open_issue_ids",
+    "user_checks",
+    "needs_user"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true only if you wrote both the decision file and the evidence ledger"
+    },
+    "chosen": {
+      "type": "string",
+      "description": "short title of the chosen conclusion (may be a hybrid)"
+    },
+    "meets_all_requirements": {
+      "type": "boolean",
+      "description": "true if the conclusion satisfies every non-negotiable + criterion in the requirements (your own honest assessment)"
+    },
+    "flip": {
+      "type": "string",
+      "enum": [
+        "robust",
+        "fragile",
+        "dominant"
+      ],
+      "description": "your flip-check grade from the decision file: dominant = the winner gives up nothing against the runner-up, robust = the smallest flip is larger than the uncertainty of the input it moves, fragile = it is not"
+    },
+    "open_issue_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug of at most 50 characters per entry under `## Open issues` in the decision file. Reuse an issue's slug while it stays open. [] when the section says \"None.\""
+    },
+    "user_checks": {
+      "type": "integer",
+      "description": "count of entries under `## Checks for the user` in the decision file (0 if none)"
+    },
+    "needs_user": {
+      "type": "boolean",
+      "description": "true ONLY if a genuine choice/contradiction only the USER can resolve blocks you; you wrote a full entry to NEEDS-USER.md and cannot proceed"
+    }
+  }
+}
+~~~~
+
+## research-issue · variant 7 · schema 1
+
+`research-issue r3 p99-unproven` in "more open issues than maxResearchers"
+
+~~~~text
+
+You are a RESEARCHER settling ONE open issue of a decision. Find the evidence that answers it.
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
+NON-NEGOTIABLES (musts) are pass/fail: an option that fails one cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
+WEIGHTED CRITERIA (wants) are scored per option as MET, PARTLY MET or MISSED, each with its cited evidence.
+The weighted total counts met as the criterion's full weight, partly met as half its weight and missed as
+zero. A want scores met only on a cited source or a measurement, and own judgment scores at most partly met.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+THE OPEN ISSUE: the entry "p99-unproven" under `## Open issues` in E:/flow/runs/flow/decide/decision-r3.md. Read that entry: it holds
+the question, the requirement it bears on and the files to read for it. Read those files.
+
+PROCEDURE:
+1. Search with the tools you have for the evidence that answers the question: read the sources, search,
+   and measure where you can.
+2. State the answer with its evidence, or say the question stays open and what you searched. Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
+3. When no agent can settle the question, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, write it as a
+   CHECK FOR THE USER: the check to run and the result that would change the answer.
+WRITE E:/flow/runs/flow/research/r3-p99-unproven.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Set new_evidence=true only when your file holds a cited fact that no earlier file of this run holds: the
+lens files in E:/flow/runs/flow/lenses/, E:/flow/runs/flow/decide/decision-r3.md and the research files E:/flow/runs/flow/research/r1-p99-unproven.md, E:/flow/runs/flow/research/r1-cost-unknown.md, E:/flow/runs/flow/research/r2-p99-unproven.md, E:/flow/runs/flow/research/r2-cost-unknown.md.
+Do NOT modify any repo, stage, or commit.
+Return via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "new_evidence"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true if you wrote your research file"
+    },
+    "new_evidence": {
+      "type": "boolean",
+      "description": "true when your file holds a cited fact that no earlier file of the run holds"
+    }
+  }
+}
+~~~~
+
+## research-issue · variant 8 · schema 1
+
+`research-issue r3 cost-unknown` in "more open issues than maxResearchers"
+
+~~~~text
+
+You are a RESEARCHER settling ONE open issue of a decision. Find the evidence that answers it.
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
+NON-NEGOTIABLES (musts) are pass/fail: an option that fails one cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
+WEIGHTED CRITERIA (wants) are scored per option as MET, PARTLY MET or MISSED, each with its cited evidence.
+The weighted total counts met as the criterion's full weight, partly met as half its weight and missed as
+zero. A want scores met only on a cited source or a measurement, and own judgment scores at most partly met.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+THE OPEN ISSUE: the entry "cost-unknown" under `## Open issues` in E:/flow/runs/flow/decide/decision-r3.md. Read that entry: it holds
+the question, the requirement it bears on and the files to read for it. Read those files.
+
+PROCEDURE:
+1. Search with the tools you have for the evidence that answers the question: read the sources, search,
+   and measure where you can.
+2. State the answer with its evidence, or say the question stays open and what you searched. Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
+3. When no agent can settle the question, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, write it as a
+   CHECK FOR THE USER: the check to run and the result that would change the answer.
+WRITE E:/flow/runs/flow/research/r3-cost-unknown.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Set new_evidence=true only when your file holds a cited fact that no earlier file of this run holds: the
+lens files in E:/flow/runs/flow/lenses/, E:/flow/runs/flow/decide/decision-r3.md and the research files E:/flow/runs/flow/research/r1-p99-unproven.md, E:/flow/runs/flow/research/r1-cost-unknown.md, E:/flow/runs/flow/research/r2-p99-unproven.md, E:/flow/runs/flow/research/r2-cost-unknown.md.
+Do NOT modify any repo, stage, or commit.
+Return via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "new_evidence"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true if you wrote your research file"
+    },
+    "new_evidence": {
+      "type": "boolean",
+      "description": "true when your file holds a cited fact that no earlier file of the run holds"
+    }
+  }
+}
+~~~~
+
+## decide · variant 8 · schema 1
+
+`decide r4` in "more open issues than maxResearchers"
+
+~~~~text
+
+You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted decision matrix.
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
+NON-NEGOTIABLES (musts) are pass/fail: an option that fails one cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
+WEIGHTED CRITERIA (wants) are scored per option as MET, PARTLY MET or MISSED, each with its cited evidence.
+The weighted total counts met as the criterion's full weight, partly met as half its weight and missed as
+zero. A want scores met only on a cited source or a measurement, and own judgment scores at most partly met.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+LENS ANALYSES — read each VERBATIM:
+  - E:/flow/runs/flow/lenses/efficiency.md  (lens: efficiency)
+  - E:/flow/runs/flow/lenses/simplest.md  (lens: simplest)
+  - E:/flow/runs/flow/lenses/robustness.md  (lens: robustness)
+EARLIER RESEARCH FILES, which the decision you revise cites:
+  - E:/flow/runs/flow/research/r1-p99-unproven.md
+  - E:/flow/runs/flow/research/r1-cost-unknown.md
+  - E:/flow/runs/flow/research/r2-p99-unproven.md
+  - E:/flow/runs/flow/research/r2-cost-unknown.md
+REVISE your decision at E:/flow/runs/flow/decide/decision-r3.md into a complete new file.
+RESEARCH ROUND 3 answered the first 2 of your open issues. READ every research file of that round:
+  - E:/flow/runs/flow/research/r3-p99-unproven.md
+  - E:/flow/runs/flow/research/r3-cost-unknown.md
+Fold each finding by its cited source: rescore each cell it settles and close the open issue it answers.
+A finding written as a check for the user moves its issue under `## Checks for the user`. Keep an issue
+open only while its answer can still change the winner and a researcher could still settle it.
+No researcher took these issues, since a round researches at most 2: ops-burden. Keep each one
+open under that rule, since no research has answered it yet.
+Then redo the totals, the trade-off and the flip check.
+
+PROCEDURE:
+1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
+   of the best elements of several, but only where they genuinely compose (no Frankenstein).
+2. Take the non-negotiables, the weighted CRITERIA and their weights from the requirements. Build a
+   decision matrix: each candidate (incl. any hybrid) judged pass or fail on every non-negotiable and
+   scored on every weighted criterion under the scoring rule above, with its weighted total. The highest
+   defensible total wins.
+   GROUND every cell: cite the evidence behind the score (the lens or research file and the specific
+   claim, with the original source it cites). Where none exists (a legitimate cross-lens synthesis), mark
+   it "own judgment, low-confidence". Never fabricate a citation. Each option you rule out, by a
+   non-negotiable or as a runner-up, cites what rules it out and names the one observation that would
+   reverse that.
+3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
+   satisfies every non-negotiable and criterion. Note any residual risk or follow-up.
+4. TRADE-OFF: the winner against the runner-up as two columns, GAINS and GIVES UP, one row per criterion
+   where they differ, written as weight x credit gap, where credit is 1 for met, 0.5 for partly met and 0
+   for missed, so the columns net to the difference in totals. An
+   empty GIVES UP column means the winner dominates: say so. A consideration the requirements have no
+   criterion for goes below the table, unweighted and marked outside the rubric.
+5. FLIP CHECK: the smallest single change to one cell or one weight that changes the winner (from, to),
+   and the joint effect of moving every low-confidence cell by its uncertainty together. Grade the choice
+   DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
+   of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
+   evidence or user call that would settle it: an open issue, or a check for the user.
+WRITE E:/flow/runs/flow/decide/decision-r4.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, an
+`## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
+EVIDENCE LEDGER: also WRITE E:/flow/runs/flow/review/ledger-r4.md (create E:/flow/runs/flow/review/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
+A reviewer scores the candidates from this file alone before it sees your decision, so it holds facts,
+never judgment, in three sections:
+- `## Answer under review`: the winner.
+- `## Candidates`: every candidate your matrix scored, one line each saying what it is.
+- `## Facts`: for each candidate, every fact its scores rest on, each with its original source: a
+  file:line, a measurement (the exact command and its result) or a source URL.
+The ledger holds no score, weight, total, rationale or lens recommendation, and it cites no lens,
+research or decision file: copy the original source such a file cites instead. A fact with no original
+source stays out.
+OPEN ISSUES: an open issue is a question whose answer could change the winner: one the flip
+check names, or a non-negotiable or criterion the evidence does not yet settle. Write each one under
+`## Open issues` with a short kebab-case slug, the question, the requirement it bears on and the files a
+researcher should read for it, and return the slugs in open_issue_ids. A research round launches at most
+2 researchers, one per issue, so merge the issues that one researcher would settle from the same
+sources or within the same domain into one issue that holds several questions. List the issues, and their
+slugs in open_issue_ids, in order of how far each could move the winner, the furthest first: a round
+researches the first 2, and the rest stay open for a later round. A question whose answer cannot
+change the winner is a caveat: note it in the file, never as an open issue. A question no agent can
+settle, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, goes under `## Checks for the user` with
+the check and the result that would change the answer, and never becomes an open issue again. When the
+decision is about what to test, these checks are part of the deliverable. Return their count in
+user_checks. An empty section says "None."
+If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
+full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
+Return via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "chosen",
+    "meets_all_requirements",
+    "flip",
+    "open_issue_ids",
+    "user_checks",
+    "needs_user"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true only if you wrote both the decision file and the evidence ledger"
+    },
+    "chosen": {
+      "type": "string",
+      "description": "short title of the chosen conclusion (may be a hybrid)"
+    },
+    "meets_all_requirements": {
+      "type": "boolean",
+      "description": "true if the conclusion satisfies every non-negotiable + criterion in the requirements (your own honest assessment)"
+    },
+    "flip": {
+      "type": "string",
+      "enum": [
+        "robust",
+        "fragile",
+        "dominant"
+      ],
+      "description": "your flip-check grade from the decision file: dominant = the winner gives up nothing against the runner-up, robust = the smallest flip is larger than the uncertainty of the input it moves, fragile = it is not"
+    },
+    "open_issue_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug of at most 50 characters per entry under `## Open issues` in the decision file. Reuse an issue's slug while it stays open. [] when the section says \"None.\""
+    },
+    "user_checks": {
+      "type": "integer",
+      "description": "count of entries under `## Checks for the user` in the decision file (0 if none)"
+    },
+    "needs_user": {
+      "type": "boolean",
+      "description": "true ONLY if a genuine choice/contradiction only the USER can resolve blocks you; you wrote a full entry to NEEDS-USER.md and cannot proceed"
+    }
+  }
+}
+~~~~
+
+## decide · variant 9 · schema 1
 
 `decide r1` in "one lens dies"
 
@@ -1204,7 +1920,11 @@ source stays out.
 OPEN ISSUES: an open issue is a question whose answer could change the winner: one the flip
 check names, or a non-negotiable or criterion the evidence does not yet settle. Write each one under
 `## Open issues` with a short kebab-case slug, the question, the requirement it bears on and the files a
-researcher should read for it, and return the slugs in open_issue_ids. A question whose answer cannot
+researcher should read for it, and return the slugs in open_issue_ids. A research round launches at most
+10 researchers, one per issue, so merge the issues that one researcher would settle from the same
+sources or within the same domain into one issue that holds several questions. List the issues, and their
+slugs in open_issue_ids, in order of how far each could move the winner, the furthest first: a round
+researches the first 10, and the rest stay open for a later round. A question whose answer cannot
 change the winner is a caveat: note it in the file, never as an open issue. A question no agent can
 settle, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, goes under `## Checks for the user` with
 the check and the result that would change the answer, and never becomes an open issue again. When the

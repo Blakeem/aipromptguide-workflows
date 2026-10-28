@@ -127,13 +127,13 @@ measurement, and own judgment scores at most partly met.
 - **Researcher** (research · sonnet) — two jobs. In Diverge, one per lens: reads the requirements + its
   lens, generates 2–4 options, gathers evidence for them, scores them under the scoring rule, recommends
   one, notes keep-worthy elements, and writes `lenses/<lens>.md`. In each research round, one per open
-  issue: reads the requirements, the issue's entry in the decision file and the files that entry names,
-  searches with the tools it has, and writes `research/r<N>-<slug>.md`. A question no agent can settle
-  (no testbed, a source no agent can open, a check that needs the user's hardware) it writes as a
-  **check for the user**: the check and the result that would change the answer. It returns
-  `new_evidence`, true when its file holds a cited fact no earlier file of the run holds. Either job
-  cites each factual claim to its original source: a file:line, a measurement with its exact command and
-  result, a source URL, or "own judgment".
+  issue, up to `maxResearchers` (§6): reads the requirements, the issue's entry in the decision file and
+  the files that entry names, searches with the tools it has, and writes `research/r<N>-<slug>.md`. A
+  question no agent can settle (no testbed, a source no agent can open, a check that needs the user's
+  hardware) it writes as a **check for the user**: the check and the result that would change the answer.
+  It returns `new_evidence`, true when its file holds a cited fact no earlier file of the run holds.
+  Either job cites each factual claim to its original source: a file:line, a measurement with its exact
+  command and result, a source URL, or "own judgment".
 - **Decider** (decide · opus) — reads the requirements + every lens file (+ the research files of the
   latest research round, + the previous review round's final review); consolidates options, may
   build a hybrid, scores a **global weighted matrix** under the scoring rule (**every cell citing its
@@ -143,7 +143,10 @@ measurement, and own judgment scores at most partly met.
   **`## Checks for the user`** section. An open issue is a question whose answer could change the
   winner (in `ranked` mode, rank 1 or an adjacent pair): one the flip check names, or a must or want the
   evidence does not yet settle. Each has a slug, the question, the requirement it bears on and the files
-  a researcher should read, and the decider returns the slugs as `open_issue_ids`. A question that
+  a researcher should read, and the decider returns the slugs as `open_issue_ids`. A research round
+  researches at most `maxResearchers` issues, so the decider merges the issues one researcher would
+  settle from the same sources or within the same domain into one issue that holds several questions,
+  and lists the issues in order of how far each could move the winner, the furthest first. A question that
   cannot change the winner is a caveat in the file. A question no agent can settle goes under
   `## Checks for the user` with the result that would change the answer, never becomes an open issue
   again, and is counted in `user_checks`. For a decision about what to test, these checks are part of
@@ -191,7 +194,8 @@ measurement, and own judgment scores at most partly met.
   the list that scores above a listed one, or a combine or exclude claim the evidence contradicts).
   Musts are judged at the depth the rubric states, else on the default path (§4). Every other concern
   is a caveat. It rejects exactly when it holds an objection. The blind file holds `## Scores`,
-  `## Objections` (`- O<n>: ...` lines), `## Caveats` and a last `Verdict: accept|reject` line. Its
+  `## Objections` (`- O<n>: ...` lines), `## Caveats` (`- C<n>: ...` lines, or `None.`) and a last
+  `Verdict: accept|reject` line. Its
   prompt ends with one instruction: run `node '<checkTool>' '<blind file>'` and follow what it prints. Its
   return is neutral: `wrote_file`, `verdict` and `needs_user`.
 - **Check agent** (check · sonnet) — writes and runs fixed text only. Before each review it writes the
@@ -213,13 +217,15 @@ the decision:
    `locks/review-rN.lock` (the file's sha256 and its verdict) and prints the reveal: read the decision
    file, then sort each objection into **withdrawn** (only by quoting, word for word, a sourced fact the
    decision file holds, never the decider's opinion, weight or argument), **kept** or **downgraded** to
-   a caveat, write the final file with the final verdict, and run the check again. Later runs check that
-   the blind file still matches the lock and that each withdrawal's quote is in the decision file. A
-   reject keeps at least one objection. In the last round a reject ends with a **WHERE NEXT** section:
-   whether the kept objections rest on evidence another revision could answer, or on a requirement the
-   rubric does not settle, and for a requirement the one change that would let a decision converge.
+   a caveat, write the final file (an `## Objections` section with one sort line per objection, a
+   `## Caveats` section of `- C<n>:` lines or `None.`, and the final verdict), and run the check again.
+   Later runs check that the blind file still matches the lock and that each withdrawal's quote is in the
+   decision file. A reject keeps at least one objection. In the last round a reject ends with a **WHERE
+   NEXT** section: whether the kept objections rest on evidence another revision could answer, or on a
+   requirement the rubric does not settle, and for a requirement the one change that would let a decision
+   converge.
 3. The check agent runs `review-check.mjs --verify <blind file>`. Exit 0, the lock matches: the engine
-   takes the verdict from the counts line (`raised, withdrawn, kept, downgraded`), reject when an
+   takes the verdict from the counts line (`raised, withdrawn, kept, downgraded, caveats`), reject when an
    objection is kept, and a withdrawal whose quote the tool did not find counts as kept. Exit 0 with a
    `locked verdict:` line, the final file unwritten: every objection counts as kept, so the locked blind
    verdict stands, the engine logs it, and the blind file is the review the decider and the hand-back
@@ -241,7 +247,12 @@ hands the decider that round's final review next round; the decider revises rath
 
 - **The research gate.** After each decider pass the engine reads `open_issue_ids`. Empty: the decision
   goes to review, and research stops as `covered`. Otherwise a research round runs one researcher per
-  distinct slug, concurrently, and the decider runs again over that round's research files. Research
+  distinct slug, concurrently, for the first `maxResearchers` slugs in the decider's order (default
+  10), and the decider runs again over that round's research files. The decider sets the issue count,
+  so this cap bounds the agents one round launches. The log names each slug past the cap as carried,
+  and the next decider pass is told no researcher took it and keeps it open. When the latest decision
+  lists more open issues than `maxResearchers`, `nextStep` names each issue past the cap and says the
+  decision may need splitting into narrower decide runs. Research
   stops, and the decision goes to review with its open issues on record, on the first of: two research
   rounds in a row in which no researcher returned `new_evidence` true (`saturated`), or
   `maxResearchRounds` research rounds in the run (`cap`, default 3). The dry-round streak restarts with
@@ -256,7 +267,7 @@ hands the decider that round's final review next round; the decider revises rath
   judge against it, so the loop converges; there is no `DISMISSED.md`. A reject must keep a must
   violation or a challenger that scores higher on the same rubric, and the decider keeps the higher of
   the two, so each revision moves toward a stronger answer. `reviewRounds` on the return holds one
-  `{ round, verdict, raised, withdrawn, kept, downgraded, lockMatched }` entry per review round. A run
+  `{ round, verdict, raised, withdrawn, kept, downgraded, caveats, lockMatched }` entry per review round. A run
   that does not converge hands back the final review, whose kept objections and WHERE NEXT section say
   whether another revision or a rubric change is the fix, and a rubric gap is fixed by refining the
   rubric rather than raising `maxRounds`. When the last round fell back to its blind review (§5a), the
@@ -264,8 +275,11 @@ hands the decider that round's final review next round; the decider revises rath
 - **Staged, not blind (#3/#5).** The reviewer must see the decision to check itself against it, but only
   after its blind judgment is locked (§5a). Each round's reviewer is fresh and reads no earlier review.
 - **Acceptance means no kept objection.** The loop ends when the reviewer accepts. A caveat never
-  blocks: on acceptance `nextStep` says to carry the `## Caveats` section of the last file `reviewFiles`
-  lists (§9) into the plan's design section.
+  blocks. `review-check.mjs` counts the caveats under `## Caveats`, in the final review once it is
+  written and in the blind review otherwise. A malformed caveat line still counts (tools/CLAUDE.md,
+  "review-check.mjs"). An accepted run with caveats ends `decided with caveats
+  (the final reviewer accepts the decision and names <n> caveats)`, and its `nextStep` says to carry the
+  `## Caveats` section of the last file `reviewFiles` lists (§9) into the plan's design section.
 - **`selection` shapes the deliverable, not the rigor.** `single` (default) → one winner + why-not-each
   runner-up. `ranked` → an ordered shortlist (≤ `shortlist`, default 5, floor 2) where every listed
   option must satisfy every non-negotiable — a violator is excluded, never ranked last — and each
@@ -322,7 +336,8 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
   `target.lang`/`target.framework` (hints) · `maxRounds` (3; **throws** below 1 or non-numeric — it used
   to coerce, and a NaN bound silently produced a zero-round run reported as an ordinary result) ·
   `maxResearchRounds` (3, run-wide research rounds, §6; `0` runs none; **throws** below 0 or
-  non-numeric) ·
+  non-numeric) · `maxResearchers` (10, the researchers one research round launches, §6; **throws**
+  below 1 or non-numeric) ·
   `models`/`efforts` (`models` and `efforts` map a role key to a value. The role keys are `research`,
   `decide`, `review` and `check`, and the retired key `analyst` throws like any unknown key. A model is
   `opus | sonnet | haiku | fable` and an effort is
@@ -350,10 +365,11 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
   + flip check (in `ranked` mode: the matrix + the ranked options with buys/costs + the
   combine-vs-exclusive section + the flip check), then `## Open issues` and `## Checks for the user`.
 - `review/ledger-rN.md` — the evidence ledger of the decider's Nth pass (§5).
-- `review/review-rN.md` — review round N's blind review: `## Scores`, `## Objections`, `## Caveats` and
-  the verdict line.
-- `decide/review-rN-final.md` — review round N's final review: each objection withdrawn, kept or
-  downgraded, `## Caveats`, the final verdict and, on a last-round reject, `## WHERE NEXT`.
+- `review/review-rN.md` — review round N's blind review: `## Scores`, `## Objections`, `## Caveats` (one
+  `- C<n>:` line per caveat, or `None.`) and the verdict line.
+- `decide/review-rN-final.md` — review round N's final review: `## Objections` with each objection
+  withdrawn, kept or downgraded, `## Caveats`, the final verdict and, on a last-round reject,
+  `## WHERE NEXT`.
 - `locks/review-rN.json`, `locks/review-rN.reveal.md`, `locks/review-rN.lock` — the check spec, the
   reveal text and the lock of review round N (§5a).
 - `NEEDS-USER.md` — user-only escalations; a hard blocker here halted the run.
@@ -367,17 +383,21 @@ review, `covered`, `saturated` or `cap` (§6), or empty when the run halted in a
 handed that round's decision to review. `openIssues` lists
 the latest attested decision's open issue slugs, and `userChecks` counts its checks for the user. When
 research stopped on `saturated` or `cap` with open issues, `nextStep` says to present them with the
-decision, and when `userChecks` is above 0 it says to present the checks.
+decision, and when `openIssues` holds more issues than `maxResearchers` it names the issues past the cap
+(§6). When `userChecks` is above 0 it says to present the checks.
 `reviewFiles` lists the latest round's blind review, and its final review when the lock matched and
 the reviewer wrote it.
 `decisionFile` and `reviewFiles` name only files whose writer attested, so after a halt either can be
 empty or name an earlier round. A halt also returns its `haltReason`. `flip` is the latest decision's
-grade (`dominant`, `robust` or `fragile`), or empty when the decider returned none of the three. An
-accepted run ends `decided (the final reviewer accepts the decision)` and sets `agreed`. On acceptance
-`nextStep` carries a flip note for a fragile or dominant grade and a note to carry the caveats of the
-last file `reviewFiles` lists into the plan. `contradicted` is true when the latest reviewer returned a
-verdict its own check counts overturn, since the counts decide. `meetsAllRequirements` is false when the latest decider
-reported that its conclusion, or a shortlisted option, misses a requirement. An accepted run with
-`contradicted` raised, `meetsAllRequirements` false or a lock mismatch in its last round keeps its
-status, and its hand-back names the file to audit before presenting. In `ranked` mode the return adds the
-ordered `shortlist` index and `chosen` is the rank-1 option, both from the latest decision only.
+grade (`dominant`, `robust` or `fragile`), or empty when the decider returned none of the three.
+`caveats` is the latest review round's caveat count (§6), and 0 when no review ran. An accepted run
+ends `decided with caveats (the final reviewer accepts the decision and names <n> caveats)` when
+`caveats` is above 0, else `decided (the final reviewer accepts the decision)`, and sets `agreed`. On
+acceptance `nextStep` carries a flip note for a fragile or dominant grade and, when `caveats` is above
+0, a note to carry the caveats of the last file `reviewFiles` lists into the plan. `contradicted` is true
+when the latest reviewer returned a verdict its own check counts overturn, since the counts decide.
+`meetsAllRequirements` is false when the latest decider reported that its conclusion, or a shortlisted
+option, misses a requirement. An accepted run with `contradicted` raised, `meetsAllRequirements` false or
+a lock mismatch in its last round keeps its status, and its hand-back names the file to audit before
+presenting. In `ranked` mode the return adds the ordered `shortlist` index and `chosen` is the rank-1
+option, both from the latest decision only.
