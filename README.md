@@ -165,6 +165,12 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-28
 
+- **`tools/risk-check.mjs` owns develop's risk file format.** The developer runs it on its risk file
+  until it prints `ok`. It writes a missing file's skeleton, names each format error, reruns each sweep
+  search as written and as a source string escapes it, and lists each hit the sweep leaves out. Its last
+  line says whether every answer is low risk, and the developer returns `review_needed` from it.
+  Acceptance runs it on the latest audited risk file in place of rerunning each search by hand.
+  Allowlist `risk-check.mjs` beside `plan-block.mjs` for every develop run.
 - **`tools/review-check.mjs` owns decide's review file format.** The reviewer runs the check first, and
   the check writes the blind review's skeleton and prints the format of each section. When it locks
   the blind review, it writes the final review's skeleton with one line per objection. The reviewer

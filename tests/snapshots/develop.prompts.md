@@ -6,61 +6,61 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 32798 | every block accepts first time |
+| develop | 1 | 1 | 32940 | every block accepts first time |
 | quality | 1 | 1 | 8941 | every block accepts first time |
 | acceptance | 1 | 1 | 16430 | every block accepts first time |
-| develop | 2 | 1 | 33223 | every block accepts first time |
+| develop | 2 | 1 | 33365 | every block accepts first time |
 | acceptance | 2 | 2 | 16711 | every block accepts first time |
 | final-sweep | 1 | 1 | 4678 | every block accepts first time |
-| develop | 3 | 2 | 36044 | a feature block accepts under the proactive policy |
+| develop | 3 | 2 | 36186 | a feature block accepts under the proactive policy |
 | acceptance | 3 | 3 | 17591 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 4669 | a feature block accepts under the proactive policy |
-| develop | 4 | 1 | 31882 | quality flags the first round |
+| develop | 4 | 1 | 32024 | quality flags the first round |
 | acceptance | 4 | 1 | 16429 | quality flags the first round |
-| develop | 5 | 1 | 32252 | quality flags the first round |
+| develop | 5 | 1 | 32394 | quality flags the first round |
 | acceptance | 5 | 2 | 16710 | quality flags the first round |
-| develop | 6 | 1 | 31878 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 32020 | acceptance finds gaps, then passes |
 | acceptance | 6 | 1 | 16427 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 32248 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 32390 | acceptance finds gaps, then passes |
 | acceptance | 7 | 2 | 16708 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 19869 | a later round is judged low risk |
-| acceptance | 9 | 2 | 20150 | a later round is judged low risk |
-| develop | 8 | 1 | 30704 | the gate never goes green |
-| develop-closing | 1 | 1 | 32326 | the gate never goes green |
+| acceptance | 8 | 1 | 20222 | a later round is judged low risk |
+| acceptance | 9 | 2 | 20503 | a later round is judged low risk |
+| develop | 8 | 1 | 30846 | the gate never goes green |
+| develop-closing | 1 | 1 | 32468 | the gate never goes green |
 | quality | 2 | 1 | 9001 | the gate never goes green |
 | acceptance | 10 | 4 | 19797 | the gate never goes green |
 | park | 1 | 1 | 10634 | the gate never goes green |
-| develop | 9 | 1 | 31129 | the gate never goes green |
-| develop-closing | 2 | 1 | 32696 | the gate never goes green |
+| develop | 9 | 1 | 31271 | the gate never goes green |
+| develop-closing | 2 | 1 | 32838 | the gate never goes green |
 | acceptance | 11 | 5 | 20078 | the gate never goes green |
 | acceptance | 12 | 1 | 16482 | a parked block, and the run carries on |
 | acceptance | 13 | 1 | 16537 | a parked block, and the run carries on |
 | acceptance | 14 | 1 | 16592 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 33344 | a parked block, and the run carries on |
-| acceptance | 15 | 4 | 23454 | a parked block, and the run carries on |
-| develop | 10 | 1 | 32780 | an ordered run stops at a parked block |
+| develop-closing | 3 | 1 | 33486 | a parked block, and the run carries on |
+| acceptance | 15 | 4 | 23807 | a parked block, and the run carries on |
+| develop | 10 | 1 | 32922 | an ordered run stops at a parked block |
 | acceptance | 16 | 1 | 16424 | an ordered run stops at a parked block |
-| develop | 11 | 1 | 31860 | an ordered run stops at a parked block |
+| develop | 11 | 1 | 32002 | an ordered run stops at a parked block |
 | acceptance | 17 | 1 | 16421 | an ordered run stops at a parked block |
 | acceptance | 18 | 1 | 16476 | an ordered run stops at a parked block |
 | acceptance | 19 | 1 | 16531 | an ordered run stops at a parked block |
 | acceptance | 20 | 1 | 16586 | an ordered run stops at a parked block |
-| develop-closing | 4 | 1 | 33326 | an ordered run stops at a parked block |
-| acceptance | 21 | 4 | 23448 | an ordered run stops at a parked block |
+| develop-closing | 4 | 1 | 33468 | an ordered run stops at a parked block |
+| acceptance | 21 | 4 | 23801 | an ordered run stops at a parked block |
 | park | 2 | 1 | 10646 | an ordered run stops at a parked block |
-| develop | 12 | 3 | 41513 | a fix block closes its issues |
+| develop | 12 | 3 | 41655 | a fix block closes its issues |
 | acceptance | 22 | 6 | 24389 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 4669 | a fix block closes its issues |
-| develop | 13 | 4 | 44980 | a fix block closes its issues under the proactive policy |
+| develop | 13 | 4 | 45122 | a fix block closes its issues under the proactive policy |
 | acceptance | 23 | 7 | 25896 | a fix block closes its issues under the proactive policy |
 | acceptance | 24 | 7 | 25910 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 14 | 4 | 36179 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 14 | 4 | 36321 | a proactive fix block starts round 2 from the statuses it last reported |
 | acceptance | 25 | 7 | 25709 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 15 | 3 | 41860 | a pass of two fix blocks closes its issues |
+| develop | 15 | 3 | 42009 | a pass of two fix blocks closes its issues |
 | acceptance | 26 | 6 | 24709 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 4699 | a pass of two fix blocks closes its issues |
 | acceptance | 27 | 6 | 24388 | every issue is already fixed |
-| develop | 16 | 3 | 41495 | an ordered run stops on a fix block that closes nothing |
+| develop | 16 | 3 | 41637 | an ordered run stops on a fix block that closes nothing |
 | park | 3 | 1 | 10949 | passed with a regression, not staged |
 | park | 4 | 1 | 10241 | acceptance stages a rejected block |
 | park | 5 | 1 | 10802 | the quality reviewer fails a block without its file |
@@ -75,22 +75,22 @@ this file is stale.
 | park | 14 | 1 | 10217 | developer escalates |
 | park | 15 | 1 | 10207 | developer escalates in an ordered run |
 | acceptance | 28 | 6 | 26842 | log line cap before the sweep |
-| acceptance | 29 | 4 | 23234 | a closing acceptance lands the block |
-| develop-closing | 5 | 1 | 33714 | a closing acceptance lands the block |
-| acceptance | 30 | 5 | 23515 | a closing acceptance lands the block |
+| acceptance | 29 | 4 | 23587 | a closing acceptance lands the block |
+| develop-closing | 5 | 1 | 33856 | a closing acceptance lands the block |
+| acceptance | 30 | 5 | 23868 | a closing acceptance lands the block |
 | acceptance | 31 | 4 | 19851 | a closing pass gets a blind review |
 | acceptance | 32 | 5 | 20132 | a closing pass gets a blind review |
-| acceptance | 33 | 4 | 23527 | a closing acceptance finds a blocking gap |
+| acceptance | 33 | 4 | 23880 | a closing acceptance finds a blocking gap |
 | park | 16 | 1 | 10784 | a closing acceptance finds a blocking gap |
-| acceptance | 34 | 5 | 23808 | a closing acceptance finds a blocking gap |
+| acceptance | 34 | 5 | 24161 | a closing acceptance finds a blocking gap |
 | park | 17 | 1 | 10784 | a closing acceptance finds a blocking gap |
-| develop | 17 | 5 | 32969 | every block commits first time |
+| develop | 17 | 5 | 33111 | every block commits first time |
 | quality | 3 | 1 | 8894 | every block commits first time |
 | acceptance | 35 | 8 | 17969 | every block commits first time |
-| develop | 18 | 5 | 33394 | every block commits first time |
+| develop | 18 | 5 | 33536 | every block commits first time |
 | acceptance | 36 | 9 | 18250 | every block commits first time |
 | final-sweep | 5 | 1 | 4990 | every block commits first time |
-| develop | 19 | 6 | 41715 | a fix block commits |
+| develop | 19 | 6 | 41857 | a fix block commits |
 | acceptance | 37 | 10 | 26145 | a fix block commits |
 | final-sweep | 6 | 1 | 4897 | a fix block commits |
 | park | 18 | 1 | 10247 | acceptance commits a rejected block |
@@ -257,20 +257,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r1.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -1058,20 +1059,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-b-r1.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r1.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -1827,20 +1829,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r1.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -2613,20 +2616,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r2.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -3257,20 +3261,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-b-r2.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -3900,20 +3905,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r2.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -4544,20 +4550,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-b-r2.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -5184,14 +5191,16 @@ PROCEDURE:
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
+   SWEEP CHECK. When E:/flow/runs/flow/risk-block-a-r2.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
+   its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
+   there. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
    contradict are each a gap.
-   SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-a-r2.md, the file of the latest
-   round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
-   there. Run the search each line names again. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected` and each hit the
-   rerun or that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2-acceptance.index"
@@ -5446,14 +5455,16 @@ PROCEDURE:
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
+   SWEEP CHECK. When E:/flow/runs/flow/risk-block-b-r2.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
+   its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
+   there. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
    contradict are each a gap.
-   SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-b-r2.md, the file of the latest
-   round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
-   there. Run the search each line names again. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected` and each hit the
-   rerun or that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2-acceptance.index"
@@ -5708,20 +5719,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r2.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -6132,20 +6144,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r6.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r6.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r6.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -7078,20 +7091,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-b-r2.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -7506,20 +7520,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r6.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-b-r6.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r6.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r6.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r6.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -8896,20 +8911,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r6.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r6.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r6.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -9327,14 +9343,16 @@ PROCEDURE:
      round 6: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
+   SWEEP CHECK. When E:/flow/runs/flow/risk-block-a-r6.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r6.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
+   its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
+   there. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
    contradict are each a gap.
-   SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-a-r6.md, the file of the latest
-   round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
-   there. Run the search each line names again. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected` and each hit the
-   rerun or that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6-acceptance.index"
@@ -9631,20 +9649,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r1.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -10271,20 +10290,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r2.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -11618,20 +11638,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r6.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r6.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r6.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -12049,14 +12070,16 @@ PROCEDURE:
      round 6: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
+   SWEEP CHECK. When E:/flow/runs/flow/risk-block-a-r6.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r6.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
+   its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
+   there. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
    contradict are each a gap.
-   SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-a-r6.md, the file of the latest
-   round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
-   there. Run the search each line names again. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected` and each hit the
-   rerun or that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6-acceptance.index"
@@ -12545,20 +12568,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-c-r1.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -13508,20 +13532,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-c-r1.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -14737,20 +14762,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-c-r2.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r2.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -15663,20 +15689,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-plus-1-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-c-plus-1-r1.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-plus-1-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-plus-1-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-plus-1-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-plus-1-r1.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -16929,20 +16956,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-c-r1.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -19547,14 +19575,16 @@ PROCEDURE:
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
+   SWEEP CHECK. When E:/flow/runs/flow/risk-block-a-r2.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
+   its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
+   there. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
    contradict are each a gap.
-   SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-a-r2.md, the file of the latest
-   round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
-   there. Run the search each line names again. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected` and each hit the
-   rerun or that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2-acceptance.index"
@@ -19848,20 +19878,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-b-r2.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -20278,14 +20309,16 @@ PROCEDURE:
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
+   SWEEP CHECK. When E:/flow/runs/flow/risk-block-b-r2.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
+   its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
+   there. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
    contradict are each a gap.
-   SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-b-r2.md, the file of the latest
-   round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
-   there. Run the search each line names again. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected` and each hit the
-   rerun or that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2-acceptance.index"
@@ -21097,14 +21130,16 @@ PROCEDURE:
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
+   SWEEP CHECK. When E:/flow/runs/flow/risk-block-a-r2.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
+   its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
+   there. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
    contradict are each a gap.
-   SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-a-r2.md, the file of the latest
-   round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
-   there. Run the search each line names again. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected` and each hit the
-   rerun or that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2-acceptance.index"
@@ -21520,14 +21555,16 @@ PROCEDURE:
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
+   SWEEP CHECK. When E:/flow/runs/flow/risk-block-b-r2.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
+   its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
+   there. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
    contradict are each a gap.
-   SWEEP CHECK. Read the `## Sweep` section of E:/flow/runs/flow/risk-block-b-r2.md, the file of the latest
-   round named above. Each function, constant, field, message or rule phrase that round's hunks change needs a line
-   there. Run the search each line names again. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names. Read against the change each hit marked `unaffected` and each hit the
-   rerun or that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
    TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
    (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2-acceptance.index"
@@ -21951,20 +21988,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r1.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -22795,20 +22833,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-b-r1.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r1.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -23649,20 +23688,21 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
-   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
-   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-c-r1.md. First take a snapshot of the working
+   tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. After the first line, write one section per change, named by its file:line, with its four answers.
-   Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed,
-   list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
-   changed field, return value, file format or output that other code or prompts read lists those readers as hits. A
-   change that adds, removes or renames a field of an agent's return schema also lists as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else". A
-   round that changed nothing writes "No changes." and no `## Sweep` section. Return review_needed=true when any change is not low
-   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id>`. This risk tool
+   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   a search finds that the file leaves out. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Then run the command
+   again until it prints ok. Judge each change this round made, and add a sweep search for each function,
+   constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A
+   changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
+   change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise. With false, the engine may send this round's diff to
    acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?

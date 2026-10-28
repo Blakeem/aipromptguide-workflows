@@ -26,12 +26,13 @@ for (const rel of ENGINES) {
 section('the ordinary-Node scripts pass node --check (the harness contract does not apply to them)');
 // gen-units.mjs is run by hand as part of debug; plan-block.mjs is run BY AGENTS during develop and
 // refine runs, so its syntax is a run-time dependency of two engines, not just dev machinery. plan-pull.mjs
-// is run by agents during a proactive develop run, and plan-entry.mjs by every develop backlog writer, so
+// is run by agents during a proactive develop run, plan-entry.mjs by every develop backlog writer, and
+// risk-check.mjs by every develop developer and acceptance, so
 // their syntax is a run-time dependency too. wt.mjs
 // is run by the operator around a batch of runs, and a syntax error there strands live worktrees.
 // plan-edit.mjs is the operator's only write path into an approved plan file. trash.mjs is the removal
 // path that never hard-deletes, so a syntax error there leaves a caller no safe way to remove a folder.
-for (const rel of ['workflows/debug/gen-units.mjs', 'tools/plan-block.mjs', 'tools/plan-pull.mjs', 'tools/plan-entry.mjs', 'tools/plan-edit.mjs', 'tools/gen-flows.mjs', 'tools/wt.mjs', 'tools/trash.mjs']) {
+for (const rel of ['workflows/debug/gen-units.mjs', 'tools/plan-block.mjs', 'tools/plan-pull.mjs', 'tools/plan-entry.mjs', 'tools/risk-check.mjs', 'tools/plan-edit.mjs', 'tools/gen-flows.mjs', 'tools/wt.mjs', 'tools/trash.mjs']) {
   let err = '';
   try {
     execFileSync(process.execPath, ['--check', join(REPO_ROOT, rel)], { stdio: 'pipe' });

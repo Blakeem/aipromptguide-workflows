@@ -292,7 +292,9 @@ since `high` suits every model.
   prints, so the spread args carry it, and the engine throws without it. Never pass it by hand.
   Pre-allowlist the command exactly as agents run it: `Bash(node '<blockTool>':*)`. Also
   pre-allowlist `Bash(node '<plan-entry.mjs>':*)`, where `<plan-entry.mjs>` is the `plan-entry.mjs`
-  beside `blockTool`, since every backlog writer runs it (§10). Under
+  beside `blockTool`, since every backlog writer runs it (§10), and `Bash(node '<risk-check.mjs>':*)`,
+  where `<risk-check.mjs>` is the `risk-check.mjs` beside `blockTool`, since every developer and
+  acceptance runs it (§6). Under
   `proactive`, also pre-allowlist `Bash(node '<plan-pull.mjs>':*)`, where `<plan-pull.mjs>` is the
   `plan-pull.mjs` beside `blockTool`, since every round-1 developer runs it (§4).
 - **Relaunch vs. new run:** relaunch a halted or parked run with the same `runId` and no
@@ -666,20 +668,23 @@ round made:
   could falsify?
 
 Each answer cites its evidence or is "no". A doubtful answer counts as yes, and a change is low risk when
-every answer is no. The developer writes the answers to `risk-<id>-rN.md` and returns `review_needed`, true
-when any change is not low risk. Each risk file starts with the line `Snapshot: <tree id>`. The tree id is a
-snapshot of the round's working tree, which the developer makes with `git add -A` and `git write-tree` on a
-temporary index file under `scratch/`, seeded with a copy of the real index, and deletes that file once it
-prints the tree id. The real index, which holds the accepted baseline, is never written. After its answers the
-risk file holds a `## Sweep` section. For each function, constant, field, message or rule phrase the round
-changed, it lists the search the developer ran and each hit, marked `updated` or `unaffected` with a few words
-of reason. A changed or removed rule phrase, message or name is searched by its old wording, and by its new
-wording too when other text must repeat it, since a copy that still holds the old wording matches no search
-of the new one. A changed field, return value, file format or output that other code or prompts read lists
-those readers as hits. A change that adds, removes or renames a field of an agent's return schema also lists
-as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and
-"nothing else". A round that changed nothing writes no section. The blind review runs in a block's first round
-with a satisfied gate in a launch, a fix block that restored a parked block's branch included. A later round
+every answer is no. The developer writes the answers to `risk-<id>-rN.md` and runs `tools/risk-check.mjs` on
+it until it prints `ok`. The tool holds the risk file's format (`tools/CLAUDE.md`), and its last line,
+`low risk: yes|no`, gives `review_needed`, true when any change is not low risk. Each risk file starts with
+the line `Snapshot: <tree id>`. The tree id is a snapshot of the round's working tree, which the developer
+makes with `git add -A` and `git write-tree` on a temporary index file under `scratch/`, seeded with a copy of
+the real index, and deletes that file once it prints the tree id. The real index, which holds the accepted
+baseline, is never written. After its answers the risk file holds a `## Sweep` section with one search for
+each function, constant, field, message or rule phrase the round changed, and each hit marked `updated` or
+`unaffected` with a few words of reason. The tool reruns each search and names each hit the file leaves out.
+A changed or removed rule phrase, message or name is searched by its old wording, and by its new wording too
+when other text must repeat it, since a copy that still holds the old wording matches no search of the new
+one. A changed field, return value, file format or output that other code or prompts read needs a search that
+finds those readers. A change that adds, removes or renames a field of an agent's return schema also needs a
+search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns",
+"only" and "nothing else". A round that changed nothing writes no section. The blind review runs in a
+block's first round with a satisfied gate in a launch, a fix block that restored a parked block's branch
+included. A later round
 gets one when a round since the block's last blind review returned `review_needed` true or no boolean, or an
 acceptance verdict since then returned `risk_misclassified` true. Any other round goes from the developer
 straight to acceptance. Git holds one cumulative unstaged diff, so acceptance reads each audited round's own
@@ -697,15 +702,16 @@ round on, unless it is untracked build output or a cache that a gate or test run
 last round returned no snapshot, this check has nothing to compare, and an unreviewed round's missing
 snapshot is already a missing file. It checks each answer in the risk file of each round since the last
 blind review or last clean risk audit against that round's hunks. It also checks the sweep of the latest of
-those rounds: each changed name or phrase in that
-round's hunks needs a line, and each hit marked `unaffected` must still agree with the change.
+those rounds. It runs `tools/risk-check.mjs` on that round's file with the tree id the round returned, and
+each error the tool prints is a gap. Each changed name or phrase in that round's hunks needs a line, and each
+hit marked `unaffected` must still agree with the change.
 Acceptance also searches each changed or removed rule phrase, message or name by its old wording, and by
 its new wording too when other text must repeat it, whatever its line names. A round whose hunks add,
 remove or rename a field of an agent's return schema also needs a line that lists each sentence that
 lists that agent's return fields. A missing file, a missing snapshot line in an audited round's file or
 in its base file, a change the file does not judge low risk, an answer the hunks contradict, a changed
 name or phrase with no sweep line, an `unaffected` hit that disagrees with the change, and a hit that
-acceptance finds by running the line's search again or the old-wording search above, that the line
+the tool's rerun of the line's search or the old-wording search above finds, that the line
 leaves out, and that needs a change the diff did not make or disagrees with the change are each a gap,
 and the verdict returns `risk_misclassified` true, which sends the next round to a blind review.
 Acceptance names each left-out hit it judges unaffected in its risk-audit result, and that hit is no
