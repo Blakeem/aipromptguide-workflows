@@ -231,7 +231,8 @@ against (halt); an unreachable feature does not (flag).
   `CLAUDE.md` and `README.md`, `tools/CLAUDE.md`, `tests/CLAUDE.md`, `workflows/*/CLAUDE.md`,
   `workflows/*/README.md` and `principles/*.md`. It exempts table rows, fenced code blocks and a line with
   one token that no wrap fits under the width, such as a URL. It does not check `docs/`,
-  `tests/README.md` or `skills/`.
+  `tests/README.md` or `skills/`. `node tests/run.mjs static` runs that test file without the rest of the
+  suite, so a guide edit runs it before the full suite.
 - **Test failure paths.** The happy path is exercised constantly by real runs. Halts, parks, dead agents,
   contradictory returns and bad args are what rot silently — and are where every real defect has been.
 - **`respond: { 'label': null }` simulates a dead agent** — one character, and it covers §3's number-one

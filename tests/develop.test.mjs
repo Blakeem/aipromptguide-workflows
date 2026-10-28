@@ -394,7 +394,7 @@ section('acceptance audits the risk file of each round since the block\'s last b
   // The sweep: the developer records it in CLASSIFY and acceptance's risk audit checks the latest audited round's.
   const d1 = flat(r.prompt('develop block-a r1'));
   const q1 = flat(r.prompt('quality block-a r1'));
-  ok(d1.includes('Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed, list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. A changed field, return value, file format or output that other code or prompts read lists those readers as hits. A change that adds, removes or renames a field of an agent\'s return schema also lists as hits each sentence in the repo\'s prose that lists that agent\'s return fields, such as "returns", "only" and "nothing else". A round that changed nothing writes "No changes." and no `## Sweep` section.'),
+  ok(d1.includes('Then write a `## Sweep` section. For each function, constant, field, message or rule phrase this round changed, list the search you ran and each hit, marked `updated` or `unaffected` with a few words of reason. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A changed field, return value, file format or output that other code or prompts read lists those readers as hits. A change that adds, removes or renames a field of an agent\'s return schema also lists as hits each sentence in the repo\'s prose that lists that agent\'s return fields, such as "returns", "only" and "nothing else". A round that changed nothing writes "No changes." and no `## Sweep` section.'),
     'CLASSIFY has the developer write a Sweep section for each changed name or phrase');
   ok(a3.includes('SWEEP CHECK. Read the `## Sweep` section of E:/r/runs/t/risk-block-a-r3.md, the file of the latest round named above.')
     && a3.includes('A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap.')
@@ -405,6 +405,14 @@ section('acceptance audits the risk file of each round since the block\'s last b
   'a missing sweep line or an unaffected hit that disagrees is a gap in the latest audited round, and a reviewed round has no sweep to audit');
   ok(d1.includes("that the sweep of the latest such round lists each changed name or phrase of that round's hunks and each hit it marks unaffected still agrees with the change and a rerun of each line's search finds no hit the line leaves out that the change left wrong"),
     'the developer is told the acceptance check on the sweep');
+  ok(d1.includes("that a search of each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it finds no hit the sweep leaves out that the change left wrong, and that the tree it stages"),
+    'the developer is told acceptance also searches a changed rule by its old wording');
+  ok(a3.includes("Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names."),
+    "the acceptance sweep check searches the old wording of a changed rule, which a rerun of the line's own search misses");
+  ok(flat(a3).includes('each hit the rerun or that search finds that the line leaves out'), 'the acceptance sweep check reads a hit of the old-wording search against the change');
+  const engineText = readFileSync(join(REPO_ROOT, ENGINE), 'utf8');
+  ok(engineText.includes('(a changed or removed one by its old wording, and by its new wording too when other text must repeat it)'),
+    'the Develop meta states the same search wording as the developer prompt');
   // A changed return schema is searched for the prose that lists the agent's return fields, which a search for the changed names misses.
   const SCHEMA_PROSE = `each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else"`;
   ok(d1.includes(`A change that adds, removes or renames a field of an agent's return schema also lists as hits ${SCHEMA_PROSE}.`),
@@ -1831,6 +1839,8 @@ section('a fix block restores each branch its ACTIONABLE entries link, in round 
   // apply -3 implies --index, so the index copy is what keeps the restored work out of the real index.
   ok(r1.includes('a 3-way apply onto the accepted baseline, since a block that landed after the branch was cut may have changed a file the branch touches.')
     && r1.includes('Never run it without that GIT_INDEX_FILE, and never with `--index` or `--cached`'), 'the 3-way restore runs on an index copy, never --index or --cached');
+  ok(r1.includes('A clean apply leaves no conflict to resolve, and a file the project generates from the restored files may still be stale, so regenerate it before the gate run.')
+    && !r1.includes('A clean apply needs nothing more'), 'a clean restore is not called finished, since a generated file may be stale');
   const copy = r1.indexOf(`cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "${INDEX_COPY}"`);
   ok(copy > clean && copy < apply, 'it copies the real index after the clean-baseline check and before the first apply');
   ok(!/a PLAIN apply/.test(r1), 'it no longer restores with a plain apply');
@@ -4473,17 +4483,19 @@ section('every develop prompt that writes a round file says to Read an earlier l
 section('the developer confirms each review finding, suggested fix and Fix line before it acts on one');
 // A reviewer and a fix entry each make claims another agent wrote, so the developer checks them against the code.
 {
-  const REVIEW_CLAIMS = "A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as \"CONTESTS DISMISSAL\" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, follows its own rule below.";
+  const REVIEW_CLAIMS = "A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as \"CONTESTS DISMISSAL\" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1.";
   const rework = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, ONE_BLOCK);
   ok(flat(rework.prompt('develop block-a r2')).includes(REVIEW_CLAIMS), 'a round that answers a review confirms each finding and treats its fix as a hint');
   ok(!flat(rework.prompt('develop block-a r1')).includes("A review is another agent's claim."), 'round 1, which answers no review, carries no such rule');
   // A refuted finding would otherwise be re-dropped against the contested-dismissal bullet and logged against the risk-gap note.
   ok(flat(rework.prompt('develop block-a r2')).includes(`${REVIEW_CLAIMS} A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log`),
-    'the risk-gap rule the claim check defers to follows it');
+    'the risk-gap rule follows the claim check');
+  ok(!flat(rework.prompt('develop block-a r2')).includes('follows its own rule below'), 'the review rework states the risk-gap rule once, in its own sentence');
   const closing = await run({ develop: (label) => (label.startsWith('develop-closing') ? { ...DEV_OK, review_needed: false, recorded_entries: [] } : DEV_OK),
     quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS) }, { ...ONE_BLOCK, maxRounds: 1 });
   ok(flat(closing.prompt('develop-closing block-a')).includes(`your work list. Route each item through the DECISION MATRIX below. ${REVIEW_CLAIMS} Where the matrix says FIX`),
     'the closing pass confirms the last review\'s findings the same way');
+  ok(!flat(closing.prompt('develop-closing block-a')).includes('follows its own rule below'), 'the closing pass states the risk-gap rule once, in its own sentence');
   const fixRework = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: firstRound(FLAGGED, CLEAN), acceptance: FIX_PASS }, FIX_ONE);
   const fixR1 = flat(fixRework.prompt('develop fix-a r1'));
   ok(flat(fixRework.prompt('develop fix-a r2')).includes(REVIEW_CLAIMS), 'a fix round that answers a review carries the rule too');

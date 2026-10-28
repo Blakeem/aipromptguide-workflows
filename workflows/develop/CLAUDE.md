@@ -671,7 +671,9 @@ temporary index file under `scratch/`, seeded with a copy of the real index, and
 prints the tree id. The real index, which holds the accepted baseline, is never written. After its answers the
 risk file holds a `## Sweep` section. For each function, constant, field, message or rule phrase the round
 changed, it lists the search the developer ran and each hit, marked `updated` or `unaffected` with a few words
-of reason, and a changed field, return value, file format or output that other code or prompts read lists
+of reason. A changed or removed rule phrase, message or name is searched by its old wording, and by its new
+wording too when other text must repeat it, since a copy that still holds the old wording matches no search
+of the new one. A changed field, return value, file format or output that other code or prompts read lists
 those readers as hits. A change that adds, removes or renames a field of an agent's return schema also lists
 as hits each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and
 "nothing else". A round that changed nothing writes no section. The blind review runs in a block's first round
@@ -694,16 +696,19 @@ last round returned no snapshot, this check has nothing to compare, and an unrev
 snapshot is already a missing file. It checks each answer in the risk file of each round since the last
 blind review or last clean risk audit against that round's hunks. It also checks the sweep of the latest of
 those rounds: each changed name or phrase in that
-round's hunks needs a line, and each hit marked `unaffected` must still agree with the change. A round whose
-hunks add, remove or rename a field of an agent's return schema also needs a line that lists each sentence
-that lists that agent's return fields. A missing file, a missing snapshot line in an audited round's file or
-in its base file, a change the file does not judge low risk, an answer the hunks contradict, a changed name or
-phrase with no sweep line, an `unaffected` hit that disagrees with the change, and a hit that acceptance finds
-by running the line's search again, that the line leaves out, and that needs a change the diff did not make or
-disagrees with the change are each a gap, and the verdict returns `risk_misclassified` true, which sends the
-next round to a blind review. Acceptance names each left-out hit it judges unaffected in its risk-audit
-result, and that hit is no gap. A verdict that returns `risk_misclassified` false drops the rounds it audited,
-so the next acceptance audits only the rounds after them.
+round's hunks needs a line, and each hit marked `unaffected` must still agree with the change.
+Acceptance also searches each changed or removed rule phrase, message or name by its old wording, and by
+its new wording too when other text must repeat it, whatever its line names. A round whose hunks add,
+remove or rename a field of an agent's return schema also needs a line that lists each sentence that
+lists that agent's return fields. A missing file, a missing snapshot line in an audited round's file or
+in its base file, a change the file does not judge low risk, an answer the hunks contradict, a changed
+name or phrase with no sweep line, an `unaffected` hit that disagrees with the change, and a hit that
+acceptance finds by running the line's search again or the old-wording search above, that the line
+leaves out, and that needs a change the diff did not make or disagrees with the change are each a gap,
+and the verdict returns `risk_misclassified` true, which sends the next round to a blind review.
+Acceptance names each left-out hit it judges unaffected in its risk-audit result, and that hit is no
+gap. A verdict that returns `risk_misclassified` false drops the rounds it audited, so the next
+acceptance audits only the rounds after them.
 
 **Closing pass.** When round `maxRounds` ends without a passed acceptance, one more developer runs,
 and no develop round follows it. It takes round number `maxRounds + 1` in its file names. It makes each
@@ -838,9 +843,11 @@ like any other (§10). Once it is `ACTIONABLE`, build its backlog file in fix mo
 round-1 developer restores the branch into the unstaged tree after the clean-baseline check, with
 `git diff --binary <branch>^1 <branch> | git apply -3` on a copy of the index (`GIT_INDEX_FILE`), so
 both reviewers judge the restored work. The 3-way apply carries the branch onto blocks that landed
-after its parent, and the copy keeps the real index unstaged, since `-3` implies `--index`. The
-developer resolves a conflict only when it confirms the resolution against the accepted baseline and
-the branch's work, and reports one it cannot confirm as `restore_failed`. It
+after its parent, and the copy keeps the real index unstaged, since `-3` implies `--index`. A clean apply
+leaves no conflict, and the developer regenerates a file the project generates from the restored files
+before the gate run, since the apply may leave it stale. The developer resolves a conflict only when it
+confirms the resolution against the accepted baseline and the branch's work, and reports one it cannot
+confirm as `restore_failed`. It
 skips a branch whose work the accepted baseline already holds (`git apply -R --check` accepts its
 diff), which a landed block that kept a FAILED entry's restored work leaves. When the block lands,
 acceptance deletes the branch, or in stage delivery `nextStep` says to delete it once the user

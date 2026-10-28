@@ -185,6 +185,12 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   it writes the fix. Acceptance checks a hunk that changes only prose with a word diff, so a rewrap
   needs no further read. A park entry lists its ledger and amended lines only for a file that may
   exist. A gate that may outlast one tool call runs through the shell tool's background option.
+- **develop's sweep searches the old wording of a changed rule.** A copy that still holds the old
+  wording matches no search of the new wording. Both the developer and acceptance now search a changed
+  or removed rule phrase, message or name by its old wording, and by its new wording too when other
+  text must repeat it.
+- **develop's restore regenerates generated files.** A clean 3-way apply no longer ends the restore.
+  The developer regenerates a file the project generates from the restored files before the gate run.
 
 ### 2026-10-27
 
