@@ -126,6 +126,40 @@ section('each review round runs the check agent, one reviewer, then the check, i
   }
 }
 
+section('each escalation heads its NEEDS-USER entry with its round and role, and nextStep names that heading');
+{
+  const { out: byDecider, byLabel } = await run({
+    research: LENS, ...rejectsThrough(1),
+    decide: (label) => (roundOf(label) === 2 ? { ...DECIDE, needs_user: true } : DECIDE),
+  }, { ...baseArgs, maxRounds: 3 });
+  const [d1, d2] = promptsOf(byLabel, 'decide');
+  ok(d1.includes(`append a full entry to ${S}/NEEDS-USER.md that opens with the line \`## r1 decider\`, and set needs_user=true`)
+    && d2.includes('that opens with the line `## r2 decider`'), 'each decider pass heads its entry with its own round');
+  ok(byDecider.nextStep.includes(`Read the new entries headed "## r2 decider" at the end of ${S}/NEEDS-USER.md`),
+    `the decider halt names the round and role of the new entries: ${byDecider.nextStep.slice(0, 200)}`);
+
+  // The second decider pass runs in round 1 after a research round, so its pass number (2) differs from its round (1).
+  const { out: byResearchPass, byLabel: passLabels } = await run({
+    research: LENS, 'research-issue': { wrote_file: true, new_evidence: true },
+    decide: (label) => (label === 'decide r1' ? { ...DECIDE, open_issue_ids: ['p99-unproven'] } : { ...DECIDE, needs_user: true }),
+  }, { ...baseArgs, maxRounds: 3 });
+  const [, p2] = promptsOf(passLabels, 'decide');
+  ok(p2.includes('that opens with the line `## r1 decider`') && !p2.includes('## r2 decider'),
+    'a decider pass 2 inside round 1 heads its entry with the round, not the pass');
+  ok(byResearchPass.nextStep.includes('headed "## r1 decider"'),
+    `the halt after a research pass names round 1: ${byResearchPass.nextStep.slice(0, 200)}`);
+
+  const { out: byReviewer, byLabel: revLabels } = await run({
+    research: LENS, decide: DECIDE, check: KEPT,
+    review: (label) => (roundOf(label) === 2 ? { ...REJECT, needs_user: true } : REJECT),
+  }, { ...baseArgs, maxRounds: 3 });
+  const [r1, r2] = promptsOf(revLabels, 'review');
+  ok(r1.includes('opening the entry with the line `## r1 reviewer`') && r2.includes('opening the entry with the line `## r2 reviewer`'),
+    'each reviewer round heads its entry with its own round');
+  ok(byReviewer.nextStep.includes(`Read the new entries headed "## r2 reviewer" at the end of ${S}/NEEDS-USER.md`),
+    `the reviewer halt names the round and role of the new entries: ${byReviewer.nextStep.slice(0, 200)}`);
+}
+
 section('the reviewer prompt is blind: in every selection and round it names no decide, research or lens path and no later stage');
 // A real pass and a mutant check: the mutant adds what the assertion forbids, so the assertion is proven to bite.
 {

@@ -382,14 +382,14 @@ PROCEDURE:
      the premise or the criteria that would open search space this run could not reach. Omit the section
      only on an evidenced exhaustion.
    For no_solution ALSO: why nothing qualifies, and the SINGLE criterion the user could relax to change
-   that. That criterion IS the WHERE NEXT premise change. Append it to ${NEEDS_USER} as well. That entry is
+   that. That criterion IS the WHERE NEXT premise change. Append it to ${NEEDS_USER} as well, opening the entry with the line \`## r${round} investigator\`. That entry is
    informational: needs_user stays false, because the critic verifies the no_solution claim itself.${round >= LAST_ROUND
       ? `\n   If you are NOT claiming termination, OPEN the file stating the search is NOT exhaustive and this
    is a PARTIAL result. Say what stopped it (the round budget, or the escalation you are about to write
    to ${NEEDS_USER}), never that nothing more is there.`
       : ''}
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
-append a full entry to ${NEEDS_USER} and set needs_user=true.
+append a full entry to ${NEEDS_USER} that opens with the line \`## r${round} investigator\`, and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
 ${WROTE_NOTE} ${FILE_WRITE_NOTE}
 Return via the schema, option_ids included.`;
@@ -491,7 +491,7 @@ fail, with the evidence you checked. Then your rulings on the new ledger lines a
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.${det ? ` Then each correction you made to ${DETERMINATION} and each defect left in it.` : ''}
 Do NOT modify any repo, stage, or commit.
-If a criteria contradiction only the user can resolve surfaces, append it to ${NEEDS_USER} and set
+If a criteria contradiction only the user can resolve surfaces, append it to ${NEEDS_USER}, opening the entry with the line \`## r${round} critic\`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
 no_solution): judge that claim through agree, and set needs_user=true only for a contradiction the claim
 does not state.
@@ -564,6 +564,7 @@ log(`investigate: searching for an answer that meets the criteria → ${OPTIONS_
 let round = PRIOR_ROUNDS;
 let haltKind = 'rounds';        // the default terminal state: the loop fell through its round budget
 let escalatedBy = '';           // 'investigator' when it escalated: its round may have answered no review yet
+let entryHeadings = '';         // when haltKind is 'needs-user': the quoted headings of the NEEDS-USER.md entries the halting round added
 let haltReason = '';
 let reviewPath = '';            // set only from a critic's attested write, so it can never name a file no
                                 // critic wrote. The return names it as the latest review.
@@ -708,12 +709,14 @@ while (round < LAST_ROUND) {
   if (inv.needs_user === true) {
     haltKind = 'needs-user';
     escalatedBy = 'investigator';
+    entryHeadings = `"## r${round} investigator"${crit?.needs_user === true ? ` and "## r${round} critic"` : ''}`;
     haltReason = `Investigator escalated a user-only call in round ${round} (see ${NEEDS_USER}).`;
     log(`  ✋ r${round}: investigator escalated → halting (see ${NEEDS_USER})`);
     break;
   }
   if (crit?.needs_user === true) {
     haltKind = 'needs-user';
+    entryHeadings = `"## r${round} critic"${invClaim === 'no_solution' ? ` and "## r${round} investigator"` : ''}`;
     haltReason = `Critic surfaced a criteria contradiction only the user can resolve in round ${round} (see ${NEEDS_USER}).`;
     log(`  ✋ r${round}: critic escalated → halting (see ${NEEDS_USER})`);
     break;
@@ -823,7 +826,7 @@ return {
   searchTrail: `${LEDGER} is the full list of what was ruled out and why (lines marked NEAR-MISS: failed exactly one criterion); ${SEARCHED} is the avenue log — which ground each round swept, with the terms used, and the most promising avenue it left unswept; options/<id>.md hold each option the investigator qualified, with its evidence (a critic-disqualified option's file stays on disk, so \`optionFiles\` lists the verified ones); acceptance-review-rN.md in ${STATE_DIR}/ shows each round the critic judged.`,
   nextStep: halted
     ? (haltKind === 'needs-user'
-      ? `Run halted — ${haltReason} Read ${NEEDS_USER}, resolve it with the user (usually by editing the criteria), then re-invoke phase:"run" with the same runId and priorRounds: ${rerunEscalated ? round - 1 : round} — the ledger means the search resumes rather than restarts.${rerunEscalated ? ` Round ${round} re-runs from its start, so its investigator re-reads any review it was handed.` : ''}`
+      ? `Run halted — ${haltReason} Read the new entries headed ${entryHeadings} at the end of ${NEEDS_USER}, resolve them with the user (usually by editing the criteria), then re-invoke phase:"run" with the same runId and priorRounds: ${rerunEscalated ? round - 1 : round} — the ledger means the search resumes rather than restarts.${rerunEscalated ? ` Round ${round} re-runs from its start, so its investigator re-reads any review it was handed.` : ''}`
       : haltKind === 'write-unattested'
         ? `Run halted — ${haltReason} Check those files, then relaunch phase:"run" as a FRESH run with the same runId, priorRounds: ${round - 1} and no resumeFromRunId: a resume replays the cached return and halts the same way. No determination is named, since no file behind it was attested.`
         : `Run stopped on budget — ${haltReason}`)

@@ -438,7 +438,7 @@ with its rationale, the why-not-others, a \`## Trade-off\` section, a \`## Flip 
 ${LEDGER(pass)}
 ${OPEN_ISSUES}
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
-full entry to ${NEEDS_USER} and set needs_user=true (the run HALTS).
+full entry to ${NEEDS_USER} that opens with the line \`## r${round} decider\`, and set needs_user=true (the run HALTS).
 Return via the schema.`;
 
 const researchPrompt = (entry, file, decFile, earlierResearch) => `
@@ -500,7 +500,7 @@ holds any, Read it and write it with no content. Then run \`node '${CHECK_TOOL}'
 writes the file's skeleton and prints the format of each section. Read the skeleton and fill in every
 section with the Write or Edit tool. ${WROTE_NOTE} ${FILE_WRITE_NOTE}
 Do NOT modify any repo, stage, or commit. If a requirement contradiction only the user can resolve
-surfaces, append it to ${NEEDS_USER} and set needs_user=true. Return via the schema once you are done.
+surfaces, append it to ${NEEDS_USER}, opening the entry with the line \`## r${round} reviewer\`, and set needs_user=true. Return via the schema once you are done.
 When the review file is complete, run \`node '${CHECK_TOOL}' '${blindFile(round)}'\` again and follow what it prints.`;
 
 // The check tool prints this once it locks the blind review. It reaches the reviewer only through that tool.
@@ -595,6 +595,7 @@ const RESEARCH_STOPS = {
   cap: `maxResearchRounds (${MAX_RESEARCH_ROUNDS}) spent`,
 };
 let haltKind = '';              // '' (not halted) | 'needs-user' | 'write-unattested' | 'review-incomplete'
+let escalatedBy = '';           // 'decider' | 'reviewer' when haltKind is 'needs-user': the role named in the heading of the new NEEDS-USER.md entries
 let review = null;              // the latest rejecting review the decider must act on: { round, blind, final, fallback }, fallback naming why the blind review stands, or ''
 let lastReviewFiles = [];       // the latest round's review files: the blind file, plus the final file when its lock matched and it was written
 const reviewRounds = [];        // [{ round, verdict, raised, withdrawn, kept, downgraded, caveats, lockMatched }] — counts only (#8)
@@ -656,7 +657,7 @@ converge: while (round < MAX_ROUNDS) {
       lastUserChecks = Number.isInteger(dec.user_checks) && dec.user_checks > 0 ? dec.user_checks : 0;
     }
     if (dec.needs_user === true) {
-      haltKind = 'needs-user'; haltReason = `Decider escalated a user-only call in round ${round} (see ${NEEDS_USER}).`;
+      haltKind = 'needs-user'; escalatedBy = 'decider'; haltReason = `Decider escalated a user-only call in round ${round} (see ${NEEDS_USER}).`;
       log(`  ✋ r${round}: decider escalated → halting (see ${NEEDS_USER})`);
       break converge;
     }
@@ -737,7 +738,7 @@ converge: while (round < MAX_ROUNDS) {
     log(`  ⚠ r${round}: no lock on ${blind}: the reviewer never ran the check${tag ? '' : ' → rerunning the reviewer once'}`);
   }
   if (rev.needs_user === true) {
-    haltKind = 'needs-user'; haltReason = `The reviewer surfaced a requirement contradiction only the user can resolve in round ${round} (see ${NEEDS_USER}).`;
+    haltKind = 'needs-user'; escalatedBy = 'reviewer'; haltReason = `The reviewer surfaced a requirement contradiction only the user can resolve in round ${round} (see ${NEEDS_USER}).`;
     log(`  ✋ r${round}: reviewer escalated → halting (see ${NEEDS_USER})`);
     break;
   }
@@ -871,7 +872,7 @@ return {
   reviewTrail: `Lens analyses in ${LENS_DIR}/, research files in ${RESEARCH_DIR}/, decisions and final reviews in ${DECIDE_DIR}/, and evidence ledgers and blind reviews in ${REVIEW_DIR}/ show every round.`,
   nextStep: (halted
     ? (haltKind === 'needs-user'
-      ? `Run halted — ${haltReason} Read ${NEEDS_USER}, resolve it with the user, then relaunch with the same args and no resumeFromRunId. ${relaunchFromStart}`
+      ? `Run halted — ${haltReason} Read the new entries headed "## r${round} ${escalatedBy}" at the end of ${NEEDS_USER}, resolve them with the user, then relaunch with the same args and no resumeFromRunId. ${relaunchFromStart}`
       : haltKind === 'review-incomplete'
       ? `Run halted — ${haltReason} Check that this project's settings allow Bash(node '${CHECK_TOOL}':*), so the reviewer can run the check unattended, then relaunch with the same args and no resumeFromRunId: a resume replays the cached returns and halts the same way. ${relaunchFromStart}`
       : `Run halted — ${haltReason} Check that file, then relaunch with the same args and no resumeFromRunId: a resume replays the cached return and halts the same way. ${relaunchFromStart}`)

@@ -335,4 +335,8 @@ inline.
   does not name, and so does a last round that escalated instead of concluding. That gap is deliberate,
   and it errs the safe way: the field never names a file nothing wrote. When a run halts, look in
   `stateDir` before assuming there is nothing there.
-- `NEEDS-USER.md` — escalations; on a verified no-solution, which criterion the user might relax.
+- `NEEDS-USER.md` — escalations; on a verified no-solution, which criterion the user might relax. It is
+  cumulative across relaunches. Each entry opens with `## r<round> investigator` or `## r<round> critic`,
+  and a needs-user `nextStep` names the heading of the new entries. A critic halt on a `no_solution` round
+  names the investigator's heading as well, since that round's investigator wrote an entry too.
+  An investigator halt names the critic's heading as well when that round's critic also escalated.

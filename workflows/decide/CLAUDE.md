@@ -86,8 +86,9 @@ No mid-run questions — settle the rubric with the user first:
   research and round files it reaches, and it leaves an earlier run's higher-numbered files in place.
   Extending finished rounds is a relaunch with `maxRounds` raised plus the Workflow tool's `resumeFromRunId`,
   which replays the finished agents from cache. Starting over takes a new runId, so the earlier run's files
-  stay intact. Never clear `runs/<runId>/`. `NEEDS-USER.md` is cumulative. Relay the return's
-  `decisionFile`, never the highest-numbered file.
+  stay intact. Never clear `runs/<runId>/`. `NEEDS-USER.md` is cumulative. Each entry opens with
+  `## r<round> decider` or `## r<round> reviewer`, and `nextStep` names the heading of the new entries.
+  Relay the return's `decisionFile`, never the highest-numbered file.
 
 ## 4. Requirements-file shape (you write it; agents read it VERBATIM, #2)
 
@@ -307,13 +308,13 @@ Three halts. The decider or the reviewer writes a user-only call to `NEEDS-USER.
 (`BLOCKED (needs user input)`), the decider, a research-round researcher, the check agent or the
 reviewer does not confirm writing its file (`BLOCKED (an agent did not confirm writing its file)`), or
 the reviewer and its rerun never run the check (`BLOCKED (the reviewer did not complete its review)`).
-For an escalation, read `NEEDS-USER.md`, resolve it with the user (usually by editing the requirements
-file), then relaunch with the same args and no `resumeFromRunId`. A `resumeFromRunId` replay sends the
-same prompts, which name the requirements file by path, so it replays the cached returns and halts the
-same way. The relaunch re-runs the run from Diverge and round 1 (§3). For an unattested write, check the
-file `haltReason` names, then relaunch the same way: a resume replays the cached return and halts the
-same way. For an incomplete review, check that `Bash(node '<checkTool>':*)` is allowlisted (§3), then
-relaunch the same way.
+For an escalation, read the entries at the end of `NEEDS-USER.md` that `nextStep` names, resolve them
+with the user (usually by editing the requirements file), then relaunch with the same args and no
+`resumeFromRunId`. A `resumeFromRunId` replay sends the same prompts, which name the requirements file by
+path, so it replays the cached returns and halts the same way. The relaunch re-runs the run from
+Diverge and round 1 (§3). For an unattested write, check the file `haltReason` names, then relaunch the
+same way: a resume replays the cached return and halts the same way. For an incomplete review, check
+that `Bash(node '<checkTool>':*)` is allowlisted (§3), then relaunch the same way.
 
 A `needs-attention` run takes one of two relaunches. After refining the requirements, relaunch with the
 same args and no `resumeFromRunId`, since a resume would never read the edit. After raising `maxRounds`,

@@ -7,27 +7,27 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | research | 1 | 1 | 2700 | reviewer accepts |
-| decide | 1 | 1 | 6487 | reviewer accepts |
+| decide | 1 | 1 | 6529 | reviewer accepts |
 | check-setup | 1 | 1 | 2793 | reviewer accepts |
-| review | 1 | 1 | 3452 | reviewer accepts |
+| review | 1 | 1 | 3503 | reviewer accepts |
 | check | 1 | 1 | 411 | reviewer accepts |
-| decide | 2 | 1 | 8615 | reject with a challenger |
+| decide | 2 | 1 | 8657 | reject with a challenger |
 | check-setup | 2 | 1 | 3319 | rejects to the round budget |
 | research-issue | 1 | 1 | 2601 | research covers the open issues |
-| decide | 3 | 1 | 7071 | research covers the open issues |
+| decide | 3 | 1 | 7113 | research covers the open issues |
 | research-issue | 2 | 1 | 2667 | research saturates |
-| decide | 4 | 1 | 7182 | research saturates |
+| decide | 4 | 1 | 7224 | research saturates |
 | research-issue | 3 | 1 | 2714 | research hits the cap |
-| decide | 5 | 1 | 7232 | research hits the cap |
+| decide | 5 | 1 | 7274 | research hits the cap |
 | research-issue | 4 | 1 | 2601 | more open issues than maxResearchers |
-| decide | 6 | 1 | 7290 | more open issues than maxResearchers |
+| decide | 6 | 1 | 7332 | more open issues than maxResearchers |
 | research-issue | 5 | 1 | 2714 | more open issues than maxResearchers |
 | research-issue | 6 | 1 | 2714 | more open issues than maxResearchers |
-| decide | 7 | 1 | 7451 | more open issues than maxResearchers |
+| decide | 7 | 1 | 7493 | more open issues than maxResearchers |
 | research-issue | 7 | 1 | 2808 | more open issues than maxResearchers |
 | research-issue | 8 | 1 | 2808 | more open issues than maxResearchers |
-| decide | 8 | 1 | 7551 | more open issues than maxResearchers |
-| decide | 9 | 1 | 6424 | one lens dies |
+| decide | 8 | 1 | 7593 | more open issues than maxResearchers |
+| decide | 9 | 1 | 6466 | one lens dies |
 
 ## research · variant 1 · schema 1
 
@@ -160,7 +160,7 @@ the check and the result that would change the answer, and never becomes an open
 decision is about what to test, these checks are part of the deliverable. Return their count in
 user_checks. An empty section says "None."
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
-full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
+full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r1 decider`, and set needs_user=true (the run HALTS).
 Return via the schema.
 ~~~~
 
@@ -306,7 +306,7 @@ holds any, Read it and write it with no content. Then run `node 'E:/flow/tools/r
 writes the file's skeleton and prints the format of each section. Read the skeleton and fill in every
 section with the Write or Edit tool. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 Do NOT modify any repo, stage, or commit. If a requirement contradiction only the user can resolve
-surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true. Return via the schema once you are done.
+surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r1 reviewer`, and set needs_user=true. Return via the schema once you are done.
 When the review file is complete, run `node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r1.md'` again and follow what it prints.
 ~~~~
 
@@ -473,7 +473,7 @@ the check and the result that would change the answer, and never becomes an open
 decision is about what to test, these checks are part of the deliverable. Return their count in
 user_checks. An empty section says "None."
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
-full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
+full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r2 decider`, and set needs_user=true (the run HALTS).
 Return via the schema.
 ~~~~
 
@@ -717,7 +717,7 @@ the check and the result that would change the answer, and never becomes an open
 decision is about what to test, these checks are part of the deliverable. Return their count in
 user_checks. An empty section says "None."
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
-full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
+full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r1 decider`, and set needs_user=true (the run HALTS).
 Return via the schema.
 ~~~~
 
@@ -907,7 +907,7 @@ the check and the result that would change the answer, and never becomes an open
 decision is about what to test, these checks are part of the deliverable. Return their count in
 user_checks. An empty section says "None."
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
-full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
+full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r1 decider`, and set needs_user=true (the run HALTS).
 Return via the schema.
 ~~~~
 
@@ -1098,7 +1098,7 @@ the check and the result that would change the answer, and never becomes an open
 decision is about what to test, these checks are part of the deliverable. Return their count in
 user_checks. An empty section says "None."
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
-full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
+full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r1 decider`, and set needs_user=true (the run HALTS).
 Return via the schema.
 ~~~~
 
@@ -1289,7 +1289,7 @@ the check and the result that would change the answer, and never becomes an open
 decision is about what to test, these checks are part of the deliverable. Return their count in
 user_checks. An empty section says "None."
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
-full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
+full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r1 decider`, and set needs_user=true (the run HALTS).
 Return via the schema.
 ~~~~
 
@@ -1535,7 +1535,7 @@ the check and the result that would change the answer, and never becomes an open
 decision is about what to test, these checks are part of the deliverable. Return their count in
 user_checks. An empty section says "None."
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
-full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
+full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r1 decider`, and set needs_user=true (the run HALTS).
 Return via the schema.
 ~~~~
 
@@ -1783,7 +1783,7 @@ the check and the result that would change the answer, and never becomes an open
 decision is about what to test, these checks are part of the deliverable. Return their count in
 user_checks. An empty section says "None."
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
-full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
+full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r1 decider`, and set needs_user=true (the run HALTS).
 Return via the schema.
 ~~~~
 
@@ -1911,7 +1911,7 @@ the check and the result that would change the answer, and never becomes an open
 decision is about what to test, these checks are part of the deliverable. Return their count in
 user_checks. An empty section says "None."
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
-full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
+full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r1 decider`, and set needs_user=true (the run HALTS).
 Return via the schema.
 ~~~~
 
