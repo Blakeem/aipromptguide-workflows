@@ -29,6 +29,7 @@ flowchart TD
   x10[/"throw: args.target.repo is required when any args.scope path is relative"/]
   x11[/"throw: args.lenses is required"/]
   x12[/"throw: lens ids collide after slugging"/]
+  x13[/"throw: A user request was relayed into the context of the finder for ... ahead of its task"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -48,6 +49,7 @@ flowchart TD
   a1 --> t4
   a1 --> t5
   a1 --> t6
+  a1 --> x13
   a2 --> t1
 ```
 
@@ -80,7 +82,8 @@ flowchart TD
 | throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 157) |
 | throw: args.lenses is required | args.lenses is empty | throw (line 167) |
 | throw: lens ids collide after slugging | two lenses slug to one id | throw (line 171) |
+| throw: A user request was relayed into the context of the finder for ... ahead of its task | a finder reports a user request relayed into its context, so no verifier runs | throw (line 488) |
 
 ## Coverage
 
-19 scenarios · 2/2 roles · 12/12 throw sites · 0/0 halt statuses · 18 terminal states.
+20 scenarios · 2/2 roles · 13/13 throw sites · 0/0 halt statuses · 19 terminal states.

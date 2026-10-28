@@ -236,10 +236,12 @@ const findingId = (unit, n, tag = '') => `${slug(unit.id)}-${tag}${n}`;
 // =============================================================================
 // Structured-output schemas — DECISIONS ONLY (control plane). All prose/content lives in files.
 // =============================================================================
+const RELAYED_REQUEST = { type: 'boolean', description: 'true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent.' };
 const REVIEW_SCHEMA = {
   type: 'object',
-  required: ['finding_count', 'wrote_file', 'wrote_clean_marker'],
+  required: ['finding_count', 'wrote_file', 'wrote_clean_marker', 'relayed_request'],
   properties: {
+    relayed_request: RELAYED_REQUEST,
     finding_count: { type: 'integer', minimum: 0, description: 'the number of finding entries in your review file, 0 when you report none' },
     wrote_file: { type: 'boolean', description: 'true ONLY if you wrote your review file, false when you report no finding' },
     wrote_clean_marker: { type: 'boolean', description: 'true ONLY if you wrote the clean-unit marker file, false whenever you report any finding' },
@@ -522,6 +524,8 @@ for (const u of units) {
 }
 // Dead reviewers and verifiers, so lost coverage is in the return and never reads as a clean unit (#15).
 const failed = [];
+// The units whose reviewer reported a relayed user request. The first one stops every later lens pass and verifier.
+const relayedWhere = [];
 const totalReviewers = units.reduce((s, u) => s + lensesOf(u).length, 0);
 const lensedUnits = units.filter((u) => u && u.lens).length;
 log(`review: ${units.length} unit(s) → ${ISSUES_DIR} [floor=${REVIEW_SEV_NAME}, changePolicy=${CHANGE_POLICY}, ${totalReviewers} reviewer(s)${A.lens ? `, default lens x${asList(A.lens).length}` : ''}${lensedUnits ? `, ${lensedUnits} unit lens override(s)` : ''}]`);
@@ -540,6 +544,7 @@ const results = await pipeline(
     let markerWritten = false;
     let lensDied = false;
     for (let p = 0; p < lenses.length; p++) {
+      if (relayedWhere.length) break;
       const lens = lenses[p];
       const where = `${unit.id}${lenses.length > 1 ? `/${lens.id}` : ''}`;
       // Only the FINAL lens, with no prior finding and no dead sibling, may write the clean marker: an
@@ -559,6 +564,10 @@ const results = await pipeline(
         lensDied = true;
         failed.push({ id: unit.id, stage: 'review', lens: lens.id });
         continue;
+      }
+      if (rev.relayed_request === true) {
+        relayedWhere.push(where);
+        break;
       }
       // A count with no confirmed file hands the verifier nothing, or an earlier launch's file at that path.
       // A confirmed file with a zero count holds findings that no verifier would be handed.
@@ -584,6 +593,7 @@ const results = await pipeline(
   // -- Verify + write the unit inventory file — ONLY when the unit has findings -------------------
   async (r) => {
     const { unit, sources, total, markerWritten, lensDied } = r;
+    if (relayedWhere.length) return null;
     const ids = sources.flatMap((s) => Array.from({ length: s.count }, (_, i) => findingId(unit, i + 1, s.tag)));
     // Clean unit: no findings ⇒ NO verify spawn. The reviewer already wrote issues/<unit>.md itself.
     if (total === 0) {
@@ -635,6 +645,9 @@ const results = await pipeline(
   },
 );
 
+if (relayedWhere.length) {
+  throw new Error(`A user request was relayed into the context of the reviewer for ${relayedWhere.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.`);
+}
 const processed = results.filter(Boolean);
 const all = processed.flatMap((r) => r.kept);
 const sum = (pred) => all.filter(pred).length;

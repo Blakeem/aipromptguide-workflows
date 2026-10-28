@@ -409,6 +409,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -430,6 +431,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -1204,6 +1209,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -1225,6 +1231,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -1973,6 +1983,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -2020,6 +2031,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -2748,6 +2763,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -2769,6 +2785,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -3386,6 +3406,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -3407,6 +3428,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -4023,6 +4048,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -4044,6 +4070,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -4661,6 +4691,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -4682,6 +4713,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -5817,6 +5852,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -5838,6 +5874,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -6237,6 +6277,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -6259,6 +6300,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -7193,6 +7238,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -7214,6 +7260,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -7617,6 +7667,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -7639,6 +7690,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -9005,6 +9060,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -9027,6 +9083,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -9740,6 +9800,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -9761,6 +9822,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -10374,6 +10439,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -10395,6 +10461,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -11713,6 +11783,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -11735,6 +11806,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -12650,6 +12725,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -12674,6 +12750,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -13610,6 +13690,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -13660,6 +13741,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -14829,6 +14914,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -14879,6 +14965,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -15744,6 +15834,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -15768,6 +15859,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -16997,6 +17092,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -17021,6 +17117,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -20041,6 +20141,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
     "launch_number",
@@ -20063,6 +20164,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -22188,6 +22293,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_staged_files",
     "baseline_index_tree",
@@ -22210,6 +22316,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -23026,6 +23136,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_staged_files",
     "baseline_index_tree",
@@ -23048,6 +23159,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -23874,6 +23989,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "type": "object",
   "required": [
     "plan_obtained",
+    "relayed_request",
     "baseline_dirty_files",
     "baseline_staged_files",
     "baseline_index_tree",
@@ -23899,6 +24015,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     },
     "baseline_dirty_files": {
       "type": "integer",

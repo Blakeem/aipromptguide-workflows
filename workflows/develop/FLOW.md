@@ -42,6 +42,7 @@ flowchart TD
   t23(["BLOCKED (the index held staged work - nothing was built)"])
   t24(["BLOCKED (a block passed but its commit did not land as asked)"])
   t25(["BLOCKED (acceptance failed a block but staged or committed it)"])
+  t26(["BLOCKED (a user request was relayed into the developer, so the run was launched inside a user turn - nothing was reviewed)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries"/]
   x3[/"throw: args must include at least { runId, root, target, gates, backlogDir, blockTool, plans:[{id, planPath, mode, gate, status}] }"/]
@@ -140,6 +141,7 @@ flowchart TD
   a1 --> t16
   a1 --> t21
   a1 --> t23
+  a1 --> t26
   a2 -.->|"the block gate is never green · +1 more (×2)"| a3
   a2 -.->|"a block parks and ordered is false · +6 more (×2)"| a4
   a3 -.->|"the blind review finds defects · +1 more (×2)"| a1
@@ -228,6 +230,7 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | BLOCKED (the index held staged work - nothing was built) | commit is true and files were staged before round 1 | derived |
 | BLOCKED (a block passed but its commit did not land as asked) | acceptance passes but its commit does not land as asked | derived |
 | BLOCKED (acceptance failed a block but staged or committed it) | acceptance fails a block but reports a commit | derived |
+| BLOCKED (a user request was relayed into the developer, so the run was launched inside a user turn - nothing was reviewed) | the round-1 developer reports a user request relayed into its context | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 23) |
 | throw: args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries | the plan-edit.mjs args object is nested under plans | throw (line 28) |
 | throw: args must include at least { runId, root, target, gates, backlogDir, blockTool, plans:[{id, planPath, mode, gate, status}] } | a plans array arrives with no runId | throw (line 31) |
@@ -267,11 +270,11 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | throw: plan title(s) [...] are not one line of text | commit is true and a block title spans two lines | throw (line 353) |
 | throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 372) |
 | throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 383) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 2243) |
-| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 2254) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 2261) |
-| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 2269) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 2245) |
+| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 2256) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 2263) |
+| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 2271) |
 
 ## Coverage
 
-95 scenarios · 6/6 roles · 43/43 throw sites · 18/18 halt statuses · 68 terminal states.
+96 scenarios · 6/6 roles · 43/43 throw sites · 19/19 halt statuses · 69 terminal states.

@@ -19,6 +19,7 @@ flowchart TD
   t6(["BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere)"])
   t7(["BLOCKED (the folded plan file no longer parses - every later consumer reads it)"])
   t8(["BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file)"])
+  t9(["BLOCKED (the run was launched inside a user turn, so the harness relayed that message to every agent)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args must include at least { runId, root, planPath, blockTool, target:{repo} }"/]
   x3[/"throw: args.root is required"/]
@@ -53,6 +54,7 @@ flowchart TD
   a1 --> t1
   a1 --> t2
   a1 --> t5
+  a1 --> t9
   a1 --> x15
   a2 -.->|"a fold, then a clean round · gaps remain at the round budget (×4)"| a1
   a2 --> t3
@@ -66,7 +68,7 @@ flowchart TD
 
 | Phase | What happens |
 |---|---|
-| Critique | A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-&lt;round&gt;.md every round (gaps with file:line evidence, questions, and an FYI section only in a round with no gaps and no questions, or "No gaps." in a round with nothing) and returns counts plus a wrote_file attestation, nothing else. |
+| Critique | A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-&lt;round&gt;.md every round (gaps with file:line evidence, questions, and an FYI section only in a round with no gaps and no questions, or "No gaps." in a round with nothing) and returns counts plus a wrote_file attestation and a relayed_request flag, nothing else. |
 | Fold | Runs only when the round returned at-or-above-floor gaps and no questions. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, and re-runs the plan-block tool to prove the file still parses. |
 
 ## Terminal states
@@ -81,6 +83,7 @@ flowchart TD
 | BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere) | the editor reports folds it did not write | derived |
 | BLOCKED (the folded plan file no longer parses - every later consumer reads it) | the plan file stops parsing after the fold | derived |
 | BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file) | the plan editor dies | derived |
+| BLOCKED (the run was launched inside a user turn, so the harness relayed that message to every agent) | the plan critic reports a user request relayed into its context | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 29) |
 | throw: args must include at least { runId, root, planPath, blockTool, target:{repo} } | args.runId is missing | throw (line 32) |
 | throw: args.root is required | args.root is missing | throw (line 37) |
@@ -95,8 +98,8 @@ flowchart TD
 | throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 137) |
 | throw: Missing args.blockTool | blockTool is missing or blank | throw (line 154) |
 | throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 182) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 412) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 414) |
 
 ## Coverage
 
-26 scenarios · 2/2 roles · 15/15 throw sites · 8/8 halt statuses · 23 terminal states.
+27 scenarios · 2/2 roles · 15/15 throw sites · 9/9 halt statuses · 24 terminal states.

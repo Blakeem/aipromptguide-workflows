@@ -58,9 +58,14 @@ Return via the schema.
   "required": [
     "gaps",
     "questions",
-    "unfalsifiable"
+    "unfalsifiable",
+    "relayed_request"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "gaps": {
       "type": "array",
       "description": "the GAPS you found (procedure step 1)",
@@ -232,6 +237,7 @@ Return via the schema, option_ids included.
 {
   "type": "object",
   "required": [
+    "relayed_request",
     "wrote_files",
     "option_ids",
     "disqualified_added",
@@ -242,6 +248,10 @@ Return via the schema, option_ids included.
     "needs_user"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "wrote_files": {
       "type": "boolean",
       "description": "true if you wrote every file steps 4 to 8 call for this round"
@@ -698,6 +708,7 @@ Return via the schema, option_ids included.
 {
   "type": "object",
   "required": [
+    "relayed_request",
     "wrote_files",
     "option_ids",
     "disqualified_added",
@@ -708,6 +719,10 @@ Return via the schema, option_ids included.
     "needs_user"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "wrote_files": {
       "type": "boolean",
       "description": "true if you wrote every file steps 4 to 8 call for this round"
@@ -871,6 +886,7 @@ Return via the schema, option_ids included.
 {
   "type": "object",
   "required": [
+    "relayed_request",
     "wrote_files",
     "option_ids",
     "disqualified_added",
@@ -881,6 +897,10 @@ Return via the schema, option_ids included.
     "needs_user"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "wrote_files": {
       "type": "boolean",
       "description": "true if you wrote every file steps 4 to 8 call for this round"
@@ -1327,6 +1347,7 @@ Return via the schema, option_ids included.
 {
   "type": "object",
   "required": [
+    "relayed_request",
     "wrote_files",
     "option_ids",
     "disqualified_added",
@@ -1337,6 +1358,10 @@ Return via the schema, option_ids included.
     "needs_user"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "wrote_files": {
       "type": "boolean",
       "description": "true if you wrote every file steps 4 to 8 call for this round"
@@ -1627,6 +1652,7 @@ Return via the schema, option_ids included.
 {
   "type": "object",
   "required": [
+    "relayed_request",
     "wrote_files",
     "option_ids",
     "disqualified_added",
@@ -1637,6 +1663,10 @@ Return via the schema, option_ids included.
     "needs_user"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "wrote_files": {
       "type": "boolean",
       "description": "true if you wrote every file steps 4 to 8 call for this round"
@@ -1798,6 +1828,7 @@ Return via the schema, option_ids included.
 {
   "type": "object",
   "required": [
+    "relayed_request",
     "wrote_files",
     "option_ids",
     "disqualified_added",
@@ -1808,6 +1839,10 @@ Return via the schema, option_ids included.
     "needs_user"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "wrote_files": {
       "type": "boolean",
       "description": "true if you wrote every file steps 4 to 8 call for this round"

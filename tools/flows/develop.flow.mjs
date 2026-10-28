@@ -605,5 +605,13 @@ export default {
       args: COMMIT_BASE,
       respond: { ...COMMIT_RUN, acceptance: { ...ACC_FAIL, committed: true, commit_sha: SHAS['block-a'], commit_subject: 'block-a', tree_clean: true }, park: PARK_OK },
     },
+    // A run launched inside a user turn relays that message to every agent, and the first agent says so.
+    {
+      // Halts without a park, like the dirty baseline: the park agent would read the same relayed message.
+      name: 'a user request is relayed',
+      when: 'the round-1 developer reports a user request relayed into its context',
+      args: base,
+      respond: { develop: { ...DEV_OK, relayed_request: true }, park: PARK_OK },
+    },
   ],
 };

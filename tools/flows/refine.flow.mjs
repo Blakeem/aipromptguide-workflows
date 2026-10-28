@@ -151,5 +151,12 @@ export default {
       args: base,
       respond: { 'plan-critic': null },
     },
+    // A run launched inside a user turn relays that message to every agent, and the first agent says so.
+    {
+      name: 'a user request is relayed',
+      when: 'the plan critic reports a user request relayed into its context',
+      args: base,
+      respond: { 'plan-critic': { ...GAPS, relayed_request: true } },
+    },
   ],
 };

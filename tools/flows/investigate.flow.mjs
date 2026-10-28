@@ -5,7 +5,7 @@
 // Coverage aimed at here: all eight terminal states (they are eight different FACTS — folding any pair is
 // how a stopped search gets reported as a finished one), the critic gate in BOTH directions (skipped over
 // a later round with no option or flag to check, forced open on the last round because a determination is due and on
-// a run's first round), a contested claim of EACH kind buying another round, and each of the fourteen throw sites.
+// a run's first round), a contested claim of EACH kind buying another round, and each of the fifteen throw sites.
 
 const base = {
   runId: 'flow',
@@ -201,5 +201,8 @@ export default {
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'no planPath', when: 'args carry no planPath', args: { runId: 'flow', root: 'E:/flow' } },
     { name: 'no priorRounds', when: 'phase:"run" without priorRounds', args: { runId: 'flow', root: 'E:/flow', planPath: base.planPath } },
+    // A run launched inside a user turn relays that message to every agent, and the first agent says so.
+    { name: 'a user request is relayed to the criteria critic', when: 'phase:"refine" and the criteria critic reports a user request relayed into its context', args: { ...base, phase: 'refine' }, respond: { 'criteria-critic': { gaps: [], questions: [], unfalsifiable: [], relayed_request: true } } },
+    { name: 'a user request is relayed to the investigator', when: 'the investigator reports a user request relayed into its context', args: base, respond: { investigate: { ...INV, relayed_request: true } } },
   ],
 };

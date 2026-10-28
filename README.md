@@ -164,6 +164,12 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-27
 
+- **Every engine halts on a run launched inside a user turn.** The Workflow runtime copies the user
+  message of the launching turn into every agent. The first agent of each engine now says whether its
+  context holds such a message, and the engine halts before any later agent when it does. The halt
+  message names the root `CLAUDE.md` rule "Launch from a notification turn". A notification that arrives
+  inside a tool result does not start a new turn, so end the turn after starting the pre-launch command.
+  develop and refine report the halt as `relayed-request`, and the other engines throw.
 - **decide's final reviewer judges blind first.** One final reviewer per round replaces the three
   focused reviewers and the verifier. It scores every candidate from an evidence ledger, which holds the
   sourced facts and no score or reasoning. Then `tools/review-check.mjs` locks that review and shows

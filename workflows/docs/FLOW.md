@@ -25,8 +25,9 @@ flowchart TD
   x9[/"throw: Provide the brief"/]
   x10[/"throw: args.sources is required"/]
   x11[/"throw: source ids collide after slugging"/]
-  x12[/"throw: Every source reported zero doc files"/]
-  x13[/"throw: Curator returned nothing in round ..."/]
+  x12[/"throw: A user request was relayed into the context of the gatherer for ... ahead of its task"/]
+  x13[/"throw: Every source reported zero doc files"/]
+  x14[/"throw: Curator returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -42,11 +43,12 @@ flowchart TD
   a1 --> a2
   a1 --> a3
   a1 --> x12
+  a1 --> x13
   a2 --> a3
-  a3 -.->|"the curator returns a gap the next round fills · +2 more (×2)"| a1
+  a3 -.->|"the curator returns a gap the next round fills · +3 more (×2)"| a1
   a3 --> t1
   a3 --> t2
-  a3 --> x13
+  a3 --> x14
 ```
 
 ## Phases
@@ -74,9 +76,10 @@ flowchart TD
 | throw: Provide the brief | neither brief nor planPath | throw (line 130) |
 | throw: args.sources is required | args.sources is empty | throw (line 143) |
 | throw: source ids collide after slugging | two sources slug to one directory | throw (line 147) |
-| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 427) |
-| throw: Curator returned nothing in round ... | the curator dies | throw (line 455) |
+| throw: A user request was relayed into the context of the gatherer for ... ahead of its task | a gatherer reports a user request relayed into its context, so the scrubbers and the curator never run · the gap-fill gatherer reports a user request relayed into its context | throw (line 392) |
+| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 440) |
+| throw: Curator returned nothing in round ... | the curator dies | throw (line 471) |
 
 ## Coverage
 
-21 scenarios · 3/3 roles · 13/13 throw sites · 0/0 halt statuses · 15 terminal states.
+23 scenarios · 3/3 roles · 14/14 throw sites · 0/0 halt statuses · 16 terminal states.

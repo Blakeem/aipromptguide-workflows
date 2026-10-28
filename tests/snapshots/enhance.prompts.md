@@ -114,7 +114,8 @@ Return the ids and the two flags via the schema. A clean lens is a normal, good 
   "required": [
     "candidate_ids",
     "wrote_candidates",
-    "wrote_clean_marker"
+    "wrote_clean_marker",
+    "relayed_request"
   ],
   "properties": {
     "candidate_ids": {
@@ -131,6 +132,10 @@ Return the ids and the two flags via the schema. A clean lens is a normal, good 
     "wrote_clean_marker": {
       "type": "boolean",
       "description": "true ONLY if you wrote the clean-lens marker file, false whenever you report any candidate"
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     }
   }
 }
@@ -240,7 +245,8 @@ Return the ids and the two flags via the schema. A clean lens is a normal, good 
   "required": [
     "candidate_ids",
     "wrote_candidates",
-    "wrote_clean_marker"
+    "wrote_clean_marker",
+    "relayed_request"
   ],
   "properties": {
     "candidate_ids": {
@@ -257,6 +263,10 @@ Return the ids and the two flags via the schema. A clean lens is a normal, good 
     "wrote_clean_marker": {
       "type": "boolean",
       "description": "true ONLY if you wrote the clean-lens marker file, false whenever you report any candidate"
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     }
   }
 }

@@ -49,9 +49,14 @@ Return files_written + skipped via the schema.
 {
   "type": "object",
   "required": [
-    "files_written"
+    "files_written",
+    "relayed_request"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "files_written": {
       "type": "integer",
       "description": "doc files you created under the directories you were given"
@@ -106,9 +111,14 @@ Return files_written + skipped via the schema.
 {
   "type": "object",
   "required": [
-    "files_written"
+    "files_written",
+    "relayed_request"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "files_written": {
       "type": "integer",
       "description": "doc files you created under the directories you were given"
@@ -361,9 +371,14 @@ Return files_written + skipped via the schema, summed over every gap, and missin
 {
   "type": "object",
   "required": [
-    "files_written"
+    "files_written",
+    "relayed_request"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "files_written": {
       "type": "integer",
       "description": "doc files you created under the directories you were given"
@@ -577,9 +592,14 @@ Return files_written + skipped via the schema.
 {
   "type": "object",
   "required": [
-    "files_written"
+    "files_written",
+    "relayed_request"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "files_written": {
       "type": "integer",
       "description": "doc files you created under the directories you were given"

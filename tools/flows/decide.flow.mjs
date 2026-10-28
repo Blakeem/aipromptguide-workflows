@@ -219,5 +219,7 @@ export default {
     { name: 'no checkTool', when: 'args carry no checkTool', args: { runId: 'flow', root: 'E:/flow', planPath: 'E:/flow/plans/flow/requirements.md' } },
     { name: 'one lens only', when: 'fewer than two lenses', args: { ...base, lenses: ['efficiency'] } },
     { name: 'colliding lens ids', when: 'two lenses slug to one file', args: { ...base, lenses: ['Fast path', 'fast-path'] } },
+    // A run launched inside a user turn relays that message to every agent, and the first agent says so.
+    { name: 'a user request is relayed', when: 'a lens researcher reports a user request relayed into its context', args: base, respond: { research: { ...LENS, relayed_request: true } } },
   ],
 };

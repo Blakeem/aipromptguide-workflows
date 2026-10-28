@@ -147,10 +147,12 @@ const SOURCES = (Array.isArray(A.sources) ? A.sources : A.sources ? [A.sources] 
 const CONFIDENCE = ['high', 'medium', 'low', 'none'];
 const CLAIMS = ['none', 'exhausted', 'no_solution', 'saturated'];
 
+const RELAYED_REQUEST = { type: 'boolean', description: 'true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent.' };
 const INVESTIGATE_SCHEMA = {
   type: 'object',
-  required: ['wrote_files', 'option_ids', 'disqualified_added', 'flagged', 'rediscovered', 'next_avenue_confidence', 'claim', 'needs_user'],
+  required: ['relayed_request', 'wrote_files', 'option_ids', 'disqualified_added', 'flagged', 'rediscovered', 'next_avenue_confidence', 'claim', 'needs_user'],
   properties: {
+    relayed_request:    RELAYED_REQUEST,
     wrote_files:        { type: 'boolean', description: 'true if you wrote every file steps 4 to 8 call for this round' },
     option_ids:         { type: 'array', items: { type: 'string' }, description: 'the ids of the options you wrote to options/ THIS round, re-proposals included (file names, not content). [] is a legitimate round' },
     disqualified_added: { type: 'integer', description: 'candidates you appended to the DISQUALIFIED ledger this round' },
@@ -180,8 +182,9 @@ const CRITIQUE_SCHEMA = {
 
 const CRITERIA_SCHEMA = {
   type: 'object',
-  required: ['gaps', 'questions', 'unfalsifiable'],
+  required: ['gaps', 'questions', 'unfalsifiable', 'relayed_request'],
   properties: {
+    relayed_request: RELAYED_REQUEST,
     gaps: {
       type: 'array',
       description: 'the GAPS you found (procedure step 1)',
@@ -222,6 +225,13 @@ const CRITERIA_SCHEMA = {
     },
     notes: { type: 'string' },
   },
+};
+
+// A run launched inside a user turn relays that message to every agent, so the first agent of the launch stops it.
+const haltIfRelayed = (role, relayed) => {
+  if (relayed === true) {
+    throw new Error(`A user request was relayed into the context of the ${role} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.`);
+  }
 };
 
 // A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite
@@ -509,6 +519,7 @@ if (PHASE === 'refine') {
     schema: CRITERIA_SCHEMA, phase: 'Refine', label: 'criteria-critic',
   }));
   if (!critique) throw new Error('Criteria critic returned nothing (agent skipped or died) — that is NOT a clean bill of health for the criteria. Re-invoke with the same args (same runId); pass the Workflow tool\'s resumeFromRunId to replay completed agents from cache.');
+  haltIfRelayed('criteria critic', critique.relayed_request);
   const gaps = Array.isArray(critique.gaps) ? critique.gaps : [];
   const questions = Array.isArray(critique.questions) ? critique.questions : [];
   const unfalsifiable = Array.isArray(critique.unfalsifiable) ? critique.unfalsifiable : [];
@@ -590,6 +601,7 @@ while (round < LAST_ROUND) {
   // A dead investigator must NEVER read as "found nothing, swept everything" — that is exactly the shape
   // of an exhausted search, and it would be reported as a proof of absence.
   if (!inv) throw new Error(`Investigator returned nothing in round ${round} (agent skipped or died) — that is NOT an exhausted search. Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
+  haltIfRelayed('investigator', inv.relayed_request);
   const ids = [...new Set(idList(inv.option_ids))];
   const added = ids.length;
   const invDisq = toCount(inv.disqualified_added);

@@ -506,9 +506,10 @@ function gateOk(gate, dev) {
 // =============================================================================
 // A fix worker returns per-issue `results`, from which the engine derives whether a round closed anything,
 // so a round that only SKIPPED entries cannot claim work it never did. `closing` marks the closing pass.
+const RELAYED_REQUEST = { type: 'boolean', description: 'true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent.' };
 const developSchema = (mode, closing) => ({
   type: 'object',
-  required: ['plan_obtained', 'baseline_dirty_files', ...(COMMIT ? ['baseline_staged_files'] : []), 'baseline_index_tree', 'launch_number', 'earlier_files', ...(mode === 'fix' ? ['results', 'restore_failed', 'restored_branches'] : []), 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments', 'dismissed_count', 'backlog_entries', 'backlog_blocks', 'review_needed', 'risk_snapshot', ...(closing ? ['recorded_entries'] : []), ...(PROACTIVE ? ['pulled_results'] : [])],
+  required: ['plan_obtained', 'relayed_request', 'baseline_dirty_files', ...(COMMIT ? ['baseline_staged_files'] : []), 'baseline_index_tree', 'launch_number', 'earlier_files', ...(mode === 'fix' ? ['results', 'restore_failed', 'restored_branches'] : []), 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments', 'dismissed_count', 'backlog_entries', 'backlog_blocks', 'review_needed', 'risk_snapshot', ...(closing ? ['recorded_entries'] : []), ...(PROACTIVE ? ['pulled_results'] : [])],
   properties: {
     // Proactive only: the statuses of the backlog entries round 1 took beside the block, in the shape of fix results.
     ...(PROACTIVE ? {
@@ -526,6 +527,7 @@ const developSchema = (mode, closing) => ({
       },
     } : {}),
     plan_obtained:     { type: 'boolean', description: 'true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run.' },
+    relayed_request:   RELAYED_REQUEST,
     baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds.' },
     // Commit mode only: acceptance's commit would carry anything staged, which no reviewer reads.
     ...(COMMIT ? {
@@ -2824,8 +2826,8 @@ for (const p of pending) {
   // The backlog entries the closing pass listed (null when its list was unusable), for the park record.
   let closingRecorded = [];
   let accepted = false;
-  // `escalated` distinguishes the halts that leave real work in the tree (park it) from a round-1 baseline
-  // halt (dirty-baseline, staged-baseline), which changed nothing. That work is the OPERATOR's: never park it.
+  // `escalated` marks the halts that park their work. A halt that sets none skips the park: a round-1 baseline
+  // halt (dirty-baseline, staged-baseline) changed nothing, and relayed-request may leave developer changes.
   let escalated = false;
   // The escalation's kind when it parks without halting the run (needs-user in an unordered run).
   let parkKind = '';
@@ -2873,6 +2875,19 @@ for (const p of pending) {
     recordBacklog(p, round, 'developer', dev.backlog_entries, dev.backlog_blocks);
     // Recorded before every halt below too, since a developer that halts may already have marked its pulled entries.
     pulled.record(dev);
+
+    // ---- PRECONDITION: no user request was relayed into the developer's context ----------------------
+    // A run launched inside a user turn relays that message to every agent, the blind reviewer included. It
+    // halts without a park, since the park agent would read the same message. The developer may have
+    // changed the tree, and this run never reviewed that work.
+    if (dev.relayed_request === true) {
+      halted = true;
+      rec.status = 'BLOCKED (relayed request)';
+      haltKind = 'relayed-request';
+      haltReason = `Developer for block ${p.id} held a user request that the harness relayed ahead of its task (${roundName(round)}). The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent, so no agent of this launch can be trusted. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says. The developer may have changed ${REPO} before it returned, and this run did not review or park that work. Inspect \`git -C ${REPO} status --porcelain\` and set any change aside as the develop guide's section 4 steps for a dirty run worktree say, since the relaunch halts on a dirty baseline otherwise. This run recorded the block as \`blocked\`. Once the tree is settled, run \`plan-edit.mjs args\` (it applies that status), set this block's \`status:\` back to \`todo\`, run \`plan-edit.mjs args\` again, and relaunch with those args.`;
+      logLine(`  ✋ ${p.id} r${round}: the developer's context held a relayed user request, so the run was launched inside a user turn → halting before any review agent (relaunch from a notification turn)`);
+      break;
+    }
 
     // ---- PRECONDITION (round 1 of every block): the unstaged tree must have been CLEAN --------------
     // Reviewers scope on the unstaged diff, so pre-existing work would be judged as this block's. Checked
@@ -3524,7 +3539,7 @@ const handBranchLine = (r) => {
 const unreportedSupersededPlans = parkedPlans.filter((r) => r.unreportedSuperseded?.length);
 // Selected blocks that ended neither done nor parked: a fix block that closed no issue (no-changes) or whose
 // unfinished branch did not apply, or a block stopped by a halt that never parks (dirty-baseline,
-// staged-baseline, passed-unstaged).
+// staged-baseline, passed-unstaged, relayed-request).
 const blockedPlans = ledger.filter((r) => !doneIds.includes(r.id) && !parkedPlans.includes(r));
 // Only a park agent that returned releases the pulled line of an entry a PULLED file lists that no report or verdict
 // names, so every other finished block, a dead park included, leaves such a line for the operator.
@@ -3562,6 +3577,7 @@ const HALT_STATUS = {
   'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
   'staged-baseline': 'BLOCKED (the index held staged work - nothing was built)',
   'plan-unreadable': 'BLOCKED (an agent could not obtain its plan — nothing was built from a guess)',
+  'relayed-request': 'BLOCKED (a user request was relayed into the developer, so the run was launched inside a user turn — nothing was reviewed)',
   'no-changes':      'halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there)',
   'restore-failed':  'halted (a fix block could not restore an unfinished branch, and the ordered run stopped there)',
   'agent-dead':      'BLOCKED (an agent returned nothing - it was skipped or died; its work is parked)',

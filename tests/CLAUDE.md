@@ -211,7 +211,8 @@ against (halt); an unreachable feature does not (flag).
   refine's or develop's `conventionFilesOf` differs from debug's, so change all three together. `notes.test.mjs` fails when
   an engine's exit-survey instruction differs from the test's copy, or when an engine calls `agent(`
   anywhere but inside its `callAgent`, so route every new call site through `callAgent` and change all
-  eight instructions together.
+  eight instructions together. `relay-guard.test.mjs` fails when an engine's `RELAYED_REQUEST` line
+  differs from develop's, so change all eight together.
 - **WHY comments.** A one or two line comment stating a constraint the code cannot show is the house
   style. A long one, a history note or a restated guide is a #13 finding, not a defect: it belongs to an
   enhance conciseness pass, never to debug.

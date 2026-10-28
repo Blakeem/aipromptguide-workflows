@@ -47,7 +47,8 @@ Return the entry path + a ONE-LINE differentiator via the schema.
   "type": "object",
   "required": [
     "entry",
-    "summary"
+    "summary",
+    "relayed_request"
   ],
   "properties": {
     "entry": {
@@ -57,6 +58,10 @@ Return the entry path + a ONE-LINE differentiator via the schema.
     "summary": {
       "type": "string",
       "description": "ONE line: what makes THIS variation distinct (for the user's comparison index, NOT the content)"
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     }
   }
 }
@@ -100,7 +105,8 @@ Return the entry path + a ONE-LINE differentiator via the schema.
   "type": "object",
   "required": [
     "entry",
-    "summary"
+    "summary",
+    "relayed_request"
   ],
   "properties": {
     "entry": {
@@ -110,6 +116,10 @@ Return the entry path + a ONE-LINE differentiator via the schema.
     "summary": {
       "type": "string",
       "description": "ONE line: what makes THIS variation distinct (for the user's comparison index, NOT the content)"
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     }
   }
 }

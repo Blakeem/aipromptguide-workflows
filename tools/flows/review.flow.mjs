@@ -93,7 +93,7 @@ export default {
       terminal: 'inventory written (both lenses merged behind one verifier)',
     },
 
-    // ---- the fifteen throw sites, in the order the engine checks them ------------------------------
+    // ---- the sixteen throw sites, in the order the engine checks them ------------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
@@ -115,5 +115,7 @@ export default {
     { name: 'no units', when: 'args.units is empty', args: { ...base, units: [] } },
     { name: 'issue-file collision', when: 'two unit ids map to one issue file', args: { ...base, units: [unit('src/foo-bar'), unit('src/foo_bar')] } },
     { name: 'plan-id collision', when: 'two unit ids map to one plan id', args: { ...base, units: [unit('src/a'), unit('src/a/')] } },
+    // A run launched inside a user turn relays that message to every agent, and the first agent says so.
+    { name: 'a user request is relayed', when: 'a reviewer reports a user request relayed into its context, so no verifier runs', args: { ...base, units: [unit('u1'), unit('u2')] }, respond: { review: { ...FOUND, relayed_request: true }, verify: verifier(['1']) } },
   ],
 };

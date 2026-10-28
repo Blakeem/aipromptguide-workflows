@@ -36,13 +36,14 @@ flowchart TD
   x12[/"throw: Missing args.checkTool"/]
   x13[/"throw: args.lenses requires >=2 evaluation perspectives"/]
   x14[/"throw: lens ids collide after slugging"/]
-  x15[/"throw: No lens researcher produced a lens file"/]
-  x16[/"throw: Decider returned nothing in round ..."/]
-  x17[/"throw: Researcher returned nothing in research round ..."/]
-  x18[/"throw: Check agent returned nothing before the review in round ..."/]
-  x19[/"throw: Reviewer returned nothing in round ..."/]
-  x20[/"throw: Check agent returned nothing after the review in round ..."/]
-  x21[/"throw: Check agent returned an unreadable result in round ..."/]
+  x15[/"throw: A user request was relayed into the context of the researcher for ... ahead of its task"/]
+  x16[/"throw: No lens researcher produced a lens file"/]
+  x17[/"throw: Decider returned nothing in round ..."/]
+  x18[/"throw: Researcher returned nothing in research round ..."/]
+  x19[/"throw: Check agent returned nothing before the review in round ..."/]
+  x20[/"throw: Reviewer returned nothing in round ..."/]
+  x21[/"throw: Check agent returned nothing after the review in round ..."/]
+  x22[/"throw: Check agent returned an unreadable result in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -60,28 +61,29 @@ flowchart TD
   S0 --> x14
   a1 --> a2
   a1 --> x15
+  a1 --> x16
   a2 --> a3
   a2 --> a4
   a2 --> t4
   a2 --> t5
-  a2 --> x16
+  a2 --> x17
   a3 -.->|"the decider names an open issue and the next pass names none · +2 more (×2)"| a2
   a3 --> t4
-  a3 --> x17
+  a3 --> x18
   a4 --> a5
   a4 --> t4
-  a4 --> x18
+  a4 --> x19
   a5 --> a6
   a5 --> t4
   a5 --> t5
-  a5 --> x19
+  a5 --> x20
   a6 -.->|"the reviewer keeps a challenger that scores above the winner · +2 more (×3)"| a2
   a6 -.->|"the reviewer never runs the check, and its rerun does · +1 more (×2)"| a5
   a6 --> t1
   a6 --> t2
   a6 --> t3
-  a6 --> x20
   a6 --> x21
+  a6 --> x22
 ```
 
 ## Phases
@@ -116,14 +118,15 @@ flowchart TD
 | throw: Missing args.checkTool | args carry no checkTool | throw (line 163) |
 | throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 174) |
 | throw: lens ids collide after slugging | two lenses slug to one file | throw (line 178) |
-| throw: No lens researcher produced a lens file | no lens researcher produced a lens file | throw (line 563) |
-| throw: Decider returned nothing in round ... | the decider dies | throw (line 614) |
-| throw: Researcher returned nothing in research round ... | a researcher of an open issue dies | throw (line 679) |
-| throw: Check agent returned nothing before the review in round ... | the check agent dies writing the check spec | throw (line 700) |
-| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 714) |
-| throw: Check agent returned nothing after the review in round ... | the check agent dies running the check | throw (line 719) |
-| throw: Check agent returned an unreadable result in round ... | the check agent returns an exit code or a last line the tool never prints | throw (line 748) |
+| throw: A user request was relayed into the context of the researcher for ... ahead of its task | a lens researcher reports a user request relayed into its context | throw (line 566) |
+| throw: No lens researcher produced a lens file | no lens researcher produced a lens file | throw (line 570) |
+| throw: Decider returned nothing in round ... | the decider dies | throw (line 621) |
+| throw: Researcher returned nothing in research round ... | a researcher of an open issue dies | throw (line 686) |
+| throw: Check agent returned nothing before the review in round ... | the check agent dies writing the check spec | throw (line 707) |
+| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 721) |
+| throw: Check agent returned nothing after the review in round ... | the check agent dies running the check | throw (line 726) |
+| throw: Check agent returned an unreadable result in round ... | the check agent returns an exit code or a last line the tool never prints | throw (line 755) |
 
 ## Coverage
 
-39 scenarios · 6/6 roles · 21/21 throw sites · 3/3 halt statuses · 26 terminal states.
+40 scenarios · 6/6 roles · 22/22 throw sites · 3/3 halt statuses · 27 terminal states.

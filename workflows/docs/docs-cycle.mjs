@@ -161,10 +161,12 @@ const KIND_GUIDE = {
 // Schemas — DECISIONS/COUNTS ONLY (control plane, #8). The docs ARE the files. A gap is a kind and the
 // id of its Coverage-notes entry, which holds its file, source and reason for the gatherer to read.
 // =============================================================================
+const RELAYED_REQUEST = { type: 'boolean', description: 'true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent.' };
 const GATHER_SCHEMA = {
   type: 'object',
-  required: ['files_written'],
+  required: ['files_written', 'relayed_request'],
   properties: {
+    relayed_request: RELAYED_REQUEST,
     files_written: { type: 'integer', description: 'doc files you created under the directories you were given' },
     skipped:       { type: 'integer', description: 'pages/sections skipped as irrelevant to the brief (0 if none)' },
     missing_entries: { type: 'array', items: { type: 'string' }, description: 'gap-fill only: the gap ids with no Coverage-notes entry, which you skipped ([] if none)' },
@@ -382,6 +384,14 @@ const gapsOf = (gaps) => {
 };
 let toGather = SOURCES;
 let rounds = 0;
+// The gatherers that reported a relayed user request. The first one stops every later scrubber.
+const relayedSourceIds = [];
+// A run launched inside a user turn relays that message to every agent, so the first gatherers stop it before the curator.
+const haltIfRelayed = () => {
+  if (relayedSourceIds.length) {
+    throw new Error(`A user request was relayed into the context of the gatherer for ${relayedSourceIds.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.`);
+  }
+};
 
 while (rounds < MAX_ROUNDS) {
   rounds++;
@@ -397,11 +407,13 @@ while (rounds < MAX_ROUNDS) {
           failed.push({ id: src.id, stage: 'gather' });
           log(`  ⚠ gather:${src.id} returned nothing (agent skipped or died) — files it wrote, if any, are still curated (and scrubbed first for a web source); re-run this source if coverage is thin`);
         } else {
+          if (g.relayed_request === true) relayedSourceIds.push(src.id);
           log(`  ✓ gathered ${src.id}: ${g.files_written ?? 0} file(s)${g.skipped ? `, ${g.skipped} skipped` : ''}`);
         }
         return { src, g };
       }),
       (prev) => {
+        if (relayedSourceIds.length) return prev;   // halts after the pipeline, and a scrubber would read the relayed request too
         if (prev.src.kind !== 'web') return prev;   // repo/files captures are usually markdown already, with no HTML chrome
         if (prev.g && (prev.g.files_written ?? 0) === 0) return prev;   // gather REPORTED zero captures
         // g == null → the gatherer died before returning; files it already wrote are on disk — scrub them.
@@ -420,6 +432,7 @@ while (rounds < MAX_ROUNDS) {
         });
       },
     );
+    haltIfRelayed();
     const results = gathered.filter(Boolean);
     const empty = results.filter((d) => d.g && (d.g.files_written ?? 0) === 0).length;
     const died  = toGather.length - results.filter((d) => d.g).length;
@@ -437,12 +450,15 @@ while (rounds < MAX_ROUNDS) {
       for (const s of toGather) failed.push({ id: s.id, stage: 'gather' });
       log(`  ⚠ gather:r${rounds} returned nothing (agent skipped or died) — the gap-fill gatherer died before returning; anything it wrote is on disk and still gets curated, and its gaps may stay open: ${toGather.map((s) => s.gapId).join(', ')}`);
     } else {
+      if (filled.relayed_request === true) relayedSourceIds.push(`gap-fill r${rounds}`);
       log(`  ✓ gap-fill gathered ${toGather.length} gap(s): ${filled.files_written ?? 0} file(s)${filled.skipped ? `, ${filled.skipped} skipped` : ''}`);
       if ((filled.files_written ?? 0) === 0) log(`  ⚠ the gap-fill gatherer reported no files this round`);
       const missing = (Array.isArray(filled.missing_entries) ? filled.missing_entries : []).filter(Boolean);
       if (missing.length) log(`  ⚠ no Coverage-notes entry in ${INDEX_FILE} for gap(s) ${missing.join(', ')} — nothing was captured for them`);
     }
   }
+
+  haltIfRelayed();
 
   // -- Curate (barrier: reads the whole set) ------------------------------------
   // A dead gatherer is survivable (its writes are on disk, above); a dead curator is not — it is the

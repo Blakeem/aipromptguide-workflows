@@ -54,7 +54,8 @@ workflow's `.mjs`. Its `CLAUDE.md` covers the full flow, args, and contracts.
 into every agent's prompt, ahead of its task. That breaks blind placement, and a sonnet agent may follow
 the message over its task. A turn started by a background task's notification carries no user message.
 So run the workflow's pre-launch command with `run_in_background`, and call the Workflow tool in the turn
-its notification starts. The pre-launch command is `plan-edit.mjs args` for develop,
+its notification starts. A notification that arrives inside a tool result does not start a new turn, so end
+the turn after starting the pre-launch command. The pre-launch command is `plan-edit.mjs args` for develop,
 `plan-block.mjs <planPath> --list` for refine, and `git -C <target.repo> status --short` for the rest
 (`node --version` when the run has no `target.repo`). Keep the plan out of auto-memory from before the
 session starts. Agents receive the index the session loaded at its start, so a line already loaded stays

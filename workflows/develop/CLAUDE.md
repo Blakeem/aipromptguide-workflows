@@ -730,9 +730,13 @@ too; `suite: scoped` drops the whole-suite requirement (mid-run red is expected 
 `build-only` = build green.
 
 Halts match the sibling engines (dirty baseline, needs-user, plan-unreadable, agent-dead,
-passed-unstaged, acceptance-regression, park-unsafe, budget) plus `staging-unconfirmed`,
+passed-unstaged, acceptance-regression, park-unsafe, budget) plus `relayed-request`, `staging-unconfirmed`,
 `rejected-staged`, `restore-failed`, `review-unwritten`, `passed-regression` and `log-cap`. Commit
 mode adds `staged-baseline` and `commit-unverified`, which **Commit mode** below describes.
+`relayed-request` means a developer reported a user request relayed into its context, so the run was launched
+inside a user turn. The halt runs no park and no reviewer, because each would read the same message, and it
+records its block `blocked`. The developer may have changed the run worktree, so settle the tree as §4 says,
+run §2 step 3, set the block back to `todo`, run step 3 again, and relaunch from a notification turn.
 `rejected-staged` means acceptance failed a block but staged it, so inspect
 `git diff --cached <tree id>` with the tree id the halt reason names, which lists only what that
 acceptance staged, and unstage that block's files before resuming. `passed-regression` means

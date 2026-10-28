@@ -175,13 +175,15 @@ if (dupes.length) {
 // Structured-output schemas — DECISIONS ONLY (control plane). All prose lives in the candidates and
 // proposal files.
 // =============================================================================
+const RELAYED_REQUEST = { type: 'boolean', description: 'true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent.' };
 const FIND_SCHEMA = {
   type: 'object',
-  required: ['candidate_ids', 'wrote_candidates', 'wrote_clean_marker'],
+  required: ['candidate_ids', 'wrote_candidates', 'wrote_clean_marker', 'relayed_request'],
   properties: {
     candidate_ids:      { type: 'array', items: { type: 'string' }, description: 'the id of each candidate in your candidates file, in file order ([] for a clean lens)' },
     wrote_candidates:   { type: 'boolean', description: 'true ONLY if you wrote the candidates file, false for a clean lens' },
     wrote_clean_marker: { type: 'boolean', description: 'true ONLY if you wrote the clean-lens marker file, false whenever you report any candidate' },
+    relayed_request:    RELAYED_REQUEST,
   },
 };
 
@@ -433,6 +435,8 @@ log(`spawn ceiling: ≤ ${LENSES.length * 2} agents (${LENSES.length} finder(s) 
 const lensStage = Object.create(null);
 // The result row of each lens whose file an agent attested. A lens with no row lands in `failed`.
 const lensResult = Object.create(null);
+// The lenses whose finder reported a relayed user request. Any one of them halts the run before the verifiers.
+const relayedLensIds = [];
 const emptyCounts = () => ({ found: 0, adopt: 0, roadmap: 0, needs_user: 0, rejected: 0, defects: 0 });
 // Digits only after the prefix, so lens `a`'s ids can never read as lens `a-2`'s inside one unit.
 const isCandidateId = (lensId, id) => new RegExp(`^${candidatePrefix(lensId)}\\d+$`).test(id);
@@ -448,6 +452,10 @@ const findLens = async (lens) => {
   // A DEAD finder is not a clean lens: zero candidates from a null would report the lens as audited.
   if (!found) {
     log(`  ⚠ ${lens.id}: the finder DIED — this lens was NOT audited (no candidates, and any ${proposalFile(lens.id)} on disk is unverified). Re-run it.`);
+    return null;
+  }
+  if (found.relayed_request === true) {
+    relayedLensIds.push(lens.id);
     return null;
   }
   const returned = (Array.isArray(found.candidate_ids) ? found.candidate_ids : []).map(String);
@@ -476,6 +484,9 @@ const findLens = async (lens) => {
   return null;
 };
 const toVerify = (await parallel(LENSES.map((lens) => () => findLens(lens)))).filter(Boolean);
+if (relayedLensIds.length) {
+  throw new Error(`A user request was relayed into the context of the finder for ${relayedLensIds.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.`);
+}
 
 // -- Pack: next-fit in lens order, as debug's gen-units packs small units -------------------------
 const verifyUnits = [];

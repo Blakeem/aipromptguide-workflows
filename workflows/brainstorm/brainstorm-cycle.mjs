@@ -3,7 +3,7 @@ export const meta = {
   description: 'Divergent creative generation, lean/file-bus design: fan out ONE generator per lens, each producing a COMPLETE, fully-committed variation (design or idea) written to its own folder — NO AI review, the USER judges. The harness only routes paths; agents never see each other. Use it to explore a wide solution space (web/slideshow designs, product ideas, business-plan angles) so the user can pick one or cherry-pick elements across variations.',
   whenToUse: 'Generate several DISTINCT, fully-realized variations of one creative thing so a human can compare and combine them. The main agent settles the brief + the LENSES with the user beforehand (each lens = one variation axis, e.g. "minimalist", "bold/editorial", "efficiency-first", "robustness-first"), optionally authors a shared brief/requirements file in PLAN MODE for a complex problem, then runs this engine. This is intentionally LOOSE: no scoring, no review, no convergence — divergence only. To converge ON a conclusion from options, use decide-cycle; to build a chosen variation, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.',
   phases: [
-    { title: 'Generate', detail: 'One generator per lens (CONCURRENT). Each reads the shared brief (verbatim) + its lens, produces a complete variation fully committed to that lens, and writes it into runs/<runId>/variations/<lens>/. Returns only the entry path + a one-line differentiator. No review, no staging.' },
+    { title: 'Generate', detail: 'One generator per lens (CONCURRENT). Each reads the shared brief (verbatim) + its lens, produces a complete variation fully committed to that lens, and writes it into runs/<runId>/variations/<lens>/. Returns only the entry path, a one-line differentiator and whether its context holds a relayed user request. No review, no staging.' },
   ],
 };
 
@@ -121,12 +121,14 @@ if (dupes.length) {
 // =============================================================================
 // Schema — DECISIONS/INDEX ONLY (control plane). The variation itself lives in the file (#8).
 // =============================================================================
+const RELAYED_REQUEST = { type: 'boolean', description: 'true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent.' };
 const GENERATE_SCHEMA = {
   type: 'object',
-  required: ['entry', 'summary'],
+  required: ['entry', 'summary', 'relayed_request'],
   properties: {
     entry:   { type: 'string', description: 'path to the MAIN artifact you wrote (the file to open first)' },
     summary: { type: 'string', description: 'ONE line: what makes THIS variation distinct (for the user\'s comparison index, NOT the content)' },
+    relayed_request: RELAYED_REQUEST,
   },
 };
 
@@ -173,8 +175,14 @@ log(`brainstorm: ${LENSES.length} lens(es) → ${VAR_DIR}${REFERENCES.length ? `
 const results = await parallel(LENSES.map((lens) => () =>
   callAgent(generatePrompt(lens), roleOpts('generate', {
     schema: GENERATE_SCHEMA, phase: 'Generate', label: `generate:${lens.id}`,
-  })).then((r) => ({ lens: lens.id, focus: lens.focus, dir: lensDir(lens.id), entry: r?.entry || '', summary: r?.summary || '' }))
+  })).then((r) => ({ lens: lens.id, focus: lens.focus, dir: lensDir(lens.id), entry: r?.entry || '', summary: r?.summary || '', relayed: r?.relayed_request === true }))
 ));
+
+// A run launched inside a user turn relays that message to every generator, so no variation is trustworthy.
+const relayedLensIds = results.filter((v) => v?.relayed).map((v) => v.lens);
+if (relayedLensIds.length) {
+  throw new Error(`A user request was relayed into the context of the generator for ${relayedLensIds.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.`);
+}
 
 const variations = results.filter(Boolean).filter((v) => v.entry);
 for (const v of variations) log(`  ✓ ${v.lens}: ${v.entry} — ${v.summary}`);

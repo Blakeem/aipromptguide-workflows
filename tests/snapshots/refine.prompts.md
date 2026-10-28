@@ -129,9 +129,14 @@ Return via the schema.
     "wrote_file",
     "gap_count",
     "question_count",
-    "fyi_count"
+    "fyi_count",
+    "relayed_request"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "wrote_file": {
       "type": "boolean",
       "description": "true if you wrote this round's critique file"

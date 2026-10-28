@@ -60,7 +60,8 @@ Return via the schema.
   "type": "object",
   "required": [
     "wrote_file",
-    "top_pick"
+    "top_pick",
+    "relayed_request"
   ],
   "properties": {
     "wrote_file": {
@@ -70,6 +71,10 @@ Return via the schema.
     "top_pick": {
       "type": "string",
       "description": "short title of the option your lens favours"
+    },
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
     }
   }
 }

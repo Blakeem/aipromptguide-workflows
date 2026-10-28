@@ -17,6 +17,8 @@ chosen direction → a plan file built by **`develop-cycle`**. Brainstorm only d
 ## 2. The flow
 
 Launch every run from a notification turn (root `CLAUDE.md`, "Launch from a notification turn").
+The first agent of a run says whether its context holds a relayed user request, and the engine halts
+before any later agent when it does.
 Pick a `runId`. Every `Workflow` call loads by path: `scriptPath` = absolute path to
 `brainstorm-cycle.mjs`, plus args. There is **one phase** and **no mid-run questions**, so settle
 everything with the user first:
@@ -70,8 +72,8 @@ One role. The JS conductor only fans out and passes paths (#1); each generator i
   repo afterward (or build it via a `develop-cycle` plan file).
 - **Brief verbatim, single source (#2/#11).** Every generator reads the same brief from one place — a
   `planPath` file or the inline `brief`. References are handed as paths, never pasted.
-- **Thin return (#8).** Each generator returns only the entry path + one-line differentiator; the
-  variation itself is the file.
+- **Thin return (#8).** Each generator returns only the entry path, a one-line differentiator and
+  whether its context holds a relayed user request; the variation itself is the file.
 
 ## 6. Args reference
 

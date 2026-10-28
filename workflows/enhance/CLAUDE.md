@@ -35,6 +35,8 @@ deliberately because most audits only add.
 ## 2. The flow
 
 Launch every run from a notification turn (root `CLAUDE.md`, "Launch from a notification turn").
+The first agent of a run says whether its context holds a relayed user request, and the engine halts
+before any later agent when it does.
 Pick a `runId`. `Workflow` loads by path: `scriptPath` = absolute path to `enhance-cycle.mjs` + args.
 One phase, no mid-run questions — settle everything with the user first:
 

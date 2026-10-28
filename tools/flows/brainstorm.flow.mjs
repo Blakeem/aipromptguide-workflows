@@ -44,7 +44,7 @@ export default {
       terminal: 'nothing produced (every generator failed)',
     },
 
-    // ---- the ten throw sites, in the order the engine checks them -----------------------------
+    // ---- the eleven throw sites, in the order the engine checks them -----------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
@@ -63,5 +63,7 @@ export default {
       when: 'two lenses slug to one folder',
       args: { runId: 'flow', root: 'E:/flow', brief: 'b', lenses: ['Fast path', 'fast-path'] },
     },
+    // A run launched inside a user turn relays that message to every generator, and a generator says so.
+    { name: 'a user request is relayed', when: 'a generator reports a user request relayed into its context', args: base, respond: { generate: { ...GEN, relayed_request: true } } },
   ],
 };

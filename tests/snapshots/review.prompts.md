@@ -105,9 +105,14 @@ Return the counts and flags via the schema. Zero findings (a clean unit) is a no
   "required": [
     "finding_count",
     "wrote_file",
-    "wrote_clean_marker"
+    "wrote_clean_marker",
+    "relayed_request"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "finding_count": {
       "type": "integer",
       "minimum": 0,
@@ -436,9 +441,14 @@ Return the counts and flags via the schema. Zero findings (a clean unit) is a no
   "required": [
     "finding_count",
     "wrote_file",
-    "wrote_clean_marker"
+    "wrote_clean_marker",
+    "relayed_request"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "finding_count": {
       "type": "integer",
       "minimum": 0,
@@ -539,9 +549,14 @@ Return the counts and flags via the schema. Zero findings (a clean unit) is a no
   "required": [
     "finding_count",
     "wrote_file",
-    "wrote_clean_marker"
+    "wrote_clean_marker",
+    "relayed_request"
   ],
   "properties": {
+    "relayed_request": {
+      "type": "boolean",
+      "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
+    },
     "finding_count": {
       "type": "integer",
       "minimum": 0,

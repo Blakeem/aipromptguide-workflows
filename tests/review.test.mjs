@@ -68,7 +68,7 @@ section('each reviewer writes its findings with evidence to its own review file 
     'verify': { wrote_file: true, verdicts: [keep('u1-a1'), keep('u1-a2'), keep('u1-b1')] },
   });
   const revs = byLabel('review');
-  eq(Object.keys(revs[0].opts.schema.properties).join(), 'finding_count,wrote_file,wrote_clean_marker', 'the reviewer schema holds a count and two write flags');
+  eq(Object.keys(revs[0].opts.schema.properties).join(), 'relayed_request,finding_count,wrote_file,wrote_clean_marker', 'the reviewer schema holds a count, two write flags and the relay flag');
   ok(!('findings' in revs[0].opts.schema.properties), 'and no findings array');
   ok(revs[0].prompt.includes(`WRITE ${REVIEWS}/u1-destructive.md (create ${REVIEWS}/ if`), 'lens 1 writes its own review file');
   ok(revs[1].prompt.includes(`WRITE ${REVIEWS}/u1-control_flow.md (create ${REVIEWS}/ if`), 'lens 2 writes its own review file');

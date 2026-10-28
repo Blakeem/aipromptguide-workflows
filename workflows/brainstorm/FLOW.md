@@ -22,6 +22,7 @@ flowchart TD
   x8[/"throw: Provide the problem framing"/]
   x9[/"throw: args.lenses is required"/]
   x10[/"throw: lens ids collide after slugging"/]
+  x11[/"throw: A user request was relayed into the context of the generator for ... ahead of its task"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -35,13 +36,14 @@ flowchart TD
   S0 --> x10
   a1 --> t1
   a1 --> t2
+  a1 --> x11
 ```
 
 ## Phases
 
 | Phase | What happens |
 |---|---|
-| Generate | One generator per lens (CONCURRENT). Each reads the shared brief (verbatim) + its lens, produces a complete variation fully committed to that lens, and writes it into runs/&lt;runId&gt;/variations/&lt;lens&gt;/. Returns only the entry path + a one-line differentiator. No review, no staging. |
+| Generate | One generator per lens (CONCURRENT). Each reads the shared brief (verbatim) + its lens, produces a complete variation fully committed to that lens, and writes it into runs/&lt;runId&gt;/variations/&lt;lens&gt;/. Returns only the entry path, a one-line differentiator and whether its context holds a relayed user request. No review, no staging. |
 
 ## Terminal states
 
@@ -59,7 +61,8 @@ flowchart TD
 | throw: Provide the problem framing | neither brief nor planPath | throw (line 99) |
 | throw: args.lenses is required | args.lenses is empty | throw (line 114) |
 | throw: lens ids collide after slugging | two lenses slug to one folder | throw (line 118) |
+| throw: A user request was relayed into the context of the generator for ... ahead of its task | a generator reports a user request relayed into its context | throw (line 184) |
 
 ## Coverage
 
-14 scenarios · 1/1 roles · 10/10 throw sites · 0/0 halt statuses · 12 terminal states.
+15 scenarios · 1/1 roles · 11/11 throw sites · 0/0 halt statuses · 13 terminal states.

@@ -57,7 +57,9 @@ Four things together — remove any one and the plan grows every round instead o
      `NEEDS-USER.md`.
    - `rounds-exhausted` — the last round's gaps were folded but never re-verified, so the plan is not
      converged.
-   - `BLOCKED (...)` — one of the halts §3 names, with its cause in `haltReason`.
+   - `BLOCKED (...)` — one of the halts §3 names, with its cause in `haltReason`. A critic that reports a
+     relayed user request halts the run as `relayed-request` before any editor. The cause is a launch
+     inside a user turn, so relaunch from a notification turn.
 3. **Run refine once per plan.** A `converged` plan goes to the user for approval, never back into
    refine. A relaunch of a converged plan tends to find new detail to fold, so repeated relaunches keep
    growing the plan. Relaunch only to finish a terminal that is not `converged`: after the user settles
@@ -78,10 +80,11 @@ own single refine run. One develop launch takes both files when their file keys 
   first block, other than the file keys, at any grade, plus a file-key finding below the floor), then
   `Outside the plan` (defects no plan text holds, in files the critic read to judge the plan, at every
   floor). Its items are numbered F1, F2 across the section. No editor reads it, and the user reads it
-  with the plan. Returns counts plus a `wrote_file` attestation, nothing else — content crosses through
-  the file. The critic writes its file every round, so `wrote_file` false halts (`critique-unwritten`)
-  whatever the counts. A DEAD critic **throws** — zero gaps from a dead agent would be byte-identical
-  to convergence.
+  with the plan. Returns counts plus a `wrote_file` attestation and a `relayed_request` flag, nothing
+  else — content crosses through the file. The critic writes its file every round, so `wrote_file` false
+  halts (`critique-unwritten`) whatever the counts, and `relayed_request` true halts
+  (`relayed-request`). A DEAD critic **throws** — zero gaps from a dead agent would be byte-identical to
+  convergence.
 - **Editor** (opus) — runs only on a round with countable gaps and no questions. Checks each gap
   against the plan and the repo first, as §1 says. Folds, declines to the ledger, then re-runs
   `node '<blockTool>' '<planPath>' --list` and attests `plan_parses`.

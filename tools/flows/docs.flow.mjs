@@ -12,7 +12,7 @@
 // gatherer (scrubbed anyway: what it wrote is already on disk), a zero-file source (scrub SKIPPED, the
 // run continues) and a repo source (scrub SKIPPED: only web captures carry HTML chrome). None throws
 // and none has its own terminal, so this table is the only thing holding them in the diagram. Plus each
-// of the thirteen throw sites.
+// of the fourteen throw sites.
 
 const base = {
   runId: 'flow',
@@ -110,7 +110,7 @@ export default {
       terminal: CURATED,
     },
 
-    // ---- the thirteen throw sites -------------------------------------------------------------------
+    // ---- the fourteen throw sites -------------------------------------------------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
@@ -142,5 +142,8 @@ export default {
     { name: 'no brief', when: 'neither brief nor planPath', args: { runId: 'flow', root: 'E:/flow' } },
     { name: 'no sources', when: 'args.sources is empty', args: { runId: 'flow', root: 'E:/flow', brief: 'b' } },
     { name: 'colliding source ids', when: 'two sources slug to one directory', args: { ...base, sources: ['Fast path', 'fast-path'] } },
+    // A run launched inside a user turn relays that message to every agent, and the first agent says so.
+    { name: 'a user request is relayed', when: 'a gatherer reports a user request relayed into its context, so the scrubbers and the curator never run', args: base, respond: { gather: { ...GATHER, relayed_request: true }, scrub: SCRUB, curate: CURATE } },
+    { name: 'a user request is relayed to the gap-fill gatherer', when: 'the gap-fill gatherer reports a user request relayed into its context', args: base, respond: { gather: (label) => (/r2$/.test(label) ? { ...GATHER, relayed_request: true } : GATHER), scrub: SCRUB, curate: CURATE_GAP } },
   ],
 };

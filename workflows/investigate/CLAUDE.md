@@ -33,6 +33,8 @@ want `decide-cycle` instead — that is exactly what its weighted matrix is for.
 ## 2. The flow
 
 Launch every run from a notification turn (root `CLAUDE.md`, "Launch from a notification turn").
+The first agent of a run says whether its context holds a relayed user request, and the engine halts
+before any later agent when it does.
 Pick a `runId`; reuse it for every phase. `Workflow` loads by path: `scriptPath` = absolute path to
 `investigate-cycle.mjs` + args. **Two invocations: refine the criteria, then run.** No mid-run questions.
 

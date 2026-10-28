@@ -32,9 +32,10 @@ flowchart TD
   x9[/"throw: Invalid notes arg"/]
   x10[/"throw: args.planPath is required"/]
   x11[/"throw: args.priorRounds is required for phase:#quot;run#quot;"/]
-  x12[/"throw: Criteria critic returned nothing"/]
-  x13[/"throw: Investigator returned nothing in round ..."/]
-  x14[/"throw: Acceptance critic returned nothing in round ..."/]
+  x12[/"throw: A user request was relayed into the context of the ... ahead of its task"/]
+  x13[/"throw: Criteria critic returned nothing"/]
+  x14[/"throw: Investigator returned nothing in round ..."/]
+  x15[/"throw: Acceptance critic returned nothing in round ..."/]
   S0 --> a1
   S0 --> a2
   S0 --> t7
@@ -51,12 +52,14 @@ flowchart TD
   S0 --> x11
   a1 --> t1
   a1 --> x12
+  a1 --> x13
   a2 -.->|"L1 ×4"| a2
   a2 --> a3
   a2 --> t6
   a2 --> t8
   a2 --> t9
-  a2 --> x13
+  a2 --> x12
+  a2 --> x14
   a3 -.->|"the critic contests the coverage claim · +5 more (×5)"| a2
   a3 --> t2
   a3 --> t3
@@ -65,7 +68,7 @@ flowchart TD
   a3 --> t6
   a3 --> t8
   a3 --> t9
-  a3 --> x14
+  a3 --> x15
 ```
 
 ## Phases
@@ -106,10 +109,11 @@ flowchart TD
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 94) |
 | throw: args.planPath is required | args carry no planPath | throw (line 119) |
 | throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 128) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 511) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 592) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 624) |
+| throw: A user request was relayed into the context of the ... ahead of its task | phase:"refine" and the criteria critic reports a user request relayed into its context · the investigator reports a user request relayed into its context | throw (line 233) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 521) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 603) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 636) |
 
 ## Coverage
 
-32 scenarios · 3/3 roles · 14/14 throw sites · 8/8 halt statuses · 23 terminal states.
+34 scenarios · 3/3 roles · 15/15 throw sites · 8/8 halt statuses · 24 terminal states.

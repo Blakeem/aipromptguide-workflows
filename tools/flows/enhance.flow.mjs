@@ -90,7 +90,7 @@ export default {
       terminal: 'lens NOT audited (no marker attested, lens in failed at stage find)',
     },
 
-    // ---- the twelve throw sites, in the order the engine checks them ------------------------------
+    // ---- the thirteen throw sites, in the order the engine checks them ------------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
@@ -113,5 +113,7 @@ export default {
     },
     { name: 'no lenses', when: 'args.lenses is empty', args: { ...base } },
     { name: 'colliding lens ids', when: 'two lenses slug to one id', args: { ...base, lenses: ['Fast path', 'fast-path'] } },
+    // A run launched inside a user turn relays that message to every agent, and the first agent says so.
+    { name: 'a user request is relayed', when: 'a finder reports a user request relayed into its context, so no verifier runs', args: { ...base, lenses: ['efficiency', 'simplification'] }, respond: { find: (label) => ({ ...FOUND(label), relayed_request: true }), verify: verifier } },
   ],
 };

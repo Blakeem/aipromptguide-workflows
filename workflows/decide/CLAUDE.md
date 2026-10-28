@@ -38,6 +38,8 @@ fuses the best of several lenses is already in scope there, and is not what `ran
 ## 2. The flow
 
 Launch every run from a notification turn (root `CLAUDE.md`, "Launch from a notification turn").
+The first agent of a run says whether its context holds a relayed user request, and the engine halts
+before any later agent when it does.
 Pick a `runId`. `Workflow` loads by path: `scriptPath` = absolute path to `decide-cycle.mjs` + args.
 No mid-run questions — settle the rubric with the user first:
 

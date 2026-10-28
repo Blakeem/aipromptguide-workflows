@@ -3,7 +3,7 @@ export const meta = {
   description: 'Converging plan review, file-bus design: a read-only CRITIC judges every todo block of ONE plan file against the REAL repo under a fixed DEFECT BAR (it judges only whether the plan\'s text is correct, and what the plan does not say is never a gap - improvements, alternatives and style are excluded unconditionally), grades each gap against a severity FLOOR, and writes its findings verbatim to plan-critique-<round>.md; a minimal-fold EDITOR then checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it and changes NOTHING a gap does not name, declining to DISMISSED-PLAN.md and re-validating the file through the plan-block tool. The loop ends on ONE clean round. The harness routes only counts, paths and an explicit halt kind.',
   whenToUse: 'Converge a plan file BEFORE develop-cycle builds from it: the plan is authored, and you want its gaps closed until a critic finds none. It is built to converge: a refine loop without its defect bar, floor, dismissal ledger and minimal-fold editor, run five times on one plan, keeps adding code and detail and never stops. Questions (a dependency-ordering error whose fix splits, merges, adds or reorders blocks, a gap in a closed block, which is a block with any status but todo, or a defect in a file key at or above the floor) END the run needs-answers for the operator to restructure, because the editor has no legal edit for any of them. Nothing here builds, stages or commits.',
   phases: [
-    { title: 'Critique', detail: 'A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-<round>.md every round (gaps with file:line evidence, questions, and an FYI section only in a round with no gaps and no questions, or "No gaps." in a round with nothing) and returns counts plus a wrote_file attestation, nothing else.' },
+    { title: 'Critique', detail: 'A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-<round>.md every round (gaps with file:line evidence, questions, and an FYI section only in a round with no gaps and no questions, or "No gaps." in a round with nothing) and returns counts plus a wrote_file attestation and a relayed_request flag, nothing else.' },
     { title: 'Fold', detail: 'Runs only when the round returned at-or-above-floor gaps and no questions. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, and re-runs the plan-block tool to prove the file still parses.' },
   ],
 };
@@ -187,10 +187,12 @@ if (NOTES && insideRepo(NOTES.dir)) {
 // between the two roles through the critique FILE, read verbatim (#8/#2). There is deliberately no verdict
 // field: the engine branches on the counts alone, and a field nothing reads is attestation theater.
 // =============================================================================
+const RELAYED_REQUEST = { type: 'boolean', description: 'true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent.' };
 const CRITIC_SCHEMA = {
   type: 'object',
-  required: ['wrote_file', 'gap_count', 'question_count', 'fyi_count'],
+  required: ['wrote_file', 'gap_count', 'question_count', 'fyi_count', 'relayed_request'],
   properties: {
+    relayed_request: RELAYED_REQUEST,
     wrote_file:     { type: 'boolean', description: 'true if you wrote this round\'s critique file' },
     gap_count:      { type: 'integer', description: 'gaps AT OR ABOVE the severity floor (the numbered GAPS section). 0 with question_count 0 ends the run: the plan converged' },
     question_count: { type: 'integer', description: 'questions written to your critique file AND in full to NEEDS-USER.md' },
@@ -410,6 +412,13 @@ while (round < MAX_ROUNDS) {
   // empty object still ran, and the required-args baseline contract feeds every engine exactly that and
   // expects a return, not a throw (decide-cycle's guard is the pattern).
   if (!crit) throw new Error(`Plan critic returned nothing in round ${round} (agent skipped or died) - that is NOT a clean plan. Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
+  // A run launched inside a user turn relays that message to every agent, so the critic stops it before any editor.
+  if (crit.relayed_request === true) {
+    haltKind = 'relayed-request';
+    haltReason = `The critic's context held a user request that the harness relayed ahead of its task in round ${round}. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent, so no round of this launch is trustworthy. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says.`;
+    log(`  ✋ r${round}: the critic's context held a relayed user request - the run was launched inside a user turn; halting before any editor`);
+    break;
+  }
   openGaps  = Math.max(0, Number(crit.gap_count) || 0);
   questions = Math.max(0, Number(crit.question_count) || 0);
   belowFloor = Math.max(0, Number(crit.fyi_count) || 0);
@@ -506,6 +515,7 @@ const HALT_STATUS = {
   'critique-unwritten': 'BLOCKED (the critic did not confirm writing its critique file, which every round writes - the round has no record)',
   'fold-unattested':    'BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere)',
   'plan-broken':        'BLOCKED (the folded plan file no longer parses - every later consumer reads it)',
+  'relayed-request':    'BLOCKED (the run was launched inside a user turn, so the harness relayed that message to every agent)',
 };
 // No silent fallback string: an unmapped haltKind is an engine bug, and reporting it as a plausible
 // terminal state is precisely the collapse this table exists to prevent.
@@ -527,6 +537,7 @@ const NEXT_STEP = {
   'agent-dead': `Run ${listCmd} first, since the editor may have partly edited the plan. Then replay with the same args and runId plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${critiqueFile(round)} runs again. A relaunch without resumeFromRunId restarts at round 1.`,
   'critique-unwritten': `Relaunch to redo the round. ${relaunch}`,
   'fold-unattested': `Inspect ${PLAN_PATH}, then relaunch. ${relaunch}`,
+  'relayed-request': `Start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts. ${relaunch}`,
   'plan-broken': `Repair ${PLAN_PATH} by hand until ${listCmd} exits 0, then relaunch. ${relaunch}`,
 };
 const nextStep = (halted ? `Run halted - ${haltReason} ` : '')

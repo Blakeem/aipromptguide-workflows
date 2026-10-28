@@ -153,7 +153,8 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    Choose `changePolicy` as `../develop/CLAUDE.md` §4 "Choosing the change policy" says, which settles
    `auto` into `focused` or `proactive` for the run, and pass it.
 3. **Run `review.mjs`** (`scriptPath` = its absolute path) from a notification turn (root `CLAUDE.md`,
-   "Launch from a notification turn"). It writes `issues/<unit>.md` per unit and
+   "Launch from a notification turn"). The first reviewer says whether its context holds a relayed user
+   request, and the engine halts before any verifier when it does. It writes `issues/<unit>.md` per unit and
    returns counts + the hottest areas + `needsUserFiles`. When the return's `failed` lists units to
    re-review (Args reference), resume them through step 4 (Resume the review) before step 5 (triage).
    Then follow the return's `nextStep`. It leads with any unit to re-review, then names the files to

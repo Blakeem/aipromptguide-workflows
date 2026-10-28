@@ -204,7 +204,7 @@ section('the finder writes each candidate with its evidence to a file and return
     respond: { find: FOUND, verify: VERIFIED },
   });
   const findSchema = calls.find((c) => c.label.startsWith('find')).opts.schema;
-  eq(Object.keys(findSchema.properties).sort().join(), 'candidate_ids,wrote_candidates,wrote_clean_marker', 'the find schema carries ids and flags only');
+  eq(Object.keys(findSchema.properties).sort().join(), 'candidate_ids,relayed_request,wrote_candidates,wrote_clean_marker', 'the find schema carries ids and flags only');
   const f = prompt('find');
   ok(f.includes('WRITE the file E:/r/runs/t/candidates/efficiency.md'), 'the find prompt names the candidates file');
   ok(f.includes('Number the candidates efficiency-1, efficiency-2 and so on, in file order.'), 'and the id scheme');

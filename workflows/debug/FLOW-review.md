@@ -30,6 +30,7 @@ flowchart TD
   x13[/"throw: review requires a non-empty args.units array"/]
   x14[/"throw: Issue file collision"/]
   x15[/"throw: Plan id collision"/]
+  x16[/"throw: A user request was relayed into the context of the reviewer for ... ahead of its task"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -51,6 +52,7 @@ flowchart TD
   a1 --> t1
   a1 --> t2
   a1 --> t3
+  a1 --> x16
   a2 --> t1
   a2 --> t4
 ```
@@ -88,10 +90,11 @@ flowchart TD
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 163) |
 | throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 183) |
 | throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 202) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 508) |
-| throw: Issue file collision | two unit ids map to one issue file | throw (line 518) |
-| throw: Plan id collision | two unit ids map to one plan id | throw (line 519) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 510) |
+| throw: Issue file collision | two unit ids map to one issue file | throw (line 520) |
+| throw: Plan id collision | two unit ids map to one plan id | throw (line 521) |
+| throw: A user request was relayed into the context of the reviewer for ... ahead of its task | a reviewer reports a user request relayed into its context, so no verifier runs | throw (line 649) |
 
 ## Coverage
 
-20 scenarios · 2/2 roles · 15/15 throw sites · 0/0 halt statuses · 19 terminal states.
+21 scenarios · 2/2 roles · 16/16 throw sites · 0/0 halt statuses · 20 terminal states.

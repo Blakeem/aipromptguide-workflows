@@ -181,12 +181,14 @@ if (dupes.length) {
 // =============================================================================
 // Schemas — DECISIONS ONLY (control plane). All reasoning/matrices live in files (#8).
 // =============================================================================
+const RELAYED_REQUEST = { type: 'boolean', description: 'true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent.' };
 const LENS_SCHEMA = {
   type: 'object',
-  required: ['wrote_file', 'top_pick'],
+  required: ['wrote_file', 'top_pick', 'relayed_request'],
   properties: {
     wrote_file:    { type: 'boolean', description: 'true if you wrote your lens file' },
     top_pick:      { type: 'string', description: 'short title of the option your lens favours' },
+    relayed_request: RELAYED_REQUEST,
   },
 };
 
@@ -556,8 +558,13 @@ log(`decide: ${LENSES.length} lens(es) → ${LENS_DIR} [selection=${SELECTION}${
 const lensResearch = await parallel(LENSES.map((lens) => () =>
   callAgent(lensPrompt(lens), roleOpts('research', {
     schema: LENS_SCHEMA, phase: 'Diverge', label: `research:${lens.id}`,
-  })).then((r) => ({ lens: lens.id, ok: r?.wrote_file === true, top: r?.top_pick || '' }))
+  })).then((r) => ({ lens: lens.id, ok: r?.wrote_file === true, top: r?.top_pick || '', relayed: r?.relayed_request === true }))
 ));
+// A run launched inside a user turn relays that message to every agent, so the first researchers stop it before any decider.
+const relayedLensIds = lensResearch.filter((a) => a?.relayed).map((a) => a.lens);
+if (relayedLensIds.length) {
+  throw new Error(`A user request was relayed into the context of the researcher for ${relayedLensIds.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.`);
+}
 const ready = lensResearch.filter(Boolean).filter((a) => a.ok);
 for (const a of ready) log(`  ✓ ${a.lens}: favours "${a.top}"`);
 if (!ready.length) throw new Error('No lens researcher produced a lens file — cannot converge. Check the requirements/lenses and re-run.');
