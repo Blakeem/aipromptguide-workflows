@@ -13,24 +13,34 @@
 // Ordinary Node, not an engine: real imports, `node --check` applies.
 
 import { mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { REPO_ROOT, readRoles, runTrace } from '../tests/harness.mjs';
 import { loadSpecs } from './gen-flows.mjs';
 
 export const snapshotPath = (name) => join(REPO_ROOT, 'tests', 'snapshots', `${name}.prompts.md`);
 
-/** Every agent call across the spec's scenarios, in scenario order, tagged with its role. */
+/**
+ * Every agent call across the spec's scenarios, in scenario order, tagged with its role. Throws when the engine
+ * throws a SyntaxError before its first agent call or no scenario reaches an agent call, so a broken engine
+ * cannot pass for an empty snapshot.
+ */
 export async function collectCalls(spec) {
-  const roles = readRoles(readFileSync(join(REPO_ROOT, spec.engine), 'utf8'));
+  const roles = readRoles(readFileSync(resolve(REPO_ROOT, spec.engine), 'utf8'));
   const roleOf = (label) => roles.filter((r) => label.startsWith(r)).sort((a, b) => b.length - a.length)[0] ?? label;
   const calls = [];
   for (const scenario of spec.scenarios) {
     const trace = await runTrace(spec.engine, scenario);
+    // A SyntaxError before the first call is fatal, whether from parsing or from the engine body such as JSON.parse of an arg.
+    // Other throws before the first call are by design, such as an args check.
+    if (trace.thrown instanceof SyntaxError && trace.calls.length === 0) {
+      throw new Error(`${spec.engine} threw a SyntaxError before its first agent call in scenario "${scenario.name}": ${trace.thrown.message}`);
+    }
     for (const c of trace.calls) {
       calls.push({ scenario: scenario.name, label: c.label, role: roleOf(c.label), prompt: c.prompt, schema: JSON.stringify(c.opts.schema ?? null, null, 2) });
     }
   }
+  if (calls.length === 0) throw new Error(`no scenario of ${spec.name} made an agent call to ${spec.engine}, so there is no prompt to snapshot`);
   return calls;
 }
 
