@@ -179,6 +179,12 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   weighted matrix with a flip check, and recommend one. You can answer for every entry at once. After
   each run lands, the operator repeats the steps until `args --backlog` finds nothing to build. An
   entry marked `fixed` or `stale` no longer waits on you.
+- **develop's acceptance fails fewer rounds over a sweep line.** A hit that a sweep line leaves out is
+  a gap only when it needs a change the diff did not make or disagrees with the change. Acceptance
+  names each other left-out hit in its risk-audit result. The closing pass judges a fix's risk before
+  it writes the fix. Acceptance checks a hunk that changes only prose with a word diff, so a rewrap
+  needs no further read. A park entry lists its ledger and amended lines only for a file that may
+  exist. A gate that may outlast one tool call runs through the shell tool's background option.
 
 ### 2026-10-27
 

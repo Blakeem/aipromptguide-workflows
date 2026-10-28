@@ -449,8 +449,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   phase after BUILD runs a targeted test while it works. The gate runs once more after the last
   phase that changed code, and that run's outcome is the one it reports. Every gate run sets the
   shell tool's timeout to its maximum (600000 ms) and writes the gate's entire output to a log
-  under `scratch/`, which the agent then reads. A gate that may outlast that timeout runs in the
-  background and writes its exit code to a file beside the log, and the agent waits for that
+  under `scratch/`, which the agent then reads. A gate that may outlast that timeout runs through
+  the shell tool's background option, never a shell `&`, since a job started with `&` may stop when
+  its tool call returns. It writes its exit code to a file beside the log, and the agent waits for that
   file with one bounded loop that ends inside the timeout, then reads the log once. Acceptance,
   the sweep and park run their gates the same way. A fix block's later round, and every
   later round's pulled entries, start from the statuses the developer last reported, which the prompt
@@ -574,7 +575,8 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   round-1 developer confirms each against the code as it confirms a review finding, closes each one it
   confirms and declines each one it refutes with a DISMISSED line. Acceptance counts a listed gap closed
   when the code closes it or a ledger line declines it. A listed gap for a wrong risk answer,
-  for a sweep line that is missing, leaves out a hit, or disagrees with the change, or for a path
+  for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the
+  change, or for a path
   that changed after its round's snapshot, takes no fix and no log, and acceptance counts it closed,
   since the block's first blind review judges the entire restored work. A park entry's `- ledger:`
   line names the `DISMISSED-<id>.md` of the parked block, and its `- amended:` line names
@@ -679,25 +681,29 @@ acceptance verdict since then returned `risk_misclassified` true. Any other roun
 straight to acceptance. Git holds one cumulative unstaged diff, so acceptance reads each audited round's own
 hunks from two snapshots. It runs `git diff --stat <base> <snapshot>` and then `git diff <base> <snapshot> --
 <file>` per file, where `<snapshot>` is the line in that round's risk file and `<base>` is the line in the
-risk file of the round before it. The engine hands acceptance the `risk_snapshot` each of those rounds
-returned, and acceptance confirms each file's snapshot line equals it before it audits. A line that differs,
-or a round that returned no tree id, counts as a missing file. On every verdict, acceptance also runs the same
-snapshot commands on a temporary index file of its own, before it stages anything, and lists the paths that
-differ from the snapshot the last round returned with `git diff --name-only`. A path that differs is a
-risk-audit gap, since it changed after the developer handed its round on, unless it is untracked build output
-or a cache that a gate or test run regenerates. When the last round returned no snapshot, this check has
-nothing to compare, and an unreviewed round's missing snapshot is already a missing file. It checks each
-answer in the risk file of each round since the last blind review or last clean risk audit against that
-round's hunks. It also checks the sweep of the latest of those rounds: each changed name or phrase in that
+risk file of the round before it. In this read and in its read of the cumulative diff, acceptance checks a
+hunk that changes only prose with `git diff --word-diff=porcelain` and the arguments of the diff that showed
+it. A rewrap with no changed word needs no further read. The engine hands acceptance the `risk_snapshot`
+each of those rounds returned, and acceptance confirms each file's snapshot line equals it before it
+audits. A line that differs, or a round that returned no tree id, counts as a missing file. On every
+verdict, acceptance also runs the same snapshot commands on a temporary index file of its own, before it
+stages anything, and lists the paths that differ from the snapshot the last round returned with `git diff
+--name-only`. A path that differs is a risk-audit gap, since it changed after the developer handed its
+round on, unless it is untracked build output or a cache that a gate or test run regenerates. When the
+last round returned no snapshot, this check has nothing to compare, and an unreviewed round's missing
+snapshot is already a missing file. It checks each answer in the risk file of each round since the last
+blind review or last clean risk audit against that round's hunks. It also checks the sweep of the latest of
+those rounds: each changed name or phrase in that
 round's hunks needs a line, and each hit marked `unaffected` must still agree with the change. A round whose
 hunks add, remove or rename a field of an agent's return schema also needs a line that lists each sentence
 that lists that agent's return fields. A missing file, a missing snapshot line in an audited round's file or
 in its base file, a change the file does not judge low risk, an answer the hunks contradict, a changed name or
-phrase with no sweep line, an `unaffected` hit that disagrees with the change and a hit that acceptance finds
-by running the line's search again and the line leaves out are each a gap, and the verdict returns
-`risk_misclassified` true, which sends the next round to a blind review. A verdict that returns
-`risk_misclassified` false drops the rounds it audited, so the next acceptance audits only the rounds after
-them.
+phrase with no sweep line, an `unaffected` hit that disagrees with the change, and a hit that acceptance finds
+by running the line's search again, that the line leaves out, and that needs a change the diff did not make or
+disagrees with the change are each a gap, and the verdict returns `risk_misclassified` true, which sends the
+next round to a blind review. Acceptance names each left-out hit it judges unaffected in its risk-audit
+result, and that hit is no gap. A verdict that returns `risk_misclassified` false drops the rounds it audited,
+so the next acceptance audits only the rounds after them.
 
 **Closing pass.** When round `maxRounds` ends without a passed acceptance, one more developer runs,
 and no develop round follows it. It takes round number `maxRounds + 1` in its file names. It makes each
@@ -717,16 +723,16 @@ The closing acceptance sorts each gap into one of two kinds. A blocking gap is a
 gate, an unmet criterion of a feature or section block, an ACTIONABLE entry of a fix block whose root
 cause is not closed, a change made for an entry that is not ACTIONABLE or a change no FIXED claim
 accounts for, a defect at medium severity or higher that the block's diff introduces, a wrong risk
-answer or a sweep line that is missing, leaves out a hit, or disagrees with the change, in changes
-no blind review has read, or a path the tree check finds changed after its round's snapshot. Every other
-gap is not blocking, such as a low or nit finding or a cleanup. A finding the closing blind review raises
-against a dismissal is a gap of either kind by the same rule, unless it contests an `ESCALATED:` line
-acceptance holds. With no blocking gap, the closing acceptance stages the block, commits it in commit
-mode, and appends each gap that is not blocking as one entry in the block's backlog file, with a
-`- decision:` by §10's rule. The block syncs `done`, and its ledger status names the count of those
-entries. With a blocking gap, the block parks, and its park entry lists the blocking gaps first and names
-each entry the closing pass listed. Every round before the closing pass keeps the bar where every gap
-fails acceptance.
+answer or a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the
+change, in changes no blind review has read, or a path the tree check finds changed after its round's
+snapshot. Every other gap is not blocking, such as a low or nit finding or a cleanup. A finding the
+closing blind review raises against a dismissal is a gap of either kind by the same rule, unless it
+contests an `ESCALATED:` line acceptance holds. With no blocking gap, the closing acceptance stages the
+block, commits it in commit mode, and appends each gap that is not blocking as one entry in the block's
+backlog file, with a `- decision:` by §10's rule. The block syncs `done`, and its ledger status names
+the count of those entries. With a blocking gap, the block parks, and its park entry lists the blocking
+gaps first and names each entry the closing pass listed. Every round before the closing pass keeps the
+bar where every gap fails acceptance.
 
 Gate semantics per block: `green` = build + the block's verification passed
 (`tests_run_count==0` is a false green) — and when `suite: green`, a reddened existing suite fails it
