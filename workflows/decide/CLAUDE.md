@@ -193,32 +193,34 @@ measurement, and own judgment scores at most partly met.
   listed option that violates a must, an adjacent pair whose order its scores reverse, a candidate off
   the list that scores above a listed one, or a combine or exclude claim the evidence contradicts).
   Musts are judged at the depth the rubric states, else on the default path (§4). Every other concern
-  is a caveat. It rejects exactly when it holds an objection. The blind file holds `## Scores`,
-  `## Objections` (`- O<n>: ...` lines), `## Caveats` (`- C<n>: ...` lines, or `None.`) and a last
-  `Verdict: accept|reject` line. Its
-  prompt ends with one instruction: run `node '<checkTool>' '<blind file>'` and follow what it prints. Its
-  return is neutral: `wrote_file`, `verdict` and `needs_user`.
+  is a caveat. It rejects exactly when it holds an objection. Its prompt states no file format. The
+  reviewer runs `node '<checkTool>' '<blind file>'`, which writes the blind file's skeleton and prints
+  the format of each section, then fills in every section. Its prompt ends with one instruction: run the
+  command again and follow what it prints. Its return is neutral: `wrote_file`, `verdict` and
+  `needs_user`.
 - **Check agent** (check · sonnet) — writes and runs fixed text only. Before each review it writes the
-  round's check spec and reveal text and resets its lock and final file (§5a). After the reviewer returns it runs `--verify` and returns
-  `exit_code`, `final_line` and `stage1_verdict`.
+  round's check spec and reveal text and resets its blind file, lock and final file (§5a). After the
+  reviewer returns it runs `--verify` and returns `exit_code`, `final_line` and `stage1_verdict`.
 
 ## 5a. The staged review (for the operator — no prompt points here)
 
 A judge shown a prior score or verdict anchors on it, so the final reviewer judges blind before it sees
 the decision:
 
-1. The check agent writes `locks/review-rN.json` (the headings the blind file must hold, the final file
-   `decide/review-rN-final.md`, the decision file and the reveal path) and `locks/review-rN.reveal.md`,
-   the reveal text the engine renders. It also writes `{}` to `locks/review-rN.lock` and empties the final
-   file, so a same-runId relaunch never finds an earlier launch's lock or final review standing in for
-   this round's.
-2. The reviewer writes its blind file and runs `tools/review-check.mjs` on it. While the file is
-   incomplete the tool prints the format errors only. Once it is complete the tool writes
-   `locks/review-rN.lock` (the file's sha256 and its verdict) and prints the reveal: read the decision
-   file, then sort each objection into **withdrawn** (only by quoting, word for word, a sourced fact the
-   decision file holds, never the decider's opinion, weight or argument), **kept** or **downgraded** to
-   a caveat, write the final file (an `## Objections` section with one sort line per objection, a
-   `## Caveats` section of `- C<n>:` lines or `None.`, and the final verdict), and run the check again.
+1. The check agent writes `locks/review-rN.json` (the final file `decide/review-rN-final.md`, the
+   decision file and the reveal path) and `locks/review-rN.reveal.md`, the reveal text the engine
+   renders. It also writes `{}` to `locks/review-rN.lock` and empties the blind file and the final file,
+   so a same-runId relaunch never finds an earlier launch's blind review, lock or final review standing
+   in for this round's.
+2. The reviewer runs `tools/review-check.mjs` on its blind file, which writes the file's skeleton and
+   prints its format, fills in the file and runs the check again. The tool owns the format of both
+   review files (tools/CLAUDE.md, "review-check.mjs"). While the file is incomplete the tool prints the
+   format errors only. Once it is complete the tool writes `locks/review-rN.lock` (the file's sha256 and
+   its verdict), writes the final file's skeleton with one sort line per objection, and prints the
+   reveal and the final file's format: read the decision file, then sort each objection into
+   **withdrawn** (only by quoting, word for word, a sourced fact the decision file holds, never the
+   decider's opinion, weight or argument), **kept** or **downgraded** to a caveat, fill in the final
+   file, and run the check again.
    Later runs check that the blind file still matches the lock and that each withdrawal's quote is in the
    decision file. A reject keeps at least one objection. In the last round a reject ends with a **WHERE
    NEXT** section: whether the kept objections rest on evidence another revision could answer, or on a
@@ -365,11 +367,10 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
   + flip check (in `ranked` mode: the matrix + the ranked options with buys/costs + the
   combine-vs-exclusive section + the flip check), then `## Open issues` and `## Checks for the user`.
 - `review/ledger-rN.md` — the evidence ledger of the decider's Nth pass (§5).
-- `review/review-rN.md` — review round N's blind review: `## Scores`, `## Objections`, `## Caveats` (one
-  `- C<n>:` line per caveat, or `None.`) and the verdict line.
-- `decide/review-rN-final.md` — review round N's final review: `## Objections` with each objection
-  withdrawn, kept or downgraded, `## Caveats`, the final verdict and, on a last-round reject,
-  `## WHERE NEXT`.
+- `review/review-rN.md` — review round N's blind review: its scores, objections, caveats and verdict,
+  in the format `tools/review-check.mjs` writes and checks.
+- `decide/review-rN-final.md` — review round N's final review: each objection withdrawn, kept or
+  downgraded, the caveats, the final verdict and, on a last-round reject, `## WHERE NEXT`.
 - `locks/review-rN.json`, `locks/review-rN.reveal.md`, `locks/review-rN.lock` — the check spec, the
   reveal text and the lock of review round N (§5a).
 - `NEEDS-USER.md` — user-only escalations; a hard blocker here halted the run.

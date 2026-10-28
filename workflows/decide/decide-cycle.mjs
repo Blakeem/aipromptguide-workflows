@@ -6,7 +6,7 @@ export const meta = {
     { title: 'Diverge', detail: 'One researcher per lens (CONCURRENT). Each reads the requirements (verbatim) + its lens, generates 2–4 options, gathers cited evidence for them, scores them under its lens, recommends one, and writes lenses/<lens>.md. Returns a thin index.' },
     { title: 'Decide', detail: 'The decider reads the requirements + every lens file (+ the research files of the latest research round, + the previous review round\'s final review), combines the best elements, builds a GLOBAL weighted decision matrix: musts pass/fail, wants met / partly met / missed, every cell citing its evidence or marked own judgment. It picks the winner, writes decide/decision-rN.md with an Open issues section and a Checks for the user section, writes review/ledger-rN.md (the answer under review, the candidates and the sourced facts, no score or reasoning), and returns the choice + the open issue slugs.' },
     { title: 'Research', detail: 'One researcher per open issue, for the first maxResearchers issues the decider lists (CONCURRENT). The rest are carried to the next decider pass. Each reads the requirements, the issue in the decision file and the files the decider names for it, searches with the tools it has, and writes research/r<N>-<slug>.md with its findings cited, or a check for the user when no agent can settle it. Returns whether it found new evidence. The decider then runs again. Research stops on covered (no open issue), saturated (two research rounds in a row with no new evidence) or cap (maxResearchRounds).' },
-    { title: 'Review', detail: 'A check agent writes the round\'s check spec and reveal text to locks/. ONE fresh reviewer reads the requirements + the ledger, scores every candidate blind and writes review/review-rN.md with its objections and verdict, then runs review-check.mjs, which locks that file and prints the reveal: read the decision file, sort each objection into withdrawn (by a quoted sourced fact), kept or downgraded, write the final file and run the check again. The check agent then runs review-check.mjs --verify: a matching lock gives the verdict from the kept count and names the caveat count, a mismatch falls back to the locked blind verdict, and a missing lock reruns the reviewer once, then blocks. A kept objection drives another Decide round.' },
+    { title: 'Review', detail: 'A check agent writes the round\'s check spec and reveal text to locks/. ONE fresh reviewer reads the requirements + the ledger, scores every candidate blind and fills in review/review-rN.md, whose skeleton review-check.mjs writes, with its objections and verdict. Its next run of the check locks that file, writes the final file\'s skeleton and prints the reveal: read the decision file, sort each objection into withdrawn (by a quoted sourced fact), kept or downgraded, fill in the final file and run the check again. The check agent then runs review-check.mjs --verify: a matching lock gives the verdict from the kept count and names the caveat count, a mismatch falls back to the locked blind verdict, and a missing lock reruns the reviewer once, then blocks. A kept objection drives another Decide round.' },
   ],
 };
 
@@ -249,7 +249,7 @@ const CHECK_SETUP_SCHEMA = {
   type: 'object',
   required: ['wrote_file'],
   properties: {
-    wrote_file: { type: 'boolean', description: 'true only if you wrote all four files' },
+    wrote_file: { type: 'boolean', description: 'true only if you wrote all five files' },
   },
 };
 
@@ -459,9 +459,9 @@ lens files in ${LENS_DIR}/${earlierResearch.length ? `, ${decFile} and the resea
 Do NOT modify any repo, stage, or commit.
 Return via the schema.`;
 
-// The reviewer's prompt holds only the blind stage. The check tool locks the blind review and prints the
-// reveal, so nothing the reviewer reads before that lock names a decision file or a later stage.
-const BLIND_HEADINGS = ['## Scores', '## Objections', '## Caveats'];
+// The reviewer's prompt holds only the blind stage and the judgment rules. The check tool owns the file format,
+// locks the blind review and prints the reveal, so nothing the reviewer reads before that lock names a
+// decision file or a later stage.
 const VERDICTS = REVIEW_SCHEMA.properties.verdict.enum;
 
 const OBJECTIONS = RANKED
@@ -495,17 +495,13 @@ PROCEDURE:
    Every other concern is a caveat. No evidence, no objection.
 3. Reject when you hold at least one objection, else accept.
 ${DEFAULT_PATH}
-WRITE ${blindFile(round)} (create ${REVIEW_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} It holds, in this order:
-- a \`${BLIND_HEADINGS[0]}\` section: a table of every candidate against every requirement, each cell with its
-  evidence, and each candidate's weighted total;
-- a \`${BLIND_HEADINGS[1]}\` section: one line per objection, \`- O<n>: <the objection>. Requirement: <the
-  requirement>. Evidence: <the evidence>\`, numbered from O1, or "None.";
-- a \`${BLIND_HEADINGS[2]}\` section: one line per caveat, \`- C<n>: <the caveat>. Evidence: <the evidence>\`,
-  numbered from C1, or "None.";
-- a last line \`Verdict: accept\` or \`Verdict: reject\`.
+WRITE ${blindFile(round)} through its check command. The file may hold an earlier reviewer's text, so when it
+holds any, Read it and write it with no content. Then run \`node '${CHECK_TOOL}' '${blindFile(round)}'\`, which
+writes the file's skeleton and prints the format of each section. Read the skeleton and fill in every
+section with the Write or Edit tool. ${WROTE_NOTE} ${FILE_WRITE_NOTE}
 Do NOT modify any repo, stage, or commit. If a requirement contradiction only the user can resolve
 surfaces, append it to ${NEEDS_USER} and set needs_user=true. Return via the schema once you are done.
-When the review file is complete, run \`node '${CHECK_TOOL}' '${blindFile(round)}'\` and follow what it prints.`;
+When the review file is complete, run \`node '${CHECK_TOOL}' '${blindFile(round)}'\` again and follow what it prints.`;
 
 // The check tool prints this once it locks the blind review. It reaches the reviewer only through that tool.
 const revealText = (round, decFile, isFinal) => `Your blind review is locked. Now read the decision file ${decFile}, which holds the decider's
@@ -514,35 +510,32 @@ matrix and reasoning, and sort each objection of your review into one of three:
   double quotes. The decider's opinion, weight or argument never withdraws an objection.
 - kept: it still stands. Restate it in full with its evidence.
 - downgraded: it is a caveat after all. Say why.
-WRITE ${finalFile(round)}. ${REPLACE_NOTE} ${FILE_WRITE_NOTE} Write a \`${BLIND_HEADINGS[1]}\` section with one line per
-objection of your review, \`- O<n>: withdrawn "<the quoted fact>"\`, \`- O<n>: kept: <the objection and its
-evidence>\` or \`- O<n>: downgraded: <why>\`, then a \`${BLIND_HEADINGS[2]}\` section with every caveat, your
-review's and the downgraded objections', one line each, \`- C<n>: <the caveat>\`, numbered from C1, or
-"None.", then a last line \`Verdict: accept\` or \`Verdict: reject\`.
 A reject keeps at least one objection: ${RANKED
     ? 'a listed option that violates a non-negotiable, a challenger with its scores, or a combine or exclude claim the evidence contradicts'
     : 'a non-negotiable the winner violates, or a challenger with its scores'}. An accept keeps none.${isFinal ? `
-This is the run's LAST round: no decider round follows. If your final verdict is reject, put a
-\`## WHERE NEXT\` section just above the verdict line. Say whether the kept objections rest on evidence
+This is the run's LAST round: no decider round follows. If your final verdict is reject, add the
+optional section the format below lists. Say whether the kept objections rest on evidence
 another revision could answer, or on a requirement the rubric does not settle, such as how far a
 non-negotiable reaches or a trade-off the decision lands on the other side of. For a requirement, name
 the ONE requirement and the ONE change to it (a weight, a non-negotiable's depth, a missing criterion)
 that would let a decision converge.` : ''}
-Leave your blind review unchanged, since the check compares it with its lock. Then run
-\`node '${CHECK_TOOL}' '${blindFile(round)}'\` again, fix each error it prints, and return via the schema with
-your final verdict.`;
+Leave your blind review unchanged, since the check compares it with its lock. The check wrote the skeleton
+of your final review, ${finalFile(round)}, and prints its format below. Read it and fill in every section
+with the Write or Edit tool. ${FILE_WRITE_NOTE} Then run \`node '${CHECK_TOOL}' '${blindFile(round)}'\` again,
+fix each error it prints, and return via the schema with your final verdict.`;
 
 const checkSetupPrompt = (round, decFile, isFinal) => `
-You are the CHECK AGENT of review round ${round}. Write four files exactly as given below, and change no other file.
+You are the CHECK AGENT of review round ${round}. Write five files exactly as given below, and change no other file.
 1. WRITE ${specFile(round)} (create ${LOCK_DIR}/ if needed). ${REPLACE_NOTE} Its content is exactly this JSON:
-${JSON.stringify({ headings: BLIND_HEADINGS, stage2: finalFile(round), decision: decFile, reveal: revealFile(round) }, null, 2)}
+${JSON.stringify({ stage2: finalFile(round), decision: decFile, reveal: revealFile(round) }, null, 2)}
 2. WRITE ${revealFile(round)}. ${REPLACE_NOTE} Its content is exactly the text between the line BEGIN TEXT and
 the line END TEXT below, without those two lines:
 BEGIN TEXT
 ${revealText(round, decFile, isFinal)}
 END TEXT
-3. WRITE ${lockFile(round)} with the content {} and ${finalFile(round)} with no content, so no lock or final
-review from an earlier launch stands in for this round's. ${REPLACE_NOTE}
+3. WRITE ${lockFile(round)} with the content {}, and ${blindFile(round)} (create ${REVIEW_DIR}/ if needed) and
+${finalFile(round)} with no content, so no lock or review from an earlier launch stands in for this round's.
+${REPLACE_NOTE}
 ${WROTE_NOTE} ${FILE_WRITE_NOTE} Do NOT modify any repo, stage, or commit.
 Return via the schema.`;
 
@@ -723,7 +716,7 @@ converge: while (round < MAX_ROUNDS) {
   if (!setup) throw new Error(`Check agent returned nothing before the review in round ${round} (check-setup r${round}: agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
   // review-check.mjs reads these files, and a same-runId re-run can leave an earlier round's spec there.
   if (setup.wrote_file !== true) {
-    haltKind = 'write-unattested'; haltReason = `The check agent did not confirm writing ${specFile(round)}, ${revealFile(round)}, ${lockFile(round)} and ${finalFile(round)} in round ${round}.`;
+    haltKind = 'write-unattested'; haltReason = `The check agent did not confirm writing ${specFile(round)}, ${revealFile(round)}, ${lockFile(round)}, ${blind} and ${finalFile(round)} in round ${round}.`;
     log(`  ✋ r${round}: check agent did NOT confirm writing the check spec → halting before the reviewer`);
     break;
   }

@@ -1072,14 +1072,28 @@ When the user asks to work the backlog:
    `DEFER`, or while it is ACTIONABLE and its `- status:` is `needs-attention`, which a fix that failed
    or did not land sets.
    An entry whose decision is SKIP never waits on the user, whatever its status. It keeps its status
-   unless step 3 sets one, so `- status: open` alone never lists an entry. Also list each entry with
+   unless step 3 sets one, so `- status: open` alone never lists an entry. An entry whose `- status:`
+   is `fixed` or `stale` never waits on the user either, whatever its decision. Also list each entry with
    a `**Parked with:**` line, whatever its decision, with a note naming the block that line names,
    and leave it out of the triage in step 3 while it is held. Leave out every ACTIONABLE entry of a `backlogged` file, since that
    file's park entry carries it and step 5 closes it once its work lands. List each other entry of
    that file with a note naming the file, and leave it out of the triage in step 3 until step 5 sets
    the file `done`, since an entry approved before then would be closed with entries it was never
    built with.
-3. Triage them with the user. Set each entry the user decides to skip to `- decision: SKIP`. When a
+   Then research each entry that step 3 triages, before you present it. First confirm that its defect
+   or gap still holds in the accepted baseline, and cite the file:line. When it no longer holds,
+   recommend a skip, since the accepted baseline holds its fix. Otherwise list its fix options, the
+   lowest-impact fix and the most automated one among them. Fix the criteria and their weights before
+   you score, score each option in a decision matrix, and run a flip check that names the smallest
+   weight change that changes the winner. Mark the flip check ROBUST when that change is larger than the
+   uncertainty in that weight, else FRAGILE. Last, argue once against the winner and check that argument
+   against the code. Recommend the winner with a one-line reason and its flip-check mark.
+3. Triage them with the user. Present each entry with its recommendation and its matrix. The user may
+   answer for all of them at once, such as "apply the recommendations". When the user has delegated
+   triage, apply each ROBUST recommendation yourself and ask only about each FRAGILE one and each
+   change to the architecture. Record each decision as one `**Triage:**` line after the entry's
+   `**Fix:**` line, with its reason, since the developer reads the entry and the matrix belongs in your
+   report. Set each entry the user decides to skip to `- decision: SKIP`. When a
    skipped entry carries an `- origin:` line, also set each block it names to `skip`, or to `todo` to
    rebuild it, since a `backlogged` block whose entry never syncs `fixed` never reaches `done`. When it
    also carries a `- branch:` line, delete that branch with `git -C <repo> branch -D <branch>`, since a
@@ -1132,7 +1146,9 @@ When the user asks to work the backlog:
    developer of a file whose ACTIONABLE entry carries a `- branch:` line restores that branch's work
    first (§7). Each `args` call writes the fold of the files it names and, with `--backlog`, of every
    `todo` or `done` backlog file that holds an ACTIONABLE entry, so apply step 5 to the folder again
-   after it.
+   after it. Once the run lands, repeat steps 1 to 4. Stop when `args --backlog` exits 1 with a
+   message that ends `nothing to build`, even while a file this step says it leaves out still holds a
+   ready entry.
 5. Each entry in the folder with an `- origin:` line and `- status: fixed` takes this step while the
    blocks that line names are not all `done` or `skip`. `<repo>` in this step is the user's checkout,
    never a run worktree. Run this step only when `git -C <repo> status --short --untracked-files=no`

@@ -70,6 +70,15 @@ engine code can lift, such as a shell tool's timeout and output cut, is handled 
 one engine constant that renders how every agent runs that command, so no agent decides how to work
 around it.
 
+When a tool parses, counts or routes on a file an agent writes, that tool owns the file's format. It
+writes the file's skeleton, prints the shape each section allows and reads the file back by the same
+grammar, so the format exists once, in the tool, and no prompt restates it. The agent fills in the
+content with its file tools and never passes content as command arguments, since a shell changes quotes
+and backticks. For example, `tools/review-check.mjs` holds decide's review file format in one grammar
+constant: it writes each review file's skeleton, prints its format and checks the file by that grammar,
+so the reviewer's prompt holds only the judgment rules. A file that only agents read, such as a ledger of
+one line per entry, keeps its format in the prompt that writes it, unless a defect shows it needs a tool.
+
 ### 5. Staged, escalating reviews
 When building to a spec, gate the work in stages that must each pass:
 1. an unbiased pure-code review with no spec, goal, or plan, which judges the code on its own merits, then
@@ -489,7 +498,9 @@ Use these as yes/no checks when reviewing any workflow.
       between runs ride a step the operator must run anyway, with nothing left for someone to
       remember? Is every tool or runtime limit an agent would hit that the tool or engine can lift
       fixed there? Is every limit no code can lift handled once per command, in one engine constant
-      that renders how agents run that command, with no other workaround in a prompt? (#4)
+      that renders how agents run that command, with no other workaround in a prompt? Does every file
+      format a tool parses, counts or routes on live in that tool, which writes the skeleton and
+      prints the format, with no prompt restating it? (#4)
 - [ ] Must an unbiased code review pass before the plan-aware acceptance review runs, on a block's
       first build, on each change judged as needing review and on the next change after the acceptance
       review finds a risk answer wrong? (#5)

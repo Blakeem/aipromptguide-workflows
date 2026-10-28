@@ -91,14 +91,23 @@ section('an accept that names caveats ends decided with caveats, counted from th
   ok(msg.startsWith('Check agent returned an unreadable result in round 1'), `a counts line without caveats throws: ${msg.slice(0, 80)}`);
 }
 
-section('the reviewer and the reveal name the caveat line shape, and the reveal names the objections heading');
+section('the check tool owns the review file format: the reviewer and the reveal state none of it and fill in the skeleton it writes');
 {
   const { byLabel } = await run(CLEAN);
   const rev = flat(byLabel('review r1')[0]?.prompt);
-  ok(rev.includes('a `## Caveats` section: one line per caveat, `- C<n>: <the caveat>. Evidence: <the evidence>`, numbered from C1, or "None.";'), 'the blind review format names - C<n>:');
   const reveal = flat(revealOf(byLabel('check-setup r1')[0]?.prompt));
-  ok(reveal.includes('Write a `## Objections` section with one line per objection of your review,') && reveal.includes('one line each, `- C<n>: <the caveat>`, numbered from C1, or "None."'),
-    `the reveal names the objections heading and the caveat shape: ${reveal.slice(reveal.indexOf('WRITE'), reveal.indexOf('WRITE') + 200)}`);
+  const lastReveal = flat(revealOf((await run(CLEAN, { ...baseArgs, maxRounds: 1 })).byLabel('check-setup r1')[0]?.prompt));
+  const FORMAT = [/## Scores/, /## Objections/, /## Caveats/, /## WHERE NEXT/, /- O<n>:/, /- C<n>:/, /Verdict: accept/, /None\./];
+  ok(lastReveal.includes('LAST round'), 'the last round\'s reveal is the one that asks for the optional section');
+  for (const [what, text] of [['the reviewer', rev], ['the reveal', reveal], ['the last round\'s reveal', lastReveal]]) {
+    eq(FORMAT.filter((re) => re.test(text)).map(String).join(', '), '', `${what} restates no part of the file format`);
+  }
+  ok(rev.includes(`Then run \`node '${TOOL}' '${S}/review/review-r1.md'\`, which writes the file's skeleton and prints the format of each section. Read the skeleton and fill in every section with the Write or Edit tool.`),
+    'the reviewer runs the tool first, which writes the skeleton and prints its format');
+  ok(rev.includes(`The file may hold an earlier reviewer's text, so when it holds any, Read it and write it with no content.`), 'and empties an earlier reviewer\'s file first, so a rerun writes a fresh skeleton');
+  ok(reveal.includes(`The check wrote the skeleton of your final review, ${S}/decide/review-r1-final.md, and prints its format below. Read it and fill in every section with the Write or Edit tool.`),
+    'the reveal names the final file whose skeleton the tool wrote');
+  ok(FORMAT.some((re) => re.test('a mutant prompt: `- C<n>: <the caveat>`')), 'the format check catches a mutant prompt that restates a line shape');
 }
 
 section('each review round runs the check agent, one reviewer, then the check, in sequence, with a neutral review schema');
@@ -137,7 +146,7 @@ section('the reviewer prompt is blind: in every selection and round it names no 
         const p = String(c.prompt);
         eq(leaks(p).join(', '), '', `${tag}/${c.label}: the prompt names no decide, research or lens path and no later stage`);
         ok(p.includes(`${S}/review/ledger-r`) && p.includes(`WRITE ${S}/review/review-r${roundOf(c.label)}.md`), `${tag}/${c.label}: it names its ledger and its own blind file`);
-        ok(flat(p).trimEnd().endsWith(`When the review file is complete, run \`node '${TOOL}' '${S}/review/review-r${roundOf(c.label)}.md'\` and follow what it prints.`),
+        ok(flat(p).trimEnd().endsWith(`When the review file is complete, run \`node '${TOOL}' '${S}/review/review-r${roundOf(c.label)}.md'\` again and follow what it prints.`),
           `${tag}/${c.label}: its task text ends with the check command`);
       }
       // The reviewer of round 1 scores the decision of pass 2, which the research round produced.
@@ -155,17 +164,16 @@ section('the check agent writes the spec and the reveal, and the spec path follo
   const json = setup.slice(setup.indexOf('exactly this JSON:\n') + 19, setup.indexOf('\n2. WRITE'));
   let spec = {};
   try { spec = JSON.parse(json); } catch { spec = {}; }
-  eq(JSON.stringify(spec), JSON.stringify({ headings: ['## Scores', '## Objections', '## Caveats'], stage2: `${S}/decide/review-r1-final.md`, decision: `${S}/decide/decision-r1.md`, reveal: `${S}/locks/review-r1.reveal.md` }),
-    'the spec names the headings, the final file, the reviewed decision and the reveal file');
+  eq(JSON.stringify(spec), JSON.stringify({ stage2: `${S}/decide/review-r1-final.md`, decision: `${S}/decide/decision-r1.md`, reveal: `${S}/locks/review-r1.reveal.md` }),
+    'the spec names the final file, the reviewed decision and the reveal file, and no headings, since the tool owns the format');
   const specPath = pathsFor(`${S}/review/review-r1.md`).spec.replace(/\\/g, '/');
   ok(setup.includes(`WRITE ${specPath} `), `the setup writes the spec where review-check.mjs looks for it: ${specPath}`);
   const lockPath = pathsFor(`${S}/review/review-r1.md`).lock.replace(/\\/g, '/');
-  ok(flat(setup).includes(`WRITE ${lockPath} with the content {} and ${S}/decide/review-r1-final.md with no content`),
-    'the setup resets the lock and the final file, so no file of an earlier launch stands in for this round');
-  const reviewer = String(byLabel('review r1')[0]?.prompt);
-  ok(spec.headings?.every((h) => reviewer.includes(h)), 'the reviewer is told every heading the spec checks');
+  ok(flat(setup).includes(`WRITE ${lockPath} with the content {}, and ${S}/review/review-r1.md (create ${S}/review/ if needed) and ${S}/decide/review-r1-final.md with no content`),
+    'the setup resets the lock, the blind file and the final file, so no file of an earlier launch stands in for this round');
+  ok(flat(setup).includes('Write five files exactly as given below'), 'and counts the five files it writes');
   const reveal = flat(revealOf(setup));
-  ok(reveal.includes(`read the decision file ${S}/decide/decision-r1.md`) && reveal.includes(`WRITE ${S}/decide/review-r1-final.md.`),
+  ok(reveal.includes(`read the decision file ${S}/decide/decision-r1.md`) && reveal.includes(`skeleton of your final review, ${S}/decide/review-r1-final.md,`),
     'the reveal names the decision file and the final file');
   ok(reveal.includes('Quote that fact word for word in double quotes. The decider\'s opinion, weight or argument never withdraws an objection.'),
     'a withdrawal needs a quoted sourced fact, never the decider\'s argument');
@@ -173,8 +181,8 @@ section('the check agent writes the spec and the reveal, and the spec path follo
     'a reject keeps an objection');
   ok(reveal.includes(`run \`node '${TOOL}' '${S}/review/review-r1.md'\` again`), 'and the reviewer runs the check again');
   ok(!reveal.includes('WHERE NEXT'), 'round 1 of 2 is not the last round');
-  ok(flat(revealOf(byLabel('check-setup r2')[0]?.prompt)).includes('This is the run\'s LAST round: no decider round follows. If your final verdict is reject, put a `## WHERE NEXT` section just above the verdict line.'),
-    'the last round\'s reveal asks for WHERE NEXT');
+  ok(flat(revealOf(byLabel('check-setup r2')[0]?.prompt)).includes('This is the run\'s LAST round: no decider round follows. If your final verdict is reject, add the optional section the format below lists.'),
+    'the last round\'s reveal asks for the optional section');
   ok(flat(byLabel('check r1')[0]?.prompt).includes(`node '${TOOL}' --verify '${S}/review/review-r1.md'`), 'the verify runs the tool on the blind file');
   const { byLabel: ranked } = await run(CLEAN, RANKED);
   ok(flat(revealOf(ranked('check-setup r1')[0]?.prompt)).includes('A reject keeps at least one objection: a listed option that violates a non-negotiable, a challenger with its scores, or a combine or exclude claim the evidence contradicts.'),
@@ -419,6 +427,7 @@ section('an unattested decider, check agent or reviewer write halts, and the ret
   eq(setup.status, UNATTESTED, 'an unattested check spec halts on the same status');
   ok(!setupLabels.includes('review r1'), 'before the reviewer runs against a spec nobody attested');
   ok(setup.haltReason.includes(`${S}/locks/review-r1.json`), `haltReason names the spec: ${setup.haltReason}`);
+  ok(setup.haltReason.includes(`${S}/review/review-r1.md`), `and the blind file it resets: ${setup.haltReason}`);
 
   const { out: rev, labels: revLabels } = await run({ research: LENS, decide: DECIDE, ...rejectsThrough(1), review: (label) => (roundOf(label) === 1 ? REJECT : { ...REJECT, wrote_file: false }) }, { ...baseArgs, maxRounds: 3 });
   eq(rev.status, UNATTESTED, 'an unattested reviewer halts on the same status');
@@ -795,9 +804,10 @@ section("every prompt that writes a file says to Read an earlier launch's file f
     ['the research file', single.prompt('research-issue r1'), 1, 1],
     ['the single-choice decision file and ledger', single.prompt('decide'), 2, 1],
     ['the ranked decision file and ledger', ranked.prompt('decide'), 2, 1],
-    ['the round 1 blind review', single.prompt('review r1'), 1, 1],
+    // The tool writes the blind file's skeleton, so the reviewer empties an earlier launch's file instead of replacing it.
+    ['the round 1 blind review', single.prompt('review r1'), 0, 1],
     // The embedded reveal carries the final review's write site, whose heredoc warning the check agent copies.
-    ['the check spec, the reveal, the final review it names and the reset', single.prompt('check-setup r1'), 4, 1, 2],
+    ['the check spec, the reveal, the final review it names and the reset', single.prompt('check-setup r1'), 3, 1, 2],
   ];
   pinWriteNotes(sites);
   pinFileWriteNote(sites);

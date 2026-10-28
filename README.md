@@ -162,6 +162,23 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-10-28
+
+- **`tools/review-check.mjs` owns decide's review file format.** The reviewer runs the check first, and
+  the check writes the blind review's skeleton and prints the format of each section. When it locks
+  the blind review, it writes the final review's skeleton with one line per objection. The reviewer
+  prompt and the reveal text now hold only the judgment rules. The check reports a missing or
+  out-of-order section, an empty section, a placeholder left in place, a line in the wrong section and
+  a verdict that is not the last line. The check spec no longer holds `headings`.
+- **A downgraded objection always reaches the caveats.** A final review whose caveats section lists
+  fewer caveats than its downgraded objections now fails the check, and the caveat count never drops
+  below the downgraded count.
+- **Working the backlog researches each entry that waits on you.** The develop guide's "Working the
+  backlog" now has the operator confirm each entry against the current code, compare its fixes in a
+  weighted matrix with a flip check, and recommend one. You can answer for every entry at once. After
+  each run lands, the operator repeats the steps until `args --backlog` finds nothing to build. An
+  entry marked `fixed` or `stale` no longer waits on you.
+
 ### 2026-10-27
 
 - **Every engine halts on a run launched inside a user turn.** The Workflow runtime copies the user

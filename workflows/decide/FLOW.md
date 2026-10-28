@@ -95,7 +95,7 @@ flowchart TD
 | Diverge | One researcher per lens (CONCURRENT). Each reads the requirements (verbatim) + its lens, generates 2-4 options, gathers cited evidence for them, scores them under its lens, recommends one, and writes lenses/&lt;lens&gt;.md. Returns a thin index. |
 | Decide | The decider reads the requirements + every lens file (+ the research files of the latest research round, + the previous review round's final review), combines the best elements, builds a GLOBAL weighted decision matrix: musts pass/fail, wants met / partly met / missed, every cell citing its evidence or marked own judgment. It picks the winner, writes decide/decision-rN.md with an Open issues section and a Checks for the user section, writes review/ledger-rN.md (the answer under review, the candidates and the sourced facts, no score or reasoning), and returns the choice + the open issue slugs. |
 | Research | One researcher per open issue, for the first maxResearchers issues the decider lists (CONCURRENT). The rest are carried to the next decider pass. Each reads the requirements, the issue in the decision file and the files the decider names for it, searches with the tools it has, and writes research/r&lt;N&gt;-&lt;slug&gt;.md with its findings cited, or a check for the user when no agent can settle it. Returns whether it found new evidence. The decider then runs again. Research stops on covered (no open issue), saturated (two research rounds in a row with no new evidence) or cap (maxResearchRounds). |
-| Review | A check agent writes the round's check spec and reveal text to locks/. ONE fresh reviewer reads the requirements + the ledger, scores every candidate blind and writes review/review-rN.md with its objections and verdict, then runs review-check.mjs, which locks that file and prints the reveal: read the decision file, sort each objection into withdrawn (by a quoted sourced fact), kept or downgraded, write the final file and run the check again. The check agent then runs review-check.mjs --verify: a matching lock gives the verdict from the kept count and names the caveat count, a mismatch falls back to the locked blind verdict, and a missing lock reruns the reviewer once, then blocks. A kept objection drives another Decide round. |
+| Review | A check agent writes the round's check spec and reveal text to locks/. ONE fresh reviewer reads the requirements + the ledger, scores every candidate blind and fills in review/review-rN.md, whose skeleton review-check.mjs writes, with its objections and verdict. Its next run of the check locks that file, writes the final file's skeleton and prints the reveal: read the decision file, sort each objection into withdrawn (by a quoted sourced fact), kept or downgraded, fill in the final file and run the check again. The check agent then runs review-check.mjs --verify: a matching lock gives the verdict from the kept count and names the caveat count, a mismatch falls back to the locked blind verdict, and a missing lock reruns the reviewer once, then blocks. A kept objection drives another Decide round. |
 
 ## Terminal states
 
@@ -121,14 +121,14 @@ flowchart TD
 | throw: Missing args.checkTool | args carry no checkTool | throw (line 165) |
 | throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 176) |
 | throw: lens ids collide after slugging | two lenses slug to one file | throw (line 180) |
-| throw: A user request was relayed into the context of the researcher for ... ahead of its task | a lens researcher reports a user request relayed into its context | throw (line 576) |
-| throw: No lens researcher produced a lens file | no lens researcher produced a lens file | throw (line 580) |
-| throw: Decider returned nothing in round ... | the decider dies | throw (line 632) |
-| throw: Researcher returned nothing in research round ... | a researcher of an open issue dies | throw (line 701) |
-| throw: Check agent returned nothing before the review in round ... | the check agent dies writing the check spec | throw (line 723) |
-| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 737) |
-| throw: Check agent returned nothing after the review in round ... | the check agent dies running the check | throw (line 742) |
-| throw: Check agent returned an unreadable result in round ... | the check agent returns an exit code or a last line the tool never prints | throw (line 771) |
+| throw: A user request was relayed into the context of the researcher for ... ahead of its task | a lens researcher reports a user request relayed into its context | throw (line 569) |
+| throw: No lens researcher produced a lens file | no lens researcher produced a lens file | throw (line 573) |
+| throw: Decider returned nothing in round ... | the decider dies | throw (line 625) |
+| throw: Researcher returned nothing in research round ... | a researcher of an open issue dies | throw (line 694) |
+| throw: Check agent returned nothing before the review in round ... | the check agent dies writing the check spec | throw (line 716) |
+| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 730) |
+| throw: Check agent returned nothing after the review in round ... | the check agent dies running the check | throw (line 735) |
+| throw: Check agent returned an unreadable result in round ... | the check agent returns an exit code or a last line the tool never prints | throw (line 764) |
 
 ## Coverage
 

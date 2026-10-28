@@ -8,11 +8,11 @@ this file is stale.
 |---|---|---|---|---|
 | research | 1 | 1 | 2700 | reviewer accepts |
 | decide | 1 | 1 | 6487 | reviewer accepts |
-| check-setup | 1 | 1 | 3180 | reviewer accepts |
-| review | 1 | 1 | 3762 | reviewer accepts |
+| check-setup | 1 | 1 | 2793 | reviewer accepts |
+| review | 1 | 1 | 3452 | reviewer accepts |
 | check | 1 | 1 | 411 | reviewer accepts |
 | decide | 2 | 1 | 8615 | reject with a challenger |
-| check-setup | 2 | 1 | 3716 | rejects to the round budget |
+| check-setup | 2 | 1 | 3319 | rejects to the round budget |
 | research-issue | 1 | 1 | 2601 | research covers the open issues |
 | decide | 3 | 1 | 7071 | research covers the open issues |
 | research-issue | 2 | 1 | 2667 | research saturates |
@@ -223,14 +223,9 @@ Return via the schema.
 
 ~~~~text
 
-You are the CHECK AGENT of review round 1. Write four files exactly as given below, and change no other file.
+You are the CHECK AGENT of review round 1. Write five files exactly as given below, and change no other file.
 1. WRITE E:/flow/runs/flow/locks/review-r1.json (create E:/flow/runs/flow/locks/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its content is exactly this JSON:
 {
-  "headings": [
-    "## Scores",
-    "## Objections",
-    "## Caveats"
-  ],
   "stage2": "E:/flow/runs/flow/decide/review-r1-final.md",
   "decision": "E:/flow/runs/flow/decide/decision-r1.md",
   "reveal": "E:/flow/runs/flow/locks/review-r1.reveal.md"
@@ -244,18 +239,15 @@ matrix and reasoning, and sort each objection of your review into one of three:
   double quotes. The decider's opinion, weight or argument never withdraws an objection.
 - kept: it still stands. Restate it in full with its evidence.
 - downgraded: it is a caveat after all. Say why.
-WRITE E:/flow/runs/flow/decide/review-r1-final.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write a `## Objections` section with one line per
-objection of your review, `- O<n>: withdrawn "<the quoted fact>"`, `- O<n>: kept: <the objection and its
-evidence>` or `- O<n>: downgraded: <why>`, then a `## Caveats` section with every caveat, your
-review's and the downgraded objections', one line each, `- C<n>: <the caveat>`, numbered from C1, or
-"None.", then a last line `Verdict: accept` or `Verdict: reject`.
 A reject keeps at least one objection: a non-negotiable the winner violates, or a challenger with its scores. An accept keeps none.
-Leave your blind review unchanged, since the check compares it with its lock. Then run
-`node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r1.md'` again, fix each error it prints, and return via the schema with
-your final verdict.
+Leave your blind review unchanged, since the check compares it with its lock. The check wrote the skeleton
+of your final review, E:/flow/runs/flow/decide/review-r1-final.md, and prints its format below. Read it and fill in every section
+with the Write or Edit tool. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Then run `node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r1.md'` again,
+fix each error it prints, and return via the schema with your final verdict.
 END TEXT
-3. WRITE E:/flow/runs/flow/locks/review-r1.lock with the content {} and E:/flow/runs/flow/decide/review-r1-final.md with no content, so no lock or final
-review from an earlier launch stands in for this round's. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
+3. WRITE E:/flow/runs/flow/locks/review-r1.lock with the content {}, and E:/flow/runs/flow/review/review-r1.md (create E:/flow/runs/flow/review/ if needed) and
+E:/flow/runs/flow/decide/review-r1-final.md with no content, so no lock or review from an earlier launch stands in for this round's.
+The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Do NOT modify any repo, stage, or commit.
 Return via the schema.
 ~~~~
@@ -269,7 +261,7 @@ Return via the schema.
   "properties": {
     "wrote_file": {
       "type": "boolean",
-      "description": "true only if you wrote all four files"
+      "description": "true only if you wrote all five files"
     }
   }
 }
@@ -309,17 +301,13 @@ locked file are all on the default path. Operator action means only a deliberate
 command by the user that the requirements neither list as a scenario nor require the decision to provide.
 A path they list or require, such as a human commit, a revert or a manual apply path, is on the default
 path. A breach reachable only through operator action is a caveat.
-WRITE E:/flow/runs/flow/review/review-r1.md (create E:/flow/runs/flow/review/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. It holds, in this order:
-- a `## Scores` section: a table of every candidate against every requirement, each cell with its
-  evidence, and each candidate's weighted total;
-- a `## Objections` section: one line per objection, `- O<n>: <the objection>. Requirement: <the
-  requirement>. Evidence: <the evidence>`, numbered from O1, or "None.";
-- a `## Caveats` section: one line per caveat, `- C<n>: <the caveat>. Evidence: <the evidence>`,
-  numbered from C1, or "None.";
-- a last line `Verdict: accept` or `Verdict: reject`.
+WRITE E:/flow/runs/flow/review/review-r1.md through its check command. The file may hold an earlier reviewer's text, so when it
+holds any, Read it and write it with no content. Then run `node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r1.md'`, which
+writes the file's skeleton and prints the format of each section. Read the skeleton and fill in every
+section with the Write or Edit tool. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
 Do NOT modify any repo, stage, or commit. If a requirement contradiction only the user can resolve
 surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true. Return via the schema once you are done.
-When the review file is complete, run `node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r1.md'` and follow what it prints.
+When the review file is complete, run `node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r1.md'` again and follow what it prints.
 ~~~~
 
 ~~~~json
@@ -548,14 +536,9 @@ Return via the schema.
 
 ~~~~text
 
-You are the CHECK AGENT of review round 3. Write four files exactly as given below, and change no other file.
+You are the CHECK AGENT of review round 3. Write five files exactly as given below, and change no other file.
 1. WRITE E:/flow/runs/flow/locks/review-r3.json (create E:/flow/runs/flow/locks/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its content is exactly this JSON:
 {
-  "headings": [
-    "## Scores",
-    "## Objections",
-    "## Caveats"
-  ],
   "stage2": "E:/flow/runs/flow/decide/review-r3-final.md",
   "decision": "E:/flow/runs/flow/decide/decision-r3.md",
   "reveal": "E:/flow/runs/flow/locks/review-r3.reveal.md"
@@ -569,24 +552,21 @@ matrix and reasoning, and sort each objection of your review into one of three:
   double quotes. The decider's opinion, weight or argument never withdraws an objection.
 - kept: it still stands. Restate it in full with its evidence.
 - downgraded: it is a caveat after all. Say why.
-WRITE E:/flow/runs/flow/decide/review-r3-final.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write a `## Objections` section with one line per
-objection of your review, `- O<n>: withdrawn "<the quoted fact>"`, `- O<n>: kept: <the objection and its
-evidence>` or `- O<n>: downgraded: <why>`, then a `## Caveats` section with every caveat, your
-review's and the downgraded objections', one line each, `- C<n>: <the caveat>`, numbered from C1, or
-"None.", then a last line `Verdict: accept` or `Verdict: reject`.
 A reject keeps at least one objection: a non-negotiable the winner violates, or a challenger with its scores. An accept keeps none.
-This is the run's LAST round: no decider round follows. If your final verdict is reject, put a
-`## WHERE NEXT` section just above the verdict line. Say whether the kept objections rest on evidence
+This is the run's LAST round: no decider round follows. If your final verdict is reject, add the
+optional section the format below lists. Say whether the kept objections rest on evidence
 another revision could answer, or on a requirement the rubric does not settle, such as how far a
 non-negotiable reaches or a trade-off the decision lands on the other side of. For a requirement, name
 the ONE requirement and the ONE change to it (a weight, a non-negotiable's depth, a missing criterion)
 that would let a decision converge.
-Leave your blind review unchanged, since the check compares it with its lock. Then run
-`node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r3.md'` again, fix each error it prints, and return via the schema with
-your final verdict.
+Leave your blind review unchanged, since the check compares it with its lock. The check wrote the skeleton
+of your final review, E:/flow/runs/flow/decide/review-r3-final.md, and prints its format below. Read it and fill in every section
+with the Write or Edit tool. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Then run `node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r3.md'` again,
+fix each error it prints, and return via the schema with your final verdict.
 END TEXT
-3. WRITE E:/flow/runs/flow/locks/review-r3.lock with the content {} and E:/flow/runs/flow/decide/review-r3-final.md with no content, so no lock or final
-review from an earlier launch stands in for this round's. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
+3. WRITE E:/flow/runs/flow/locks/review-r3.lock with the content {}, and E:/flow/runs/flow/review/review-r3.md (create E:/flow/runs/flow/review/ if needed) and
+E:/flow/runs/flow/decide/review-r3-final.md with no content, so no lock or review from an earlier launch stands in for this round's.
+The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Do NOT modify any repo, stage, or commit.
 Return via the schema.
 ~~~~
@@ -600,7 +580,7 @@ Return via the schema.
   "properties": {
     "wrote_file": {
       "type": "boolean",
-      "description": "true only if you wrote all four files"
+      "description": "true only if you wrote all five files"
     }
   }
 }
