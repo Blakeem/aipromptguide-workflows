@@ -62,10 +62,10 @@ const REVIEW_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, con
 const ENHANCE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   scope: ['workflows/'], lenses: ['efficiency', 'simplification'] };
 // decide and docs are the two engines that do NOT reach a terminal on empty returns (measured
-// 2026-08-01: decide throws "No analyst produced a lens file", docs throws "Every source reported zero
-// doc files"), so their rows script the returns their per-engine table already uses.
-const ANALYST = { wrote_file: true, top_pick: 'in-process LRU' };
-const DECIDE  = { wrote_file: true, chosen: 'in-process LRU', meets_all_requirements: true, open_questions: 0, needs_user: false };
+// 2026-08-01: decide throws "No lens researcher produced a lens file", docs throws "Every source reported
+// zero doc files"), so their rows script the returns their per-engine table already uses.
+const LENS    = { wrote_file: true, top_pick: 'in-process LRU' };
+const DECIDE  = { wrote_file: true, chosen: 'in-process LRU', meets_all_requirements: true, open_issue_ids: [], user_checks: 0, needs_user: false };
 const AGREE   = { wrote_file: true, agree: true, gap_ids: [], needs_user: false };
 const GATHER  = { files_written: 6, skipped: 2 };
 const SCRUB   = { files_cleaned: 4 };
@@ -119,7 +119,7 @@ const SWEEP = [
     engine: 'workflows/decide/decide-cycle.mjs',
     baseArgs: { runId: 't', root: 'E:/r', lenses: ['efficiency', 'simplest'],
       planPath: 'E:/r/plans/t/requirements.md' },
-    respond: { analyst: ANALYST, decide: DECIDE, review: AGREE },
+    respond: { research: LENS, decide: DECIDE, review: AGREE },
     required: ['runId', 'root', 'planPath', 'lenses'],
   },
   {

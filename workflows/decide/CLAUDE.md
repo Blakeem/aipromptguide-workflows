@@ -1,10 +1,12 @@
 # decide-cycle — operator guide (for Claude)
 
 `decide-cycle.mjs` drives the AI to a **justified conclusion** among approaches: it **diverges** into one
-lensed analyst per perspective (each finds + scores the best option through its lens), then **converges**
-via a **decider** that builds a global weighted decision matrix pulling in the best of each, gated by
-**non-blind adversarial reviewers** — looped until no reviewer holds a blocking gap against fixed
-requirements. Built to `../../principles/WORKFLOW-PRINCIPLES.md`. A *convergence* workflow: it honors the
+lensed researcher per perspective (each finds options through its lens, gathers cited evidence and scores
+them), then **converges** via a **decider** that builds a global weighted decision matrix pulling in the
+best of each. Each **open issue** the decider names goes to a researcher, round after round, until the
+evidence covers it or research stops. Then **non-blind adversarial reviewers** gate the decision, looped
+until no reviewer holds a blocking gap against fixed requirements. Built to
+`../../principles/WORKFLOW-PRINCIPLES.md`. A *convergence* workflow: it honors the
 core (#1–4, #6, #8, #11–19) and runs a review loop in the **spirit of #5 but non-blind by design** — the
 reviewers must see the decision and the rubric to judge them (#3 guards code-regression anchoring, not argument
 evaluation). It produces a conclusion, **not code**: nothing is staged or committed.
@@ -43,11 +45,12 @@ No mid-run questions — settle the rubric with the user first:
    (what "best" means, and how much each axis matters). `AskUserQuestion` for anything ambiguous —
    getting the rubric right is the whole game.
 2. **`ExitPlanMode`** — user approves (the human gate).
-3. **Pick the lenses** with the user — the evaluation perspectives, one analyst each (e.g. `efficiency`,
+3. **Pick the lenses** with the user — the evaluation perspectives, one researcher each (e.g. `efficiency`,
    `simplest`, `robustness`, `best-practice`, `risk`, `ux`). Propose them if the user has none. Distinct
    lenses surface distinct options; that spread is what the decider then balances.
 4. **Run** the engine (`planPath` = the plan-mode file's **absolute** path, plus `lenses`). It diverges
-   (analysts) then converges (decider ⇄ reviewers) and returns the chosen conclusion + the file trail.
+   (lens researchers) then converges (decider ⇄ researchers, then decider ⇄ reviewers) and returns the
+   chosen conclusion + the file trail.
 5. **Present** the result: follow the return's `nextStep`. It names the terminal state, the files to
    show and every caveat.
 
@@ -58,8 +61,8 @@ No mid-run questions — settle the rubric with the user first:
 - **`planPath` REQUIRED:** the absolute path to the rubric file (§4). There is no inline `requirements`
   arg. A rubric written without plan mode goes to `plans/<runId>/` under `root` first.
 - **`lenses` — REQUIRED:** the perspectives from §2 (strings or `{ id, focus }`); ids that collide after
-  slugging throw, since two analysts would write the same `lenses/<lens>.md`.
-- **`target.repo` (optional):** pass it for a decision about existing code — all three roles (analysts,
+  slugging throw, since two researchers would write the same `lenses/<lens>.md`.
+- **`target.repo` (optional):** pass it for a decision about existing code — all three roles (researchers,
   decider, reviewers) read it **read-only** for pattern-fit and feasibility; the engine never modifies it.
 - **`testbed` (optional):** how agents may **empirically test** claims (e.g. a sqlite db + how to query
   it, a script to benchmark against). All three roles are told to prefer measured evidence — run the
@@ -69,8 +72,8 @@ No mid-run questions — settle the rubric with the user first:
   commands** in the target project's settings — a background run can't answer permission prompts
   unattended.
 - **Relaunch vs. new run.** The engine keeps no state across invocations. A same-runId relaunch with no
-  `resumeFromRunId` re-runs the run from Diverge and round 1. It overwrites the lens files and the round
-  files it reaches, and it leaves an earlier run's higher-numbered round files in place. Extending
+  `resumeFromRunId` re-runs the run from Diverge and round 1. It overwrites the lens files and the
+  research and round files it reaches, and it leaves an earlier run's higher-numbered files in place. Extending
   finished rounds is a relaunch with `maxRounds` raised plus the Workflow tool's `resumeFromRunId`, which
   replays the finished agents from cache. Starting over takes a new runId, so the earlier run's files
   stay intact. Never clear `runs/<runId>/`. `NEEDS-USER.md` is cumulative. Relay the return's
@@ -84,10 +87,10 @@ Plain markdown — the engine does **not** parse it. Keep it tight; this is the 
 ## Decision
 One line: the choice to be made.
 
-## Non-negotiables   # pass/fail — an option that violates one scores 0 and cannot win
+## Non-negotiables   # musts: pass/fail — an option that fails one cannot win
 - e.g. "must run in the existing Node 20 runtime", "no new paid dependency", "p99 < 50ms".
 
-## Weighted criteria  # what "best" means + how much each matters (weights need not sum to 100)
+## Weighted criteria  # wants: what "best" means + how much each matters (weights need not sum to 100)
 - performance (weight 3)
 - maintainability (weight 3)
 - migration effort (weight 2)
@@ -106,51 +109,76 @@ caveat, so a rubric that wants it judged names it under a weighted criterion.
 
 The JS conductor sequences `agent()` calls, passing only paths + verdicts (#1). Each agent is fresh.
 
-- **Analyst** (analyst · sonnet) — one per lens; reads the requirements + its lens, generates 2–4
-  scored options, recommends one, notes keep-worthy elements, writes `lenses/<lens>.md`. It cites a
-  file:line, a measurement, a source URL or "own judgment" for each factual claim.
-- **Decider** (decide · opus) — reads the requirements + every lens file (+ every review file of the
-  previous round); consolidates options, may build a hybrid, scores a **global weighted matrix**
-  (non-negotiables forced to 0, **every cell citing its lens evidence or marked "own judgment,
-  low-confidence"**, #14), cites for **each option it rules out** what rules it out and the one
-  observation that would reverse that, picks the winner with why-not-others, writes `decision-rN.md`.
-  The file holds a **`## Trade-off`** section (the winner against the runner-up, one row per criterion
-  where they differ, as weight × score gap: what the winner gains and gives up) and a **`## Flip check`**
-  section (the smallest single change to one cell or weight that changes the winner, plus the joint
-  effect of moving every low-confidence cell by its uncertainty). It grades the choice **dominant**
+**Scoring rule** (every role's prompt states it once, through one constant): a non-negotiable (a must) is
+pass/fail, and an option that fails one cannot win. A weighted criterion (a want) is scored per option
+as **met**, **partly met** or **missed**, each with its cited evidence. The weighted total counts met as
+full weight, partly met as half and missed as zero. A want scores met only on a cited source or a
+measurement, and own judgment scores at most partly met.
+
+- **Researcher** (research · sonnet) — two jobs. In Diverge, one per lens: reads the requirements + its
+  lens, generates 2–4 options, gathers evidence for them, scores them under the scoring rule, recommends
+  one, notes keep-worthy elements, and writes `lenses/<lens>.md`. In each research round, one per open
+  issue: reads the requirements, the issue's entry in the decision file and the files that entry names,
+  searches with the tools it has, and writes `research/r<N>-<slug>.md`. A question no agent can settle
+  (no testbed, a source no agent can open, a check that needs the user's hardware) it writes as a
+  **check for the user**: the check and the result that would change the answer. It returns
+  `new_evidence`, true when its file holds a cited fact no earlier file of the run holds. Either job
+  cites each factual claim to its original source: a file:line, a measurement with its exact command and
+  result, a source URL, or "own judgment".
+- **Decider** (decide · opus) — reads the requirements + every lens file (+ the research files of the
+  latest research round, + every review file of the previous review round); consolidates options, may
+  build a hybrid, scores a **global weighted matrix** under the scoring rule (**every cell citing its
+  evidence or marked "own judgment, low-confidence"**, #14), cites for **each option it rules out** what
+  rules it out and the one observation that would reverse that, picks the winner with why-not-others,
+  writes `decision-rN.md`. Every decision file ends with an **`## Open issues`** section and a
+  **`## Checks for the user`** section. An open issue is a question whose answer could change the
+  winner (in `ranked` mode, rank 1 or an adjacent pair): one the flip check names, or a must or want the
+  evidence does not yet settle. Each has a slug, the question, the requirement it bears on and the files
+  a researcher should read, and the decider returns the slugs as `open_issue_ids`. A question that
+  cannot change the winner is a caveat in the file. A question no agent can settle goes under
+  `## Checks for the user` with the result that would change the answer, never becomes an open issue
+  again, and is counted in `user_checks`. For a decision about what to test, these checks are part of
+  the deliverable. After a research round the decider revises its decision with the round's findings.
+  The decision file also holds a **`## Trade-off`** section (the winner against the runner-up, one row
+  per criterion where they differ, as weight × credit gap, where credit is 1 for met, 0.5 for partly
+  met and 0 for missed: what the winner gains and gives up) and a **`## Flip check`** section (the
+  smallest single change to one cell or weight that changes the winner, plus the joint effect of
+  moving every low-confidence cell by its uncertainty). It grades the choice **dominant**
   (gives up nothing), **robust** (the smallest flip is larger than the uncertainty of the input it moves)
   or **fragile** (it is not), and returns the grade as `flip`. From round 2 it revises its prior
   decision into a complete new file under fixed **fold rules**: it confirms each blocking gap's evidence
   against its source and treats the gap's smallest change as a hint; a confirmed gap gets the smallest
   fold that closes it, a refuted one a rebuttal under `## Rebuttals` with evidence, and one it can
-  neither confirm nor refute goes under `## Rebuttals` marked unverified, with the check that would
-  settle it; it may fold a caveat whose fix is one
-  sentence and leaves every other caveat to the review files; it tests each fold against one hostile
+  neither confirm nor refute, or one that names evidence no file of the run holds, becomes an open
+  issue under its slug, so a research round settles it before the revision goes to review; it may fold
+  a caveat whose fix is one sentence and leaves every other caveat to the review files; it tests each
+  fold against one hostile
   input of each kind it touches (a failure, a concurrent edit, a human-set value, state saved before the
   change, an edit by another program that no scan has seen yet); a fold that repairs one option against
   a defect another option shares repairs that option the same way and keeps it scored; it never adds a
   repaired variant as a new rival, but an option a reviewer raised as missed in two rounds goes into
-  the matrix, scored; and it changes nothing a gap does not name. Escalates a user-only call to
-  `NEEDS-USER.md` (halts on a hard blocker) — **and so may a reviewer**, for a requirement contradiction
-  (§7); those are two distinct halt paths, not one. In `ranked` mode it instead ranks the strongest
-  options (up to `shortlist`), each with what it **buys**, what it **costs**, its rank rationale, plus a
-  **combine / exclude** section and a flip check over each adjacent pair, graded on rank 1 (no
-  trade-off section) — an option violating a non-negotiable is off the list entirely, and it is told
-  not to pad.
+  the matrix, scored; and it changes nothing that a gap or a research finding does not name. Escalates
+  a user-only call to `NEEDS-USER.md` (halts on a hard blocker) — **and so may a reviewer**, for a
+  requirement contradiction (§7); those are two distinct halt paths, not one. In `ranked` mode it
+  instead ranks the strongest options (up to `shortlist`), each with what it **buys**, what it
+  **costs**, its rank rationale, plus a **combine / exclude** section and a flip check over each
+  adjacent pair, graded on rank 1 (no trade-off section) — an option violating a non-negotiable is off
+  the list entirely, and it is told not to pad.
 - **Reviewers** (review · opus) — **non-blind, adversarial**; each reads the decision + requirements +
-  lens files. **Round 1** runs three **focused reviewers** in parallel, each writing
+  lens and research files. **Round 1** runs three **focused reviewers** in parallel, each writing
   `decision-review-r1-<focus>.md`. In `single` mode the focuses are `choice` (verifies every matrix
-  citation against its lens file (#14), re-derives the totals, the trade-off and the flip check,
-  re-checks the cited source behind each cell that moves the outcome and re-runs each testbed command
-  such a cell rests on, and hunts a missed option or a strawmanned runner-up), `requirements` (every
-  non-negotiable path by path, every criterion) and `design` (does the specified design work as written
-  on every input the rubric accepts). In `ranked` mode they are `order` (the matrix and the order, with
-  the same source re-check), `requirements` and `combine`
-  (the combine/exclude claims — two options sold as combinable that actually conflict is the most
+  citation against the lens or research file it cites (#14), re-derives the totals, the trade-off and
+  the flip check, re-checks the cited source behind each cell that moves the outcome and re-runs each
+  testbed command such a cell rests on, and hunts a missed option or a strawmanned runner-up),
+  `requirements` (every non-negotiable path by path, every criterion) and `design` (does the specified
+  design work as written on every input the rubric accepts). In `ranked` mode they are `order` (the
+  matrix and the order, with the same source re-check), `requirements` and `combine` (the
+  combine/exclude claims — two options sold as combinable that actually conflict is the most
   damaging error the list can carry). Only the `choice` and `order` reviewers re-derive the matrix.
   **Round 2 and later** run one **verifier** that reads every review file of the previous round, checks
-  each blocking gap was closed or rebutted with evidence that holds, keeps a gap the decider marked
-  unverified blocking unless the check it names refutes it, judges every changed or added
+  each blocking gap was closed or rebutted with evidence that holds, keeps a gap the revision moved
+  under `## Open issues` or `## Checks for the user` blocking only when it settles the gap itself and
+  its result confirms the gap, judges every changed or added
   passage in full, re-derives the totals, the trade-off (in `ranked` mode, the order) and the flip check,
   blocks only on a non-negotiable violation in unchanged text, lists only new caveats, and writes
   `decision-review-rN.md`.
@@ -175,8 +203,23 @@ The JS conductor sequences `agent()` calls, passing only paths + verdicts (#1). 
 
 ## 6. Loop & contracts (keep intact)
 
-`diverge (once) → [decide → review]×N`, up to `maxRounds` (default 3). Each non-agreeing round hands
-the decider every review file of that round next round; the decider revises rather than restarting.
+`diverge (once) → [decide → (research → decide)* → review]×N`, up to `maxRounds` (default 3). Each
+non-agreeing round hands the decider every review file of that round next round; the decider revises
+rather than restarting.
+
+- **The research gate.** After each decider pass the engine reads `open_issue_ids`. Empty: the decision
+  goes to review, and research stops as `covered`. Otherwise a research round runs one researcher per
+  distinct slug, concurrently, and the decider runs again over that round's research files. Research
+  stops, and the decision goes to review with its open issues on record, on the first of: two research
+  rounds in a row in which no researcher returned `new_evidence` true (`saturated`), or
+  `maxResearchRounds` research rounds in the run (`cap`, default 3). The dry-round streak restarts with
+  each review round, since a review asks new questions, and the cap counts every research round of the
+  run. The log names each stop. Research rounds and the decider passes between them do not spend
+  `maxRounds`. Each decider pass writes the next `decision-rN.md`, so N counts decider passes.
+- **A gap no agent can settle never loops.** A reviewer's gap that names missing evidence becomes an
+  open issue, so it goes to a research round before the revision reaches review. A question no agent
+  can settle becomes a check for the user. A gap the revision moved under `## Open issues` or
+  `## Checks for the user` blocks only when the verifier settles it and its result confirms the gap.
 
 - **The requirements file is the fixed rubric and the anti-spin ground.** The decider and the reviewers
   judge against it, so the loop converges; there is no `DISMISSED.md` (the reviewers aren't
@@ -205,33 +248,36 @@ the decider every review file of that round next round; the decider revises rath
   a trap. Both modes run the same matrix, citation rule, and review loop.
 - **No code, no git.** Decide produces files only; it never stages or commits. The conclusion feeds
   a plan file's design section, which `develop-cycle` builds next.
-- **Thin returns (#8).** Schemas carry only `chosen` / `meets_all_requirements` / `flip` / `agree` /
-  `gap_ids` / `caveat_ids` / counts, a `wrote_file` write confirmation per role — plus, in `ranked` mode, the shortlist **index** (rank + title +
-  `combines_with`/`excludes`); the matrices, buys/costs, and reasoning live in the files. An analyst
-  whose `wrote_file` is not true is dropped: a `✗` in the log, listed in `failed`, left out of the
-  decision, and the run throws when no analyst confirms (§7). An unconfirmed decider or reviewer write
-  halts the run on `BLOCKED (an agent did not confirm writing its file)` (§7), unless that agent
-  escalated, because the next agent and the return would otherwise name a path a stale file can hold.
+- **Thin returns (#8).** Schemas carry only `chosen` / `meets_all_requirements` / `flip` /
+  `open_issue_ids` / `user_checks` / `new_evidence` / `agree` / `gap_ids` / `caveat_ids` / counts, a
+  `wrote_file` write confirmation per role — plus, in `ranked` mode, the shortlist **index** (rank + title +
+  `combines_with`/`excludes`); the matrices, buys/costs, findings and reasoning live in the files. A lens
+  researcher whose `wrote_file` is not true is dropped: a `✗` in the log, listed in `failed`, left out of
+  the decision, and the run throws when no lens researcher confirms (§7). An unconfirmed decider,
+  research-round researcher or reviewer write halts the run on
+  `BLOCKED (an agent did not confirm writing its file)` (§7), unless that decider or reviewer escalated,
+  because the next agent and the return would otherwise name a path a stale file can hold.
 
 ## 7. Resume
 
 Two halts. The decider or a reviewer writes a user-only call to `NEEDS-USER.md`
-(`BLOCKED (needs user input)`), or it does not confirm writing its file (`BLOCKED (an agent did not
-confirm writing its file)`). For an escalation, read `NEEDS-USER.md`, resolve it with the user
-(usually by editing the requirements file), then relaunch with the same args and no `resumeFromRunId`.
-A `resumeFromRunId` replay sends the same prompts, which name the requirements file by path, so it
-replays the cached returns and halts the same way. The relaunch re-runs the run from Diverge and round 1
-(§3). For an unattested write, check the file `haltReason` names, then relaunch the same way: a resume
-replays the cached return and halts the same way.
+(`BLOCKED (needs user input)`), or the decider, a research-round researcher or a reviewer does not
+confirm writing its file (`BLOCKED (an agent did not confirm writing its file)`). For an escalation,
+read `NEEDS-USER.md`, resolve it with the user (usually by editing the requirements file), then
+relaunch with the same args and no `resumeFromRunId`. A `resumeFromRunId` replay sends the same
+prompts, which name the requirements file by path, so it replays the cached returns and halts the same
+way. The relaunch re-runs the run from Diverge and round 1 (§3). For an unattested write, check the file
+`haltReason` names, then relaunch the same way: a resume replays the cached return and halts the same
+way.
 
 A `needs-attention` run takes one of two relaunches. After refining the requirements, relaunch with the
 same args and no `resumeFromRunId`, since a resume would never read the edit. After raising `maxRounds`,
 relaunch with `resumeFromRunId`, so the finished rounds replay from cache and the loop continues past them.
 
-The run can also stop by **throwing**. If no analyst produced a lens file, check the requirements and
-lenses and re-run without `resumeFromRunId`. If the decider or a reviewer returned nothing (agent skipped
-or died), re-invoke with the same args/`runId` and pass the `Workflow` tool's `resumeFromRunId` to
-replay completed agents from cache, as the thrown message says.
+The run can also stop by **throwing**. If no lens researcher produced a lens file, check the requirements
+and lenses and re-run without `resumeFromRunId`. If the decider, a research-round researcher or a reviewer
+returned nothing (agent skipped or died), re-invoke with the same args/`runId` and pass the `Workflow`
+tool's `resumeFromRunId` to replay completed agents from cache, as the thrown message says.
 
 ## 8. Args reference
 
@@ -244,14 +290,18 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
   §3) · `target.repo` (absolute, read-only context) ·
   `target.lang`/`target.framework` (hints) · `maxRounds` (3; **throws** below 1 or non-numeric — it used
   to coerce, and a NaN bound silently produced a zero-round run reported as an ordinary result) ·
-  `models`/`efforts` (`models` and `efforts` map a role key to a value. The role keys are `analyst`,
-  `decide` and `review`. A model is `opus | sonnet | haiku | fable` and an effort is
-  `low | medium | high | xhigh | max`. The analyst role defaults to sonnet, the decide and review
+  `maxResearchRounds` (3, run-wide research rounds, §6; `0` runs none; **throws** below 0 or
+  non-numeric) ·
+  `models`/`efforts` (`models` and `efforts` map a role key to a value. The role keys are `research`,
+  `decide` and `review`, and the retired key `analyst` throws like any unknown key. A model is
+  `opus | sonnet | haiku | fable` and an effort is
+  `low | medium | high | xhigh | max`. The research role defaults to sonnet, the decide and review
   roles default to opus, and every role defaults to `high`. The engine **throws** at launch, naming
   the arg, on a value that is not an object, a key outside the role keys, and a value outside its
   set. Choose each role's model by the task and how much judgment the role needs, as the develop guide §3 says. One
   launch log line names each role's model and effort) · `agentTypes` (custom subagent per role — must exist
-  in your registry) · `stateDir` (override `runs/<runId>`).
+  in your registry. It takes the same role keys and **throws** on a value that is not an object, a key
+  outside the role keys, `analyst` included, and a blank name) · `stateDir` (override `runs/<runId>`).
 - **Exit survey:** `notes` (`{ dir, survey }`, two absolute paths). Set it when the user asks for
   the agents' feedback on a run. `dir` is the folder the answers go to, outside the target repo and
   outside `runs/<runId>/`, such as `<root>/runs/<runId>-notes`. `survey` is `tools/EXIT-SURVEY.md` of
@@ -262,10 +312,12 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
 
 ## 9. State files (`runs/<runId>/`, outside every repo)
 
-- `lenses/<lens>.md` — each analyst's options + lens scores + recommendation.
-- `decision-rN.md` — the decider's matrix + conclusion + why-not-others + trade-off + flip check for
-  round N (in `ranked` mode: the matrix + the ranked options with buys/costs + the combine-vs-exclusive
-  section + the flip check).
+- `lenses/<lens>.md` — each lens researcher's options + evidence + lens scores + recommendation.
+- `research/r<N>-<slug>.md` — research round N's findings on the open issue `<slug>`, or its check for
+  the user.
+- `decision-rN.md` — the decider's Nth pass: the matrix + conclusion + why-not-others + trade-off + flip
+  check (in `ranked` mode: the matrix + the ranked options with buys/costs + the combine-vs-exclusive
+  section + the flip check), then `## Open issues` and `## Checks for the user`.
 - `decision-review-r1-<focus>.md` — each round-1 focused reviewer's `## Blocking` and `## Caveats`
   sections.
 - `decision-review-rN.md` for N of 2 or more — the verifier's `## Blocking` and `## Caveats` sections for
@@ -273,9 +325,15 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
 - `NEEDS-USER.md` — user-only escalations; a hard blocker here halted the run.
 
 The return carries the paths (`decisionFile` / `reviewFiles` / `needsUserFile`), each lens's top pick
-(`lensPicks`), the lenses whose analyst did not confirm writing a lens file (a file may still exist on
+(`lensPicks`), the lenses whose researcher did not confirm writing a lens file (a file may still exist on
 disk) and so were left out of the decision (`failed`, one `{ id, stage: 'diverge' }` entry per lens),
 the per-round gap split (`gapRounds`, §6), two agreement flags and `selection` as structured fields.
+`research` is `{ rounds, stop }`: the run's research rounds and why research last handed the decision to
+review, `covered`, `saturated` or `cap` (§6), or empty when the run halted in a round before research
+handed that round's decision to review. `openIssues` lists
+the latest attested decision's open issue slugs, and `userChecks` counts its checks for the user. When
+research stopped on `saturated` or `cap` with open issues, `nextStep` says to present them with the
+decision, and when `userChecks` is above 0 it says to present the checks.
 `reviewFiles` lists the latest round's review files. `decisionFile` and `reviewFiles` name only files
 whose writer attested, so after a halt either can be empty or name an earlier round. A halt also returns
 its `haltReason`. `flip` is the latest decision's grade (`dominant`, `robust` or `fragile`), or empty when
@@ -289,4 +347,4 @@ note naming `caveatFiles`. `contradicted` is true when a reviewer agreed while l
 `meetsAllRequirements` is false when the latest decider reported that its conclusion, or a shortlisted
 option, misses a requirement. An agreed run with either flag raised keeps its agreed status, and its
 hand-back names the file to audit before presenting. In `ranked` mode the return adds the ordered `shortlist` index and `chosen` is the rank-1
-option, both from the latest round only.
+option, both from the latest decision only.

@@ -186,8 +186,10 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
   // than a line number so an unrelated edit above the site does not redden the suite; the live line is
   // printed by the assertion.
   const FALLBACK = [
-    { engine: 'workflows/decide/decide-cycle.mjs', schema: 'ANALYST_SCHEMA',
+    { engine: 'workflows/decide/decide-cycle.mjs', schema: 'LENS_SCHEMA',
       reason: 'inside parallel(LENSES.map((lens) => () => callAgent(...))) — the return is never named' },
+    { engine: 'workflows/decide/decide-cycle.mjs', schema: 'RESEARCH_SCHEMA',
+      reason: 'inside parallel(issues.map((u) => () => callAgent(...))) — the return is never named' },
     { engine: 'workflows/decide/decide-cycle.mjs', schema: 'REVIEW_SCHEMA',
       reason: 'inside parallel(units.map((u) => () => callAgent(...))) — the return is never named' },
     { engine: 'workflows/docs/docs-cycle.mjs', schema: 'GATHER_SCHEMA',

@@ -6,20 +6,30 @@ An autonomous Claude Code workflow that drives the AI to a **justified conclusio
 It weighs real trade-offs through several perspectives and defends the choice with a decision matrix.
 
 You write the requirements (the non-negotiables and the weighted criteria) and name the lenses to judge
-through. Claude runs one analyst per lens to surface and score options. A **decider** funnels them into a
-single conclusion and pulls in the best elements of each where they compose. In round 1, three
-**focused reviewers** attack the decision at once. Each later round runs one **verifier** that checks the
-decider's fixes. The loop ends when no reviewer holds a blocking gap.
+through. Claude runs one researcher per lens to surface options, gather evidence and score them. A
+**decider** funnels them into a single conclusion and pulls in the best elements of each where they
+compose. Each open question that could change the winner goes to a researcher, until the evidence settles
+it or research stops. In round 1, three **focused reviewers** attack the decision at once. Each later
+round runs one **verifier** that checks the decider's fixes. The loop ends when no reviewer holds a
+blocking gap.
 
 ### What sets it apart
 
 A **diverge-then-converge** workflow built on the shared [Workflow Principles](../../principles/):
 
 - **Lensed divergence, weighted convergence.** Each lens pushes its own best answer. The decider
-  balances them in a global weighted matrix. Non-negotiables are pass/fail, the simplest adequate
-  option is preferred, and every runner-up is explicitly disqualified. Every claim cites its source
-  or is marked as own judgment, and a reviewer re-checks the sources behind the matrix cells that
-  decide the outcome.
+  balances them in a global weighted matrix. Non-negotiables are pass/fail. Each weighted criterion
+  scores met, partly met or missed, and the weighted total counts met as full weight, partly met as
+  half and missed as zero. A criterion scores met only on a cited source or a measurement. The simplest
+  adequate option is preferred, and every runner-up is explicitly disqualified. Every claim cites its
+  original source or is marked as own judgment, and a reviewer re-checks the sources behind the matrix
+  cells that decide the outcome.
+- **Research inside the decision.** The decider lists each open issue: a question whose answer could
+  change the winner. One researcher per issue searches for the answer, and the decider revises. Research
+  stops when no issue is open, after two rounds in a row find no new evidence, or at
+  `maxResearchRounds` (default 3). Issues still open go to you with the decision. A question no agent
+  can settle, such as one that needs your hardware, becomes a check for you, with the result that would
+  change the answer. When the decision is about what to test, these checks are part of the answer.
 - **A fixed rubric both sides judge against.** The requirements file is the single source of truth for
   the decider *and* the reviewers. This is what makes the loop converge instead of bikeshedding.
 - **Adversarial, non-blind review.** Unlike a code review, the reviewers *must* see the decision to judge
@@ -81,10 +91,11 @@ lenses, then runs `decide-cycle.mjs` **by path**.
 
 1. **Frames the rubric.** The rubric written in plan mode states the decision, the non-negotiables and
    the weighted criteria.
-2. **Diverges.** One analyst per lens generates and scores options.
-3. **Converges.** The decider builds the matrix and concludes. Three focused reviewers attack it in
-   round 1, and a verifier checks each later revision.
-4. **Presents.** Relays the matrix + rationale, and the lens files so you can see the source views.
+2. **Diverges.** One researcher per lens generates options, gathers evidence and scores them.
+3. **Converges.** The decider builds the matrix and concludes. Researchers settle its open issues, and
+   it revises. Three focused reviewers attack it in round 1, and a verifier checks each later revision.
+4. **Presents.** Relays the matrix + rationale, any open issues and checks for you, and the lens files
+   so you can see the source views.
 
 Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the run report on the workflow.
 
@@ -92,12 +103,15 @@ Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the 
 
 ## Reviewing the result
 
-`runs/<runId>/` holds the per-lens analyses (`lenses/<lens>.md`) and the decider's matrix and
-conclusion (`decision-rN.md`). It also holds the round-1 focused reviews (`decision-review-r1-<focus>.md`)
-and each later verification (`decision-review-rN.md`). Each review lists its blocking gaps and its
-caveats. Carry the caveats into the plan you build from. Since a re-run can leave an earlier run's
-files with higher round numbers in that folder, read the decision file that the run's result names. Also skim the lens files to see the trade-offs that shaped it. Then build the
-chosen approach from a [`develop-cycle`](../develop/) plan file.
+`runs/<runId>/` holds the per-lens analyses (`lenses/<lens>.md`), each research round's findings
+(`research/r<N>-<issue>.md`) and the decider's matrix and conclusion (`decision-rN.md`), whose
+`## Open issues` and `## Checks for the user` sections list what the evidence left open. It also holds
+the round-1 focused reviews (`decision-review-r1-<focus>.md`) and each later verification
+(`decision-review-rN.md`). Each review lists its blocking gaps and its caveats. Carry the caveats into
+the plan you build from. Since a re-run can leave an earlier run's files with higher round numbers in
+that folder, read the decision file that the run's result names. Also skim the lens files to see the
+trade-offs that shaped it. Then build the chosen approach from a [`develop-cycle`](../develop/) plan
+file.
 
 ---
 

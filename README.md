@@ -164,6 +164,13 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-27
 
+- **decide researches inside the decision.** The decider lists each open issue, a question whose answer
+  could change the winner, and one researcher per issue searches for the answer before the review. Research
+  stops when no issue is open, after two rounds in a row find no new evidence, or at the new
+  `maxResearchRounds` arg (default 3). A question no agent can settle becomes a check for you, so a gap
+  no longer repeats to the round budget. Each weighted criterion scores met, partly met or missed, and
+  met needs a cited source. The `analyst` role key is now `research` in `models`, `efforts` and
+  `agentTypes`, and `analyst` throws.
 - **develop's developer records a sweep of each change.** For each name or phrase a round changes, the
   developer lists its search and each hit in a `## Sweep` section of its risk file. Acceptance checks
   each sweep line, and a missing line or a hit that disagrees with the change is a risk-audit gap.

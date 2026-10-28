@@ -62,6 +62,7 @@ const EXPECTED = {
   'decide x decide':                { signal: 'terminal', expect: /Decider returned nothing/ },
   'decide x review':                { signal: 'terminal', expect: /Reviewer returned nothing/ },
   'decide x review r1':             { signal: 'terminal', expect: /Reviewer returned nothing/ },
+  'decide x research-issue':        { signal: 'terminal', expect: /Researcher returned nothing/ },
   'docs x curate':                  { signal: 'terminal', expect: /Curator returned nothing/ },
   'investigate x criteria-critic':  { signal: 'terminal', expect: /Criteria critic returned nothing/ },
   'investigate x investigate':      { signal: 'terminal', expect: /Investigator returned nothing/ },
@@ -93,9 +94,9 @@ const EXPECTED = {
   'develop x final-sweep':          { signal: 'log', expect: /completeness check DIED/ },
   'review x review':                { signal: 'log', expect: /reviewer returned nothing/ },
   'review x verify':                { signal: 'log', expect: /agent returned nothing/ },
-  // decide drops the dead analyst's lens from convergence and says so; the fact reaches the caller in
+  // decide drops the dead lens researcher's lens from convergence and says so; the fact reaches the caller in
   // the lens list rather than the log, because a lens file that was never written cannot be cited.
-  'decide x analyst':               { signal: 'field', field: 'lensFiles' },
+  'decide x research':              { signal: 'field', field: 'lensFiles' },
 };
 
 /** Sites whose kill is knowingly invisible. `{ engine, role, reason }`. Expected: EMPTY. */

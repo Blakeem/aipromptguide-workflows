@@ -9,17 +9,18 @@ it might do. `node tools/gen-flows.mjs --check` fails the gate while this file i
 %%{init: {"flowchart": {"nodeSpacing": 80, "rankSpacing": 200}}}%%
 flowchart TD
   S0(["args"])
-  subgraph p3["Review"]
-    a3["review r1 · opus<br/>Review<br/>×3 concurrent"]
-    a4["review · opus"]
+  subgraph p4["Review"]
+    a4["review r1 · opus<br/>Review<br/>×3 concurrent"]
+    a5["review · opus"]
   end
-  a1["analyst · sonnet<br/>Diverge<br/>×3 concurrent"]
+  a1["research · sonnet<br/>Diverge<br/>×3 concurrent"]
   a2["decide · opus"]
+  a3["research-issue · sonnet<br/>Research"]
   t1(["decided (decider + reviewers agree)"])
   t2(["decided with caveats (no blocking gap, and the reviews list caveats for the plan)"])
   t3(["needs-attention (no agreement within round budget)"])
-  t4(["BLOCKED (needs user input)"])
-  t5(["BLOCKED (an agent did not confirm writing its file)"])
+  t4(["BLOCKED (an agent did not confirm writing its file)"])
+  t5(["BLOCKED (needs user input)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args must include at least { runId, root, lenses, planPath }"/]
   x3[/"throw: args.root is required"/]
@@ -28,13 +29,15 @@ flowchart TD
   x6[/"throw: Invalid role map"/]
   x7[/"throw: Unknown role key in a role map"/]
   x8[/"throw: Illegal role value in a role map"/]
-  x9[/"throw: Invalid notes arg"/]
-  x10[/"throw: args.planPath is required"/]
-  x11[/"throw: args.lenses requires >=2 evaluation perspectives"/]
-  x12[/"throw: lens ids collide after slugging"/]
-  x13[/"throw: No analyst produced a lens file"/]
-  x14[/"throw: Decider returned nothing in round ..."/]
-  x15[/"throw: Reviewer returned nothing in round ..."/]
+  x9[/"throw: Invalid agentTypes arg"/]
+  x10[/"throw: Invalid notes arg"/]
+  x11[/"throw: args.planPath is required"/]
+  x12[/"throw: args.lenses requires >=2 evaluation perspectives"/]
+  x13[/"throw: lens ids collide after slugging"/]
+  x14[/"throw: No lens researcher produced a lens file"/]
+  x15[/"throw: Decider returned nothing in round ..."/]
+  x16[/"throw: Researcher returned nothing in research round ..."/]
+  x17[/"throw: Reviewer returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -48,56 +51,64 @@ flowchart TD
   S0 --> x10
   S0 --> x11
   S0 --> x12
+  S0 --> x13
   a1 --> a2
-  a1 --> x13
+  a1 --> x14
   a2 --> a3
   a2 --> a4
+  a2 --> a5
   a2 --> t4
   a2 --> t5
-  a2 --> x14
-  a3 -.->|"the reviewers keep finding blocking gaps (×2)"| a2
-  a3 --> t1
-  a3 --> t2
+  a2 --> x15
+  a3 -.->|"the decider names an open issue and the next pass names none · +2 more (×2)"| a2
   a3 --> t4
-  a3 --> t5
-  a3 --> x15
+  a3 --> x16
   a4 -.->|"the reviewers keep finding blocking gaps (×2)"| a2
-  a4 --> t3
+  a4 --> t1
+  a4 --> t2
+  a4 --> t4
+  a4 --> t5
+  a4 --> x17
+  a5 -.->|"the reviewers keep finding blocking gaps (×2)"| a2
+  a5 --> t3
 ```
 
 ## Phases
 
 | Phase | What happens |
 |---|---|
-| Diverge | One analyst per lens (CONCURRENT). Each reads the requirements (verbatim) + its lens, generates 2-4 options, scores them under its lens, recommends one, and writes lenses/&lt;lens&gt;.md. Returns a thin index. |
-| Decide | The decider reads the requirements + every lens file (+ every review file of the previous round), combines the best elements, builds a GLOBAL weighted decision matrix enforcing the non-negotiables - every cell citing its lens evidence or marked own-judgment - picks the winner, and writes decision-rN.md. Returns the choice + a meets-all-requirements flag. |
-| Review | NON-BLIND adversarial reviewers read the decision + requirements + lens files. Round 1 runs three focused reviewers CONCURRENTLY (single: choice, requirements, design; ranked: order, requirements, combine), each writing decision-review-r1-&lt;focus&gt;.md. Each later round runs one verifier that reads every review file of the previous round, checks each blocking gap was closed or rebutted, judges every changed passage, and writes decision-review-rN.md. Every gap is BLOCKING (non-negotiable violation, correctness defect, wrong choice, missed option) or a CAVEAT. No blocking gap ends the loop; blocking gaps drive another Decide round. |
+| Diverge | One researcher per lens (CONCURRENT). Each reads the requirements (verbatim) + its lens, generates 2-4 options, gathers cited evidence for them, scores them under its lens, recommends one, and writes lenses/&lt;lens&gt;.md. Returns a thin index. |
+| Decide | The decider reads the requirements + every lens file (+ the research files of the latest research round, + every review file of the previous review round), combines the best elements, builds a GLOBAL weighted decision matrix: musts pass/fail, wants met / partly met / missed, every cell citing its evidence or marked own judgment. It picks the winner, writes decision-rN.md with an Open issues section and a Checks for the user section, and returns the choice + the open issue slugs. |
+| Research | One researcher per open issue (CONCURRENT). Each reads the requirements, the issue in the decision file and the files the decider names for it, searches with the tools it has, and writes research/r&lt;N&gt;-&lt;slug&gt;.md with its findings cited, or a check for the user when no agent can settle it. Returns whether it found new evidence. The decider then runs again. Research stops on covered (no open issue), saturated (two research rounds in a row with no new evidence) or cap (maxResearchRounds). |
+| Review | NON-BLIND adversarial reviewers read the decision + requirements + lens and research files. Round 1 runs three focused reviewers CONCURRENTLY (single: choice, requirements, design; ranked: order, requirements, combine), each writing decision-review-r1-&lt;focus&gt;.md. Each later round runs one verifier that reads every review file of the previous round, checks each blocking gap was closed or rebutted, judges every changed passage, and writes decision-review-rN.md. Every gap is BLOCKING (non-negotiable violation, correctness defect, wrong choice, missed option) or a CAVEAT. No blocking gap ends the loop; blocking gaps drive another Decide round. |
 
 ## Terminal states
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| decided (decider + reviewers agree) | every reviewer agrees: no blocking gap, no caveat · one analyst produces no lens file | derived |
+| decided (decider + reviewers agree) | every reviewer agrees: no blocking gap, no caveat · the decider names an open issue and the next pass names none · two research rounds in a row find no new evidence · every research round finds new evidence until maxResearchRounds is spent · one lens researcher produces no lens file | derived |
 | decided with caveats (no blocking gap, and the reviews list caveats for the plan) | every reviewer agrees and one lists a caveat | derived |
 | needs-attention (no agreement within round budget) | the reviewers keep finding blocking gaps | derived |
+| BLOCKED (an agent did not confirm writing its file) | a researcher does not confirm writing its research file · the decider does not confirm writing its decision file · a reviewer does not confirm writing its review file | derived |
 | BLOCKED (needs user input) | the decider hits a user-only call · a reviewer finds a requirement contradiction | derived |
-| BLOCKED (an agent did not confirm writing its file) | the decider does not confirm writing its decision file · a reviewer does not confirm writing its review file | derived |
-| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 27) |
-| throw: args must include at least { runId, root, lenses, planPath } | args carry no runId | throw (line 30) |
-| throw: args.root is required | args.root is missing | throw (line 33) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 45) |
-| throw: args.selection must be 'single' | selection is neither single nor ranked | throw (line 63) |
-| throw: Invalid role map | models is an array in place of an object | throw (line 79) |
-| throw: Unknown role key in a role map | models carries a key outside analyst \| decide \| review | throw (line 84) |
-| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 87) |
-| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 107) |
-| throw: args.planPath is required | args carry no planPath | throw (line 131) |
-| throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 143) |
-| throw: lens ids collide after slugging | two lenses slug to one file | throw (line 147) |
-| throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 441) |
-| throw: Decider returned nothing in round ... | the decider dies | throw (line 481) |
-| throw: Reviewer returned nothing in round ... | a reviewer dies | throw (line 522) |
+| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 28) |
+| throw: args must include at least { runId, root, lenses, planPath } | args carry no runId | throw (line 31) |
+| throw: args.root is required | args.root is missing | throw (line 34) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 46) |
+| throw: args.selection must be 'single' | selection is neither single nor ranked | throw (line 65) |
+| throw: Invalid role map | models is an array in place of an object | throw (line 81) |
+| throw: Unknown role key in a role map | models carries a key outside research \| decide \| review | throw (line 86) |
+| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 89) |
+| throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside research \| decide \| review, or maps one to a blank name | throw (line 103) |
+| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 120) |
+| throw: args.planPath is required | args carry no planPath | throw (line 147) |
+| throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 159) |
+| throw: lens ids collide after slugging | two lenses slug to one file | throw (line 163) |
+| throw: No lens researcher produced a lens file | no lens researcher produced a lens file | throw (line 519) |
+| throw: Decider returned nothing in round ... | the decider dies | throw (line 579) |
+| throw: Researcher returned nothing in research round ... | a researcher of an open issue dies | throw (line 643) |
+| throw: Reviewer returned nothing in round ... | a reviewer dies | throw (line 675) |
 
 ## Coverage
 
-24 scenarios · 4/4 roles · 15/15 throw sites · 0/0 halt statuses · 20 terminal states.
+30 scenarios · 5/5 roles · 17/17 throw sites · 0/0 halt statuses · 22 terminal states.
