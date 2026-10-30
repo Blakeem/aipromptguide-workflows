@@ -174,6 +174,13 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 - **`plan-pull.mjs` marks its fold notes as operator notes**, so a developer does not act on them. The
   dirty-baseline halt sends you to develop guide §7 "Run killed mid-block" before a relaunch.
 - **Principle #10 agrees with #12**, and #6 points to develop guide §10 for what the backlog records.
+- **Develop's prompts state what an agent does, in place of 24 prohibitions.** A prohibition that
+  repeated an instruction in the same prompt is cut, and the rest are rewritten as the action.
+  Prohibitions that earlier fixes added after an agent failure stay.
+- **Principle #3 covers every prohibition in a prompt.** A prohibition stays only where no placement,
+  tool, schema field or engine check enforces the rule and no step the agent takes prevents the act.
+- **The developer's baseline count agrees with its step 0.** A file that is staged and then edited
+  again counts as dirty.
 
 ### 2026-10-28
 
