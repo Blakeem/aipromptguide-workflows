@@ -421,15 +421,14 @@ const planCommandsLine = (p) => (p.blocks
 const blockRef = (p) => (p.blocks ? passRef(p) : `the output of:  ${blockCommand(p)}
 Run it. Redirect its output to a file under ${STATE_DIR}/scratch/ (create it if needed), never inside the
 target repo or ${GATE_DIR}/, and read that file, since the Bash display cuts long output. That output is
-the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
-could not read. The full plan file is at
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 ${p.planPath} if you need a neighbouring block for context; your block is ONLY "${p.id}"`);
 const passRef = (p) => `the output of each command below, one block per command:
 ${blockCommands(p).map((c) => `  ${c}`).join('\n')}
 Run every one, each redirected to its own file under ${STATE_DIR}/scratch/ (create it if needed), never
 inside the target repo or ${GATE_DIR}/, and read those files, since the Bash display cuts long output.
-Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP: never
-guess at a plan you could not read. Your blocks are ONLY ${p.blocks.map((b) => `"${b.id}"`).join(', ')}`;
+Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP.
+Your blocks are ONLY ${p.blocks.map((b) => `"${b.id}"`).join(', ')}`;
 
 // Blindness is placement, not instruction (#3). STATE_DIR holds acceptance reviews, AMENDED files,
 // NEEDS-USER and DECISIONS, all routes to plan text. No run-state path outside GATE_DIR ever enters the blind reviewer's prompt.
@@ -501,7 +500,7 @@ diff FRESH, catching new or nearby issues.${canContest ? `
 Before you skip a listed finding, check its stated reason against the code it cites. When the code
 contradicts a reason, at any tier, raise the finding ONCE, prefixed "CONTESTS DISMISSAL:", citing the
 file:line that contradicts it. A line whose reason starts \`${SPEC_REASON}\` rests on a plan you cannot
-read, and a later stage checks it, so skip its finding and never contest it.` : ` Read prior review files only at your
+read, and a later stage checks it, so skip its finding without that check.` : ` Read prior review files only at your
 EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
 accepts the overwrite, and never use its content.`}`);
 
@@ -544,9 +543,9 @@ const developSchema = (mode, closing) => ({
         },
       },
     } : {}),
-    plan_obtained:     { type: 'boolean', description: 'true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run.' },
+    plan_obtained:     { type: 'boolean', description: 'true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. FALSE halts the run.' },
     relayed_request:   RELAYED_REQUEST,
-    baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds.' },
+    baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds.' },
     // Commit mode only: acceptance's commit would carry anything staged, which no reviewer reads.
     ...(COMMIT ? {
       baseline_staged_files: { type: 'integer', description: 'ROUND 1 ONLY: how many files were STAGED BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds.' },
@@ -674,7 +673,7 @@ const acceptanceSchema = (mode, closing) => {
         tree_matches: { type: 'boolean', description: 'true when the new commit\'s tree (`git log -1 --format=%T`) is the tree id `git write-tree` printed before you committed, or on a LEGITIMATE NO-OP pass that made no commit' },
         tree_clean: { type: 'boolean', description: 'true when `git status --porcelain` printed nothing after your commit step' },
       } : {}),
-      plan_obtained: { type: 'boolean', description: 'true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run.' },
+      plan_obtained: { type: 'boolean', description: 'true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. FALSE halts the run.' },
       wrote_file:  { type: 'boolean', description: 'true ONLY if you wrote your review file this round' },
       pass:        { type: 'boolean', description: `${closing ? CLOSING_PASS_TERM : terms.pass}${PROACTIVE && !closing ? '. It is false when a pulled entry leaves a gap' : ''}` },
       staged:      { type: 'boolean', description: terms.staged },
@@ -748,8 +747,7 @@ ${CONVENTION_FILES_BLOCK}GATES (the commands that define "it works"):
   build: ${GATES.build ?? '(none)'}
   test:  ${GATES.test ?? '(none)'}${GATES.testSetup ? `\n  test setup: ${GATES.testSetup}` : ''}
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
-restate large files back.
+need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under ${STATE_DIR}/scratch/, never under ${GATE_DIR}/.
 ${FILE_WRITE_NOTE}`;
 
@@ -761,7 +759,7 @@ const WROTE_NOTE = 'A write the tool rejected has not written the file, so repor
 // A file key, not a mode: suite:scoped allows the mid-run red a test-first migration expects.
 const SUITE_LINE = SUITE === 'green'
   ? 'Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run.'
-  : 'Do NOT chase whole-suite green — only THIS block\'s scoped tests matter; the rest of the suite may be intentionally red mid-run. Report full_suite_outcome="scoped-skip".';
+  : 'Judge only THIS block\'s scoped tests, since the rest of the suite may be intentionally red mid-run. Report full_suite_outcome="scoped-skip".';
 // The shell display cuts long output and a slow suite outlasts the default timeout, so every gate run keeps its
 // entire output in a log the agent reads back. A background run may not wake a subagent when it ends, and a
 // foreground sleep may be refused, so the agent polls for an exit-code file inside the shell tool's timeout.
@@ -772,7 +770,7 @@ const GATE_RUN = (name) => {
 const roundGateRun = (role, id, round) => GATE_RUN(`${role}-${slug(id)}-r${round}`);
 const ACC_SUITE_LINE = SUITE === 'green'
   ? 'The EXISTING suite must still be green — reddening it is a regression, not an accepted block.'
-  : 'Do NOT treat the intentionally-red rest of the suite as a failure: judge THIS block on its own selector.';
+  : 'Judge THIS block on its own selector, since the rest of the suite may be intentionally red mid-run.';
 
 // Where each mode keeps the accepted baseline. Commit mode commits each accepted block, so nothing stays staged.
 const BASELINE_DEF = COMMIT ? 'HEAD, which holds each accepted block as its own commit' : 'the staged index, or HEAD when nothing is staged';
@@ -857,10 +855,10 @@ const ZONE_ROUTING = (mode) => `ZONE ROUTING - what you fix in each zone under t
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
     ${CONNECTED_FIX[connectedFix(mode)]}
-  - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
+  - Other code: leave it unchanged. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
-  Never hunt outside task code. Read connected code to check your change's effects, and route what you
+  Hunt only in task code. Read connected code to check your change's effects, and route what you
   notice there by these rules. A fix still follows the DECISION MATRIX's rules for a plan conflict
   (6a, 6b) and a user-only choice (7). Rule 2 of the DECISION MATRIX drops each pre-existing finding
   these rules do not fix, and RECORD below says which of them get a backlog entry.`;
@@ -883,20 +881,20 @@ const SCOPE_LINE = {
 // The developer, fix acceptance and closing acceptance each append to the project's backlog. A pass
 // member's file holds only what its own entries led to, so each block's file is triaged on its own.
 // `indent` is the caller's continuation indent, so the lines sit inside the caller's step or bullet.
-const backlogRoute = (p, owner, { exclusion = '', indent = '   ' } = {}) => p.blocks
-  ? `only to the file of the block ${owner}${exclusion}:
+const backlogRoute = (p, owner, { indent = '   ' } = {}) => p.blocks
+  ? `only to the file of the block ${owner}:
 ${p.blocks.map((b) => `${indent}  - ${b.issues.join(', ')} → ${backlogFile(b.id)} (block "${b.id}")`).join('\n')}
 ${indent}Count it in backlog_entries and name that block in backlog_blocks.`
-  : `to ${backlogFile(p.id)} only${exclusion}.
+  : `to ${backlogFile(p.id)} only.
 ${indent}Count it in backlog_entries and name "${p.id}" in backlog_blocks.`;
 // The folder keeps earlier runs' built files, so an entry that says fixed or stale holds no work, and a
 // defect it names that is live again gets a new entry.
 const grepBacklog = (pathOf, nameAt) => `grep the *.md files in ${BACKLOG_DIR}/ for ${pathOf} and for the name of the function or identifier at ${nameAt}, and read each entry that a grep matches`;
-const backlogDedup = (item) => `Before you append, create ${BACKLOG_DIR}/ if it does not exist, then ${grepBacklog('the path of the file the new entry names', `the ${item}`)}. Never append a ${item} that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the ${item} is back in the code, so append a new entry whose **What:** names their ids.`;
+const backlogDedup = (item) => `Before you append, create ${BACKLOG_DIR}/ if it does not exist, then ${grepBacklog('the path of the file the new entry names', `the ${item}`)}. Append a ${item} only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the ${item} is back in the code, so append a new entry whose **What:** names their ids.`;
 // `file` and `blockId` arrive shell-quoted, or as a quoted placeholder for a pass member.
 const entryCheck = (file) => `node '${ENTRY_TOOL}' check ${file}`;
 const entryNew = (file, blockId, flags) => `node '${ENTRY_TOOL}' new --file ${file} --block ${blockId} --run ${shq(RUN_ID)} ${flags}`;
-const entryIntro = 'with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo';
+const entryIntro = 'with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo';
 // `fixText` is a fixed **Fix:** text the engine gives, rendered on its own line.
 const entryFill = (file, { title, what, fix, fixText = '' }, indent) => `${indent}It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with ${title},
 ${indent}its **What:** placeholder with ${what} and its **Fix:** placeholder with ${fixText ? `this text:
@@ -928,7 +926,6 @@ const MATRIX = (p, round, launch) => {
   return `DECISION MATRIX — for each ambiguity or finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. A pre-existing finding, at any tier, that the ZONE ROUTING above does not fix → DROP + LOG.
-      Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX it where the ZONE ROUTING above places the fix, or
       ESCALATE it (7) where that routing says to.
   4. A finding the ZONE ROUTING above fixes, at any tier, that does not conflict with the plan → FIX.
@@ -980,8 +977,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     acceptance checks it against the plan.
     A false-positive reason cites the file:line that refutes the finding.
     Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
-    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
-    read or a probe, fix it, or escalate it (7).
+    ran and its output. Settle a finding you can neither confirm nor refute with a read or a probe, fix
+    it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     ${OWNED_CODE}, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -1038,7 +1035,7 @@ ${PROACTIVE ? `  • CLEANUP (this run's change policy): append ONE entry for ea
     that you made, in any zone, without ${requiredBy(mode)} requiring it, and that no earlier round
     logged, naming its file:line, what changed and why:
       \`${LOGGED_FIX_TAG} ${id}: <file:line> — <what changed> — <why>\`
-This is NOT a general code review. Make THIS block correct, testable and production-safe, make the
+Make THIS block correct, testable and production-safe, make the
 fixes the ZONE ROUTING allows, and touch nothing else.`;
 };
 
@@ -1333,9 +1330,9 @@ ${zones}
 PROCEDURE: VERIFY-FIRST, then ${PHASES}.
 ${PHASE_NOTES}
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH ACTIONABLE entry that is not closed, read the CURRENT code and confirm the
-   issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
-   isn't there. An entry's **Evidence:** line names the input, probe or document a review confirmed it
-   with. It is a claim to re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
+   issue still exists. If it is already fixed or no longer applies, record it STALE. An entry's
+   **Evidence:** line names the input, probe or document a review confirmed it with. It is a claim to
+   re-check, never proof. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
    verified. Once you confirm an entry's issue exists, read its **Fix:** line as a suggested fix.
    Before you apply any part of it, ${SUGGESTION_CHECK} A **Fix:** line you verify is defective goes
@@ -1477,7 +1474,7 @@ round-1 context of about 200k to 350k tokens, your block's own work included, an
 block alone fills that. For each entry you take:
   a. Append the line "- pulled: ${pulledMark(p.id)}" to the entry's "- <key>:" lines in its planPath,
      directly under the last of them. An entry that already carries a "- pulled:" line was taken by
-     another developer after the tool ran, so leave it and do not take it. When the entry carries a line
+     another developer after the tool ran, so skip that entry. When the entry carries a line
      that starts with "**Parked with:**", delete that line, since the tool lists such an entry only once
      the block that line names is done or skip.
   b. List its id, one id per line, in ${pulledFile(p.id)} (create ${STATE_DIR}/ if needed), which holds
@@ -1507,8 +1504,8 @@ ACCEPTED blocks are ${COMMIT ? 'COMMITTED (the accepted baseline is HEAD), so no
 unstaged at the end of this round is judged as YOUR work.
   \`git -C ${REPO} diff --name-only\` (unstaged tracked edits)
   \`git -C ${REPO} status --porcelain\`, lines starting \`??\` (untracked files, which \`git diff\` OMITS)
-Report baseline_dirty_files = the count of DISTINCT files across those two lists (do NOT count
-staged-only entries). ${COMMIT ? `Then run \`git -C ${REPO} diff --cached --name-only\` and report baseline_staged_files = the
+Report baseline_dirty_files = the count of DISTINCT files across those two lists.
+${COMMIT ? `Then run \`git -C ${REPO} diff --cached --name-only\` and report baseline_staged_files = the
 count of files it lists. If either count is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and
 return immediately with both counts. The run halts for the operator. If both are 0, ` : `If it is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and return
 immediately with that count. The run halts for the operator. If it IS 0, `}run \`git -C ${REPO} write-tree\`
@@ -1540,7 +1537,7 @@ Report baseline_dirty_files=-1${COMMIT ? ', baseline_staged_files=-1' : ''}, bas
   // In round 1 the file can only hold an earlier launch's lines, written against code this launch rebuilds.
   // Only a later round can know the file is absent, since round 1 reports earlier_files (see fileTracker).
   const ledgerNote = `${round > 1 && dismissedNone ? `${dismissedFile(p.id)} does not exist, so you have declined nothing in THIS block yet.` : `If ${dismissedFile(p.id)} exists, READ it first: your ledger of declined findings for THIS
-block. Do not duplicate or re-litigate an entry.`}${round === 1 ? ` In round 1 it holds only an earlier launch's lines. After
+block.`}${round === 1 ? ` In round 1 it holds only an earlier launch's lines. After
 STEP 0 and before you build, re-check each line against the current code, and remove each line whose
 finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
 hides a finding in rebuilt code.
@@ -1569,14 +1566,14 @@ that pointer by its block id, round and defect file:line alone.` : ''}`;
 // BLIND: no plan, spec, goal or criteria, so one frame serves every mode.
 const qualityPrompt = (p, round, absent) => `
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
-spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
+spec or goal. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside ${GATE_DIR}/.
 ${GATE_DIR}/ also holds other blocks' review and DISMISSED files.
 Read only ${absent.dismissed ? '' : `${dismissedFile(p.id)} there, and `}${qualityFile(p.id, round)} ${absent.dismissed ? 'there, and only' : 'only'} at the WRITE step, so the Write tool accepts the overwrite. Never use its content.
 ${ROUND_NOTE(round)}
 TARGET REPO: ${REPO}
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
-Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
+Of the gates, run only the test command, and only for ONE targeted test that confirms a suspected defect.
   build: ${GATES.build ?? '(none)'}
   test:  ${GATES.test ?? '(none)'}
 Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a
@@ -1591,7 +1588,7 @@ SCOPE — review ONLY this cycle's UNSTAGED work:
   A \` A\` entry (intent-to-add) is a new file \`git diff\` already shows in full. A first-column \`A\` or
   \`M\` is STAGED${COMMIT ? ', and' : ': the staged half of an \`AM\` or \`MM\` file is baseline, and'} only its unstaged half
   (\`git -C ${REPO} diff -- <file>\`) is this cycle's work.
-  ${COMMIT ? 'HEAD is the ACCEPTED baseline, each accepted block one commit' : `\`git -C ${REPO} diff --staged\` is the ACCEPTED baseline`} — context only, do NOT review it.
+  ${COMMIT ? 'HEAD is the ACCEPTED baseline, each accepted block one commit' : `\`git -C ${REPO} diff --staged\` is the ACCEPTED baseline`} — context only.
 
 ${SEVERITY_SCALE}
 
@@ -1865,8 +1862,7 @@ PROCEDURE:
 1. ROOT-CAUSE COMPLETENESS. The developer claims these issues FIXED:
 ${claimedFixed.map((id) => `     - ${id}`).join('\n') || '     (none claimed fixed)'}
    For EACH, read its full entry in its block, then INDEPENDENTLY re-derive the defect's root cause from
-   the CURRENT code — do NOT just confirm the literal edit the entry described is present; the entry
-   itself may have under-scoped the bug. A fix counts as landed ONLY if it closes that root cause
+   the CURRENT code, since the entry itself may have under-scoped the bug. A fix counts as landed ONLY if it closes that root cause
    COMPLETELY. If the same mechanism still has a live residual path the diff left open (a sibling code
    path, an already-started async chain that still writes the bad state, an untouched branch or caller
    with the identical defect), that is actually_fixed=false — EVEN IF the described edit was made — and
@@ -1885,7 +1881,7 @@ ${claimedFixed.map((id) => `     - ${id}`).join('\n') || '     (none claimed fix
    A harm an entry lists can come from a DIFFERENT mechanism: a cause that shares no code path with the
    root cause you re-derived. That harm is a NEW ISSUE, not a residual path. A sibling path, caller or
    branch with the identical defect is always a residual path, and when unsure, treat it as one. Append a
-   new issue ${backlogRoute(p, 'whose entry lists the harm', { exclusion: ', never to your review file' })} It sets no
+   new issue ${backlogRoute(p, 'whose entry lists the harm')} It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
    ${backlogDedup('harm')}
    ${backlogEntryTool(p, 'harm', '   ')}
@@ -1926,8 +1922,7 @@ ${unreportedIssues.map((id) => `     - ${id}`).join('\n') || '     (none: it rep
      \`git -C ${REPO} add <this block's changed AND newly-created files>\`${ADD_NOTE}; return
      pass=true, staged=true.`)}
    • LEGITIMATE NO-OP: if every entry was genuinely STALE or non-ACTIONABLE and the diff is empty, that is
-     a valid pass — return pass=true AND staged=true (nothing to add). Say so in your file. Do NOT
-     invent changes to justify it.${NO_OP_GAPS(round)}${NO_OP_COMMIT}
+     a valid pass — return pass=true AND staged=true (nothing to add). Say so in your file.${NO_OP_GAPS(round)}${NO_OP_COMMIT}
    • NO FIXED CLAIM, NON-EMPTY DIFF: when the FIXED list in step 1 is empty${PROACTIVE ? ' and no pulled entry is reported FIXED' : ''}, no claimed fix accounts for
      a change, so the unstaged diff MUST be empty. Any change there fails acceptance: name the files in your
      file and return pass=false.
@@ -2014,7 +2009,7 @@ PROCEDURE:
      return pass=true, staged=true.`)}
    • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the accepted baseline
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
-     (nothing to add). Say so in your file. Do NOT invent changes to justify it.${NO_OP_GAPS(round)}${NO_OP_COMMIT}
+     (nothing to add). Say so in your file.${NO_OP_GAPS(round)}${NO_OP_COMMIT}
    • ${failBullet(round)}${commitStep(p, round)}
 Return wrote_file=true ONLY if you wrote ${acceptanceFile(p.id, round)} this round.
 Do NOT modify source code${PULLED_REVERT_NOTE(round, absent.pulled)}. ${ACCEPTANCE_CHECK_RULE} Return ONLY the decision fields via the schema.`;
@@ -2238,8 +2233,8 @@ ${commits.map((c) => `     ${c.id}: \`git -C ${REPO} show --stat ${c.sha}\``).jo
 
 const sweepPrompt = (doneIds, commits) => `
 You are the FINAL COMPLETENESS SWEEP. Every block is done and its work is ${COMMIT ? 'COMMITTED' : 'STAGED'}. Verify, against the
-repo itself, that the GOAL is fully achieved. Find what the plan MISSED. Do not re-review accepted work.
-Read the approved plan file(s) VERBATIM and IN FULL (ENV's never-the-whole-plan-file rule does not apply to
+repo itself, that the GOAL is fully achieved. Find what the plan MISSED.
+Read the approved plan file(s) VERBATIM and IN FULL (ENV's rule to read only the SPECIFIC plan text you need does not apply to
 this role, and for this role "the files this block touches" means the files the goal or the plan names,
 every file in ${COMMIT ? "this launch's commits" : 'the staged diff'}, and every file a step-1 grep hits): ${PLAN_FILES.join(' , ')}.
 ${ENV}

@@ -39,14 +39,14 @@ const backlogFile = (id, runId) => `${BACKLOG}/${backlogFileId(id, runId)}.md`;
 const DECISION_RULE = `Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.`;
 // The grep wording of both backlog writers: the dedup before an append, and the Closed-by lookup.
 const GREP = (pathOf, nameAt) => `grep the *.md files in ${BACKLOG}/ for ${pathOf} and for the name of the function or identifier at ${nameAt}, and read each entry that a grep matches`;
-const DEDUP = (item) => `Before you append, create ${BACKLOG}/ if it does not exist, then ${GREP('the path of the file the new entry names', `the ${item}`)}. Never append a ${item} that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the ${item} is back in the code, so append a new entry whose **What:** names their ids.`;
+const DEDUP = (item) => `Before you append, create ${BACKLOG}/ if it does not exist, then ${GREP('the path of the file the new entry names', `the ${item}`)}. Append a ${item} only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the ${item} is back in the code, so append a new entry whose **What:** names their ids.`;
 // The plan-block.mjs path `plan-edit.mjs args` prints, which a launch spreads in.
 const BLOCK_TOOL = 'E:/r/tools/plan-block.mjs';
 // Every backlog writer appends through plan-entry.mjs beside blockTool, so no prompt holds the entry shape or id rule.
 const ENTRY_TOOL = 'E:/r/tools/plan-entry.mjs';
 // The risk file checker beside blockTool, which holds the risk file format and reruns each sweep search.
 const RISK_TOOL = 'E:/r/tools/risk-check.mjs';
-const ENTRY_INTRO = 'with the entry tool, never by hand, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo';
+const ENTRY_INTRO = 'with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo';
 const ENTRY_NEW = (file, block, runId = 't') => `node '${ENTRY_TOOL}' new --file '${file}' --block '${block}' --run '${runId}'`;
 const ENTRY_FLAGS = "--file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>";
 const ENTRY_CHECK = (file) => `Then run \`node '${ENTRY_TOOL}' check '${file}'\` and fix each problem it prints.`;
@@ -759,9 +759,9 @@ section('fix acceptance records a harm with a separate cause in its block\'s bac
   const TO_CHECK = (...files) => `so check these files in the project's backlog folder ${BACKLOG}/ for entries this run added: ${files.join(', ')}.`;
   const found = await run({ develop: DEV_FIXED, quality: CLEAN, acceptance: { ...FIX_PASS, backlog_entries: 2, backlog_blocks: ['fix-a'] } }, FIX_ONE);
   const acc = flat(found.prompt('acceptance'));
-  ok(acc.includes(`${FILE_A} only, never to your review file`) && !acc.includes('so that the user triages it before anything fixes it')
+  ok(acc.includes(`${FILE_A} only.`) && !acc.includes('so that the user triages it before anything fixes it')
     && acc.includes(ENTRY_RULE(FILE_A, 'fix-a', 'harm')) && !acc.includes('one past the highest n'),
-    'the verifier is told its block\'s backlog file, that a new issue stays out of the review file, and to append it with the entry tool');
+    'the verifier is told its block\'s backlog file and to append it with the entry tool');
   ok(acc.includes(`${ENTRY_CHECK(FILE_A)} Its **What:** names the source issue id.`),
     'the entry names the issue it came from');
   ok(acc.includes(DEDUP('harm')) && !acc.includes('read every *.md'),
@@ -2612,7 +2612,7 @@ const REQUIRED_BY = { feature: 'a criterion of this block', section: 'a criterio
 // Acceptance's one "Not a regression" item for a removed defect, a logged fix included, and its developer-side mirror.
 const removedDefectItem = (mode, tag, id, zones) => `- a removed defect: a change that closes a finding an earlier review of this block named, the same defect on a sibling path of a change ${REQUIRED_BY[mode]} requires or of such a finding, or a defect that a "${tag} ${id}:" line in ${STATE}/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline behavior it removes was itself that defect, that the change alters no other behavior, that it lies in code this block's text does not exclude and ${OWNED_CODE}, and that it lies ${zones}.`;
 const removedDefectExcuse = (tag, zones) => `Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding or a ${tag} line in DECISIONS.md names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and ${OWNED_CODE}, and ${zones}.`;
-const RULE_2 = '2. A pre-existing finding, at any tier, that the ZONE ROUTING above does not fix → DROP + LOG. Never fix it (regression risk).';
+const RULE_2 = '2. A pre-existing finding, at any tier, that the ZONE ROUTING above does not fix → DROP + LOG.';
 const RULE_3 = '3. Stops the build/tests/verification → FIX it where the ZONE ROUTING above places the fix, or ESCALATE it (7) where that routing says to.';
 const RULE_8 = "8. Any other open choice: weigh its benefit (what it improves, and how likely an input reaches it) against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not clearly ahead, or a different block's work → DROP + LOG.";
 const SIBLINGS_STEP = "SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes. DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies, in the SPEC reason form below.";
@@ -2705,7 +2705,7 @@ section('case 7 proceeding also writes an ESCALATED: line to the ledger the blin
 {
   for (const [mode, id, r] of FRAMES) {
     const dev = r.prompt(`develop ${id}`);
-    const esc = flat(dev.slice(dev.indexOf('ESCALATE (7)'), dev.indexOf('This is NOT a general code review.')));
+    const esc = flat(dev.slice(dev.indexOf('ESCALATE (7)'), dev.indexOf('Make THIS block correct')));
     ok(esc.includes(`append ONE terse line to ${STATE}/gate/DISMISSED-${id}.md`), `${mode}: case 7 writes the gate-scoped ledger`);
     ok(/ESCALATED: <the default you took/.test(esc), `${mode}: the line states the default taken`);
     ok(esc.includes(`the blind reviewer is NOT shown ${STATE}/DECISIONS.md`), `${mode}: with the reason attached`);
@@ -3269,8 +3269,8 @@ section('the blind reviewer is told the gate commands and which porcelain entrie
   ok(/build: b\n\s+test:  t\n/.test(r1), 'the build and test commands are named');
   ok(/GATES[^\n]*already ran before you were spawned/.test(r1), 'the gates already ran before the reviewer');
   ok(/a later stage re-runs them before anything is staged/.test(r1), 'and a later stage re-runs them');
-  ok(/Never run them in full/.test(r1), 'running them in full is forbidden');
-  ok(/test command only for ONE targeted test/.test(r1), 'one targeted test is allowed');
+  ok(/Of the gates, run only the test command, and only for ONE targeted test that confirms a suspected defect\./.test(r1),
+    'of the gates, only the test command runs, for one targeted test');
   ok(flat(r1).includes(`Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a temporary folder outside the repo and outside the folder that holds ${STATE}/gate/ are allowed.`),
     'any other command that writes nothing and a probe script outside the repo and the folder holding gate/ are allowed');
   ok(r1.indexOf('test:  t\n') < r1.indexOf('Any other command that writes nothing'), 'the allowance follows the gate command list, so it excludes the gate commands');
@@ -3870,7 +3870,7 @@ section('every developer frame works in six phases in every mode, policy and rou
           `${where}: SELF-REVIEW skips a sibling grep that SIBLINGS ran, and leaves the shared REACH text as it is`);
         ok(count(dev, `append ONE terse line to ${STATE}/gate/DISMISSED-${id}.md (create ${STATE}/gate/ if it does not exist)`) === 2,
           `${where}: both lines that append to the DISMISSED file say to create the gate folder`);
-        ok(dev.includes(fullSuite) && !dev.includes('Do NOT chase whole-suite green'),
+        ok(dev.includes(fullSuite) && !dev.includes("Judge only THIS block's scoped tests"),
           `${where}: under suite green the full-suite line counts the verification run for both when it is already the full suite`);
         ok(dev.includes(`${reviewScope} `) && entireDiff.every((s) => !dev.includes(s)),
           `${where}: SELF-REVIEW covers the code this round changed or read, and no line asks for a self-review of the entire block diff`);
@@ -3941,7 +3941,7 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
   };
   const rule4 = '4. A finding the ZONE ROUTING above fixes, at any tier, that does not conflict with the plan → FIX. A conflict with the plan still goes to 6a or 6b.';
   const route = "Hunt the task code in that scope for every finding at every tier. In the connected code in that scope, check your change's effects. Route each finding through the ZONE ROUTING above and the DECISION MATRIX below. In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round. A regression here";
-  const close = 'This is NOT a general code review. Make THIS block correct, testable and production-safe, make the fixes the ZONE ROUTING allows, and touch nothing else. Return ONLY the decision fields';
+  const close = 'Make THIS block correct, testable and production-safe, make the fixes the ZONE ROUTING allows, and touch nothing else. Return ONLY the decision fields';
   const contest = '• A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every change you make. NEVER log the same dismissal twice.';
   const FIX_NOUN = 'fix of a defect already in the accepted baseline';
   const loggedFixRule = (tag, id, mode) => `${tag} (this run's change policy): append ONE line to ${STATE}/DECISIONS.md for each ${FIX_NOUN} that you made, in any zone, without ${REQUIRED_BY[mode]} requiring it, and that no earlier round logged, naming its file:line, what changed and why: \`${tag} ${id}: <file:line> — <what changed> — <why>\``;
@@ -4023,7 +4023,7 @@ section('every developer and acceptance prompt renders one code-zone map, the de
   const sameFunctionFix = 'Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk under the RISK QUESTIONS below, which you answer for that fix before you write any code for it, and leave every other pre-existing finding there unchanged.';
   const keepsConnected = 'Leave every pre-existing finding there unchanged.';
   const connectedRule = (policy, mode) => (mode === 'fix' ? keepsConnected : policy === 'proactive' ? fixesConnected : sameFunctionFix);
-  const routingTail = "- Other code: never change it. Close a finding the diff introduces or exposes there, such as a build break or a regression, at its source in task or connected code. When only a change in other code closes it, ESCALATE it (7). Never hunt outside task code. Read connected code to check your change's effects, and route what you notice there by these rules. A fix still follows the DECISION MATRIX's rules for a plan conflict (6a, 6b) and a user-only choice (7). Rule 2 of the DECISION MATRIX drops each pre-existing finding these rules do not fix, and RECORD below says which of them get a backlog entry.";
+  const routingTail = "- Other code: leave it unchanged. Close a finding the diff introduces or exposes there, such as a build break or a regression, at its source in task or connected code. When only a change in other code closes it, ESCALATE it (7). Hunt only in task code. Read connected code to check your change's effects, and route what you notice there by these rules. A fix still follows the DECISION MATRIX's rules for a plan conflict (6a, 6b) and a user-only choice (7). Rule 2 of the DECISION MATRIX drops each pre-existing finding these rules do not fix, and RECORD below says which of them get a backlog entry.";
   // The retired per-policy bounds, the proactive past-reach permission and the focused rule 4 and SELF-REVIEW threshold.
   const RETIRED = [
     "this block's reach", 'add, change or interact with', "the code each ACTIONABLE entry's fix touches",
@@ -4567,7 +4567,7 @@ section('every reviewer gives a fix direction it checked against the code');
 
 section('a dismissal rests on a checked fact, and every reader checks it');
 {
-  const CHECKED = 'Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a read or a probe, fix it, or escalate it (7).';
+  const CHECKED = 'Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you ran and its output. Settle a finding you can neither confirm nor refute with a read or a probe, fix it, or escalate it (7).';
   for (const [mode, id, r] of FRAMES) {
     ok(flat(r.prompt(`develop ${id}`)).includes(CHECKED), `${mode}: the drop rules ask a checked fact and never drop an unsettled finding`);
   }
@@ -4908,8 +4908,8 @@ section('an amendment header names its launch, which round 1 counts from the AME
 section('a SPEC decline rests on the plan, so the blind reviewer skips it and acceptance checks it against the plan');
 {
   const q = flat(bus.prompt('quality block-a'));
-  ok(q.includes('A line whose reason starts `SKIPPED: SPEC:` rests on a plan you cannot read, and a later stage checks it, so skip its finding and never contest it.'),
-    'the blind reviewer skips a SPEC line and never contests it');
+  ok(q.includes('A line whose reason starts `SKIPPED: SPEC:` rests on a plan you cannot read, and a later stage checks it, so skip its finding without that check.'),
+    'the blind reviewer skips a SPEC line without checking its reason');
   for (const [mode, id, r] of FRAMES) {
     ok(flat(r.prompt(`acceptance ${id}`)).includes("A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because the plan prescribes the code, this block's text excludes it, or another block of the plan owns it. Check it against this block's text and the plan's other blocks. When none of the three holds, the line declines nothing, so its finding counts as a gap."),
       `${mode}: acceptance checks a SPEC line against the block's text and the other blocks' code`);
