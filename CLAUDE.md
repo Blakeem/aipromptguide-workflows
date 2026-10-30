@@ -27,17 +27,11 @@ human judges) → brainstorm; **converge** (AI concludes among options it genera
 curate the docs to build against) → docs. The last five are generative/read-only: no code, no staging, no
 commit (they honor only the core principles — see WORKFLOW-PRINCIPLES.md "Scope").
 
-**Defect vs. enhancement is the sharpest split here.** Something the system gets *wrong* → debug, whose
-inventory feeds an autonomous fixer. Something it could do *better* → enhance, which stops at proposals
-and never auto-applies. Keep them apart: an improvement list would not converge the way debug's closed
-inventory does.
+**Defect vs. enhancement is the sharpest split here.** Keep debug and enhance apart, since an improvement
+list would not converge the way debug's closed inventory does.
 
-**Decide vs. investigate is the other one.** No established answer, and the work is *weighing trade-offs*
-among approaches the AI generates → decide, which converges on reviewer agreement about an argument. The
-answer is already out there, and the work is *finding it and proving it fits* → investigate, which
-converges on evidenced coverage. The tell: if you want to trade requirement A off against requirement B,
-that is decide's weighted matrix; if missing A is simply disqualifying, that is investigate's pass/fail
-gate.
+**Decide vs. investigate is the other one.** If you want to trade requirement A off against requirement B,
+that is decide's weighted matrix. If missing A is simply disqualifying, that is investigate's pass/fail gate.
 
 **Into the plan bus.** The generative workflows feed develop through plan files you author from their
 outputs. enhance's approved proposals map by class: ADOPT → a feature-mode block, a ROADMAP proposal
@@ -76,9 +70,9 @@ the session cannot already read, and an installed plugin's folder is outside eve
 skill first runs `tools/plugin-access.mjs`, which adds one Read rule for the plugin folder once the
 user agrees. The develop and debug skills run `tools/onboard.mjs` in its place, which asks for that
 access together with every other setup answer the repo is missing. Rename an engine, guide,
-`tools/plan-block.mjs`, `tools/plugin-access.mjs`, `tools/onboard.mjs`, `tools/project-settings.mjs`,
-`tools/wt.mjs`, `tools/review-check.mjs`, or `workflows/debug/gen-units.mjs` and the matching
-`skills/<x>/SKILL.md` paths must move with it.
+`tools/plan-block.mjs`, `tools/plan-edit.mjs`, `tools/plugin-access.mjs`, `tools/onboard.mjs`,
+`tools/project-settings.mjs`, `tools/wt.mjs`, `tools/review-check.mjs`, or `workflows/debug/gen-units.mjs`
+and the matching `skills/<x>/SKILL.md` paths must move with it.
 
 **Want to see what a run actually does?** Each workflow ships a generated `FLOW.md` beside its engine
 (`workflows/<x>/FLOW.md`; debug's is `FLOW-review.md`) — every agent, gate, loop and
@@ -89,12 +83,11 @@ The generator and the rest of the repo's own machinery are catalogued in [`tools
 **Want each agent's view of a run?** Pass the `notes` arg, which each workflow guide's args reference
 describes. Every agent then answers `tools/EXIT-SURVEY.md`, and `tools/survey.mjs` gathers the answers.
 
-**Changing anything here?** Read [`tests/CLAUDE.md`](tests/CLAUDE.md) first — the development gotchas
-(this file and each workflow's `CLAUDE.md` are for *running* the workflows; that one is for *editing*
-them). Above all: a defect found in one engine is usually in its siblings too — grep before you call it
-fixed. `node tests/run.mjs` is the gate; run it before and after, add a case for what you changed
-([`tests/README.md`](tests/README.md)), and point a workflow's `gates.build`/`gates.test` at it when
-working on this repo.
+**Changing anything here?** Read [`tests/CLAUDE.md`](tests/CLAUDE.md) first — the development gotchas. Above
+all: a defect found in one engine is usually in its siblings too — grep before you call it fixed.
+`node tests/run.mjs` is the gate; run it before and after, add a case for what you changed
+([`tests/README.md`](tests/README.md)), and point a workflow's `gates.build`/`gates.test` at it when working
+on this repo.
 
 ## House style
 

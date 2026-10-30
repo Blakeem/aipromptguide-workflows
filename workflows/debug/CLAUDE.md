@@ -278,8 +278,7 @@ with `units` from `gen-units.mjs`.
 - **Optional tuning:** `reviewSeverity` (inventory floor, default medium; a name outside
   low|medium|high|critical **throws**) · `lens` (one lens or an ARRAY —
   see Lenses; per-unit override via `unit.lens`) · `changePolicy` (`focused|proactive`, default `focused`,
-  any other value **throws**, and `strict`, the old name of `focused`, throws with a message that names
-  the rename. `focused` makes each **Fix:** line the minimal fix. `proactive` makes it the
+  any other value **throws**. `focused` makes each **Fix:** line the minimal fix. `proactive` makes it the
   fix with the best long-term result. Neither changes what counts as a finding. The reviewer prompt and
   the verifier prompt each say the policy and that prompt's own scope and routing rules override any
   other instruction about scope, a memory line or a CLAUDE.md included) · `models`/`efforts`/`agentTypes`

@@ -164,7 +164,7 @@ section('a dirty baseline halts before any reviewer, and never parks the operato
     'the halt never offers to keep run-worktree dirt');
   ok(/rewrote, such as a lockfile, also fix the command and save it again with `project-settings\.mjs set --provision`/.test(out.haltReason),
     'and names the provision fix for a rewritten tracked file');
-  ok(/interrupted develop run's unfinished block, relaunch once it is set aside/.test(out.haltReason),
+  ok(/interrupted develop run's unfinished block, set it aside, then finish the develop guide's section 7 "Run killed mid-block" steps before you relaunch/.test(out.haltReason),
     'and an interrupted run\'s block is set aside before the relaunch');
   ok(/run-worktree dirt is never the user's work, so never git add -A it/.test(logs.join('\n')),
     'the log line says the same');

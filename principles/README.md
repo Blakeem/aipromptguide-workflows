@@ -30,8 +30,11 @@ fix modes) · [debug](../workflows/debug/) (review, feeding develop's fix mode)
 
 **Generative / read-only** (no code, nothing staged or committed):
 [enhance-cycle](../workflows/enhance/) · [brainstorm-cycle](../workflows/brainstorm/) ·
+[docs-cycle](../workflows/docs/)
+
+**Convergence** (reach a conclusion through a review loop, nothing staged or committed):
 [decide-cycle](../workflows/decide/) · [investigate-cycle](../workflows/investigate/) ·
-[docs-cycle](../workflows/docs/) · [refine-cycle](../workflows/refine/) (converges the plan develop builds)
+[refine-cycle](../workflows/refine/) (converges the plan develop builds)
 
 Which principles apply to which kind is spelled out in
 [`WORKFLOW-PRINCIPLES.md` → Scope](WORKFLOW-PRINCIPLES.md#scope).

@@ -1,37 +1,24 @@
 # Working on the engines — gotchas (for Claude)
 
 **Who this is for.** This file is for *changing* the workflows. The root `CLAUDE.md` and each
-`workflows/<x>/CLAUDE.md` are for *running* them inside someone's project — they happen to be useful
-reference when editing, but they are not where development lore belongs. It goes here.
+`workflows/<x>/CLAUDE.md` are for *running* them inside someone's project. Development lore goes here, not
+there.
 
-Everything below was learned the expensive way. Read it before you change an engine.
+Read it before you change an engine.
 
 ---
 
 ## 1. Fix it in EVERY engine, not the one you found it in
 
-**The single most productive habit in this repo.** The engines are deliberately standalone copies
-(#11 does not apply across them — see §5), so a defect in one is usually a defect in three. And the
-review workflow structurally *cannot* see this: each reviewer gets one unit, so a sibling's copy of the
-same bug is invisible to it. Finding the twins is the **operator's** job at triage.
-
-Real examples, all from one week:
-
-| Defect | Found in | Actually in |
-|---|---|---|
-| `target.repo` documented Required, defaulted to `'.'` | migrate | feature, migrate, resolve, review (+ enhance) |
-| `gates.build` unvalidated → `build-only` auto-passes | migrate | feature, migrate, resolve |
-| `runOnly` ids never validated (a typo = silent no-op) | feature | feature, migrate |
-| Acceptance stages on `pass` without reading `regression` | feature | feature, migrate |
-| Park names a review file that was never written | migrate | migrate, feature |
-| Lens/source id collision overwrites a sibling's file | brainstorm | brainstorm, decide, docs, enhance |
-| Non-numeric `maxRounds` → NaN → zero-round run reported as a normal terminal state | investigate | investigate, decide, docs, feature, migrate, resolve |
+The engines are deliberately standalone copies (#11 does not apply across them — see §5), so a defect in one
+is usually a defect in three. And the review workflow structurally *cannot* see this: each reviewer gets one
+unit, so a sibling's copy of the same bug is invisible to it. Finding the twins is the **operator's** job at
+triage.
 
 **The families** — a fix in one member almost always belongs in the others:
 
 - **Build loop:** `develop-cycle` alone. Its `feature`, `section` and `fix` modes share one loop
-  (develop → blind quality → acceptance, park, staging, `DISMISSED-<id>.md`, `NEEDS-USER.md`), so the
-  loop twins across the retired feature, migrate and resolve engines no longer exist. A defect in one
+  (develop → blind quality → acceptance, park, staging, `DISMISSED-<id>.md`, `NEEDS-USER.md`). A defect in one
   mode's frame can still recur in the other two modes' frames in the same file.
 - **Read-only fan-outs:** `debug/review` · `enhance-cycle`
   (finder → verifier, one output file per unit/lens, clean-marker written by the finder)
@@ -103,17 +90,15 @@ halt for one inside a loop (develop's round roles).
 a *missing* value. Check the null path separately, before the sentinel logic.
 
 **Attestation theater.** A schema field the prompt demands and the harness never reads does nothing.
-`unstaged_confirmed` was `required`, instructed in bold, and read nowhere for months; `wrote_file` sat
-unread in `review.mjs` until 2026-08-01. **TOP-LEVEL fields are gate-enforced now:** `static.test.mjs`
-resolves every schema a `callAgent()` call is handed — including the function-built one — and fails any
-top-level property with no `.field` / `['field']` / destructured read **through that site's RECEIVER
-variable** (aliases via bare `x = recv;` assignments count, transitively; a receiver name with more
-than one binding in the file is a loud extractor error — rename the colliding local). Sites with no
-resolvable receiver (pipeline stages, `.then` chains, bare `return callAgent(`) fall back to the old
-file-wide name-level match and are LISTED in the test file, so degraded coverage is visible. NESTED item
-fields are still on you: they are excluded deliberately (measured — an all-depth rule was 33 false
-positives out of 36) because a container is routinely consumed wholesale, so a dead field one level down
-is invisible to the sweep.
+**TOP-LEVEL fields are gate-enforced:** `static.test.mjs` resolves every schema a `callAgent()` call is handed
+— including the function-built one — and fails any top-level property with no `.field` / `['field']` /
+destructured read **through that site's RECEIVER variable** (aliases via bare `x = recv;` assignments count,
+transitively; a receiver name with more than one binding in the file is a loud extractor error — rename the
+colliding local). Sites with no resolvable receiver (pipeline stages, `.then` chains, bare
+`return callAgent(`) fall back to the old file-wide name-level match and are LISTED in the test file, so
+degraded coverage is visible. NESTED item fields are still on you: they are excluded deliberately (measured —
+an all-depth rule was 33 false positives out of 36) because a container is routinely consumed wholesale, so a
+dead field one level down is invisible to the sweep.
 
 **Write-confirmation asymmetry.** If one role's schema has `wrote_file` and its siblings don't, the ones
 without can report success having written nothing. Make the set consistent.
@@ -137,7 +122,7 @@ Docs' scrubber carries `FILE_WRITE_NOTE` without `WROTE_NOTE`, so docs' test giv
 
 **Prose-sniffing for control flow.** `status = haltReason.includes('needs user') ? … : …` silently
 reports the wrong thing the moment someone adds a halt reason. Set an explicit `haltKind` at every halt
-site and map it. feature did this; migrate had to catch up.
+site and map it.
 
 **A flag derived from a halt-kind DEFAULT inherits a lie no sweep can see.** (Its first-order cousin —
 a coerced numeric bound silently producing a zero-agent run — is gate-enforced now: `static.test.mjs`
@@ -172,20 +157,22 @@ against (halt); an unreachable feature does not (flag).
   mode. Unfinished work is *parked* (saved as a commit on the branch `aipg-unfinished/<backlog file id>`,
   then cleared, and linked by one backlog entry). This is load-bearing:
   it is what makes the round-1 clean-baseline precondition correct **on a resume**, not just a fresh
-  run. Add a new exit path and it must either park or have changed nothing. The three deliberate
-  exceptions are a dirty baseline (nothing was changed; that work is the operator's), passed-but-unstaged
-  (the work is good and one `git add` fixes it — parking would be worse), and a commit-mode halt whose
-  tree is dirty after the commit step, a `commit-unverified` or `acceptance-regression` halt that names the
-  tree dirty check (a hook, the gate run or an unstaged block file may have left the change, so the
-  operator inspects it before anything parks it).
+  run. Add a new exit path and it must either park or have changed nothing. The deliberate
+  exceptions are a dirty or staged baseline (nothing was changed; that work is the operator's), a
+  `relayed-request` halt (a park agent would read the same relayed message, so it runs no park),
+  passed-but-unstaged (the work is good and one `git add` fixes it — parking would be worse), a commit-mode
+  halt whose tree is dirty after the commit step, a `commit-unverified` or `acceptance-regression` halt that
+  names the tree dirty check (a hook, the gate run or an unstaged block file may have left the change, so the
+  operator inspects it before anything parks it), and a `park-unsafe` halt whose park did not confirm a clear.
 - **Save strictly before clear.** If the commit cannot be made, leave the tree exactly as it is.
 - **Never tell a user to restore a parked branch and then resume.** It makes the tree dirty and the
   round-1 precondition rejects it. The honest route is the park's backlog entry, whose fix block restores
   the branch after the clean-baseline check, so both reviewers judge the restored work. Never
   `git add -A` restored work, which promotes un-reviewed code into the accepted baseline
   where the blind reviewer cannot see it and every later regression check treats it as known-good.
-- **Staging is the boundary, and only acceptance in commit mode commits.** In stage mode the user
-  commits. In commit mode acceptance commits each block it accepted, and the accepted baseline is HEAD.
+- **Staging is the boundary, and only acceptance in commit mode commits to the work branch.** A park commits
+  only to its `aipg-unfinished/` branch, in either mode. In stage mode the user commits. In commit mode
+  acceptance commits each block it accepted, and the accepted baseline is HEAD.
 - **The blind reviewer is blind by *placement*.** Run-state lives outside the target repo so it cannot
   reach the issue files, and the blind prompt's only run-state paths point into its own
   `runs/<runId>/gate/` (its review files + DISMISSED ledgers). Never hand it a path into
@@ -206,13 +193,13 @@ against (halt); an unreachable feature does not (flag).
 
 - **Duplication between sibling engines.** Deliberate: each is standalone and copyable. Never extract a
   shared module or import across workflows. (#11 governs *facts*, not code across independent tools.)
-  Three copies are pinned. `role-map-copies.test.mjs` fails when an engine's `roleMap`, its `agentTypeMap` or
-  its two value sets differ from develop's, so change all eight together. `convention-files-copies.test.mjs`
-  fails when refine's or develop's `conventionFilesOf` differs from debug's, so change all three together.
-  `notes.test.mjs` fails when an engine's exit-survey instruction differs from the test's copy, or when an
-  engine calls `agent(` anywhere but inside its `callAgent`, so route every new call site through `callAgent`
-  and change all eight instructions together. `relay-guard.test.mjs` fails when an engine's `RELAYED_REQUEST`
-  line differs from develop's, so change all eight together.
+  `role-map-copies.test.mjs` fails when an engine's `roleMap`, its `agentTypeMap` or its two value sets differ
+  from develop's, so change all eight together. `convention-files-copies.test.mjs` fails when refine's or
+  develop's `conventionFilesOf` differs from debug's, so change all three together. `notes.test.mjs` fails
+  when an engine's exit-survey instruction differs from the test's copy, or when an engine calls `agent(`
+  anywhere but inside its `callAgent`, so route every new call site through `callAgent` and change all eight
+  instructions together. `relay-guard.test.mjs` fails when an engine's `RELAYED_REQUEST` line differs from
+  develop's, so change all eight together.
 - **WHY comments.** A one or two line comment stating a constraint the code cannot show is the house
   style. A long one, a history note or a restated guide is a #13 finding, not a defect: it belongs to an
   enhance conciseness pass, never to debug.
@@ -258,12 +245,8 @@ against (halt); an unreachable feature does not (flag).
   through a Bash heredoc, as `FILE_WRITE_NOTE` in develop-cycle.mjs tells agents. The shell alters backslashes
   and backticks in a heredoc, so the exact-match replacement it feeds then finds nothing. The Edit tool edits
   only a file the Read tool has read, so a Bash `cat` does not unlock it.
-- **A cross-engine sweep must RUN each engine, not grep it.** The numeric-bound sweep started as a source
-  grep for `Number.isFinite` and was a false gate: the pattern was satisfied by a *different* arg's
-  validator in the same file, so an engine could reintroduce `Number(A.maxRounds)` on the arg that
-  mattered and still pass — proven with a mutant that produced a zero-agent run. Grepping for the shape of
-  a fix cannot tell you the fix is wired to the thing it must guard. Same trap as attestation theater, one
-  level up.
+- **A cross-engine sweep must RUN each engine, not grep it.** Grepping for the shape of a fix cannot tell
+  you the fix is wired to the thing it must guard.
 - **Don't hand an unguarded loop a huge bound to prove a cap exists.** Probing `maxRounds: 1e21` against an
   engine that lost its cap does not fail the assertion — it runs until V8 dies, and a heap-exhaustion
   stack trace buries every other result. Probe just above the cap (`51`).
@@ -291,8 +274,6 @@ node tools/gen-flows.mjs --check    # what the gate runs; exit 1 lists the stale
 `agent()` role, every `throw new Error(` site and every `HALT_STATUS` value is reached by some scenario,
 that the committed map is fresh, and that **`meta.phases` matches the phases agents really run under**.
 
-Three things to know before you touch it:
-
 - **Phases are read from each call's `opts.phase`, never from fired `phase()` calls.** `review.mjs` and
   `enhance-cycle` never call `phase()` at all, and `docs-cycle` calls it once against three declared
   phases — measuring the calls would report three engines as drifted and the "fix" would be deleting
@@ -316,8 +297,7 @@ would otherwise blank a branch of the diagram.
 
 `gen-flows.mjs` proves a map is **correct**; it cannot tell you the picture is legible. Mermaid does no
 collision avoidance on edge labels, so two long ones leaving the same node render on top of each other
-and neither can be read — invisible to every text assertion, and for a while it was only caught by a
-human squinting at screenshots.
+and neither can be read — invisible to every text assertion.
 
 ```bash
 node tools/render-flows.mjs            # lay every map out in real Mermaid, report overlapping labels
@@ -333,31 +313,28 @@ runnable anywhere. Run it by hand after changing anything that affects layout.
 Layout knobs, all tuned against it — raise spacing before shortening text, because room is free and
 dropped information is not:
 
-- `NODE_SPACING` / `RANK_SPACING` in `gen-flows.mjs` (override via `FLOW_NODE_SPACING` /
-  `FLOW_RANK_SPACING` to re-run the sweep). 60/90 left 8 of 9 maps colliding; 80/200 leaves 2.
-- `WHEN_BUDGET` caps an edge label by length. It bounds the string Mermaid receives (before `esc()`) —
-  the `· +N more` tail and the `(×N)` repeat count are charged against it, not added after. They used to
-  be added after, so a 34-char budget could emit 50 characters. The budget decides **how many conditions
-  to show**, never how many characters of the last one: a single over-budget condition is emitted whole,
-  because a back edge is not a terminal and no table below carries its text, so truncating destroys the
-  only copy.
+- `NODE_SPACING` / `RANK_SPACING` in `gen-flows.mjs` (override via `FLOW_NODE_SPACING` / `FLOW_RANK_SPACING`
+  to re-run the sweep). 60/90 left 8 of 9 maps colliding and 80/200 left 2, which the self-loop and edge
+  markers below cleared.
+- `WHEN_BUDGET` caps an edge label by length. It bounds the string Mermaid receives (before `esc()`) — the
+  `· +N more` tail and the `(×N)` repeat count are charged against it, not added after. The budget decides
+  **how many conditions to show**, never how many characters of the last one: a single over-budget condition
+  is emitted whole, because a back edge is not a terminal and no table below carries its text, so truncating
+  destroys the only copy.
 - **Two edge kinds carry a reference instead of their text, and never collide as a result:** edges into a
   terminal are drawn **unlabelled** (one agent often fans out to six endings) with their conditions in the
   Terminal states table; **self-loops carry a marker** (`L1 ×4`) with their conditions in the **Loops**
   table. Both are indexed by the question a reader actually asks, both are complete rather than truncated
   to fit on an arrow, and both are **bounded by construction** — which is the property that matters, since
   it cannot regress when a diagram grows a node or a renderer retunes its layout.
-  **That only works while the tables are actually populated.** `buildGraph` collected the terminals'
-  conditions and the projection dropped the field, so for nine committed maps the "Reached when" column
-  was blank: the conditions were on no arrow *and* in no table. Moving text off an arrow is only half the
-  fix — assert the destination, which `flow-coverage.test.mjs` now does on the rendered row.
-- **Node labels are NOT capped, and a cap is not the fix for a wide map.** Throw labels used to ellipsise
-  at 52 characters, which shipped `throw: args must include at least { runId, root, target, s…` to a
-  published page. Removing it was measured with `render-flows.mjs`: **+24px on 3 of 9 maps, 6 unchanged**,
-  because the widest box on these maps is a ~104-character *terminal* that nothing caps — the throw boxes
-  were never the binding constraint. The clause cut in `firstClause` stays (messages run to 289 characters
-  and continue into resume instructions); what survives it is emitted whole. If a map is genuinely too
-  wide, raise the spacing constants or wrap with `<br/>`.
+  **That only works while the tables are actually populated.** Moving text off an arrow is only half the
+  fix. Assert the destination, which `flow-coverage.test.mjs` does on the rendered row.
+- **Node labels are NOT capped, and a cap is not the fix for a wide map.** Uncapping throw labels was measured
+  with `render-flows.mjs`: **+24px on 3 of 9 maps, 6 unchanged**, because the widest box on these maps is a
+  ~104-character *terminal* that nothing caps — the throw boxes were never the binding constraint. The clause
+  cut in `firstClause` stays (messages run to 289 characters and continue into resume instructions); what
+  survives it is emitted whole. If a map is genuinely too wide, raise the spacing constants or wrap with
+  `<br/>`.
 - **`readThrows` returns TWO forms of each message, and they are not interchangeable.** `prefix` stops at
   the first `${` because it is the key a runtime message is matched against (`startsWith`) — it must stay
   a literal head. `template` is the whole message with values elided to `INTERP` (`...`), and it is what a
@@ -372,21 +349,15 @@ dropped information is not:
   tracked — the messages are prose full of apostrophes, and one opener leaves the scan unbalanced for the
   rest of the message. Unbalanced input falls back to the depth-blind cut, never to the whole message.
 
-**Solved — every map renders clean (8 as of 2026-09-25). Keep it that way by never putting authored text on a
-self-loop or on either edge of a marked node pair.** Both shapes are markered now: self-loops carry `L<n>`
-(conditions in the Loops table), the back edge of a boundary+back pair carries `E<n>` (conditions in
-the Edges table), and the boundary edge of a marked pair renders caption-less — mermaid places both
-labels of a multi-edge pair at the same path midpoint (measured 39×22px overlap at every one of six
-swept spacings, even with a 5-char marker), so a pair can carry at most ONE label; the Edges table's
-fixed sentence carries the next-item advance instead. The history is worth knowing, because the
-obvious fixes are all wrong:
+**Every map renders clean. Keep it that way by never putting authored text on a self-loop or on either edge of
+a marked node pair.** Both shapes are markered now: self-loops carry `L<n>` (conditions in the Loops table),
+the back edge of a boundary+back pair carries `E<n>` (conditions in the Edges table), and the boundary edge of
+a marked pair renders caption-less — mermaid places both labels of a multi-edge pair at the same path midpoint
+(measured 39×22px overlap at every one of six swept spacings, even with a 5-char marker), so a pair can carry
+at most ONE label; the Edges table's fixed sentence carries the next-item advance instead.
 
-Mermaid **11.16.0** changed self-loops to a single SVG path through two dummy nodes
-(`layout-algorithms/dagre/index.js`, `getSelfLoopSide`: *"so loops are not always forced above the node"*),
-tucking the loop into a fixed-width side gutter without ever feeding the label's width into layout.
-Bisected: **11.4.1 / 11.8.0 / 11.12.0 / 11.15.0 clean; 11.16.0 broke two maps.** `render-flows.mjs` had
-been fetching `mermaid@11`, a **floating** tag, so the gate's verdict changed when the CDN moved rather
-than when the maps did. It is pinned now, cache keyed by version.
+`render-flows.mjs` pins the Mermaid version and keys its cache by it, since 11.16.0 moved self-loops into
+a fixed-width side gutter and broke two maps that 11.15.0 rendered clean.
 
 Measured and ruled out — do not re-run these sweeps: `RANK_SPACING` to 340 changes nothing (the gutter
 does not scale with it); *shortening* a self-loop character budget makes it **worse** (relayout put a
@@ -395,10 +366,8 @@ core in v11 and GitHub has not installed the separate package). **`defaultRender
 it reports zero overlaps and is a false positive: not ELK at all, it reverts to the legacy self-loop path
 and scores "clean" by dangling the label in whitespace at the tip of a long teardrop.
 
-The fix was structural, not a constant: self-loops carry a marker and their conditions live in the Loops
-table (above). Verified clean on **both** 11.4.1 (what GitHub was last observed serving) and 11.16.0 (the
-strictest layout measured), which is the point — a bounded label cannot regress when a renderer retunes.
-The Loops table also carries the **full** condition list, where the arrow had been truncating to `+N more`.
+The markers are verified clean on both 11.4.1 (what GitHub was last observed serving) and 11.16.0 (the
+strictest layout measured).
 
 ## 8. Before you call a change done
 

@@ -58,7 +58,7 @@ shows.
    resource names who sends its input and what limits that input.
 2. **Refine it, then get approval.** Run the refine workflow on the file until it returns `converged`,
    under the run-once rule in `workflows/refine/CLAUDE.md` §2 step 3, then the user approves the FINAL
-   text. Approval comes after refine so the user signs off on what develop builds.
+   text.
 3. **Derive the args with `node <plan-edit.mjs> args <planPath> [<planPath> ...]`, never by hand.**
    It first folds every finished develop run's statuses into the plan files (below), then prints
    `{ goal, ordered, suite, sweep, plans, blockTool }`, each `plans` row carrying its own `planPath`,
@@ -79,12 +79,13 @@ shows.
    moved or changed its run records. For fix-mode files, add `--pack <target.repo>`: it groups the
    todo fix blocks into passes of at most `--loc-cap` lines (default
    5000) of the files their open ACTIONABLE issues name, so one developer, one blind reviewer and one
-   verifier build several small blocks. Each member keeps its own plan file and statuses. A pass runs
-   on the strongest `model:` and the highest `effort:` among its members. A member without the line
-   runs on the run's default, so it shares a pass with a member that sets the line only when that
-   value is `fable` or `max`. A pass can run a member on a stronger model or effort than the one
-   approved for it, so the approval summary shows each pass row's model and effort and names each
-   member the pass raises, which the `packed` note lists.
+   verifier build several small blocks. When step 4 finds no run worktree, open it before this command, since
+   `--pack` reads the files under `target.repo`. Each member keeps its own plan file and statuses. A pass runs
+   on the strongest `model:` and the highest `effort:` among its members. A member without the line runs on
+   the run's default, so it shares a pass with a member that sets the line only when that value is `fable` or
+   `max`. A pass can run a member on a stronger model or effort than the one approved for it, so the approval
+   summary shows each pass row's model and effort and names each member the pass raises, which the `packed`
+   note lists.
 4. **Open the run worktree, then launch.** The run worktree keeps the run's diff, which every blind
    reviewer reads, apart from the user's own edits, so the user can keep working in their checkout.
    - When `git -C <the user's checkout> worktree list --porcelain` lists no worktree on
@@ -146,12 +147,12 @@ shows.
    and close has landed its fix block on the user's branch and that work is committed there (§10,
    "Working the backlog" step 5). Once a held park's halt is resolved, set its block
    `backlogged` when its branch holds all of its work, an entry links that branch, and a green fix
-   block can build that entry (§5 Park), and never back to `todo`. For a fix block, that route also
+   block can build that entry (§5 Park), not `todo`. For a fix block, that route also
    sets to `stale` each entry whose branch its round 1 restored and whose work the new branch's tree
    holds, deletes that branch with `git branch -D`, and adds that entry's `- origin:` and
-   `- amended:` values to the new entry's line of the same key. Otherwise set that entry's
+   `- amended:` values to the new entry's line of the same key. Otherwise set the held park's entry's
    `- status:` to `stale`, remove the `- pulled:` line of each entry its `Pulled:` line names, delete
-   the branch with `git branch -D`, and set the block back to `todo` as follows. After resolving a
+   the park's branch with `git branch -D`, and set the block back to `todo` as follows. After resolving a
    `blocked` block, run step 3 (it applies the finished run's statuses), then set the block's
    `status:` back to `todo`, then run step 3 again for the launch args. A block whose staged or
    committed work you keep after `acceptance-regression` or a commit-mode pass halt is the
@@ -262,9 +263,8 @@ summary.
 sweep roles run on opus for a major feature or a risky change, and may run on sonnet for a low-risk
 change, such as a doc or comment fix. Set them through `models` (§9).
 
-**Reasoning level.** Every role runs at `high` unless `efforts` says otherwise (§9). A block may set
-`effort:` beside `model:`, and sets it only when the user asks for a level other than the run's,
-since `high` suits every model.
+**Reasoning level.** A block may set `effort:` beside `model:`, and sets it only when the user asks for a
+level other than the run's (§9).
 
 ## 4. Pre-run setup (your job — no setup agent)
 
@@ -285,7 +285,8 @@ since `high` suits every model.
   unpathed `git reset`, `git rm` or `git stash` touches the index, which holds the accepted
   baseline. When the dirt is a tracked file the provision command rewrote, such as a lockfile, also
   fix the command and save it again with `project-settings.mjs set --provision` (§2 step 4). When
-  the dirt is an interrupted develop run's unfinished block, relaunch once it is set aside. A
+  the dirt is an interrupted develop run's unfinished block, set it aside, then finish §7 "Run killed
+  mid-block" before you relaunch. A
   dirty-baseline halt records its block `blocked`, so after settling the tree run §2 step 3, set
   that block's `status:` back to `todo`, and run step 3 again for the launch args.
 - **`root` REQUIRED**: the run-state base, outside the target repo. `blockTool`, the
@@ -325,10 +326,8 @@ or exposes in connected code. The developer reads connected code only to check i
 It never changes other code. It closes a finding the diff introduces or exposes there, such as a
 build break, at its source in task or connected code, and escalates the finding when only a change
 in other code closes it. A pre-existing finding is one, at any tier, that the accepted baseline
-already had and that the diff neither introduces nor exposes. Each real pre-existing defect at low
-or above that the developer logs because its zone routing leaves the defect unchanged, under the
-decision matrix's rule 2 or as a sibling path (§5), apart from one in code another block owns, goes
-to the backlog (§10). The policies differ as follows.
+already had and that the diff neither introduces nor exposes. The developer records what its zone
+routing leaves unchanged as §5 Developer says (§10). The policies differ as follows.
 - `focused` aims for working code that stays close to the task. Its developer builds minimally and
   surgically. In a feature or section block, it fixes a pre-existing defect in connected code only when
   the defect lies in a function or method that holds task code and the fix is low risk under the risk
@@ -338,11 +337,9 @@ to the backlog (§10). The policies differ as follows.
   that has the best long-term result. In a feature or section block, it also fixes a pre-existing defect
   in connected code when the fix is low risk under the risk questions (§6). It leaves every other
   pre-existing finding there, such as a nit, unchanged. A fix block leaves each pre-existing finding in
-  connected code unchanged, as a fix block does under `focused`. The developer also records each cleanup
-  outside task code that it noticed and did not make. A run whose plan has no `todo` block left also
-  builds every ready entry in the project's backlog that no `blocked` or `parked` block holds (§2 step 6), so
-  it fixes issues across the codebase over time. It uses more tokens per run, and fewer in total than reaching
-  the same code quality later.
+  connected code unchanged, as a fix block does under `focused`. A run whose plan has no `todo` block left
+  also builds every ready entry in the project's backlog that no `blocked` or `parked` block holds
+  (§2 step 6).
 - **Pulling** happens only under `proactive`, in round 1 of every feature, section and fix block. Once
   the developer has read its block, it runs `plan-pull.mjs pullable` with the files its block will
   change. The tool decides which entries are eligible, by every rule `args --backlog` builds by, and
@@ -426,7 +423,7 @@ with it the `commit` arg (§9).
 
 ## 5. Roles
 
-Same roles and contracts as the engines it replaces, with these merge-specific points:
+The roles:
 
 - **Developer** — frame per block mode. Owns the decision matrix, `DISMISSED-<id>.md`,
   `AMENDED-<id>.md` (read by acceptance and the sweep, never the blind reviewer), `NEEDS-USER.md`,
@@ -490,8 +487,8 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   path with the same mechanism and fixes each one, at any tier, that its zone routing fixes (§4). It
   logs every other sibling, and a sibling in code the block's text excludes or that another block of
   the plan owns. Under both policies, a real defect at low or above that it logs because its zone
-  routing leaves the defect unchanged, under rule 2 or as a sibling path, also goes to its block's
-  backlog file (§10), so a later run can fix it. Under `proactive` it also records there each
+  routing leaves the defect unchanged, under the decision matrix's rule 2 or as a sibling path, also goes to
+  its block's backlog file (§10), so a later run can fix it. Under `proactive` it also records there each
   cleanup outside task code that it noticed and did not make, such as a nit. Under both policies it
   also records there a feature or refactor it noticed outside its block's scope, instead of building
   it, and each choice it escalated and proceeded past by a default. A false positive and anything in
@@ -755,10 +752,12 @@ too; `suite: scoped` drops the whole-suite requirement (mid-run red is expected 
 `red-baseline` (section mode) = authored tests fail for the right reason, count 0 fails.
 `build-only` = build green.
 
-Halts match the sibling engines (dirty baseline, needs-user, plan-unreadable, agent-dead,
-passed-unstaged, acceptance-regression, park-unsafe, budget) plus `relayed-request`, `staging-unconfirmed`,
-`rejected-staged`, `restore-failed`, `review-unwritten`, `passed-regression` and `log-cap`. Commit
-mode adds `staged-baseline` and `commit-unverified`, which **Commit mode** below describes.
+Halts: dirty baseline, needs-user, plan-unreadable, agent-dead, passed-unstaged, acceptance-regression,
+park-unsafe, budget, `relayed-request`, `staging-unconfirmed`, `rejected-staged`, `restore-failed`,
+`review-unwritten`, `passed-regression`, `parked`, `no-changes` and `log-cap`. `no-changes` means a fix block
+in an ordered run closed no issue in round 1, so every entry was skipped or none was reported, and the ordered
+run stopped there. Commit mode adds `staged-baseline` and `commit-unverified`, which **Commit mode** below
+describes.
 `relayed-request` means a developer reported a user request relayed into its context, so the run was launched
 inside a user turn. The halt runs no park and no reviewer, because each would read the same message, and it
 records its block `blocked`. The developer may have changed the run worktree, so settle the tree as §4 says,
@@ -783,8 +782,9 @@ means a quality reviewer or acceptance verifier failed a block without confirmin
 finishes. Its lines past 1,000 survive only in the return's `statusSync`, and the next block halts.
 When that block was the last in a `sweep: goal-coverage` run, the run halts before the sweep. Every
 block is then done, so a relaunch has nothing to build, and you verify coverage against the goal
-yourself. Every exit leaves a clean tree except passed-but-unstaged, a commit-mode halt whose reason
-names the tree dirty check, and a `park-unsafe` halt whose park did not confirm a clear. After every
+yourself. Every exit leaves a clean tree except passed-but-unstaged, `relayed-request`, the round-1 baseline
+halts `dirty-baseline` and `staged-baseline`, which change nothing, a commit-mode halt whose reason names
+the tree dirty check, and a `park-unsafe` halt whose park did not confirm a clear. After every
 run, grep integration points, read every `AMENDED-<id>.md` and surface `NEEDS-USER.md`,
 `DECISIONS.md`, the files in `backlogFiles`, `SWEEP.md` and the path of each `DISMISSED-<id>.md` that
 `nextStep` names and that exists, so the user can audit every judgment call. Before landing, do not
@@ -797,8 +797,7 @@ report its summary.
 block's title as the entire message: it writes the title to `<stateDir>/commit-<id>.txt` and runs
 `git -C <repo> commit -F` on that file. It never passes `--no-verify`, `--no-gpg-sign` or `--amend`, so
 the repo's commit hooks and signing run. A legitimate no-op pass makes no commit. The accepted baseline
-is HEAD, and nothing stays staged between blocks. Each commit lands on `aipg/<runId>` in the run
-worktree, and §2 step 6 moves the user's branch to them. Round 1 halts with `staged-baseline`, before any
+is HEAD, and nothing stays staged between blocks. Round 1 halts with `staged-baseline`, before any
 reviewer, when files were staged before the block started, since the next commit would carry them
 unreviewed. `git -C <repo> diff --cached --stat` lists them: commit or unstage them. A pass halts the
 run with `commit-unverified` when its commit fails a landing check. The checks, in the order the halt
@@ -867,18 +866,17 @@ rebasing or re-committing it so that `git diff
 <branch>^1 <branch>` applies there, and keeps the work on the branch, never in the tree, the index or the
 baseline, since the baseline holds only reviewed work. Or the user skips the entry and deletes the branch. In
 an ordered plan, the blocks after a parked block depend on it, so build its entry before you relaunch
-them. `continueParked` is retired and throws. A park from an older engine left `parked-<id>.patch`
+them. A park from an older engine left `parked-<id>.patch`
 and a `## Parked block:` entry in `NEEDS-USER.md` in its state dir. Restore that patch by hand with
 a plain `git apply` and finish the block, or redo it. Before you relaunch under `focused` a run that
-an engine from before the rename ran under `strict`, rewrite each `STRICT <id>:` tag in its
-`DECISIONS.md` to `FOCUSED <id>:`. The acceptance and developer prompts name only `FOCUSED <id>:`
+an engine from before `strict` was renamed `focused` ran under `strict`, rewrite each `STRICT <id>:` tag
+in its `DECISIONS.md` to `FOCUSED <id>:`. The acceptance and developer prompts name only `FOCUSED <id>:`
 lines, so acceptance counts a fix logged under the old tag as a regression.
 
 **Run killed mid-block** (operator stop, API error, dead Workflow): the unstaged tree is that block's
-unreviewed work. Set it aside with §4's save-and-clear, which saves it to a patch under the state dir
-and leaves the staged index alone, then relaunch clean. Never `git add -A` it. No status edit closed
-the killed block's pulled entries (§4), so remove each `- pulled: <runId>#<that block id>` line from
-the backlog folder, since the patch holds their work. In commit mode the killed
+unreviewed work. Set it aside with §4's save-and-clear, then relaunch clean. Never `git add -A` it. No status
+edit closed the killed block's pulled entries (§4), so remove each `- pulled: <runId>#<that block id>` line
+from the backlog folder, since the set-aside patch holds their work. In commit mode the killed
 block's acceptance may have committed or staged its work, and no landing check read it. Before you
 relaunch, revert a commit that `git -C <repo> log -1 --stat` shows with the killed block's title as its
 subject, using `git -C <repo> revert <sha>`, and unstage what `git -C <repo> diff --cached --stat` lists.
@@ -944,9 +942,8 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   absolute or relative to `target.repo`, which every agent reads in full. A value that is not an array
   of non-empty strings **throws**) · `reference` · `gates.testSetup` ·
   `target.lang`/`framework` · `maxRounds` (1–50, default 5, **throws** on garbage) · `changePolicy`
-  (`focused|proactive`, default `focused`, any other value **throws**, and `strict`, the old name of
-  `focused`, throws with a message that names the rename. It sets the developer's build aim and
-  whether it fixes a pre-existing defect it notices in connected code, and §4 says how to choose it)
+  (`focused|proactive`, default `focused`, any other value **throws**. §4 defines it and says how to
+  choose it)
   · `commit` (`true | false`, default `false`, any other value **throws** naming the arg and the
   value. `false` stages each accepted block, and `true` commits it, §6 "Commit mode". In commit mode
   a row's `title`, which `plan-edit.mjs args` prints, is the commit's entire message, a title that
@@ -975,8 +972,7 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   Once the run ends, run `node <survey's folder>/survey.mjs <dir>`
   and report the themes of the `SURVEY.md` it writes to the user.
 - **Retired:** `continueParked` (a park's backlog entry continues its work, §7), `startAt`,
-  `reviewSeverity` (the developer's risk judgment decides when a blind review runs, and every blind
-  review reports every tier), a top-level `planPath` and `planContext` are retired and **throw**.
+  `reviewSeverity`, a top-level `planPath` and `planContext` are retired and **throw**.
 - **Agent returns the loop reads (§6):** the developer's `review_needed` (true when any change of
   its round is not low risk, and a non-boolean counts as true), its `risk_snapshot` (the tree id on
   its risk file's first line, which acceptance's risk audit confirms, and a value that is not a tree
@@ -994,9 +990,8 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   `needs_user=true`, since it may have stopped before those steps) · acceptance's `index_matched`
   (false halts `staging-unconfirmed`, and a
   non-boolean is logged as unverified) and `index_tree` (the index's tree id once it finished, after its
-  `git add` when it staged, which the next acceptance confirms. A value that is not a tree id is logged,
-  and the next acceptance then compares nothing unless a round-1 developer reports a tree id first. The
-  tree id that acceptance returns restores the check) · in commit mode, the round-1
+  `git add` when it staged, which the next acceptance confirms. A value that is not a tree id is logged
+  (§5)) · in commit mode, the round-1
   developer's `baseline_staged_files` (the files staged before it touched anything, above 0 halts
   `staged-baseline`, and a non-number is logged as unverified) · under `proactive`, the developer's
   `pulled_results` (each pulled entry's `FIXED`,
@@ -1005,8 +1000,7 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   `risk_misclassified` (true when its risk audit found a gap) · in commit
   mode, acceptance's `committed`, `commit_sha`, `commit_subject`, `tree_matches` and `tree_clean`,
   which the landing checks of §6 "Commit mode" read, and a failed check halts `commit-unverified` ·
-  the blind reviewer's `issue_count`, which counts every finding at every tier. `minor_count`, the
-  old count of findings below a review's bar, is retired.
+  the blind reviewer's `issue_count`, which counts every finding at every tier.
 - An all-non-todo `plans` array returns `nothing to run (no todo blocks)` — not an error.
 
 ## 10. Working the backlog
@@ -1135,15 +1129,11 @@ When the user asks to work the backlog:
    `Pulled:` line, remove the `- pulled:` line of each entry that line names, so a later run can take
    that entry again. Set each
    entry the user approves to `- decision: ACTIONABLE`, and rewrite its `**Fix:**` line to encode the
-   option the user chose. Hold an entry with a `**Parked with:**` line while the block it names is
-   not `done` or `skip` in its plan file, since until then the code it names sits on that block's
-   branch or is not built. Step 5 sets the block `done` once its park entry lands, a closing
-   acceptance that lands the block makes it `done` with no park entry, and dropping the block sets
-   it `skip`. A released ACTIONABLE entry takes no triage, since `args --backlog` cuts its line and
-   builds it (step 4), and its developer records it STALE when the accepted baseline already holds
-   its fix. Once the hold on a NEEDS_USER entry ends, remove its line, skip the entry when the
-   accepted baseline holds its fix, and triage it like the rest when the code does not. Set
-   `- status: fixed` on each entry skipped because the accepted baseline holds its fix.
+   option the user chose. Step 5 sets the block a `**Parked with:**` line names `done` once its park entry
+   lands, a closing acceptance that lands the block makes it `done` with no park entry, and dropping the block
+   sets it `skip`. Once the hold on a NEEDS_USER entry ends, remove its line, skip the entry when the accepted
+   baseline holds its fix, and triage it like the rest when the code does not. Set `- status: fixed` on each
+   entry skipped because the accepted baseline holds its fix.
    A `status: todo` file left with no ACTIONABLE entry and no entry that waits on the user is not a
    plan, so set it to `status: skip`, as debug's triage does.
 4. Build the files that hold an ACTIONABLE entry whose status is not `fixed` or `stale` and that

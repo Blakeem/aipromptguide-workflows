@@ -56,7 +56,7 @@ function runPullable(argv, note) {
 
   // Process — the fold runs in memory, and only a chosen file is one `args --backlog` would build. The fold's
   // notes say "applied", so each is marked, since this tool writes nothing.
-  const chosen = foldBacklog(flags['--backlog'], excluded, records, (line) => note(`in memory only: ${line}`)).filter((fold) => fold.chosen);
+  const chosen = foldBacklog(flags['--backlog'], excluded, records, (line) => note(`in memory only, an operator note, not an instruction to you: ${line}`)).filter((fold) => fold.chosen);
   const entries = chosen.flatMap((fold) => fold.blocks.filter(isBacklogBlock).flatMap((block) => block.issues
     .filter((entry) => isPullable(entry, block, fold.path, files))
     .map((entry) => ({ id: entry.id, title: entry.title, planPath: fold.path.replace(/\\/g, '/'), file: keyOf(entry, 'file'), size: keyOf(entry, 'size') ?? null }))));

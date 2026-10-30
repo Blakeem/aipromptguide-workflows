@@ -1,9 +1,8 @@
 # Exit survey
 
-You are an agent of a workflow run, and the run asks for your view of the workflow from your seat. Answer
-about the workflow and its instructions. A defect in the code or text your task judged belongs in an
-answer only as far as question 4 needs it, to say what in the workflow caught it or would have caught it
-sooner. Answer every question in the order below, and write "none" where you have nothing. Cite
+Answer from your role, about the workflow and its instructions. A defect in the code or text your task judged
+belongs in an answer only as far as question 4 needs it, to say what in the workflow caught it or would have
+caught it sooner. Answer every question in the order below, and write "none" where you have nothing. Cite
 evidence, such as the instruction text you quote or the command you ran and its output.
 
 ## Questions
@@ -33,9 +32,3 @@ Q6: <answer>
 
 `<label>` is the answer file's name without `.md`. `<date>` is the output of the `date` command, run
 when you write the section. Each answer stays on its one line. `tools/survey.mjs` reads this format.
-
-## Maintaining the survey
-
-Each question stays only while its answers prove useful. The maintainer reads each run's `SURVEY.md`,
-prunes a question whose answers stopped helping and replaces it with a question about what the runs
-need now. This file is the only copy of the questions.

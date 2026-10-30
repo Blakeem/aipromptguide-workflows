@@ -91,7 +91,7 @@ section('pullable lists the ready entries in the given files, and leaves out eve
     'only open or status-less ACTIONABLE entries of todo or done files in the given files, with no branch or pulled line and an id of the file\'s name, are listed');
   const [first] = entries ?? [];
   eq(JSON.stringify(first), JSON.stringify({ id: 'ready-1', title: 'ready-1 title', planPath: join(backlog, 'ready.md').replace(/\\/g, '/'), file: 'src/a.js:10', size: 'small' }), 'each entry names its title, its file with forward slashes, its file line and its size');
-  ok(/in memory only: left out .*held\.md: the block that wrote it, writer-plan \(blocked\)/.test(notes), `a file its unfinished writer holds back is left out with the note args gives, marked as in memory: ${notes.trim()}`);
+  ok(/in memory only, an operator note, not an instruction to you: left out .*held\.md: the block that wrote it, writer-plan \(blocked\)/.test(notes), `a file its unfinished writer holds back is left out with the note args gives, marked as in memory: ${notes.trim()}`);
   eq(JSON.stringify({ backlog: snapshot(backlog), plans: snapshot(plans) }), JSON.stringify(before), 'it writes nothing, not even the fold args would write or the done file\'s reopening');
 }
 
@@ -132,7 +132,7 @@ section('pullable leaves out an entry whose file a blocked block names, in a bui
   const { entries, notes, err } = pullable(configWith([record]), '--backlog', backlog, '--files', 'src/held.js,src/mine.js,src/free.js', '--exclude', excluded);
   ok(!err, `it succeeds: ${err ?? ''}`);
   eq((entries ?? []).map((e) => e.id).join(','), 'free-1', 'only the entry no blocked block names is listed');
-  ok(/in memory only: held held-1 .*block stuck \(blocked\)/.test(notes) && /in memory only: held mine-1 .*block halted \(blocked\)/.test(notes), `each note names the blocked block: ${notes.trim()}`);
+  ok(/in memory only, an operator note, not an instruction to you: held held-1 .*block stuck \(blocked\)/.test(notes) && /in memory only, an operator note, not an instruction to you: held mine-1 .*block halted \(blocked\)/.test(notes), `each note names the blocked block: ${notes.trim()}`);
 }
 
 section('pullable leaves out a file whose open ACTIONABLE entry still holds a plan-entry.mjs placeholder');
@@ -144,7 +144,7 @@ section('pullable leaves out a file whose open ACTIONABLE entry still holds a pl
   const { entries, notes, err } = pullable(configWith([]), '--backlog', backlog, '--files', 'src/a.js');
   ok(!err, `it succeeds: ${err ?? ''}`);
   eq(JSON.stringify(entries), '[]', 'neither the unfilled entry nor its filled neighbour is listed, as args --backlog leaves the file out');
-  ok(/in memory only: left out .*half\.md: entry half-2 still holds the placeholder/.test(notes), `the note names the unfilled entry: ${notes.trim()}`);
+  ok(/in memory only, an operator note, not an instruction to you: left out .*half\.md: entry half-2 still holds the placeholder/.test(notes), `the note names the unfilled entry: ${notes.trim()}`);
   eq(JSON.stringify(snapshot(backlog)), JSON.stringify(before), 'it writes nothing');
 }
 

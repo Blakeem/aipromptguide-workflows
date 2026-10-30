@@ -2,19 +2,14 @@
 
 Design rules for Claude Code Workflows, the background `Workflow` engines such as `develop-cycle.mjs`.
 Use them to write new workflows and to review existing ones. The goal is the simplest, lowest-friction
-path to the outcome, with no fluff or extra agents. Engineer around a need instead of spawning a new
-role for it. An agent earns its place only if no other agent, the harness, or the main agent (talking to
-the user beforehand) can do its job without hurting quality.
+path to the outcome, with no fluff or extra agents.
 
 Two terms used throughout:
 - **Harness / conductor**: the JS workflow script. It is not an LLM and has no context window. It has no
   tools, so it cannot read files, run git, or write anything. It only sequences `agent()` calls and
   passes small control values.
-- **Agent**: one `agent()` call. It starts with a context that holds its prompt, the launching turn's user
-  message when that turn carries one, and the startup context #3 names: the user `CLAUDE.md`, the project
-  `CLAUDE.md`, the copy of the auto-memory index (`MEMORY.md`) the launching session loaded at its start
-  and, when that session's working directory is a git repository, the git status snapshot taken at that
-  start. It works with its own tools, returns one structured value, and is then destroyed. Agents cannot
+- **Agent**: one `agent()` call. It starts with a context that holds its prompt and the startup context #3
+  names. It works with its own tools, returns one structured value, and is then destroyed. Agents cannot
   message each other or keep context warm across calls.
 
 ---
@@ -51,8 +46,8 @@ a document out of an agent's reach only when none of these sources names it or r
 ### 4. No busy work
 The main agent does every preparatory or clerical step with the user before the run, such as cleaning
 the working tree, config, supplying the plan, and deciding the gate. If the harness or the main agent can
-do a job, no agent is spawned for it. Never invent a role another agent already covers. A "loader", a
-"scribe", or a "baseline-prep" agent is a smell, so fold it in or remove it.
+do a job without hurting quality, no agent is spawned for it. Never invent a role another agent already
+covers. A "loader", a "scribe", or a "baseline-prep" agent is a smell, so fold it in or remove it.
 
 The same rule covers the operator's steps between runs. Anything carried between runs, such as a status,
 a pending decision, or a launch condition, lives in durable state that an already-required step reads or
@@ -104,10 +99,10 @@ stage reads every earlier review file of its block after its own first check. It
 earlier finding stays closed on every sibling path or sits in the ledger, so it is the block's
 regression check and the blind stage stays lean.
 
-A reviewer may contest a dismissal it believes is wrong (`CONTESTS DISMISSAL: <why>`) at any tier. The
+A reviewer may contest, once, a dismissal it believes is wrong (`CONTESTS DISMISSAL: <why>`) at any tier. The
 developer must then fix or escalate it and never silently re-dismiss it. No developer follows develop's
-closing pass, so its acceptance counts a contest from that pass's blind review as a gap, unless the
-contested line is an escalation it holds.
+closing pass, so its acceptance counts a contest from that pass's blind review as a gap, unless the contested
+line is an escalation it holds.
 This bounds the loop and keeps a wrongly dismissed real defect from being suppressed.
 
 ### 6. Only messages, ledgers, user notes, and product are written
@@ -122,19 +117,19 @@ did" reports. A run writes only three kinds of file. These are the inter-agent m
 round or keyed by unit like enhance's `candidates/<lens>.md`, the ledgers and user notes below, and the
 workflow's own product, the thing the run exists to produce. The
 product files are `issues/`, `proposals/`, `variations/`, `lenses/`, the decision files, investigate's
-`options/` and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md`, and a parked block's
-commit on its `aipg-unfinished/<backlog file id>` branch, whose earlier parks stay in that branch's history.
+`options/` and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md` and backlog files, and a
+parked block's commit on its `aipg-unfinished/<backlog file id>` branch, whose earlier parks stay in that
+branch's history.
 `DETERMINATION.md` earns its place the same way develop's `SWEEP.md` does. It holds the cross-option
 comparison and the coverage evidence, which no per-option file contains, and it links to
 `options/<id>.md` instead of restating them.
 
-A file that restates numbers the harness already has is narration whatever its title, so "product"
-cannot be stretched to license a status file. For this reason the retired `resolve-cycle` deleted its
-`SWEEP.md` while develop keeps its own. Develop's sweep re-derives the change surface from the goal by
-grep and produces findings no per-block agent could reach. Resolve's sweep only retold the harness's own
-accounting.
+A file that restates numbers the harness already has is narration whatever its title, so "product" cannot be
+stretched to license a status file. Develop's `SWEEP.md` is product, since its sweep re-derives the change
+surface from the goal by grep and produces findings no per-block agent could reach.
 
-Besides code and develop's risk files, the developer's only outputs are four append files:
+Besides code, develop's risk files, a block's `question-<id>.md` and its backlog records, the developer's only
+outputs are four append files:
 - **`DISMISSED-<id>.md`**, the dismissed-findings ledger, one per plan, section, or batch. It holds one
   terse line per review finding the developer declined (false positive, intentional, conflicts with
   spec, not a real path), with just enough context that a reviewer is not in the dark. The line format
@@ -146,15 +141,13 @@ Besides code and develop's risk files, the developer's only outputs are four app
   It is an inter-agent message from the developer to the acceptance stage and the sweep. It is kept
   outside `gate/` because it quotes plan text (#3). `DECISIONS.md` gets a pointer line to it.
 - **`NEEDS-USER.md`**, the user-facing notes of blockers and questions only the user can answer. These
-  may be as full as the user needs to decide. A hard blocker also stops its block (#7). develop writes a
-  question here only in an ordered run, which halts on it. An unordered run writes it to the block's
-  `question-<id>.md`, and park copies it into the block's backlog entry.
+  may be as full as the user needs to decide. #7 routes each question between this file and a block's
+  `question-<id>.md`.
 - **`DECISIONS.md`**, the record of each default the developer took on an escalated choice and each
-  plan amendment pointer. Under either change policy, it also records each fix of a defect the accepted
-  baseline already had that develop's developer made and its block did not require. The user reads it
-  at run end, and the acceptance stage reads it.
-  It is never a question. A flag-and-proceed item is recorded here, and the developer continues with a
-  defensible default.
+  plan amendment pointer. Under either change policy (develop's `CLAUDE.md` §4, 'Choosing the change policy',
+  defines the change policies), it also records each fix of a defect the accepted baseline already had that
+  develop's developer made and its block did not require. The user reads it at run end, and the acceptance
+  stage reads it. It is never a question.
 
 A search-shaped workflow carries two more ledgers on the same terms, investigate's **`DISQUALIFIED.md`**
 and **`SEARCHED.md`**. `DISQUALIFIED.md` holds one terse line per rejected candidate, naming the
@@ -164,25 +157,16 @@ reads both before searching so that the round diverges from what already failed 
 covered. They are the run's convergence mechanism, not a record of it. Their writers are strictly
 sequential, which is the only reason a shared append-only file is safe.
 
-The developer writes no "what I did" report, since its code is its output (#8). In develop, the
-developer also records each real defect the accepted baseline already had that it logs because its
-code-zone routing leaves the defect unchanged, under its decision matrix's rule 2 or as a sibling
-path, in code no other block owns. Under the proactive change policy, it also records each cleanup it
-noticed and did not make outside the code its block's required changes add or change. It also
-records each feature or refactor it noticed outside its block's scope, and each choice it escalated
-and proceeded past by a default. In its closing pass, it also records each finding in its block's
-own diff whose fix needs a blind review. Each record goes to that block's file in the project's
-backlog folder, an issue inventory. A defect or cleanup record with one clear, small fix that
-changes no user-visible behavior, stored data or public contract is marked ACTIONABLE, and a later
-run builds it. A record with a `**Parked with:**` line stays out of every build until the block it
-names is done or skip. The user triages every other record like debug's `issues/`. Each park also
-appends one entry that links the branch holding its block's work. The developer adds a closing line
-to an entry in any file in that folder whose defect a fix it logs closes. Reviewers write only their
-numbered review files. One exception is develop's fix-mode acceptance verifier, which appends a harm
-with a separate cause to its source block's backlog file. Another is develop's closing acceptance,
-which appends each gap it leaves when it lands a block. A critic, an editor or a verifier may write
-one scratch probe beside the listed files. Its temporary directory sits outside the repo and the
-run-state dir. Nothing outside this list is written.
+The developer writes no "what I did" report, since its code is its output (#8). In develop, the developer also
+records what it leaves for later in its block's file in the project's backlog folder, an issue inventory.
+`workflows/develop/CLAUDE.md` §10 "Working the backlog" says what is recorded and which records a later run
+builds. Each park also appends one entry that links the branch holding its block's work. The developer adds a
+closing line to an entry in any file in that folder whose defect a fix it logs closes. Reviewers write only
+their numbered review files. One exception is develop's fix-mode acceptance verifier, which appends a harm
+with a separate cause to its source block's backlog file. Another is develop's closing acceptance, which
+appends each gap it leaves when it lands a block. A critic, an editor or a verifier may write one scratch
+probe beside the listed files. Its temporary directory sits outside the repo and the run-state dir. Nothing
+outside this list is written.
 
 ### 7. The developer owns the decision matrix and is the only escalation point
 The developer resolves ambiguity itself, with a decision matrix, before flagging anything. It logs a
@@ -191,7 +175,8 @@ escalate a contested dismissal (#5). It escalates only a choice that changes use
 stored data or a public contract and that the plan, the code, the conventions and a quick check cannot
 settle, or a blocker it cannot resolve in scope. If the developer cannot proceed without the answer, the
 question goes to `NEEDS-USER.md` in an ordered run and to the block's question file in an unordered
-one, and its block stops immediately and is parked. A default the
+one, and its block stops immediately and is parked. Park copies the question into the block's backlog
+entry in either run. A default the
 developer can proceed with goes to `DECISIONS.md`. The run halts only when later work depends on
 that block (an ordered run), and independent blocks continue. Reviewers report to the developer through
 their review files and never halt the run.
@@ -220,8 +205,9 @@ the operator commits on `aipg/<runId>` when close refuses. It passes close's gat
 the operator names each file it changed to the user.
 
 ### 10. Statelessness is a feature
-Each agent starts cold and re-reads what it needs. For one bounded feature the re-read is cheap, and it
-keeps every review independent and unanchored. Don't contort the design to keep agents warm.
+Each agent starts cold and re-reads what it needs, which keeps every review independent and unanchored.
+Never keep an agent warm to save the re-read. The cold start has a price, which #12 weighs when it sizes
+agents.
 
 ### 11. Single source of truth
 Each piece of working information lives in one canonical place. Every agent that needs it is handed the
@@ -232,7 +218,7 @@ duplication, not a second link. Make duplication structurally impossible with on
 that nothing drifts out of sync. Copy only when the copy has a clearly different purpose with a
 stated reason, such as a snapshot of the plan into `runs/<id>/PLAN.md` for a long-delayed resume. #2
 governs content that moves verbatim when it moves. This principle governs not duplicating content unless
-the copy earns its place.
+the copy earns its place. A file format a tool parses, counts or routes on lives in that tool (#4).
 
 ### 12. Right-size before you run
 Each block builds one bounded change, which may join several small features as the next paragraph
@@ -255,9 +241,8 @@ comes from deletion, never compression. Delete only three things:
   in the code, diff, or file in front of them
 - what is not directly relevant to the action or decision at hand
 
-Never cut information the reader needs to act. That is compression, and it is forbidden. Removing noise
-raises brevity and clarity together, so there is no tradeoff to balance. The test is binary, per
-sentence. Does the reader need this to act? If not, cut it. If so, keep all of it. A prompt gives its
+Never cut information the reader needs to act. That is compression, and it is forbidden. The test is binary,
+per sentence. Does the reader need this to act? If not, cut it. If so, keep all of it. A prompt gives its
 agent concise instructions and does not restate content a linked file holds (#11).
 
 The same test governs code comments and guides. A comment in an engine or tool states only the why the
@@ -266,9 +251,8 @@ never narrates what the code does, records history (what a line used to be, whic
 date), or repeats the workflow's `CLAUDE.md`, which loads for anyone editing a file in that folder. A
 guide never repeats another guide. For prompts, a guide does not count as something the reader already
 has. A run launched from another project never loads this repo's `CLAUDE.md` files. A run launched from
-this checkout loads a workflow guide (`workflows/<x>/CLAUDE.md`) only once an agent reads a file in that
-folder. So a prompt states each rule its agent needs, once, and cutting that rule because a guide holds
-it is compression. The same run loads its root `CLAUDE.md` as the project `CLAUDE.md` of #3.
+this checkout loads a workflow guide only as #3 says. So a prompt states each rule its agent needs, once,
+and cutting that rule because a guide holds it is compression.
 
 ### 14. Evidence-grounded judgment
 Every score, severity, verdict, and finding names the evidence it rests on, such as a `file:line`, a lens
@@ -303,10 +287,9 @@ rules close it:
   no effect (#8). The file bus then shows a death by absence, since the stage's expected file does not
   exist, and nothing downstream may fabricate a path to one.
 - **Failure resumes through the normal mechanism.** There is no special recovery path. Every exit
-  leaves the tree clean, with accepted work staged and unfinished work parked (Mechanics). So a run that
-  lost an agent at any stage resumes like a fresh run that reads the durable trail of staging, numbered
-  files, and ledgers, and nothing is lost. If a failure needs bespoke cleanup to resume, the exit path
-  is wrong, not the resume.
+  keeps the clean-exit invariant of Mechanics "Resume", so a run that lost an agent at any stage resumes like
+  a fresh run that reads the durable trail of staging, numbered files, and ledgers, and nothing is lost. If a
+  failure needs bespoke cleanup to resume, the exit path is wrong, not the resume.
 
 ### 16. Ruling out
 Proving a negative needs a bound. A judge that rules something out, such as a claim it calls false, a
@@ -367,8 +350,7 @@ set for the launch, such as its criteria or its requirements, stands as the appr
 can still be wrong or incomplete. An agent that finds such a gap reports it through its workflow's
 route, such as develop's amendment, and never builds around it in silence.
 
-An agent that passes a claim on unchecked is doing busy work (#4). The most common source of a defect that
-a develop fix round introduced was a developer that applied a reviewer's suggested wording unchecked.
+An agent that passes a claim on unchecked is doing busy work (#4).
 
 ### 19. Lose nothing at a handoff
 A handoff loses work when a fact the sending agent held does not reach the receiving agent, or when the
@@ -452,9 +434,6 @@ rules and apply only where they fit.
   round-1 precondition applies unconditionally, including on resume. A parked unit's work lives on its
   branch. develop continues the unit from that branch through the backlog entry that links it. This invariant
   is load-bearing, since an engine that halts leaving work in the tree would false-halt its own resume.
-- **Preventing review spin.** The `DISMISSED-<id>.md` ledger stops a blind reviewer from re-flagging
-  settled findings forever. Reviewers skip ledger items for the stated reason and may contest a clearly
-  wrong one once. The developer must fix or escalate a contested item (#5).
 - **Run identity and relaunch.** A `runId` names one piece of work. Every launch of that work keeps
   it. A plan, its refine runs and every develop run that builds it share one `runId`. A debug review
   and the develop runs that fix its issue files share one too. A relaunch keeps the `runId` and passes
@@ -525,8 +504,8 @@ Use these as yes/no checks when reviewing any workflow.
 - [ ] Is there a single staging step, at the end, on pass, with a commit only in the commit delivery the
       user chose, and does a build reach the user's branch only through `wt.mjs close`? (#9)
 - [ ] Does every terminal outcome leave the working tree clean, with unfinished work saved as a commit
-      on a branch instead of discarded or left unstaged? Does a backlog entry link that branch? (#9,
-      Mechanics)
+      on a branch instead of discarded or left unstaged? Does a backlog entry link that branch?
+      (Mechanics)
 - [ ] Is each fact kept in one canonical place, with agents linked to it and never handed copies or
       restated content? Does every copy serve a clearly different, stated purpose? (#11)
 - [ ] Is every prompt, review, and ledger line laconic by subtraction, with filler, known context, and
