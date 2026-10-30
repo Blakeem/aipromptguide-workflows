@@ -163,6 +163,18 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-10-30
+
+- **Develop's prompts, its guide, the principles and the repo guides are shorter.** A wording review
+  cut repeated rules, history and filler, and kept every condition. The blind reviewer no longer reads
+  a rule against prior review files, since placement already hides them.
+- **Develop closes fewer entries by mistake and parks on more gaps.** A fix developer reports STALE
+  only for an ACTIONABLE entry. A closing acceptance counts a missing risk file and a change no FIXED
+  claim covers as blocking. A park returns `cleared` true over leftover build output and caches.
+- **`plan-pull.mjs` marks its fold notes as operator notes**, so a developer does not act on them. The
+  dirty-baseline halt sends you to develop guide §7 "Run killed mid-block" before a relaunch.
+- **Principle #10 agrees with #12**, and #6 points to develop guide §10 for what the backlog records.
+
 ### 2026-10-28
 
 - **A lone fix block leaves its closed entries alone, and `--pack` builds a large entry alone.** The
