@@ -87,10 +87,10 @@ const HOLD_ESCALATED = 'A line whose reason starts `ESCALATED:` records a defaul
 const FAIL_NEXT_ROUND = '• Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.';
 const FAIL_PARKS = '• Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.';
 // The closing acceptance's two gap kinds, per frame: a blocking gap parks the block, and every other gap goes to the backlog.
-const closingBar = (kinds) => `CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file: • Blocking: a regression, a gate not satisfied, ${kinds}, a defect at medium severity or higher that this block's diff introduces, a wrong risk answer or a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, in changes no blind review has read, which is every gap your RISK AUDIT finds in a risk file, or a path that changed after its round's snapshot, which is every gap your TREE CHECK finds. • Not blocking: every other gap, such as a low or nit finding or a cleanup. A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a gap, sorted by the kinds above, unless the line it contests is a held escalation.`;
+const closingBar = (kinds) => `CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file: • Blocking: a regression, a gate not satisfied, ${kinds}, a defect at medium severity or higher that this block's diff introduces, a wrong risk answer or a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, in changes no blind review has read, which is every gap your RISK AUDIT finds outside its TREE CHECK, a missing risk file included, or a path that changed after its round's snapshot, which is every gap your TREE CHECK finds. • Not blocking: every other gap, such as a low or nit finding or a cleanup. A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a gap, sorted by the kinds above, unless the line it contests is a held escalation.`;
 const CLOSING_BAR = {
   feature: closingBar('a criterion of this block not met, such as a change that is not reachable'),
-  fix: closingBar('an ACTIONABLE entry whose root cause is not closed (an incomplete claimed fix, an unconfirmed STALE claim or an ACTIONABLE entry reported SKIPPED or left unreported), a change made for an entry that is not ACTIONABLE or that no FIXED claim accounts for'),
+  fix: closingBar('an ACTIONABLE entry whose root cause is not closed (an incomplete claimed fix, an unconfirmed STALE claim or an ACTIONABLE entry reported SKIPPED or left unreported), a change made for an entry that is not ACTIONABLE or a change that no FIXED claim accounts for'),
 };
 // The bullet fixes a regression at any tier under both policies, and escalates only one that only a change in other code closes.
 // The bullet also names where a prescribed construction's regression goes, in each mode's own word for the prescriber.
@@ -405,7 +405,7 @@ section('acceptance audits the risk file of each round since the block\'s last b
   // The sweep: the developer records it in CLASSIFY and acceptance's risk audit checks the latest audited round's.
   const d1 = flat(r.prompt('develop block-a r1'));
   const q1 = flat(r.prompt('quality block-a r1'));
-  ok(d1.includes("Judge each change this round made, and add a sweep search for each function, constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A changed field, return value, file format or output that other code or prompts read needs a search that finds those readers.")
+  ok(d1.includes("again until it prints ok. Add a sweep search for each function, constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A changed field, return value, file format or output that other code or prompts read needs a search that finds those readers.")
     && !d1.includes('marked `updated` or `unaffected`') && !d1.includes('"No changes."'),
     'CLASSIFY has the developer add a sweep search for each changed name or phrase, and leaves the file format to the risk tool');
   // The risk tool holds the risk file format and reruns each search, so neither prompt restates the format or reruns a search by hand.
@@ -1593,14 +1593,14 @@ section('a park after a halt that may leave work staged or the tree unsafe stays
     // park-unsafe is known only from the park's own report, so its prompt makes the clear and the build decide.
     if (what === 'park-unsafe') {
       const pk = flat(held.prompt('park:block-a'));
-      ok(pk.includes('The engine sets the block\'s plan status to backlogged when step 2 clears the tree and leaves the build green, so that entry is the one place its work continues from. Otherwise it keeps the block blocked until the operator picks the route its work takes.'),
-        `${what}: the park prompt makes backlogged depend on its own clear and build`);
+      ok(pk.includes('When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work.')
+        && !pk.includes('plan status'), `${what}: the park prompt makes its entry's decision depend on its own clear and build, and states no plan status`);
       const unsafeRule = pk.indexOf('When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER"');
       ok(unsafeRule > -1 && unsafeRule < pk.indexOf(DECISION_RULE), `${what}: its entry is NEEDS_USER, ahead of the decision rule`);
     } else {
       const pk = flat(held.prompt('park:block-a'));
-      ok(pk.includes('The engine keeps the block\'s plan status blocked until the operator picks the route its work takes.')
-        && !pk.includes('plan status to backlogged'), `${what}: the park prompt says the block stays blocked`);
+      ok(pk.includes('Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.')
+        && !pk.includes('When step 2 did not return cleared=true') && !pk.includes('plan status'), `${what}: the park prompt's entry waits for the operator's route`);
       ok(out.haltReason.includes('and the tree is CLEAN; its halt holds the park, so nextStep\'s rule for a held park picks whether that entry or the block continues its work.')
         && !out.haltReason.includes('work that entry with the user'), `${what}: the halt reason defers to the held-park rule, never to the entry`);
     }
@@ -1628,8 +1628,8 @@ section('a park whose entry no green fix block can build stays blocked and is re
   ok(!red.out.nextStep.includes('Each backlogged block\'s entry') && !red.out.nextStep.includes('resolve their halt'),
     'and never to the backlog triage or a halt it never had');
   const redPk = flat(red.prompt('park:block-a'));
-  ok(redPk.includes('The engine keeps the block\'s plan status blocked, since the fix mode that builds a backlog entry takes only gate green, and the parked block\'s red-baseline tests fail by design, so the operator rebuilds the block from todo.'),
-    'the park prompt says why the block stays blocked');
+  ok(redPk.includes('Fix mode cannot build this entry, since the fix mode that builds a backlog entry takes only gate green, and the parked block\'s red-baseline tests fail by design.')
+    && !redPk.includes('plan status'), 'the park prompt\'s **Fix:** text says why no fix block can build the entry');
   ok(redPk.includes('Set "- decision: NEEDS_USER", since no fix block can build this entry.') && redPk.includes(UNBUILDABLE_FIX)
     && !redPk.includes('Round 1 of the block built from this file restores that work.') && !redPk.includes('Build each block the "- origin:" line names on the accepted baseline'),
     'its entry waits for the user and says to rebuild the block, never to build the entry');
@@ -1640,7 +1640,7 @@ section('a park whose entry no green fix block can build stays blocked and is re
   ok(flat(noTest.prompt('park:block-a')).includes('which needs a test gate, and the run that parked the block has none'), 'and so does the park prompt');
 
   const withTest = flat((await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 })).prompt('park:block-a'));
-  ok(withTest.includes('The engine sets the block\'s plan status to backlogged when step 2 clears the tree and leaves the build green, so that entry is the one place its work continues from.')
+  ok(withTest.includes('Close the gaps the **What:** lists on top of the work the branch holds')
     && !withTest.includes(UNBUILDABLE_FIX), 'a build-only park in a run with a test gate continues from its entry');
 
   const RED_ORDERED = { ...baseArgs, ordered: true, maxRounds: 1, plans: [onBus({ id: 'block-a', mode: 'section', gate: 'red-baseline' }), BLOCKS[1]] };
@@ -1819,7 +1819,7 @@ section('an agent ignores a round file of an earlier launch');
 {
   const note = 'A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.';
   const { prompts } = await run(GREEN_RUN, ONE_BLOCK).then((r) => ({ prompts: ['develop', 'quality', 'acceptance'].map((l) => flat(r.prompt(l))) }));
-  ok(prompts.every((text) => text.includes(`when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. ${note}`)),
+  ok(prompts.every((text) => text.includes(`A round with no blind review has no blind review file. ${note}`)),
     'the round note of every role tells the agent to ignore a round file it is not named');
 }
 
@@ -2609,6 +2609,9 @@ const proBus = await run(GREEN_RUN, { ...baseArgs, changePolicy: 'proactive' });
 const proFixBus = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, { ...FIX_ONE, changePolicy: 'proactive' });
 const FRAMES_BY_POLICY = { focused: FRAMES, proactive: [['feature', 'block-a', proBus], ['section', 'block-b', proBus], ['fix', 'fix-a', proFixBus]] };
 const REQUIRED_BY = { feature: 'a criterion of this block', section: 'a criterion of this block', fix: 'an ACTIONABLE entry' };
+// Acceptance's one "Not a regression" item for a removed defect, a logged fix included, and its developer-side mirror.
+const removedDefectItem = (mode, tag, id, zones) => `- a removed defect: a change that closes a finding an earlier review of this block named, the same defect on a sibling path of a change ${REQUIRED_BY[mode]} requires or of such a finding, or a defect that a "${tag} ${id}:" line in ${STATE}/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline behavior it removes was itself that defect, that the change alters no other behavior, that it lies in code this block's text does not exclude and ${OWNED_CODE}, and that it lies ${zones}.`;
+const removedDefectExcuse = (tag, zones) => `Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding or a ${tag} line in DECISIONS.md names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and ${OWNED_CODE}, and ${zones}.`;
 const RULE_2 = '2. A pre-existing finding, at any tier, that the ZONE ROUTING above does not fix → DROP + LOG. Never fix it (regression risk).';
 const RULE_3 = '3. Stops the build/tests/verification → FIX it where the ZONE ROUTING above places the fix, or ESCALATE it (7) where that routing says to.';
 const RULE_8 = "8. Any other open choice: weigh its benefit (what it improves, and how likely an input reaches it) against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not clearly ahead, or a different block's work → DROP + LOG.";
@@ -2814,7 +2817,9 @@ section('acceptance re-checks every earlier review file of its block, and only t
     const q = r.prompt(`quality ${id}`);
     const a = r.prompt(`acceptance ${id}`);
     const schema = r.calls.find((c) => c.label.startsWith(`acceptance ${id}`))?.opts.schema;
-    ok(/Do NOT read prior review files/.test(q), `${mode}: the blind prompt still forbids prior review files`);
+    ok(/Never open a plan file, an issue inventory, or any run-state path outside/.test(q)
+      && /only at the WRITE step, so the Write tool accepts the overwrite\. Never use its content\./.test(q)
+      && !/Do NOT read prior review files/.test(q), `${mode}: the blind prompt's gate-folder read rule alone forbids prior review files`);
     ok(a !== '' && !/Do NOT read prior review files/.test(a), `${mode}: the acceptance prompt no longer does`);
     ok(flat(q).includes('Review the CURRENT diff FRESH, catching new or nearby issues.'), `${mode}: the blind prompt keeps the fresh-review sentence`);
     ok(!/re-verifying earlier fixes/.test(q + a), `${mode}: neither prompt keeps the re-verify clause`);
@@ -2825,7 +2830,7 @@ section('acceptance re-checks every earlier review file of its block, and only t
     ok(/an earlier finding that is neither closed\s+nor declined/.test(a), `${mode}: an open earlier finding counts as a gap`);
     // A closing edit can make a true sentence or record false, so a finding counts as closed only when its edit passes the REGRESSION step.
     ok(flat(a).includes('(a) the current code closes it, the edit that closes it breaks nothing under the REGRESSION step below, and a grep finds no sibling path')
-      && flat(a).includes('one closed by an edit that fails the REGRESSION step below, and one neither closed nor declined each count as a gap.')
+      && flat(a).includes('Every other finding or gap counts as a gap.')
       && a.indexOf('EARLIER FINDINGS') < a.indexOf('REGRESSION: compare the unstaged diff'), `${mode}: a finding closed by an edit that fails the REGRESSION step is a gap`);
     ok(/the earlier-findings\s+result/.test(a) && /BEFORE step 8/.test(a) && !/BEFORE step [67]/.test(a),
       `${mode}: the WRITE step records it and points at the renumbered DECIDE step`);
@@ -2928,8 +2933,6 @@ section('acceptance lists what is not a regression from one rule, in every mode 
 // The developer's sibling rule removed a defect on a sibling path of a required fix, and acceptance counted that change as a regression.
 {
   const otherZones = (zones) => Object.values(CHANGE_ZONES).filter((z) => z !== zones);
-  const removedDefect = (mode, zones) => `- a removed defect: a change that closes a finding an earlier review of this block named, or that closes the same defect on a sibling path of a change ${REQUIRED_BY[mode]} requires or of such a finding. It is not a regression only when you confirm from the code that the baseline behavior it removes was itself a defect and is that same defect, that the change alters no other behavior, that it lies in code this block's text does not exclude and ${OWNED_CODE}, and that it lies ${zones}.`;
-  const removedDefectExcuse = (zones) => `Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and ${OWNED_CODE}, and ${zones}.`;
   const passage = (r, id) => {
     const a = flat(r.prompt(`acceptance ${id}`));
     const at = a.indexOf('A regression is any behavior');
@@ -2941,21 +2944,23 @@ section('acceptance lists what is not a regression from one rule, in every mode 
       const a = flat(r.prompt(`acceptance ${id}`));
       const at = (s) => (a.includes(s) ? a.indexOf(s) : NaN);
       const zones = changeZones(policy, mode);
-      const item = removedDefect(mode, zones);
+      const tag = policy.toUpperCase();
+      const item = removedDefectItem(mode, tag, id, zones);
       const otherWording = mode === 'fix' ? REQUIRED_BY.feature : REQUIRED_BY.fix;
       ok(a.includes(`without ${REQUIRED_BY[mode]} requiring it. A change counts as required only when ${REQUIRED_BY[mode]} names that change. A break that a prescribed construction causes, which ${REQUIRED_BY[mode]} does not name, is not required, so it is a regression. Not a regression: - a test`) && !a.includes(`without ${otherWording} requiring it`),
         `${policy} ${mode}: the definition keeps this frame's requirement wording, then opens the "Not a regression" list`);
-      ok(a.includes(item) && otherZones(zones).every((o) => !a.includes(removedDefect(mode, o))),
+      ok(a.includes(item) && otherZones(zones).every((o) => !a.includes(removedDefectItem(mode, tag, id, o))),
         `${policy} ${mode}: the list holds the removed-defect item with its conditions and the zones a ${policy} ${mode} block may change: ${zones}`);
       ok(at('Not a regression:') < at(item) && at(item) < at('Every other such break or change is a regression.')
         && at('Every other such break or change is a regression.') < at('So is a comment or doc sentence that was true in the accepted baseline'),
         `${policy} ${mode}: the definition, then the list, then the rule that everything else counts`);
-      ok((policy === 'proactive') === a.includes(`- a behavior change that a "PROACTIVE ${id}:" line in`),
-        `${policy} ${mode}: the PROACTIVE item is ${policy === 'proactive' ? 'listed' : 'absent'}`);
-      ok((policy === 'focused') === a.includes(`- a behavior change that a "FOCUSED ${id}:" line in`),
-        `${policy} ${mode}: the FOCUSED item is ${policy === 'focused' ? 'listed' : 'absent'}`);
+      ok((policy === 'proactive') === a.includes(`or a defect that a "PROACTIVE ${id}:" line in`),
+        `${policy} ${mode}: the removed-defect item names a PROACTIVE line ${policy === 'proactive' ? 'and' : 'never'}`);
+      ok((policy === 'focused') === a.includes(`or a defect that a "FOCUSED ${id}:" line in`),
+        `${policy} ${mode}: the removed-defect item names a FOCUSED line ${policy === 'focused' ? 'and' : 'never'}`);
+      ok(!a.includes(`- a behavior change that a "${tag} ${id}:" line in`), `${policy} ${mode}: no separate logged-fix item repeats the confirm rule`);
       const dev = flat(r.prompt(`develop ${id}`));
-      ok(dev.includes(removedDefectExcuse(zones)) && otherZones(zones).every((o) => !dev.includes(removedDefectExcuse(o))),
+      ok(dev.includes(removedDefectExcuse(tag, zones)) && otherZones(zones).every((o) => !dev.includes(removedDefectExcuse(tag, o))),
         `${policy} ${mode}: the developer's SELF-REVIEW states acceptance's removed-defect excuse with acceptance's two scope conditions and the same zones`);
       ok(dev.includes(SIBLINGS_STEP),
         `${policy} ${mode}: the SIBLINGS phase fixes each sibling path the zone routing fixes, and leaves excluded and other-block code to a DISMISSED line`);
@@ -3725,7 +3730,7 @@ section('every develop prompt states its round and why a later stage can lack a 
 // had sent that round back.
 {
   const maxRounds = 3;
-  const why = "Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 3 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.";
+  const why = "Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.";
   const plan = await run({ develop: DEV_OK, quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS) }, { ...baseArgs, maxRounds });
   const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: firstRound(FIX_GAP, FIX_PASS) }, { ...FIX_ONE, maxRounds });
   for (const [mode, id, r] of [['feature', 'block-a', plan], ['section', 'block-b', plan], ['fix', 'fix-a', fix]]) {
@@ -3775,8 +3780,9 @@ section('acceptance counts a sibling path as a gap only when no DISMISSED line c
     ok(!acc.includes('without its own line'), `${mode}: the sibling-path check no longer asks for a line of its own`);
     ok(acc.includes(`the same mechanism and that no line in ${ledger} covers`),
       `${mode}: step 2 (a) counts only a sibling path that no DISMISSED line covers`);
-    ok(acc.includes(`that no line in ${ledger} covers keeps the same mechanism`),
-      `${mode}: the gap rule counts only a sibling path that no DISMISSED line covers`);
+    ok(acc.includes('covers, or (b)') && acc.includes('Every other finding or gap counts as a gap.')
+      && !acc.includes(`that no line in ${ledger} covers keeps the same mechanism`),
+      `${mode}: the gap rule counts every finding that neither (a) nor (b) settles, with no restated sibling-path list`);
   }
 }
 
@@ -3939,8 +3945,7 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
   const contest = '• A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every change you make. NEVER log the same dismissal twice.';
   const FIX_NOUN = 'fix of a defect already in the accepted baseline';
   const loggedFixRule = (tag, id, mode) => `${tag} (this run's change policy): append ONE line to ${STATE}/DECISIONS.md for each ${FIX_NOUN} that you made, in any zone, without ${REQUIRED_BY[mode]} requiring it, and that no earlier round logged, naming its file:line, what changed and why: \`${tag} ${id}: <file:line> — <what changed> — <why>\``;
-  const loggedFixItem = (tag, id, zones) => `- a behavior change that a "${tag} ${id}:" line in ${STATE}/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline behavior it removes was itself a defect, that the change alters no other behavior, that it lies ${OWNED_CODE}, and that it lies ${zones}.${tag === 'PROACTIVE' ? ` ${pulledRegressionItem(id)}` : ''} Every other such break or change is a regression.`;
-  const loggedFixExcuse = (tag, zones) => `Nor does it count a removed defect that a ${tag} line in DECISIONS.md names and that lies ${OWNED_CODE}, and ${zones}.`;
+  const lastItems = (mode, tag, id, zones) => `${removedDefectItem(mode, tag, id, zones)}${tag === 'PROACTIVE' ? ` ${pulledRegressionItem(id)}` : ''} Every other such break or change is a regression.`;
   const step4 = '4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no previously-accepted behavior was changed or broken, apart from a change that meets an item of the "Not a regression" list above.';
   const settled = (tag, policy) => `${STATE}/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per ${FIX_NOUN} that this run's ${policy} change policy let the developer make, a record. A ${tag} line is never skipped for its stated reason, since the regression rule below judges each one.`;
   const decisionsNext = (tag, policy) => `each entry in ${STATE}/DECISIONS.md if it exists, since each is a default the developer took, a plan amendment, or a ${FIX_NOUN} that the ${policy} change policy allowed. Show a ${tag} line only after you confirm the landed code still holds its change, since a later round or a park can undo it`;
@@ -3965,7 +3970,7 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
       ok(dev.includes(REGRESSION_BULLET(mode, id)), `${where}: the MATRIX's regression bullet fixes a regression at any tier`);
       ok(dev.includes(`${REGRESSION_DEF} After the blind review`), `${where}: the SELF-REVIEW defines a regression, a falsified comment or doc sentence included`);
       ok(dev.includes(loggedFixRule(tag, id, mode)) && !dev.includes(`${otherTag} (this run`), `${where}: each fix of a defect already in the accepted baseline that ${REQUIRED_BY[mode]} does not require gets one ${tag} line in DECISIONS`);
-      ok(dev.includes(loggedFixExcuse(tag, zones)) && !dev.includes(otherTag), `${where}: the SELF-REVIEW states acceptance's logged-fix excuse in the zones acceptance names, and no other tag`);
+      ok(dev.includes(removedDefectExcuse(tag, zones)) && !dev.includes(otherTag), `${where}: the SELF-REVIEW states acceptance's logged-fix excuse in the zones acceptance names, and no other tag`);
       ok((policy === 'proactive') === dev.includes('Nor does it count a change that closes the defect of a pulled backlog entry and alters no other behavior.'),
         `${where}: the SELF-REVIEW ${policy === 'proactive' ? 'states' : 'leaves out'} acceptance's pulled-fix excuse`);
       ok((policy === 'focused' || mode === 'fix') === dev.includes('minimally and surgically'), `${where}: ${policy === 'focused' || mode === 'fix' ? 'the build is minimal and surgical' : 'no "minimally and surgically"'}`);
@@ -3975,13 +3980,13 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
       if (mode === 'fix') {
         ok(dev.includes('Leave every other entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else but a closed entry) UNTOUCHED'),
           `${where}: the developer leaves a held parked-with entry untouched`);
-        ok(dev.includes(closedRule) && acc.includes(closedRule) && dev.includes('For EACH entry that is not closed, read the CURRENT code'),
+        ok(dev.includes(closedRule) && acc.includes(closedRule) && dev.includes('For EACH ACTIONABLE entry that is not closed, read the CURRENT code'),
           `${where}: the developer and acceptance both skip an entry whose status reads fixed or stale`);
         ok(acc.includes(takenRules) && acc.includes('or that it carries a "- pulled:" line or a line that starts with "**Parked with:**": an'),
           `${where}: fix acceptance counts a parked-with entry as not ACTIONABLE, and confirms it was reported SKIPPED`);
       }
-      ok(acc.includes(loggedFixItem(tag, id, zones)) && !acc.includes(otherTag),
-        `${where}: the last "Not a regression" item excuses a ${tag}-logged fix of a defect only in code no other block owns and ${zones}`);
+      ok(acc.includes(lastItems(mode, tag, id, zones)) && !acc.includes(otherTag),
+        `${where}: the removed-defect item excuses a ${tag}-logged fix of a defect only in unclaimed code and ${zones}`);
       ok(acc.includes('escalates it when only a change in other code closes it. Once'), `${where}: acceptance names other code as the escalation's limit`);
       ok(!acc.replace(DECISION_RULE, '').includes('refactor'), `${where}: acceptance excuses no refactor`);
       ok(acc.includes(step4), `${where}: acceptance's regression step defers to the "Not a regression" list`);
@@ -4065,8 +4070,8 @@ section('the developer opens its scope rules with one stance paragraph per polic
 {
   const count = (text, x) => text.split(x).length - 1;
   const STANCE = {
-    proactive: 'You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below allows. Put features and refactors outside the task in the backlog. Ask the user only as rule 7 of the DECISION MATRIX says.',
-    focused: 'Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.',
+    proactive: 'You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below allows.',
+    focused: 'Make the smallest change that does the task, as a contractor in code that others depend on.',
   };
   const TOOLS = 'Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.';
   for (const [policy, frames] of Object.entries(FRAMES_BY_POLICY)) {
