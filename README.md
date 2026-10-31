@@ -163,6 +163,22 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-10-31
+
+- **Decide scores a do-nothing option.** When not acting is possible, the decider scores doing nothing
+  on the same rubric as every other option, so it can conclude that no option is worth taking. A
+  devil's advocate check then argues against the winner or against acting at all. A case that rests on
+  the requirements rescores the matrix, and a case that needs a criterion the requirements lack goes
+  to the checks for the user.
+- **The backlog research step scores a skip the same way.** The develop guide's research step lists a
+  skip among the scored options and runs the same devil's advocate check.
+- **A fix developer gets the park restore steps only when an entry continues a parked block.**
+  `plan-edit.mjs args` marks each such block with `continues`, and a block without the mark still gets
+  the steps. For every other fix block, the round 1 prompt is about 9 percent shorter.
+- **Reviewers read an earlier launch's round file at the write step.** A reviewer reads that file once
+  its findings are final, since the Write tool overwrites only a file the agent has read. A developer
+  reads its risk file after `risk-check.mjs` writes the skeleton.
+
 ### 2026-10-30
 
 - **Develop's prompts, its guide, the principles and the repo guides are shorter.** A wording review
