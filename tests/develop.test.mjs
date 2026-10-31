@@ -2639,6 +2639,10 @@ section('MATRIX case 6 is SPLIT in every mode: 6a fixes a VERIFIED plan defect, 
       `${mode}: the ledger-reason rule gains the SPEC form for a plan-prescribed or other-block decline`);
     ok(dev.includes(`DROP (1, 2, 6b or 8): append ONE terse line to ${STATE}/gate/DISMISSED-${id}.md`),
       `${mode}: LOGGING routes the DROP at 1, 2, 6b and 8, not the whole of 6`);
+    ok(dev.includes(`(create ${STATE}/gate/ if it does not exist) when no line there covers the finding yet:`),
+      `${mode}: the DROP bullet appends a line only when no ledger line covers the finding yet`);
+    ok(dev.includes(`in the DROP line format above, even when a SKIPPED line already covers the finding, its reason`),
+      `${mode}: the ESCALATE default appends its ESCALATED line even when a SKIPPED line covers the finding`);
     ok(/7\. A choice that changes user-visible behavior, stored data or a public contract/.test(dev), `${mode}: ESCALATE (case 7) is intact`);
   }
 }

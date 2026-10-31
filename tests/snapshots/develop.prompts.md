@@ -6,61 +6,61 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 31563 | every block accepts first time |
+| develop | 1 | 1 | 31664 | every block accepts first time |
 | quality | 1 | 1 | 8329 | every block accepts first time |
 | acceptance | 1 | 1 | 15106 | every block accepts first time |
-| develop | 2 | 1 | 31988 | every block accepts first time |
+| develop | 2 | 1 | 32089 | every block accepts first time |
 | acceptance | 2 | 2 | 15387 | every block accepts first time |
 | final-sweep | 1 | 1 | 4619 | every block accepts first time |
-| develop | 3 | 2 | 34957 | a feature block accepts under the proactive policy |
+| develop | 3 | 2 | 35058 | a feature block accepts under the proactive policy |
 | acceptance | 3 | 3 | 16406 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 4610 | a feature block accepts under the proactive policy |
-| develop | 4 | 1 | 30724 | quality flags the first round |
+| develop | 4 | 1 | 30825 | quality flags the first round |
 | acceptance | 4 | 1 | 15105 | quality flags the first round |
-| develop | 5 | 1 | 31094 | quality flags the first round |
+| develop | 5 | 1 | 31195 | quality flags the first round |
 | acceptance | 5 | 2 | 15386 | quality flags the first round |
-| develop | 6 | 1 | 30720 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 30821 | acceptance finds gaps, then passes |
 | acceptance | 6 | 1 | 15103 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 31090 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 31191 | acceptance finds gaps, then passes |
 | acceptance | 7 | 2 | 15384 | acceptance finds gaps, then passes |
 | acceptance | 8 | 1 | 18898 | a later round is judged low risk |
 | acceptance | 9 | 2 | 19179 | a later round is judged low risk |
-| develop | 8 | 1 | 29546 | the gate never goes green |
-| develop-closing | 1 | 1 | 31168 | the gate never goes green |
+| develop | 8 | 1 | 29647 | the gate never goes green |
+| develop-closing | 1 | 1 | 31269 | the gate never goes green |
 | quality | 2 | 1 | 8389 | the gate never goes green |
 | acceptance | 10 | 4 | 18498 | the gate never goes green |
 | park | 1 | 1 | 10319 | the gate never goes green |
-| develop | 9 | 1 | 29971 | the gate never goes green |
-| develop-closing | 2 | 1 | 31538 | the gate never goes green |
+| develop | 9 | 1 | 30072 | the gate never goes green |
+| develop-closing | 2 | 1 | 31639 | the gate never goes green |
 | acceptance | 11 | 5 | 18779 | the gate never goes green |
 | acceptance | 12 | 1 | 15158 | a parked block, and the run carries on |
 | acceptance | 13 | 1 | 15213 | a parked block, and the run carries on |
 | acceptance | 14 | 1 | 15268 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 32186 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 32287 | a parked block, and the run carries on |
 | acceptance | 15 | 4 | 22508 | a parked block, and the run carries on |
-| develop | 10 | 1 | 31545 | an ordered run stops at a parked block |
+| develop | 10 | 1 | 31646 | an ordered run stops at a parked block |
 | acceptance | 16 | 1 | 15100 | an ordered run stops at a parked block |
-| develop | 11 | 1 | 30702 | an ordered run stops at a parked block |
+| develop | 11 | 1 | 30803 | an ordered run stops at a parked block |
 | acceptance | 17 | 1 | 15097 | an ordered run stops at a parked block |
 | acceptance | 18 | 1 | 15152 | an ordered run stops at a parked block |
 | acceptance | 19 | 1 | 15207 | an ordered run stops at a parked block |
 | acceptance | 20 | 1 | 15262 | an ordered run stops at a parked block |
-| develop-closing | 4 | 1 | 32168 | an ordered run stops at a parked block |
+| develop-closing | 4 | 1 | 32269 | an ordered run stops at a parked block |
 | acceptance | 21 | 4 | 22502 | an ordered run stops at a parked block |
 | park | 2 | 1 | 10331 | an ordered run stops at a parked block |
-| develop | 12 | 3 | 40607 | a fix block closes its issues |
+| develop | 12 | 3 | 40708 | a fix block closes its issues |
 | acceptance | 22 | 6 | 23283 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 4610 | a fix block closes its issues |
-| develop | 13 | 4 | 44083 | a fix block closes its issues under the proactive policy |
+| develop | 13 | 4 | 44184 | a fix block closes its issues under the proactive policy |
 | acceptance | 23 | 7 | 24790 | a fix block closes its issues under the proactive policy |
 | acceptance | 24 | 7 | 24804 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 14 | 4 | 35371 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 14 | 4 | 35472 | a proactive fix block starts round 2 from the statuses it last reported |
 | acceptance | 25 | 7 | 24603 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 15 | 3 | 40961 | a pass of two fix blocks closes its issues |
+| develop | 15 | 3 | 41062 | a pass of two fix blocks closes its issues |
 | acceptance | 26 | 6 | 23596 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 4640 | a pass of two fix blocks closes its issues |
 | acceptance | 27 | 6 | 23282 | every issue is already fixed |
-| develop | 16 | 3 | 40589 | an ordered run stops on a fix block that closes nothing |
+| develop | 16 | 3 | 40690 | an ordered run stops on a fix block that closes nothing |
 | park | 3 | 1 | 10634 | passed with a regression, not staged |
 | park | 4 | 1 | 10080 | acceptance stages a rejected block |
 | park | 5 | 1 | 10487 | the quality reviewer fails a block without its file |
@@ -76,7 +76,7 @@ this file is stale.
 | park | 15 | 1 | 9892 | developer escalates in an ordered run |
 | acceptance | 28 | 6 | 25736 | log line cap before the sweep |
 | acceptance | 29 | 4 | 22288 | a closing acceptance lands the block |
-| develop-closing | 5 | 1 | 32556 | a closing acceptance lands the block |
+| develop-closing | 5 | 1 | 32657 | a closing acceptance lands the block |
 | acceptance | 30 | 5 | 22569 | a closing acceptance lands the block |
 | acceptance | 31 | 4 | 18552 | a closing pass gets a blind review |
 | acceptance | 32 | 5 | 18833 | a closing pass gets a blind review |
@@ -84,13 +84,13 @@ this file is stale.
 | park | 16 | 1 | 10469 | a closing acceptance finds a blocking gap |
 | acceptance | 34 | 5 | 22862 | a closing acceptance finds a blocking gap |
 | park | 17 | 1 | 10469 | a closing acceptance finds a blocking gap |
-| develop | 17 | 5 | 31734 | every block commits first time |
+| develop | 17 | 5 | 31835 | every block commits first time |
 | quality | 3 | 1 | 8282 | every block commits first time |
 | acceptance | 35 | 8 | 16645 | every block commits first time |
-| develop | 18 | 5 | 32159 | every block commits first time |
+| develop | 18 | 5 | 32260 | every block commits first time |
 | acceptance | 36 | 9 | 16926 | every block commits first time |
 | final-sweep | 5 | 1 | 4931 | every block commits first time |
-| develop | 19 | 6 | 40809 | a fix block commits |
+| develop | 19 | 6 | 40910 | a fix block commits |
 | acceptance | 37 | 10 | 25039 | a fix block commits |
 | final-sweep | 6 | 1 | 4838 | a fix block commits |
 | park | 18 | 1 | 10086 | acceptance commits a rejected block |
@@ -325,7 +325,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -381,7 +381,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -1113,7 +1113,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-b.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -1169,7 +1169,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -1870,7 +1870,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -1931,7 +1931,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -2643,7 +2643,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -2699,7 +2699,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -3275,7 +3275,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-b.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -3331,7 +3331,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -3906,7 +3906,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -3962,7 +3962,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -4538,7 +4538,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-b.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -4594,7 +4594,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -5678,7 +5678,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -5734,7 +5734,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -6099,7 +6099,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -6155,7 +6155,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -7030,7 +7030,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-b.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -7086,7 +7086,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -7455,7 +7455,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-b.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -7511,7 +7511,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -8809,7 +8809,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -8865,7 +8865,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -9533,7 +9533,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -9589,7 +9589,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -10161,7 +10161,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -10217,7 +10217,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -11473,7 +11473,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -11529,7 +11529,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -12388,7 +12388,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-c.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -12444,7 +12444,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -13337,7 +13337,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-c.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -13398,7 +13398,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -14543,7 +14543,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-c.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -14604,7 +14604,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -15456,7 +15456,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-c-plus-1.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -15514,7 +15514,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -16698,7 +16698,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -16754,7 +16754,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -19585,7 +19585,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-b.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -19641,7 +19641,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -21647,7 +21647,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -21703,7 +21703,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -22478,7 +22478,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-b.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -22534,7 +22534,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
@@ -23319,7 +23319,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-c.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -23375,7 +23375,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and

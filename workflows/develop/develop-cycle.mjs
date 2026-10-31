@@ -965,7 +965,7 @@ const MATRIX = (p, round, launch) => {
     block parks with the user's question in ${questionFile(id)}.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to ${dismissedFile(id)} (create ${GATE_DIR}/ if it does not exist):
+  • DROP (1, 2, 6b or 8): append ONE terse line to ${dismissedFile(id)} (create ${GATE_DIR}/ if it does not exist) when no line there covers the finding yet:
       \`<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>\`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -1021,7 +1021,7 @@ ${PROACTIVE ? `  • CLEANUP (this run's change policy): append ONE entry for ea
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to ${DECISIONS} (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      ${dismissedFile(id)} (create ${GATE_DIR}/ if it does not exist) in the DROP shape above, its reason
+      ${dismissedFile(id)} (create ${GATE_DIR}/ if it does not exist) in the DROP line format above, even when a SKIPPED line already covers the finding, its reason
       \`ESCALATED: <the default you took, ≤15 words>\`, because the blind reviewer is NOT shown ${DECISIONS}
       and would re-raise your default every round until this block parks.
       Also append ONE backlog entry for it when the choice lies ${OWNED_CODE}, routed, counted, deduped and

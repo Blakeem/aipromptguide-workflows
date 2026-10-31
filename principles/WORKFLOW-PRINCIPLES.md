@@ -30,10 +30,10 @@ developer reads is byte for byte the plan the user approved.
 An agent that must not see a document is never given its path, and the document never sits in a
 directory the agent reads. Do not rely on an instruction such as "don't read X." For example, the plan
 from plan mode lives at `~/.claude/plans/<random-name>.md`. The blind reviewer is given no path to it and
-works only inside the repo and its own review directory, so the plan cannot enter its context. The same
-order holds for every other rule a prompt carries. A prompt states the step the agent takes. A prohibition
-stays only where no placement, tool, schema field or engine check enforces the rule and no step the agent
-takes prevents the act.
+works only inside the repo and its own review directory, so the plan cannot enter its context. Every
+other rule a prompt carries also prefers enforcement to an instruction. A prompt states the step the agent
+takes. A prohibition stays only where no placement, tool, schema field or engine check enforces the rule and
+no step the agent takes prevents the act.
 
 Every agent, the blind reviewer included, receives three files at startup: the user `CLAUDE.md`, the
 project `CLAUDE.md` and the launching session's auto-memory index (`MEMORY.md`). The index is the copy
