@@ -341,6 +341,13 @@ The ledger holds no score, weight, total, rationale or lens recommendation, and 
 research or decision file: copy the original source such a file cites instead. A fact with no original
 source stays out.`;
 
+// The requirements are the rubric the reviewer scores against, so a case that needs a criterion they lack goes to the user.
+const DEVILS_ADVOCATE = (target, redo) => `DEVIL'S ADVOCATE: state the strongest case against ${target}, or against acting at all. When
+   it rests on a requirement, rescore the matrix under it, then redo
+   ${redo} on the rescored matrix. When it rests on a criterion or non-negotiable the
+   requirements lack, write it under \`## Checks for the user\` with the result that would change the
+   answer. Otherwise it fails: cite the evidence that refutes it.`;
+
 const decidePrompt = (pass, { review, researchRound, researchPaths, carried, olderResearch }) => `
 You are the DECIDER. Converge the lensed analyses into ${RANKED
     ? `a RANKED SHORTLIST of the strongest options (up to ${SHORTLIST_N}) via a global weighted decision
@@ -390,8 +397,8 @@ ${RANKED ? `- A COMBINE OR EXCLUDE CLAIM the evidence contradicts: correct it to
   a concurrent edit, a human-set value, state saved before the change (a legacy row, a migration, a
   value an older version stored), or an edit by another program that no scan has seen yet, so the fold
   does not open a new defect.
-- Change nothing that an objection or a research finding does not name.
-`}${pass === 1 ? '' : `Then redo the totals, ${RANKED ? 'the order' : 'the trade-off'} and the flip check.
+- Change nothing that an objection, a research finding or the devil's advocate check does not name.
+`}${pass === 1 ? '' : `Then redo the totals, ${RANKED ? 'the order' : 'the trade-off'}, the flip check and the devil's advocate check.
 `}
 PROCEDURE:
 1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
@@ -400,6 +407,11 @@ PROCEDURE:
    decision matrix: each candidate (incl. any hybrid) judged pass or fail on every non-negotiable and
    scored on every weighted criterion under the scoring rule above, with its weighted total. The highest
    defensible total wins.
+   Whenever not acting is possible, add a DO-NOTHING candidate, the baseline every other option must
+   beat. Its cells score what not acting keeps, such as no added code or upkeep, and what it costs, such
+   as a problem that stays. ${RANKED
+    ? 'It ranks like any option, and at rank 1 the answer is not to act.'
+    : 'When it scores highest, the conclusion is not to act.'}
    GROUND every cell: cite the evidence behind the score (the lens or research file and the specific
    claim, with the original source it cites). Where none exists (a legitimate cross-lens synthesis), mark
    it "own judgment, low-confidence". Never fabricate a citation. Each option you rule out, by a
@@ -414,10 +426,12 @@ ${RANKED
    swaps them. Grade the rank-1 position: DOMINANT when rank 1 is at least as good as rank 2 on every
    criterion, ROBUST when the smallest swap is larger than the uncertainty of the input it moves, FRAGILE
    when it is not.
+5. ${DEVILS_ADVOCATE('rank 1', 'the RANK and FLIP CHECK steps')}
 WRITE ${decisionFile(pass)} (create ${DECIDE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Write the matrix (table, all candidates scored),
 then the RANKED SHORTLIST (one block per option: what it BUYS, what it COSTS, and why it sits above the one
 below it), then a "Combine / exclude" section stating which listed options genuinely COMBINE and which are
-MUTUALLY EXCLUSIVE (a shortlist the user cannot safely mix is a trap), then the flip check, then anything
+MUTUALLY EXCLUSIVE (a shortlist the user cannot safely mix is a trap), then the flip check, then a
+\`## Devil's advocate\` section, then anything
 you considered and left OFF the list with one line why, then an \`## Open issues\` section and a
 \`## Checks for the user\` section. Do NOT modify any repo, stage, or commit.`
     : `3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
@@ -432,8 +446,10 @@ you considered and left OFF the list with one line why, then an \`## Open issues
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it: an open issue, or a check for the user.
+6. ${DEVILS_ADVOCATE('the winner', 'the WINNER, TRADE-OFF and FLIP CHECK steps')}
 WRITE ${decisionFile(pass)} (create ${DECIDE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Write the matrix (table), the chosen conclusion
-with its rationale, the why-not-others, a \`## Trade-off\` section, a \`## Flip check\` section, an
+with its rationale, the why-not-others, a \`## Trade-off\` section, a \`## Flip check\` section, a
+\`## Devil's advocate\` section, an
 \`## Open issues\` section and a \`## Checks for the user\` section. Do NOT modify any repo, stage, or commit.`}
 ${LEDGER(pass)}
 ${OPEN_ISSUES}
@@ -878,7 +894,7 @@ return {
       : `Run halted — ${haltReason} Check that file, then relaunch with the same args and no resumeFromRunId: a resume replays the cached return and halts the same way. ${relaunchFromStart}`)
     : (agreed
       ? agreeCaveats + flipNote + researchNote + carriedNote + checksNote + caveatNote + (RANKED
-        ? `Present the SHORTLIST the final reviewer accepted in round ${round}: relay ${lastDecisionFile} (the matrix + the ranked options with what each buys/costs + the combine-vs-exclusive section + the flip check) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. There is deliberately NO single winner — the user picks, or combines the options marked as composable. To build what they pick, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle (several picks become several blocks of one plan file).`
-        : `Present the conclusion the final reviewer accepted in round ${round}: relay ${lastDecisionFile} (the matrix + rationale + why-not-others + trade-off + flip check) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. To build the chosen approach, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.`)
+        ? `Present the SHORTLIST the final reviewer accepted in round ${round}: relay ${lastDecisionFile} (the matrix + the ranked options with what each buys/costs + the combine-vs-exclusive section + the flip check + the devil's advocate) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. There is deliberately NO single winner — the user picks, or combines the options marked as composable. To build what they pick, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle (several picks become several blocks of one plan file).`
+        : `Present the conclusion the final reviewer accepted in round ${round}: relay ${lastDecisionFile} (the matrix + rationale + why-not-others + trade-off + flip check + devil's advocate) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. Unless the conclusion is not to act, author the chosen approach as a plan file, refine it with refine-cycle, then build it with develop-cycle.`)
       : `No agreement within ${MAX_ROUNDS} rounds. ${researchNote}${carriedNote}${checksNote}Read the latest ${lastDecisionFile} + ${lastReviewFiles.join(', ')} with the user, ${budgetStart}. Refine the requirements, then relaunch with the same args and no resumeFromRunId: the relaunch re-runs the run from the lens analyses and round 1 and overwrites the round files, while a resume would replay the cached returns and never read the edit. Or raise maxRounds and relaunch with the same args plus the Workflow tool's resumeFromRunId: the finished rounds replay from cache and the loop continues past round ${round}.`)) + droppedLenses,
 };

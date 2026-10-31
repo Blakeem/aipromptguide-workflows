@@ -802,7 +802,7 @@ function inventory(dir, name, entries) {
   for (const e of entries) {
     lines.push(`### [${e.id}] ${e.id}`, `- file: ${e.file}:1`, ...(e.loc ? [`- loc: ${e.loc}`] : []),
       `- decision: ${e.decision ?? 'ACTIONABLE'}`, ...(e.status ? [`- status: ${e.status}`] : []),
-      ...(e.branch ? [`- branch: ${e.branch}`] : []), ...(e.size ? [`- size: ${e.size}`] : []), '', 'What.', '');
+      ...(e.branch ? [`- branch: ${e.branch}`] : []), ...(e.size ? [`- size: ${e.size}`] : []), ...(e.lines ?? []), '', 'What.', '');
   }
   return fixture(lines.join('\n'), `${name}.md`, dir);
 }
@@ -870,6 +870,31 @@ section('--pack keeps each block that restores an unfinished branch a pass of it
   ok(!err, `it succeeds: ${err ?? ''}`);
   eq(JSON.parse(out).plans.map((r) => r.id).join(','), 'one,two,plain-plus-2', 'two branch blocks on one file stay apart, and a block whose branch entry is closed packs');
   ok(/not packed: one restores an unfinished branch/.test(notes) && /not packed: two restores an unfinished branch/.test(notes), `the note names each branch block: ${notes.trim()}`);
+}
+
+section('args marks each fix row and pass member that continues a parked block\'s work, so develop renders the park text only there');
+{
+  const dir = tmpDir();
+  const rows = (out) => Object.fromEntries(JSON.parse(out).plans.flatMap((r) => (r.blocks ?? [r]).map((b) => [b.id, b.continues])));
+  const plain = inventory(dir, 'plain', [{ id: 'n-1', file: 'a.js', loc: 10 }]);
+  const branch = inventory(dir, 'branch', [{ id: 'b-1', file: 'a.js', loc: 10, branch: 'aipg-unfinished/x' }]);
+  const cases = ['origin: E:/p.md#blk', 'ledger: E:/s/gate/DISMISSED-blk.md', 'amended: E:/s/AMENDED-blk.md']
+    .map((line, i) => inventory(dir, `key${i}`, [{ id: `k${i}-1`, file: 'a.js', loc: 10, lines: [`- ${line}`] }]));
+  const attention = inventory(dir, 'attention', [{ id: 't-1', file: 'a.js', loc: 10, status: 'needs-attention', lines: ['- origin: E:/p.md#blk'] }]);
+  const closed = inventory(dir, 'closed', [{ id: 'c-1', file: 'a.js', loc: 10, status: 'fixed', lines: ['- origin: E:/p.md#blk'] }, { id: 'c-2', file: 'a.js', loc: 10 }]);
+  const asked = inventory(dir, 'asked', [{ id: 'q-1', file: 'a.js', loc: 10, decision: 'NEEDS_USER', lines: ['- origin: E:/p.md#blk'] }, { id: 'q-2', file: 'a.js', loc: 10 }]);
+  const all = [plain, branch, ...cases, attention, closed, asked];
+  const flat = argsWith(configWith([]), ...all);
+  ok(!flat.err, `args succeeds: ${flat.err ?? ''}`);
+  eq(JSON.stringify(rows(flat.out)), JSON.stringify({ plain: false, branch: true, key0: true, key1: true, key2: true, attention: true, closed: false, asked: false }),
+    'a branch, origin, ledger or amended line on an open or needs-attention ACTIONABLE entry sets continues, and a closed or NEEDS_USER entry does not');
+  const pack = packed(configWith([]), dir, 3000, ...all);
+  ok(!pack.err, `--pack succeeds: ${pack.err ?? ''}`);
+  const pass = JSON.parse(pack.out).plans.find((r) => r.blocks);
+  ok(pass && pass.blocks.length > 1 && pass.blocks.every((m) => typeof m.continues === 'boolean' && m.continues === rows(flat.out)[m.id]),
+    `each pass member carries its own row's continues: ${JSON.stringify(pass?.blocks?.map((m) => [m.id, m.continues]))}`);
+  const feature = fixture('## Plan: feat - one\nmode: feature\ngate: green\n\nBuild it.\n', 'feat.md', dir);
+  ok(!('continues' in JSON.parse(argsWith(configWith([]), feature).out).plans[0]), 'a feature row carries no continues');
 }
 
 section('--pack builds alone a block with an open large entry, and packs a block whose large entry is closed');

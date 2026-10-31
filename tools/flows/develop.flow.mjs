@@ -181,6 +181,7 @@ export default {
     { name: 'block model is not a known model', when: 'a block names a model outside opus | sonnet | haiku | fable', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', model: 'gpt' }] } },
     { name: 'block effort is not a known level', when: 'a block names an effort outside low | medium | high | xhigh | max', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', effort: 'ultra' }] } },
     { name: 'block status is not a known status', when: 'a block names an unknown status', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', status: 'wip' }] } },
+    { name: 'block continues is not a boolean', when: 'a fix row carries continues that is not true or false', args: { ...base, plans: [{ id: 'block-a', mode: 'fix', continues: 'no' }] } },
     // In commit mode a title is its commit's entire message, and git joins a multi-line subject into one line.
     { name: 'block title is not one line', when: 'commit is true and a block title spans two lines', args: { ...base, commit: true, plans: [{ ...BLOCKS[0], title: 'one\ntwo' }] } },
     { name: 'a pass is malformed', when: 'a pass entry is not mode fix with two or more members', args: { ...base, plans: [{ id: 'pass-a', mode: 'feature', blocks: [] }] } },
@@ -306,6 +307,13 @@ export default {
       name: 'a fix block closes its issues under the proactive policy',
       when: 'changePolicy is proactive and a fix block fixes an issue and accepts',
       args: { ...base, changePolicy: 'proactive', plans: [FIX_BLOCK] },
+      respond: { develop: FIX_DONE, quality: CLEAN, acceptance: ACC_FIX, 'final-sweep': SWEEP_OK },
+    },
+    {
+      // Puts the prompts without the park-continuation text in the prompt snapshot. Adds no node or edge.
+      name: 'a fix block that continues no park closes its issues',
+      when: 'a fix block whose row carries continues false fixes an issue and accepts',
+      args: { ...base, plans: [{ ...FIX_BLOCK, continues: false }] },
       respond: { develop: FIX_DONE, quality: CLEAN, acceptance: ACC_FIX, 'final-sweep': SWEEP_OK },
     },
     {

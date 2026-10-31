@@ -7,27 +7,27 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | research | 1 | 1 | 2700 | reviewer accepts |
-| decide | 1 | 1 | 6529 | reviewer accepts |
+| decide | 1 | 1 | 7303 | reviewer accepts |
 | check-setup | 1 | 1 | 2793 | reviewer accepts |
 | review | 1 | 1 | 3503 | reviewer accepts |
 | check | 1 | 1 | 411 | reviewer accepts |
-| decide | 2 | 1 | 8657 | reject with a challenger |
+| decide | 2 | 1 | 9487 | reject with a challenger |
 | check-setup | 2 | 1 | 3319 | rejects to the round budget |
 | research-issue | 1 | 1 | 2601 | research covers the open issues |
-| decide | 3 | 1 | 7113 | research covers the open issues |
+| decide | 3 | 1 | 7915 | research covers the open issues |
 | research-issue | 2 | 1 | 2667 | research saturates |
-| decide | 4 | 1 | 7224 | research saturates |
+| decide | 4 | 1 | 8026 | research saturates |
 | research-issue | 3 | 1 | 2714 | research hits the cap |
-| decide | 5 | 1 | 7274 | research hits the cap |
+| decide | 5 | 1 | 8076 | research hits the cap |
 | research-issue | 4 | 1 | 2601 | more open issues than maxResearchers |
-| decide | 6 | 1 | 7332 | more open issues than maxResearchers |
+| decide | 6 | 1 | 8134 | more open issues than maxResearchers |
 | research-issue | 5 | 1 | 2714 | more open issues than maxResearchers |
 | research-issue | 6 | 1 | 2714 | more open issues than maxResearchers |
-| decide | 7 | 1 | 7493 | more open issues than maxResearchers |
+| decide | 7 | 1 | 8295 | more open issues than maxResearchers |
 | research-issue | 7 | 1 | 2808 | more open issues than maxResearchers |
 | research-issue | 8 | 1 | 2808 | more open issues than maxResearchers |
-| decide | 8 | 1 | 7593 | more open issues than maxResearchers |
-| decide | 9 | 1 | 6466 | one lens dies |
+| decide | 8 | 1 | 8395 | more open issues than maxResearchers |
+| decide | 9 | 1 | 7240 | one lens dies |
 
 ## research · variant 1 · schema 1
 
@@ -116,6 +116,9 @@ PROCEDURE:
    decision matrix: each candidate (incl. any hybrid) judged pass or fail on every non-negotiable and
    scored on every weighted criterion under the scoring rule above, with its weighted total. The highest
    defensible total wins.
+   Whenever not acting is possible, add a DO-NOTHING candidate, the baseline every other option must
+   beat. Its cells score what not acting keeps, such as no added code or upkeep, and what it costs, such
+   as a problem that stays. When it scores highest, the conclusion is not to act.
    GROUND every cell: cite the evidence behind the score (the lens or research file and the specific
    claim, with the original source it cites). Where none exists (a legitimate cross-lens synthesis), mark
    it "own judgment, low-confidence". Never fabricate a citation. Each option you rule out, by a
@@ -133,8 +136,14 @@ PROCEDURE:
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it: an open issue, or a check for the user.
+6. DEVIL'S ADVOCATE: state the strongest case against the winner, or against acting at all. When
+   it rests on a requirement, rescore the matrix under it, then redo
+   the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
+   requirements lack, write it under `## Checks for the user` with the result that would change the
+   answer. Otherwise it fails: cite the evidence that refutes it.
 WRITE E:/flow/runs/flow/decide/decision-r1.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
-with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, an
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
+`## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
 EVIDENCE LEDGER: also WRITE E:/flow/runs/flow/review/ledger-r1.md (create E:/flow/runs/flow/review/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
 A reviewer scores the candidates from this file alone before it sees your decision, so it holds facts,
@@ -419,8 +428,8 @@ E:/flow/runs/flow/review/review-r1.md into withdrawn, kept or downgraded to a ca
   a concurrent edit, a human-set value, state saved before the change (a legacy row, a migration, a
   value an older version stored), or an edit by another program that no scan has seen yet, so the fold
   does not open a new defect.
-- Change nothing that an objection or a research finding does not name.
-Then redo the totals, the trade-off and the flip check.
+- Change nothing that an objection, a research finding or the devil's advocate check does not name.
+Then redo the totals, the trade-off, the flip check and the devil's advocate check.
 
 PROCEDURE:
 1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
@@ -429,6 +438,9 @@ PROCEDURE:
    decision matrix: each candidate (incl. any hybrid) judged pass or fail on every non-negotiable and
    scored on every weighted criterion under the scoring rule above, with its weighted total. The highest
    defensible total wins.
+   Whenever not acting is possible, add a DO-NOTHING candidate, the baseline every other option must
+   beat. Its cells score what not acting keeps, such as no added code or upkeep, and what it costs, such
+   as a problem that stays. When it scores highest, the conclusion is not to act.
    GROUND every cell: cite the evidence behind the score (the lens or research file and the specific
    claim, with the original source it cites). Where none exists (a legitimate cross-lens synthesis), mark
    it "own judgment, low-confidence". Never fabricate a citation. Each option you rule out, by a
@@ -446,8 +458,14 @@ PROCEDURE:
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it: an open issue, or a check for the user.
+6. DEVIL'S ADVOCATE: state the strongest case against the winner, or against acting at all. When
+   it rests on a requirement, rescore the matrix under it, then redo
+   the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
+   requirements lack, write it under `## Checks for the user` with the result that would change the
+   answer. Otherwise it fails: cite the evidence that refutes it.
 WRITE E:/flow/runs/flow/decide/decision-r2.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
-with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, an
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
+`## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
 EVIDENCE LEDGER: also WRITE E:/flow/runs/flow/review/ledger-r2.md (create E:/flow/runs/flow/review/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
 A reviewer scores the candidates from this file alone before it sees your decision, so it holds facts,
@@ -664,7 +682,7 @@ RESEARCH ROUND 1 answered your open issues. READ every research file of that rou
 Fold each finding by its cited source: rescore each cell it settles and close the open issue it answers.
 A finding written as a check for the user moves its issue under `## Checks for the user`. Keep an issue
 open only while its answer can still change the winner and a researcher could still settle it.
-Then redo the totals, the trade-off and the flip check.
+Then redo the totals, the trade-off, the flip check and the devil's advocate check.
 
 PROCEDURE:
 1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
@@ -673,6 +691,9 @@ PROCEDURE:
    decision matrix: each candidate (incl. any hybrid) judged pass or fail on every non-negotiable and
    scored on every weighted criterion under the scoring rule above, with its weighted total. The highest
    defensible total wins.
+   Whenever not acting is possible, add a DO-NOTHING candidate, the baseline every other option must
+   beat. Its cells score what not acting keeps, such as no added code or upkeep, and what it costs, such
+   as a problem that stays. When it scores highest, the conclusion is not to act.
    GROUND every cell: cite the evidence behind the score (the lens or research file and the specific
    claim, with the original source it cites). Where none exists (a legitimate cross-lens synthesis), mark
    it "own judgment, low-confidence". Never fabricate a citation. Each option you rule out, by a
@@ -690,8 +711,14 @@ PROCEDURE:
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it: an open issue, or a check for the user.
+6. DEVIL'S ADVOCATE: state the strongest case against the winner, or against acting at all. When
+   it rests on a requirement, rescore the matrix under it, then redo
+   the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
+   requirements lack, write it under `## Checks for the user` with the result that would change the
+   answer. Otherwise it fails: cite the evidence that refutes it.
 WRITE E:/flow/runs/flow/decide/decision-r2.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
-with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, an
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
+`## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
 EVIDENCE LEDGER: also WRITE E:/flow/runs/flow/review/ledger-r2.md (create E:/flow/runs/flow/review/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
 A reviewer scores the candidates from this file alone before it sees your decision, so it holds facts,
@@ -854,7 +881,7 @@ RESEARCH ROUND 2 answered your open issues. READ every research file of that rou
 Fold each finding by its cited source: rescore each cell it settles and close the open issue it answers.
 A finding written as a check for the user moves its issue under `## Checks for the user`. Keep an issue
 open only while its answer can still change the winner and a researcher could still settle it.
-Then redo the totals, the trade-off and the flip check.
+Then redo the totals, the trade-off, the flip check and the devil's advocate check.
 
 PROCEDURE:
 1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
@@ -863,6 +890,9 @@ PROCEDURE:
    decision matrix: each candidate (incl. any hybrid) judged pass or fail on every non-negotiable and
    scored on every weighted criterion under the scoring rule above, with its weighted total. The highest
    defensible total wins.
+   Whenever not acting is possible, add a DO-NOTHING candidate, the baseline every other option must
+   beat. Its cells score what not acting keeps, such as no added code or upkeep, and what it costs, such
+   as a problem that stays. When it scores highest, the conclusion is not to act.
    GROUND every cell: cite the evidence behind the score (the lens or research file and the specific
    claim, with the original source it cites). Where none exists (a legitimate cross-lens synthesis), mark
    it "own judgment, low-confidence". Never fabricate a citation. Each option you rule out, by a
@@ -880,8 +910,14 @@ PROCEDURE:
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it: an open issue, or a check for the user.
+6. DEVIL'S ADVOCATE: state the strongest case against the winner, or against acting at all. When
+   it rests on a requirement, rescore the matrix under it, then redo
+   the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
+   requirements lack, write it under `## Checks for the user` with the result that would change the
+   answer. Otherwise it fails: cite the evidence that refutes it.
 WRITE E:/flow/runs/flow/decide/decision-r3.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
-with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, an
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
+`## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
 EVIDENCE LEDGER: also WRITE E:/flow/runs/flow/review/ledger-r3.md (create E:/flow/runs/flow/review/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
 A reviewer scores the candidates from this file alone before it sees your decision, so it holds facts,
@@ -1045,7 +1081,7 @@ RESEARCH ROUND 3 answered your open issues. READ every research file of that rou
 Fold each finding by its cited source: rescore each cell it settles and close the open issue it answers.
 A finding written as a check for the user moves its issue under `## Checks for the user`. Keep an issue
 open only while its answer can still change the winner and a researcher could still settle it.
-Then redo the totals, the trade-off and the flip check.
+Then redo the totals, the trade-off, the flip check and the devil's advocate check.
 
 PROCEDURE:
 1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
@@ -1054,6 +1090,9 @@ PROCEDURE:
    decision matrix: each candidate (incl. any hybrid) judged pass or fail on every non-negotiable and
    scored on every weighted criterion under the scoring rule above, with its weighted total. The highest
    defensible total wins.
+   Whenever not acting is possible, add a DO-NOTHING candidate, the baseline every other option must
+   beat. Its cells score what not acting keeps, such as no added code or upkeep, and what it costs, such
+   as a problem that stays. When it scores highest, the conclusion is not to act.
    GROUND every cell: cite the evidence behind the score (the lens or research file and the specific
    claim, with the original source it cites). Where none exists (a legitimate cross-lens synthesis), mark
    it "own judgment, low-confidence". Never fabricate a citation. Each option you rule out, by a
@@ -1071,8 +1110,14 @@ PROCEDURE:
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it: an open issue, or a check for the user.
+6. DEVIL'S ADVOCATE: state the strongest case against the winner, or against acting at all. When
+   it rests on a requirement, rescore the matrix under it, then redo
+   the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
+   requirements lack, write it under `## Checks for the user` with the result that would change the
+   answer. Otherwise it fails: cite the evidence that refutes it.
 WRITE E:/flow/runs/flow/decide/decision-r4.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
-with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, an
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
+`## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
 EVIDENCE LEDGER: also WRITE E:/flow/runs/flow/review/ledger-r4.md (create E:/flow/runs/flow/review/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
 A reviewer scores the candidates from this file alone before it sees your decision, so it holds facts,
@@ -1236,7 +1281,7 @@ A finding written as a check for the user moves its issue under `## Checks for t
 open only while its answer can still change the winner and a researcher could still settle it.
 No researcher took these issues, since a round researches at most 2: ops-burden. Keep each one
 open under that rule, since no research has answered it yet.
-Then redo the totals, the trade-off and the flip check.
+Then redo the totals, the trade-off, the flip check and the devil's advocate check.
 
 PROCEDURE:
 1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
@@ -1245,6 +1290,9 @@ PROCEDURE:
    decision matrix: each candidate (incl. any hybrid) judged pass or fail on every non-negotiable and
    scored on every weighted criterion under the scoring rule above, with its weighted total. The highest
    defensible total wins.
+   Whenever not acting is possible, add a DO-NOTHING candidate, the baseline every other option must
+   beat. Its cells score what not acting keeps, such as no added code or upkeep, and what it costs, such
+   as a problem that stays. When it scores highest, the conclusion is not to act.
    GROUND every cell: cite the evidence behind the score (the lens or research file and the specific
    claim, with the original source it cites). Where none exists (a legitimate cross-lens synthesis), mark
    it "own judgment, low-confidence". Never fabricate a citation. Each option you rule out, by a
@@ -1262,8 +1310,14 @@ PROCEDURE:
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it: an open issue, or a check for the user.
+6. DEVIL'S ADVOCATE: state the strongest case against the winner, or against acting at all. When
+   it rests on a requirement, rescore the matrix under it, then redo
+   the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
+   requirements lack, write it under `## Checks for the user` with the result that would change the
+   answer. Otherwise it fails: cite the evidence that refutes it.
 WRITE E:/flow/runs/flow/decide/decision-r2.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
-with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, an
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
+`## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
 EVIDENCE LEDGER: also WRITE E:/flow/runs/flow/review/ledger-r2.md (create E:/flow/runs/flow/review/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
 A reviewer scores the candidates from this file alone before it sees your decision, so it holds facts,
@@ -1482,7 +1536,7 @@ A finding written as a check for the user moves its issue under `## Checks for t
 open only while its answer can still change the winner and a researcher could still settle it.
 No researcher took these issues, since a round researches at most 2: ops-burden. Keep each one
 open under that rule, since no research has answered it yet.
-Then redo the totals, the trade-off and the flip check.
+Then redo the totals, the trade-off, the flip check and the devil's advocate check.
 
 PROCEDURE:
 1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
@@ -1491,6 +1545,9 @@ PROCEDURE:
    decision matrix: each candidate (incl. any hybrid) judged pass or fail on every non-negotiable and
    scored on every weighted criterion under the scoring rule above, with its weighted total. The highest
    defensible total wins.
+   Whenever not acting is possible, add a DO-NOTHING candidate, the baseline every other option must
+   beat. Its cells score what not acting keeps, such as no added code or upkeep, and what it costs, such
+   as a problem that stays. When it scores highest, the conclusion is not to act.
    GROUND every cell: cite the evidence behind the score (the lens or research file and the specific
    claim, with the original source it cites). Where none exists (a legitimate cross-lens synthesis), mark
    it "own judgment, low-confidence". Never fabricate a citation. Each option you rule out, by a
@@ -1508,8 +1565,14 @@ PROCEDURE:
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it: an open issue, or a check for the user.
+6. DEVIL'S ADVOCATE: state the strongest case against the winner, or against acting at all. When
+   it rests on a requirement, rescore the matrix under it, then redo
+   the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
+   requirements lack, write it under `## Checks for the user` with the result that would change the
+   answer. Otherwise it fails: cite the evidence that refutes it.
 WRITE E:/flow/runs/flow/decide/decision-r3.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
-with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, an
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
+`## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
 EVIDENCE LEDGER: also WRITE E:/flow/runs/flow/review/ledger-r3.md (create E:/flow/runs/flow/review/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
 A reviewer scores the candidates from this file alone before it sees your decision, so it holds facts,
@@ -1730,7 +1793,7 @@ A finding written as a check for the user moves its issue under `## Checks for t
 open only while its answer can still change the winner and a researcher could still settle it.
 No researcher took these issues, since a round researches at most 2: ops-burden. Keep each one
 open under that rule, since no research has answered it yet.
-Then redo the totals, the trade-off and the flip check.
+Then redo the totals, the trade-off, the flip check and the devil's advocate check.
 
 PROCEDURE:
 1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
@@ -1739,6 +1802,9 @@ PROCEDURE:
    decision matrix: each candidate (incl. any hybrid) judged pass or fail on every non-negotiable and
    scored on every weighted criterion under the scoring rule above, with its weighted total. The highest
    defensible total wins.
+   Whenever not acting is possible, add a DO-NOTHING candidate, the baseline every other option must
+   beat. Its cells score what not acting keeps, such as no added code or upkeep, and what it costs, such
+   as a problem that stays. When it scores highest, the conclusion is not to act.
    GROUND every cell: cite the evidence behind the score (the lens or research file and the specific
    claim, with the original source it cites). Where none exists (a legitimate cross-lens synthesis), mark
    it "own judgment, low-confidence". Never fabricate a citation. Each option you rule out, by a
@@ -1756,8 +1822,14 @@ PROCEDURE:
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it: an open issue, or a check for the user.
+6. DEVIL'S ADVOCATE: state the strongest case against the winner, or against acting at all. When
+   it rests on a requirement, rescore the matrix under it, then redo
+   the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
+   requirements lack, write it under `## Checks for the user` with the result that would change the
+   answer. Otherwise it fails: cite the evidence that refutes it.
 WRITE E:/flow/runs/flow/decide/decision-r4.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
-with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, an
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
+`## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
 EVIDENCE LEDGER: also WRITE E:/flow/runs/flow/review/ledger-r4.md (create E:/flow/runs/flow/review/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
 A reviewer scores the candidates from this file alone before it sees your decision, so it holds facts,
@@ -1867,6 +1939,9 @@ PROCEDURE:
    decision matrix: each candidate (incl. any hybrid) judged pass or fail on every non-negotiable and
    scored on every weighted criterion under the scoring rule above, with its weighted total. The highest
    defensible total wins.
+   Whenever not acting is possible, add a DO-NOTHING candidate, the baseline every other option must
+   beat. Its cells score what not acting keeps, such as no added code or upkeep, and what it costs, such
+   as a problem that stays. When it scores highest, the conclusion is not to act.
    GROUND every cell: cite the evidence behind the score (the lens or research file and the specific
    claim, with the original source it cites). Where none exists (a legitimate cross-lens synthesis), mark
    it "own judgment, low-confidence". Never fabricate a citation. Each option you rule out, by a
@@ -1884,8 +1959,14 @@ PROCEDURE:
    DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
    of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
    evidence or user call that would settle it: an open issue, or a check for the user.
+6. DEVIL'S ADVOCATE: state the strongest case against the winner, or against acting at all. When
+   it rests on a requirement, rescore the matrix under it, then redo
+   the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
+   requirements lack, write it under `## Checks for the user` with the result that would change the
+   answer. Otherwise it fails: cite the evidence that refutes it.
 WRITE E:/flow/runs/flow/decide/decision-r1.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
-with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, an
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
+`## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
 EVIDENCE LEDGER: also WRITE E:/flow/runs/flow/review/ledger-r1.md (create E:/flow/runs/flow/review/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
 A reviewer scores the candidates from this file alone before it sees your decision, so it holds facts,

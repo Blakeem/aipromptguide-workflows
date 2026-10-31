@@ -76,17 +76,18 @@ flowchart TD
   x31[/"throw: plan id(s) [...] are not kebab slugs"/]
   x32[/"throw: plan mode(s) [...] are not one of feature #124; section #124; fix"/]
   x33[/"throw: pass entries [...] are malformed"/]
-  x34[/"throw: plan gate(s) [...] are not legal for their block's mode"/]
-  x35[/"throw: plan model(s) [...] are not one of opus #124; sonnet #124; haiku #124; fable"/]
-  x36[/"throw: plan effort(s) [...] are not one of low #124; medium #124; high #124; xhigh #124; max"/]
-  x37[/"throw: plan status(es) [...] are not one of todo #124; done #124; skip #124; backlogged #124; parked #124; blocked"/]
-  x38[/"throw: plan title(s) [...] are not one line of text"/]
-  x39[/"throw: plans [...] carry no planPath"/]
-  x40[/"throw: duplicate plan id(s) [...] in args.plans"/]
-  x41[/"throw: args.gates.build is required"/]
-  x42[/"throw: Invalid slice arg"/]
-  x43[/"throw: args.runOnly ... matches no plan id"/]
-  x44[/"throw: args.gates.test is required when any block being built has gate:#quot;green#quot;"/]
+  x34[/"throw: plan continues value(s) [...] are not a boolean"/]
+  x35[/"throw: plan gate(s) [...] are not legal for their block's mode"/]
+  x36[/"throw: plan model(s) [...] are not one of opus #124; sonnet #124; haiku #124; fable"/]
+  x37[/"throw: plan effort(s) [...] are not one of low #124; medium #124; high #124; xhigh #124; max"/]
+  x38[/"throw: plan status(es) [...] are not one of todo #124; done #124; skip #124; backlogged #124; parked #124; blocked"/]
+  x39[/"throw: plan title(s) [...] are not one line of text"/]
+  x40[/"throw: plans [...] carry no planPath"/]
+  x41[/"throw: duplicate plan id(s) [...] in args.plans"/]
+  x42[/"throw: args.gates.build is required"/]
+  x43[/"throw: Invalid slice arg"/]
+  x44[/"throw: args.runOnly ... matches no plan id"/]
+  x45[/"throw: args.gates.test is required when any block being built has gate:#quot;green#quot;"/]
   S0 --> a1
   S0 --> t3
   S0 --> x1
@@ -133,6 +134,7 @@ flowchart TD
   S0 --> x42
   S0 --> x43
   S0 --> x44
+  S0 --> x45
   a1 -.->|"L1 ×5"| a1
   a1 ==>|"next item"| a1
   a1 --> a2
@@ -207,7 +209,7 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| done (all blocks staged) | every block accepts and the sweep runs · changePolicy is proactive and a feature block accepts · the whole-goal sweep dies · sweep:none on a fully accepted run · the blind review finds defects · acceptance finds gaps · the developer judges every change since the last blind review low risk · a fix block fixes an issue and accepts · changePolicy is proactive and a fix block fixes an issue and accepts · changePolicy is proactive and acceptance fails a fix block with a pulled entry, then passes it · a packed pass of two fix blocks fixes its issues and accepts · every issue in a fix block is stale · the last round fails and the closing acceptance finds no blocking gap · the closing pass judges a change not low risk and the closing acceptance finds no blocking gap | derived |
+| done (all blocks staged) | every block accepts and the sweep runs · changePolicy is proactive and a feature block accepts · the whole-goal sweep dies · sweep:none on a fully accepted run · the blind review finds defects · acceptance finds gaps · the developer judges every change since the last blind review low risk · a fix block fixes an issue and accepts · changePolicy is proactive and a fix block fixes an issue and accepts · a fix block whose row carries continues false fixes an issue and accepts · changePolicy is proactive and acceptance fails a fix block with a pulled entry, then passes it · a packed pass of two fix blocks fixes its issues and accepts · every issue in a fix block is stale · the last round fails and the closing acceptance finds no blocking gap · the closing pass judges a change not low risk and the closing acceptance finds no blocking gap | derived |
 | partial slice complete (every selected block staged) | runOnly builds a subset of the blocks | derived |
 | nothing to run (no todo blocks) | no block still has status todo | derived |
 | run complete (N block(s) parked) | the block gate is never green · a block parks and ordered is false · the developer hits a user-only blocker in an unordered run · the closing acceptance finds a blocking gap | derived |
@@ -266,18 +268,19 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 316) |
 | throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 323) |
 | throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 334) |
-| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 342) |
-| throw: plan model(s) [...] are not one of opus \| sonnet \| haiku \| fable | a block names a model outside opus \| sonnet \| haiku \| fable | throw (line 349) |
-| throw: plan effort(s) [...] are not one of low \| medium \| high \| xhigh \| max | a block names an effort outside low \| medium \| high \| xhigh \| max | throw (line 355) |
-| throw: plan status(es) [...] are not one of todo \| done \| skip \| backlogged \| parked \| blocked | a block names an unknown status | throw (line 363) |
-| throw: plan title(s) [...] are not one line of text | commit is true and a block title spans two lines | throw (line 372) |
-| throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 391) |
-| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 402) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 2270) |
-| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 2281) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 2288) |
-| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 2296) |
+| throw: plan continues value(s) [...] are not a boolean | a fix row carries continues that is not true or false | throw (line 343) |
+| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 351) |
+| throw: plan model(s) [...] are not one of opus \| sonnet \| haiku \| fable | a block names a model outside opus \| sonnet \| haiku \| fable | throw (line 358) |
+| throw: plan effort(s) [...] are not one of low \| medium \| high \| xhigh \| max | a block names an effort outside low \| medium \| high \| xhigh \| max | throw (line 364) |
+| throw: plan status(es) [...] are not one of todo \| done \| skip \| backlogged \| parked \| blocked | a block names an unknown status | throw (line 372) |
+| throw: plan title(s) [...] are not one line of text | commit is true and a block title spans two lines | throw (line 381) |
+| throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 401) |
+| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 412) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 2295) |
+| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 2306) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 2313) |
+| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 2321) |
 
 ## Coverage
 
-97 scenarios · 6/6 roles · 44/44 throw sites · 19/19 halt statuses · 70 terminal states.
+99 scenarios · 6/6 roles · 45/45 throw sites · 19/19 halt statuses · 71 terminal states.

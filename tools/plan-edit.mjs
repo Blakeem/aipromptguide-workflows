@@ -541,7 +541,11 @@ function foldRecords(plan, records, note) {
  * file carries no file keys of its own, so it takes the given plans' keys, and the defaults when none is given.
  */
 function mergeArgs(plans, backlog = []) {
-  const headOf = (p) => ({ path: p.path, ...listObject(p.blocks, p.path, parseFileKeys(p.text)) });
+  const headOf = (p) => {
+    const head = listObject(p.blocks, p.path, parseFileKeys(p.text));
+    const blocks = head.blocks.map((row, i) => (row.mode === 'fix' ? { ...row, continues: continuesPark(p.blocks[i]) } : row));
+    return { path: p.path, ...head, blocks };
+  };
   const heads = plans.map(headOf);
   const added = backlog.map(headOf);
   const [first] = heads.length ? heads : added;
@@ -569,6 +573,12 @@ export const entryPath = (entry) => (keyOf(entry, 'file') ?? '').replace(/:\d+$/
 export const repoPath = (path) => path.trim().replace(/\\/g, '/').replace(/^\.\//, '');
 
 const isOpenActionable = (entry) => keyOf(entry, 'decision') === 'ACTIONABLE' && (keyOf(entry, 'status') ?? 'open') === 'open';
+
+// The keys a park entry carries. develop leaves its park-continuation text out of a block whose entries hold none.
+const PARK_KEYS = ['branch', 'origin', 'ledger', 'amended'];
+/** Whether an ACTIONABLE entry of a fix block that is open or needs attention continues a parked block's work. */
+const continuesPark = (block) => block.issues.some((e) => keyOf(e, 'decision') === 'ACTIONABLE'
+  && ['open', 'needs-attention'].includes(keyOf(e, 'status') ?? 'open') && PARK_KEYS.some((key) => keyOf(e, key)));
 
 // The hold develop puts on an entry whose code sits on its block's branch or is not built yet. Only a line at column 0
 // counts, since an entry's **What:** indents every line it copies from a file. A line that names no block as
@@ -980,7 +990,7 @@ function packPasses(args, folded, repo, cap, note) {
     const [head] = [...pass.members].sort((a, b) => a.index - b.index);
     const id = `${head.row.id}-plus-${pass.members.length - 1}`;
     if (taken.has(id)) throw new Error(`pass id ${id} collides with a block id — rename that block`);
-    const members = pass.members.map((m) => ({ id: m.row.id, planPath: m.row.planPath, issues: m.issues }));
+    const members = pass.members.map((m) => ({ id: m.row.id, planPath: m.row.planPath, issues: m.issues, continues: m.row.continues }));
     const settings = Object.fromEntries(['model', 'effort'].map((key) => [key, passSetting(key, pass.members.map((m) => m[key]))]).filter(([, v]) => v));
     // The approval summary must name each member a pass runs above its own line, and only this note carries that.
     const raises = Object.entries(settings).flatMap(([key, to]) => pass.members.filter((m) => m[key] !== to).map((m) => `${m.row.id} ${key} ${m[key] || 'default'} -> ${to}`));

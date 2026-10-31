@@ -62,12 +62,13 @@ section('the reviewer accepting ends the loop inside the round budget');
   eq(out.caveats, 0, 'caveats counts none');
   ok(String(out.nextStep).startsWith('Present the conclusion'), `with no caveat, nextStep carries no caveat note: ${String(out.nextStep).slice(0, 120)}`);
   ok(flat(out.nextStep).includes('Present the conclusion the final reviewer accepted in round 1:')
-    && flat(out.nextStep).includes('(the matrix + rationale + why-not-others + trade-off + flip check)'),
-  'the hand-back names the acceptance, its round and what to relay');
+    && flat(out.nextStep).includes("(the matrix + rationale + why-not-others + trade-off + flip check + devil's advocate)")
+    && flat(out.nextStep).includes('Unless the conclusion is not to act, author the chosen approach as a plan file'),
+  'the hand-back names the acceptance, its round and what to relay, and builds only a conclusion to act');
   ok(String(out.reviewTrail).includes(`${S}/review/`) && String(out.reviewTrail).includes(`${S}/decide/`), `reviewTrail names both folders: ${out.reviewTrail}`);
   const { out: ranked } = await run({ ...CLEAN, decide: { ...DECIDE, shortlist: [{ rank: 1, title: 'in-process LRU' }, { rank: 2, title: 'redis' }] } }, RANKED);
   ok(flat(ranked.nextStep).includes('Present the SHORTLIST the final reviewer accepted in round 1:')
-    && flat(ranked.nextStep).includes('the combine-vs-exclusive section + the flip check)')
+    && flat(ranked.nextStep).includes("the combine-vs-exclusive section + the flip check + the devil's advocate)")
     && ranked.nextStep.includes('(several picks become several blocks of one plan file)'),
   'and so does a ranked run\'s, with the flip check and the several-picks note');
 }
@@ -235,7 +236,8 @@ section('a kept objection sends the decider the final review, and a fresh review
     ok(d2.includes(`THE REVIEWER REJECTED the decision of review round 1. READ its final review ${S}/decide/review-r1-final.md, which sorts each objection of its blind review ${S}/review/review-r1.md into withdrawn, kept or downgraded to a caveat. Act on each KEPT objection.`),
       `${sel}: the decider reads the final review`);
     ok(d2.includes(CHALLENGER[sel]) && d2.includes(MUST[sel]), `${sel}: a challenger is scored side by side, and a must violation repaired or replaced`);
-    ok(d2.includes(`Then redo the totals, ${sel === 'ranked' ? 'the order' : 'the trade-off'} and the flip check.`), `${sel}: the closing fold rule matches its selection`);
+    ok(d2.includes(`Then redo the totals, ${sel === 'ranked' ? 'the order' : 'the trade-off'}, the flip check and the devil's advocate check.`), `${sel}: the closing fold rule matches its selection`);
+    ok(d2.includes("- Change nothing that an objection, a research finding or the devil's advocate check does not name."), `${sel}: a devil's advocate rescore is a change the fold rule allows`);
     ok(d2.includes(`WRITE ${S}/review/ledger-r2.md`), `${sel}: the revision writes a new ledger`);
     ok(String(byLabel('review r2')[0]?.prompt).includes(`${S}/review/ledger-r2.md`), `${sel}: the round-2 reviewer judges the revision's ledger`);
     ok(logs.some((l) => l === '  ↻ r1: the reviewer REJECTS (raised 2, withdrawn 1, kept 1, downgraded 0, caveats 0) → decider revises'), `${sel}: the log names the counts`);
@@ -382,6 +384,24 @@ section('the decider writes a flip check in both selections, and a trade-off in 
   ok(r.includes('4. FLIP CHECK: for each adjacent pair on the list') && !r.includes('TRADE-OFF:'), 'ranked: a FLIP CHECK over adjacent pairs, no trade-off');
   ok(r.includes('"Combine / exclude" section') && r.indexOf('then the flip check') > r.indexOf('"Combine / exclude" section'),
     'ranked: the flip check is written after the combine/exclude section');
+}
+
+section('the decider scores a do-nothing baseline and runs a devil\'s advocate check after the flip check, in both selections');
+{
+  const DO_NOTHING = 'Whenever not acting is possible, add a DO-NOTHING candidate, the baseline every other option must beat.';
+  const s = flat((await run(CLEAN)).byLabel('decide r1')[0]?.prompt);
+  const r = flat((await run(CLEAN, RANKED)).byLabel('decide r1')[0]?.prompt);
+  for (const [sel, p, step, target, notToAct, redo] of [
+    ['single', s, '6.', 'the winner', 'When it scores highest, the conclusion is not to act.', 'the WINNER, TRADE-OFF and FLIP CHECK steps'],
+    ['ranked', r, '5.', 'rank 1', 'It ranks like any option, and at rank 1 the answer is not to act.', 'the RANK and FLIP CHECK steps'],
+  ]) {
+    ok(p.includes(DO_NOTHING) && p.includes(notToAct) && p.indexOf(DO_NOTHING) < p.indexOf('GROUND every cell'), `${sel}: the matrix step adds the do-nothing baseline`);
+    ok(p.includes(`${step} DEVIL'S ADVOCATE: state the strongest case against ${target}, or against acting at all.`)
+      && p.indexOf('FLIP CHECK:') < p.indexOf("DEVIL'S ADVOCATE:") && p.indexOf("DEVIL'S ADVOCATE:") < p.indexOf('WRITE '), `${sel}: the devil's advocate step follows the flip check`);
+    ok(p.includes(`rescore the matrix under it, then redo ${redo} on the rescored matrix.`), `${sel}: a rescore redoes the conclusion steps it can change`);
+    ok(p.includes('requirements lack, write it under `## Checks for the user` with the result that would change the answer.'), `${sel}: a case outside the rubric goes to the user`);
+    ok(p.includes("`## Devil's advocate` section"), `${sel}: the decision file holds the section`);
+  }
 }
 
 section('flip returns the grade, and nextStep carries the FRAGILE and DOMINANT notes in each selection');

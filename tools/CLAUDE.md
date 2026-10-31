@@ -100,19 +100,21 @@ spelling the caller used, since Node realpaths the main module. The printed path
 of the permission rules the caller wrote. `plugin-access.mjs` grants its Read rules in both spellings,
 since which one a gate matches is unmeasured. An imported call, or a CLI run through a link to the
 `plan-edit.mjs` file itself, which leaves no `plan-block.mjs` beside the caller's spelling, takes the folder
-of its own file. develop logs each finished block's status edits as one `status-sync <json>` line. Claude Code
-writes every Workflow run to `<config>/projects/<project>/<session>/workflows/wf_<id>.json` when it ends, logs
-included, for a completed, failed or stopped run alike. `args` reads every develop record newer than the
-plan's `synced:` file key, applies the edits naming that plan oldest first, and moves the key to the newest
-run applied, so an operator's later edit is never overwritten. `--fold-only` writes every fold and cut that
-`args` writes, the `--backlog` files' included. It sets no `done` backlog file to `todo`, holds back nothing
-and prints nothing, so an operator reads current statuses without a launch. It refuses `--pack`. The record
-format is Claude Code's and undocumented. A completed run's edits come from its result, which holds them
-uncut. A failed or stopped run's come from its log lines, and the runtime cuts a long line short: a cut line
-that names a plan being folded fails `args`, and one that names none is skipped with a note. A changed develop
-record fails `args` loudly, `--expect <wf-id>` fails when a known run's record is missing, and
-`tests/plan-bus.test.mjs` checks the newest records on the machine on every suite run. Records expire
-after `cleanupPeriodDays` (30 by default).
+of its own file. Each fix-mode row carries `continues`, true when an ACTIONABLE entry of its block whose
+`- status:` is absent, `open` or `needs-attention` carries a `- branch:`, `- origin:`, `- ledger:` or
+`- amended:` line, so develop can leave its park-continuation text out of every other block. develop logs
+each finished block's status edits as one `status-sync <json>` line. Claude Code writes every Workflow run to
+`<config>/projects/<project>/<session>/workflows/wf_<id>.json` when it ends, logs included, for a completed,
+failed or stopped run alike. `args` reads every develop record newer than the plan's `synced:` file key,
+applies the edits naming that plan oldest first, and moves the key to the newest run applied, so an operator's
+later edit is never overwritten. `--fold-only` writes every fold and cut that `args` writes, the `--backlog`
+files' included. It sets no `done` backlog file to `todo`, holds back nothing and prints nothing, so an
+operator reads current statuses without a launch. It refuses `--pack`. The record format is Claude Code's and
+undocumented. A completed run's edits come from its result, which holds them uncut. A failed or stopped run's
+come from its log lines, and the runtime cuts a long line short: a cut line that names a plan being folded
+fails `args`, and one that names none is skipped with a note. A changed develop record fails `args` loudly,
+`--expect <wf-id>` fails when a known run's record is missing, and `tests/plan-bus.test.mjs` checks the newest
+records on the machine on every suite run. Records expire after `cleanupPeriodDays` (30 by default).
 
 `--backlog <dir>` adds each backlog file in `<dir>` whose `status:` is `todo` or `done` and that holds an
 entry with `- decision: ACTIONABLE` and `- status: open`, after folding the finished runs into it. A file that
@@ -183,11 +185,11 @@ developer with, and that holds none of its open ACTIONABLE issues. A block opens
 fits. A block over the cap, one with nothing open and ACTIONABLE, or one whose open ACTIONABLE issue carries a
 `- branch:` line, stays its own row, so two unfinished branches never restore in one round 1. A block
 whose open ACTIONABLE issue has `- size: large` stays its own row too, since a pass parks as one block and a
-blocking gap in a large entry would park every member. A note names each such block. A pass
-row is `{ id: <first>-plus-<n>, mode: fix, model?, effort?, blocks: [{ id, planPath, issues }] }`,
-where `issues` lists only the member's open ACTIONABLE entries, and develop writes each member's
-status and each issue's into the file that holds it. Packing regroups blocks, so an `ordered: true`
-file is refused.
+blocking gap in a large entry would park every member. A note names each such block. A pass row is
+`{ id: <first>-plus-<n>, mode: fix, model?, effort?, blocks: [{ id, planPath, issues, continues }] }`,
+where `issues` lists only the member's open ACTIONABLE entries and `continues` is the member's row value,
+and develop writes each member's status and each issue's into the file that holds it. Packing regroups
+blocks, so an `ordered: true` file is refused.
 
 ## plan-pull.mjs
 

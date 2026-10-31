@@ -49,10 +49,11 @@ export const FORMAT = `A risk file holds, in this order:
   scope: <pathspec> [<pathspec> ...]
   - <path>:<line> updated|unaffected: <reason>
   - <path> (<n> hits) updated|unaffected: <reason>
-      after the change sections, one block per search. <text> is one literal string, matched case-sensitively
-      as written and as a '...', "..." or \`...\` source string escapes it. The scope names repo paths,
-      \`.\` for the entire repo. Each hit the search finds takes one line, marked updated or unaffected
-      with its reason. The <n> hits form covers every hit in one generated file the gate checks.
+      after the change sections, one block per search, every block under the one ${SWEEP_HEADING} heading.
+      <text> is one literal string, matched case-sensitively as written and as a '...', "..." or \`...\`
+      source string escapes it. The scope names repo paths, \`.\` for the entire repo. Each hit the search
+      finds takes one line, marked updated or unaffected with its reason. The <n> hits form covers every
+      hit in one generated file the gate checks.
 A round that changed nothing holds the ${SNAPSHOT_LINE} line and the line \`${NO_CHANGES}\` alone.`;
 
 const USAGE = `usage: node tools/risk-check.mjs <risk file> --repo <repo> --snapshot <tree id>

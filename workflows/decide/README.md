@@ -50,6 +50,10 @@ A **diverge-then-converge** workflow built on the shared [Workflow Principles](.
 - **Trade-off and flip check.** The decision states what the winner gives up against the runner-up,
   criterion by criterion. Its flip check names the smallest change that would swap the winner. The
   decider grades the choice `dominant`, `robust` or `fragile`, and you settle a `fragile` one.
+- **Do-nothing baseline and devil's advocate.** When not acting is possible, the matrix scores doing
+  nothing on the same rubric, and every other option must beat it. When doing nothing scores highest,
+  the conclusion is not to act. A devil's advocate check then argues against the winner, or against
+  acting at all. An argument that needs a criterion your rubric lacks comes to you as a check.
 - **One winner, or a ranked shortlist.** The default is a single justified conclusion. When the honest
   answer is a *portfolio* ("give me the best N, I'll pick or combine"), the `ranked` mode returns an
   ordered shortlist instead. The shortlist states what each option buys, what it costs, and which of them

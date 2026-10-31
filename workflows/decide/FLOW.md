@@ -121,14 +121,14 @@ flowchart TD
 | throw: Missing args.checkTool | args carry no checkTool | throw (line 165) |
 | throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 176) |
 | throw: lens ids collide after slugging | two lenses slug to one file | throw (line 180) |
-| throw: A user request was relayed into the context of the researcher for ... ahead of its task | a lens researcher reports a user request relayed into its context | throw (line 569) |
-| throw: No lens researcher produced a lens file | no lens researcher produced a lens file | throw (line 573) |
-| throw: Decider returned nothing in round ... | the decider dies | throw (line 626) |
-| throw: Researcher returned nothing in research round ... | a researcher of an open issue dies | throw (line 695) |
-| throw: Check agent returned nothing before the review in round ... | the check agent dies writing the check spec | throw (line 717) |
-| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 731) |
-| throw: Check agent returned nothing after the review in round ... | the check agent dies running the check | throw (line 736) |
-| throw: Check agent returned an unreadable result in round ... | the check agent returns an exit code or a last line the tool never prints | throw (line 765) |
+| throw: A user request was relayed into the context of the researcher for ... ahead of its task | a lens researcher reports a user request relayed into its context | throw (line 585) |
+| throw: No lens researcher produced a lens file | no lens researcher produced a lens file | throw (line 589) |
+| throw: Decider returned nothing in round ... | the decider dies | throw (line 642) |
+| throw: Researcher returned nothing in research round ... | a researcher of an open issue dies | throw (line 711) |
+| throw: Check agent returned nothing before the review in round ... | the check agent dies writing the check spec | throw (line 733) |
+| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 747) |
+| throw: Check agent returned nothing after the review in round ... | the check agent dies running the check | throw (line 752) |
+| throw: Check agent returned an unreadable result in round ... | the check agent returns an exit code or a last line the tool never prints | throw (line 781) |
 
 ## Coverage
 

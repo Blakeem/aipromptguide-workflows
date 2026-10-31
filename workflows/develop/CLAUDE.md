@@ -899,18 +899,22 @@ files.
 
 Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical source).
 - **Required:** `runId` · `root` · `plans` (non-empty array of
-  `{ id, title?, planPath, mode, gate, status, model?, effort? }` rows that `plan-edit.mjs args`
+  `{ id, title?, planPath, mode, gate, status, model?, effort?, continues? }` rows that `plan-edit.mjs args`
   prints, or a `--pack` pass
-  `{ id, title?, mode: fix, gate, status, model?, effort?, blocks: [{ id, planPath, issues }] }`.
+  `{ id, title?, mode: fix, gate, status, model?, effort?, blocks: [{ id, planPath, issues, continues? }] }`.
   Malformed **throws** naming the shape. A row with no `planPath` **throws** naming it. A `model`
   outside `opus | sonnet | haiku | fable` or an `effort` outside `low | medium | high | xhigh | max`
-  **throws** naming the row.) · `target.repo` (**throws** if missing) · `gates.build` (**throws** if
-  missing) · `gates.test` (**throws** when any PENDING block's gate is `green` — deliberately
-  pending-scoped, so an all-done relaunch reaches its terminal) · `backlogDir` (the absolute folder
-  `project-settings.mjs backlog` prints, §10. **Throws** when missing, relative or inside
-  `target.repo`, and the message names the command) · `blockTool` (the `plan-block.mjs` path that
-  `plan-edit.mjs args` prints, so spreading its output passes it. **Throws** when missing or blank,
-  and the message names that command).
+  **throws** naming the row. `continues`, on a fix row or a pass member, is false when no entry of
+  that block continues a parked block's work, so round 1 skips the restore, acceptance skips the
+  park-entry checks and lands no branch, and the park supersedes no branch. Absent counts as true, a
+  pass renders those steps when any member's is not false, and under `proactive` they always render,
+  since a pulled entry may carry an `- origin:` line. A non-boolean **throws** naming the row.) ·
+  `target.repo` (**throws** if missing) · `gates.build` (**throws** if missing) · `gates.test`
+  (**throws** when any PENDING block's gate is `green` — deliberately pending-scoped, so an all-done
+  relaunch reaches its terminal) · `backlogDir` (the absolute folder `project-settings.mjs backlog`
+  prints, §10. **Throws** when missing, relative or inside `target.repo`, and the message names the
+  command) · `blockTool` (the `plan-block.mjs` path that `plan-edit.mjs args` prints, so spreading its
+  output passes it. **Throws** when missing or blank, and the message names that command).
 - **File keys:** `ordered` (boolean) · `suite` (`green|scoped`) · `sweep` (`goal-coverage|none`) ·
   `goal` (string). Typed illegal values **throw** — spread what `args` prints. `sweep: goal-coverage`
   with an empty `goal` **throws**.
@@ -1111,11 +1115,14 @@ When the user asks to work the backlog:
    Then research each entry that step 3 triages, before you present it. First confirm that its defect
    or gap still holds in the accepted baseline, and cite the file:line. When it no longer holds,
    recommend a skip, since the accepted baseline holds its fix. Otherwise list its fix options, the
-   lowest-impact fix and the most automated one among them. Fix the criteria and their weights before
-   you score, score each option in a decision matrix, and run a flip check that names the smallest
-   weight change that changes the winner. Mark the flip check ROBUST when that change is larger than the
-   uncertainty in that weight, else FRAGILE. Last, argue once against the winner and check that argument
-   against the code. Recommend the winner with a one-line reason and its flip-check mark.
+   lowest-impact fix and the most automated one among them, and a skip, the baseline every other option
+   must beat. Fix the criteria and their weights before you score, score each option in a decision
+   matrix, and run a flip check that names the smallest weight change that changes the winner. Mark the
+   flip check ROBUST when that change is larger than the uncertainty in that weight, else FRAGILE. Last,
+   run a devil's advocate check: the strongest case against the winner, or against acting at all,
+   checked against the code. It either adds a criterion or a must and you rescore the matrix and redo
+   the flip check, or it fails with cited evidence. Recommend the winner with a one-line reason and its
+   flip-check mark.
 3. Triage them with the user. Present each entry with its recommendation and its matrix. The user may
    answer for all of them at once, such as "apply the recommendations". When the user has delegated
    triage, apply each ROBUST recommendation yourself and ask only about each FRAGILE one and each

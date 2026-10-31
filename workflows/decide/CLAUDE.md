@@ -159,32 +159,38 @@ measurement, and own judgment scores at most partly met.
   smallest single change to one cell or weight that changes the winner, plus the joint effect of
   moving every low-confidence cell by its uncertainty). It grades the choice **dominant**
   (gives up nothing), **robust** (the smallest flip is larger than the uncertainty of the input it moves)
-  or **fragile** (it is not), and returns the grade as `flip`. Each pass also writes an **evidence
-  ledger**, `review/ledger-rN.md`: the answer under review (in `ranked` mode, the listed options in rank
-  order with their combine and exclude claims), every candidate (in `ranked` mode, listed or left off),
-  and for each candidate the facts its scores rest on, each with its original source. The ledger holds
-  no score, weight, total, rationale or lens recommendation, and cites no lens, research or decision
-  file, so reading it reveals no judgment. `wrote_file` attests both files. After a reject it revises
-  its prior decision into a complete new file under fixed **fold rules**: it confirms each kept
-  objection's evidence against its source; for a **challenger** it scores the winner and the challenger
-  side by side on the same rubric and keeps the higher (in `ranked` mode it orders the two by that
-  score); for a **must violation** it repairs the winner or replaces it (in `ranked` mode it repairs the
-  listed option or takes it off the list); in `ranked` mode it corrects a combine or exclude claim the
-  evidence contradicts; a refuted objection gets a rebuttal under `## Rebuttals` with evidence, and one
-  it can neither confirm nor refute, or one that names evidence no file of the run holds, becomes an
-  open issue, so a research round settles it before the next review; it may fold a caveat or a
-  downgraded objection whose fix is one sentence and leaves every other one to the review files; it
-  tests each fold against one hostile input of each kind it touches (a failure, a concurrent edit, a
-  human-set value, state saved before the change, an edit by another program that no scan has seen
-  yet); a fold that repairs one option against a defect another option shares repairs that option the
-  same way and keeps it scored; it never adds a repaired variant as a new rival; and it changes nothing
-  that an objection or a research finding does not name. After a lock mismatch or an unwritten final
-  review (§5a) it acts on every objection of the blind review instead. Escalates a user-only call to
-  `NEEDS-USER.md` (halts on a hard blocker) — **and so may the reviewer**, for a requirement contradiction
-  (§7); those are two distinct halt paths, not one. In `ranked` mode it instead ranks the strongest options
-  (up to `shortlist`), each with what it **buys**, what it **costs**, its rank rationale, plus a **combine /
-  exclude** section and a flip check over each adjacent pair, graded on rank 1 (no trade-off section) — an
-  option violating a non-negotiable is off the list entirely, and it is told not to pad.
+  or **fragile** (it is not), and returns the grade as `flip`. Whenever not acting is possible, the matrix
+  scores a **do-nothing** candidate on the same rubric, the baseline every option must beat, and when it
+  scores highest the conclusion is not to act (in `ranked` mode it ranks like any option). It sits in the
+  ledger like any candidate, so the reviewer can raise it as a challenger. A **`## Devil's advocate`**
+  section follows the flip check: the strongest case against the winner, or against acting at all. A case
+  that rests on a requirement rescores the matrix and redoes the conclusion and the flip check, one that
+  rests on a criterion or must the requirements lack goes under `## Checks for the user`, and any other
+  fails with cited evidence. Each pass also writes an **evidence ledger**, `review/ledger-rN.md`: the
+  answer under review (in `ranked` mode, the listed options in rank order with their combine and exclude
+  claims), every candidate (in `ranked` mode, listed or left off), and for each candidate the facts its
+  scores rest on, each with its original source. The ledger holds no score, weight, total, rationale or
+  lens recommendation, and cites no lens, research or decision file, so reading it reveals no judgment.
+  `wrote_file` attests both files. After a reject it revises its prior decision into a complete new file under
+  fixed **fold rules**: it confirms each kept objection's evidence against its source; for a **challenger** it
+  scores the winner and the challenger side by side on the same rubric and keeps the higher (in `ranked` mode
+  it orders the two by that score); for a **must violation** it repairs the winner or replaces it (in `ranked`
+  mode it repairs the listed option or takes it off the list); in `ranked` mode it corrects a combine or
+  exclude claim the evidence contradicts; a refuted objection gets a rebuttal under `## Rebuttals` with
+  evidence, and one it can neither confirm nor refute, or one that names evidence no file of the run holds,
+  becomes an open issue, so a research round settles it before the next review; it may fold a caveat or a
+  downgraded objection whose fix is one sentence and leaves every other one to the review files; it tests each
+  fold against one hostile input of each kind it touches (a failure, a concurrent edit, a human-set value,
+  state saved before the change, an edit by another program that no scan has seen yet); a fold that repairs
+  one option against a defect another option shares repairs that option the same way and keeps it scored; it
+  never adds a repaired variant as a new rival; and it changes nothing that an objection, a research finding
+  or the devil's advocate check does not name. After a lock mismatch or an unwritten final review (§5a) it
+  acts on every objection of the blind review instead. Escalates a user-only call to `NEEDS-USER.md` (halts
+  on a hard blocker) — **and so may the reviewer**, for a requirement contradiction (§7); those are two
+  distinct halt paths, not one. In `ranked` mode it instead ranks the strongest options (up to `shortlist`),
+  each with what it **buys**, what it **costs**, its rank rationale, plus a **combine / exclude** section and
+  a flip check over each adjacent pair, graded on rank 1 (no trade-off section) — an option violating a
+  non-negotiable is off the list entirely, and it is told not to pad.
 - **Final reviewer** (review · opus) — one fresh reviewer per review round, in two stages (§5a). Its
   prompt holds only the blind stage: the requirements, the ledger and its blind file
   `review/review-rN.md`. It opens the original source behind each fact that moves a score (and re-runs
@@ -366,8 +372,9 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
 - `research/r<N>-<slug>.md` — research round N's findings on the open issue `<slug>`, or its check for
   the user.
 - `decide/decision-rN.md` — the decider's Nth pass: the matrix + conclusion + why-not-others + trade-off
-  + flip check (in `ranked` mode: the matrix + the ranked options with buys/costs + the
-  combine-vs-exclusive section + the flip check), then `## Open issues` and `## Checks for the user`.
+  + flip check + devil's advocate (in `ranked` mode: the matrix + the ranked options with buys/costs +
+  the combine-vs-exclusive section + the flip check + devil's advocate), then `## Open issues` and
+  `## Checks for the user`.
 - `review/ledger-rN.md` — the evidence ledger of the decider's Nth pass (§5).
 - `review/review-rN.md` — review round N's blind review: its scores, objections, caveats and verdict,
   in the format `tools/review-check.mjs` writes and checks.

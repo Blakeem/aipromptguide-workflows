@@ -2444,8 +2444,8 @@ section('the quality reviewer is blind BY PLACEMENT: no run-state path outside g
   ok(q.includes(`Never open a plan file, an issue inventory, or any run-state path outside ${STATE}/gate/.`),
     'and it is told never to open a plan file, an inventory or run-state outside gate/');
   // gate/ is shared by every block, so its own DISMISSED file is the one gate/ file it may read. Its own
-  // review file is readable only at the WRITE step, where the Write tool needs a prior read to overwrite it.
-  ok(q.replace(/\s+/g, ' ').includes(`${STATE}/gate/ also holds other blocks' review and DISMISSED files. Read only ${STATE}/gate/DISMISSED-block-a.md there, and ${STATE}/gate/quality-review-block-a-r1.md only at the WRITE step`),
+  // review file is read at the WRITE step, where the Write tool needs a prior read to overwrite it.
+  ok(q.replace(/\s+/g, ' ').includes(`${STATE}/gate/ also holds other blocks' review and DISMISSED files. Before you review, read only ${STATE}/gate/DISMISSED-block-a.md there. At the WRITE step, once your findings are final, Read ${STATE}/gate/quality-review-block-a-r1.md if it exists`),
     'and it is told gate/ holds other blocks\' files and to read only its own DISMISSED file there, plus its own review file at the WRITE step');
   const a = (await run(GREEN_RUN)).prompt('acceptance block-a');
   ok(a.includes(`${STATE}/gate/DISMISSED-block-a.md`) && a.includes(`${STATE}/question-block-a.md`)
@@ -2822,7 +2822,8 @@ section('acceptance re-checks every earlier review file of its block, and only t
     const a = r.prompt(`acceptance ${id}`);
     const schema = r.calls.find((c) => c.label.startsWith(`acceptance ${id}`))?.opts.schema;
     ok(/Never open a plan file, an issue inventory, or any run-state path outside/.test(q)
-      && /only at the WRITE step, so the Write tool accepts the overwrite\. Never use its content\./.test(q)
+      && /At the WRITE step, once your findings are final,\s+Read \S+ if it exists, so the Write tool accepts the overwrite, then replace its entire content\./.test(q)
+      && !/Never use its content/.test(q)
       && !/Do NOT read prior review files/.test(q), `${mode}: the blind prompt's gate-folder read rule alone forbids prior review files`);
     ok(a !== '' && !/Do NOT read prior review files/.test(a), `${mode}: the acceptance prompt no longer does`);
     ok(flat(q).includes('Review the CURRENT diff FRESH, catching new or nearby issues.'), `${mode}: the blind prompt keeps the fresh-review sentence`);
@@ -2846,11 +2847,11 @@ section('acceptance re-checks every earlier review file of its block, and only t
   }
   const accPrompts = [...bus.byLabel('acceptance '), ...fixBus.byLabel('acceptance ')].map((c) => flat(c.prompt));
   ok(accPrompts.length > 0 && accPrompts.every((p) => p.includes('Review the CURRENT diff FRESH, catching new or nearby issues. '
-    + 'Read prior review files only at your EARLIER FINDINGS step below.')),
+    + 'Read prior review files at your EARLIER FINDINGS step below.')),
     'every acceptance prompt keeps the fresh-review sentence and points at its EARLIER FINDINGS step');
-  ok(accPrompts.every((p) => p.includes('The one exception is the file the WRITE step names. Read it only at the WRITE step, '
-    + 'so the Write tool accepts the overwrite, and never use its content.')),
-    'every acceptance prompt carves out the WRITE step file, read only to overwrite and never used');
+  ok(accPrompts.every((p) => p.includes('At the WRITE step, Read the file it names if it exists, '
+    + 'so the Write tool accepts the overwrite, then replace its entire content.') && !p.includes('never use its content')),
+    'every acceptance prompt reads the WRITE step file at that step');
   ok(/residual path goes in your review file at step 7\./.test(fixBus.prompt('acceptance fix-a')),
     'fix: step 1 points at the renumbered WRITE step');
 
@@ -4504,9 +4505,14 @@ section('every develop prompt that writes a round file says to Read an earlier l
   const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE);
   const commit = await run(C_RUN, COMMIT_ONE);
   const park = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 });
+  // The risk tool has written the file before the developer writes it, so its read takes its own sentence.
+  const RISK_READ = 'The command leaves the file in place, so Read it, then replace its entire content.';
+  for (const [what, p] of [['the developer', feat.prompt('develop block-a r1')], ['the proactive developer', proBus.prompt('develop block-a r1')]]) {
+    eq(flat(p).split(RISK_READ).length - 1, 1, `${what}: the risk file's read step says the command left the file in place`);
+  }
   const sites = [
-    ['the developer risk file', flat(feat.prompt('develop block-a r1')), 1, 0],
-    ['the proactive developer risk and PULLED files', flat(proBus.prompt('develop block-a r1')), 2, 0],
+    ['the developer prompt', flat(feat.prompt('develop block-a r1')), 0, 0],
+    ['the proactive developer PULLED file', flat(proBus.prompt('develop block-a r1')), 1, 0],
     ['the blind quality file', flat(feat.prompt('quality block-a r1')), 1, 1],
     ['the feature-mode acceptance file', flat(feat.prompt('acceptance block-a r1')), 1, 1],
     ['the fix-mode acceptance file', flat(fix.prompt('acceptance fix-a r1')), 1, 1],
@@ -5097,7 +5103,8 @@ section('a prompt drops the read step of a file no earlier launch left and no de
   const fresh = await prompts(NONE);
   ok(fresh.q.includes(`Settled decisions: ${STATE}/gate/DISMISSED-block-a.md ${NOTHING_SETTLED}.`) && !fresh.q.includes(READ_Q_DISMISSED),
     'the blind reviewer is told the DISMISSED file does not exist when round 1 found none and wrote none');
-  ok(!fresh.q.includes(`Read only ${STATE}/gate/DISMISSED-block-a.md there`) && fresh.q.includes('quality-review-block-a-r1.md there, and only at the WRITE step'),
+  ok(!fresh.q.includes(`read only ${STATE}/gate/DISMISSED-block-a.md there`) && fresh.q.includes('Before you review, read no file there.')
+    && fresh.q.includes('quality-review-block-a-r1.md if it exists'),
     'the blind reviewer is no longer sent to read it');
   ok(fresh.a.includes(`${STATE}/gate/DISMISSED-block-a.md does not exist, so no finding of this block is declined.`),
     'acceptance is told the DISMISSED file does not exist');
@@ -5229,4 +5236,59 @@ section('the developer, acceptance and park prompts tell the agent to use the fi
     ok(flat(r.prompt(label)).includes(NOTE), `the ${label.split(/[ :]/)[0]} prompt carries the file-writing rule`);
   }
   ok(flat(r.prompt('develop block-a r1')).split(NOTE).length === 2, 'the developer prompt states it once');
+}
+
+section('a fix block whose entries continue no parked work skips the park-continuation text, and every other block keeps it');
+{
+  const RESTORE = 'First RESTORE unfinished work';
+  const NO_RESTORE = 'No entry of this block continues a parked block\'s work, so report restore_failed "" and restored_branches 0, and go on to VERIFY-FIRST.';
+  const ORIGIN = 'An entry with an "- origin:" line holds a parked block\'s unfinished work.';
+  const LEDGER_BULLET = 'each file that the "- ledger:" line of an ACTIONABLE entry of this block names';
+  const AMENDED_LINE = 'Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names.';
+  const fixRun = (args) => run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, args);
+  const promptsOf = (r, id) => ({ d: flat(r.prompt(`develop ${id} r1`)), a: flat(r.prompt(`acceptance ${id} r1`)) });
+  const shows = ({ d, a }) => [d.includes(RESTORE), !d.includes(NO_RESTORE), a.includes(ORIGIN), a.includes(LEDGER_BULLET), a.includes(AMENDED_LINE)];
+
+  const off = promptsOf(await fixRun({ ...FIX_ONE, plans: [{ ...FIX_ONE.plans[0], continues: false }] }), 'fix-a');
+  eq(shows(off).join(','), 'false,false,false,false,false', 'continues false: no restore, origin, ledger or amended text, and the one-line skip instead');
+  ok(off.d.includes(`fix this block's entries on top of the accepted baseline. ${NO_RESTORE}`), 'continues false: the developer still fixes on the accepted baseline');
+  // A false that contradicts a "- branch:" entry would otherwise land and delete a branch round 1 never restored.
+  const NO_LANDING = 'LANDED BRANCHES: round 1 restored no branch, since no entry of this block continues a parked block\'s work, so no branch landed. Delete no branch and return branches_kept=[].';
+  ok(off.a.includes(`9. ${NO_LANDING}`) && !off.a.includes('LIST LANDED BRANCHES'), 'continues false: stage-mode acceptance lists no landed branch');
+  const offCommit = flat((await run({ develop: { ...fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), baseline_staged_files: 0 }, quality: CLEAN, acceptance: { ...FIX_PASS, committed: true, commit_sha: 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', commit_subject: 'fix-a', tree_matches: true, tree_clean: true } },
+    { ...FIX_ONE, commit: true, plans: [{ ...FIX_ONE.plans[0], continues: false }] })).prompt('acceptance fix-a r1'));
+  ok(offCommit.includes(`10. ${NO_LANDING}`) && !offCommit.includes('DELETE LANDED BRANCHES') && !/branch -D/.test(offCommit), 'continues false: commit-mode acceptance deletes no branch');
+  const parkRun = (continues, superseded = []) => run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_GAP, park: { ...PARK_OK, superseded_entries: superseded } },
+    { ...FIX_ONE, maxRounds: 1, plans: [{ ...FIX_ONE.plans[0], continues }] });
+  const parkOf = async (continues) => flat((await parkRun(continues)).prompt('park:fix-a'));
+  const SUPERSEDE = 'Add `-p <its tip>` after the other parents for each RESTORED branch';
+  const parkOff = await parkOf(false);
+  ok(!parkOff.includes('This is a fix block, so its round 1 restored') && !parkOff.includes(SUPERSEDE) && !parkOff.includes('Then delete each RESTORED branch'),
+    'continues false: the park takes no restored branch as a parent and deletes none');
+  ok(parkOff.includes('Return superseded_entries=[], since round 1 restored no branch.') && !parkOff.includes('whenever step 1 makes no commit')
+    && !parkOff.includes('When superseded_entries is not empty') && !parkOff.includes('in superseded_entries names') && !parkOff.includes('the pulled list is not empty'),
+    'continues false: the park returns no superseded entry and carries no supersede or Pulled text');
+  eq(syncOf((await parkRun(false, ['i-1'])).out), 'fix-a=backlogged,i-1=needs-attention', 'continues false: the engine ignores a superseded list the park returns anyway');
+  ok((await parkOf(true)).includes(SUPERSEDE), 'continues true: the park still supersedes each restored branch');
+  for (const [label, args] of [
+    ['continues true', { ...FIX_ONE, plans: [{ ...FIX_ONE.plans[0], continues: true }] }],
+    ['continues absent', FIX_ONE],
+    ['proactive with continues false', { ...FIX_ONE, changePolicy: 'proactive', plans: [{ ...FIX_ONE.plans[0], continues: false }] }],
+  ]) {
+    const on = promptsOf(await fixRun(args), 'fix-a');
+    eq(shows(on).join(','), 'true,true,true,true,true', `${label}: every park-continuation text renders`);
+    ok(on.a.includes('9. LIST LANDED BRANCHES'), `${label}: acceptance lists the landed branches`);
+  }
+  const passOf = (a, b) => ({ ...PASS_ARGS, plans: [{ ...PASS, blocks: [{ ...PASS.blocks[0], continues: a }, { ...PASS.blocks[1], continues: b }] }] });
+  const passRun = (args) => run({ develop: passDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'FIXED' }, { issue_id: 'i-3', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, args);
+  eq(shows(promptsOf(await passRun(passOf(false, false)), 'fix-a-plus-1')).join(','), 'false,false,false,false,false', 'a pass whose every member continues nothing skips the text');
+  eq(shows(promptsOf(await passRun(passOf(false, true)), 'fix-a-plus-1')).join(','), 'true,true,true,true,true', 'a pass with one continuing member renders the text');
+
+  for (const [label, args] of [
+    ['a row', { ...FIX_ONE, plans: [{ ...FIX_ONE.plans[0], continues: 'no' }] }],
+    ['a pass member', { ...PASS_ARGS, plans: [{ ...PASS, blocks: [PASS.blocks[0], { ...PASS.blocks[1], continues: 0 }] }] }],
+  ]) {
+    const msg = await throwsWith(ENGINE, { args, respond: {} });
+    ok(/plan continues value\(s\) \[/.test(msg) && /is not a boolean|are not a boolean/.test(msg), `a non-boolean continues on ${label} throws naming it: ${msg.slice(0, 90)}`);
+  }
 }

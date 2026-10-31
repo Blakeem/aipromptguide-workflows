@@ -107,13 +107,14 @@ without can report success having written nothing. Make the set consistent.
 the paths the earlier launch used, and the Write tool refuses to overwrite a file the agent has not
 read. An agent that ignores the refusal still returns `wrote_file: true`, and the next stage's agent
 reads the earlier launch's text as the new round's. Every engine holds `REPLACE_NOTE` and
-`WROTE_NOTE` once. `REPLACE_NOTE` sits at each site that replaces a file in full, and `WROTE_NOTE`
-sits once in each prompt whose return attests a file the agent writes with the Write tool. One
-return falls outside that rule and carries no `WROTE_NOTE`: docs' `files_cleaned`, an in-place Edit
-count. develop's park carries one for its backlog entry, and its commit is attested by the
-`commit_sha` it returns. Two replace sites add a guard after `REPLACE_NOTE`: the investigator's options files
-and docs' gatherer capture files. Each engine's test counts both notes in each such
-prompt through `pinWriteNotes`, so a new write site needs a row there.
+`WROTE_NOTE` once. `REPLACE_NOTE` sits at each site that replaces a file in full, apart from develop's risk
+file, which `risk-check.mjs` writes or leaves in place before the developer writes it, so its read step says
+so. `WROTE_NOTE` sits once in each prompt whose return attests a file the agent writes with the Write tool.
+One return falls outside that rule and carries no `WROTE_NOTE`: docs' `files_cleaned`, an in-place Edit count.
+develop's park carries one for its backlog entry, and its commit is attested by the `commit_sha` it returns.
+Two replace sites add a guard after `REPLACE_NOTE`: the investigator's options files and docs' gatherer
+capture files. Each engine's test counts both notes in each such prompt through `pinWriteNotes`, so a new
+write site needs a row there.
 In every engine but develop, `WROTE_NOTE` is followed by `FILE_WRITE_NOTE`, which tells the agent to
 write file content with the file-editing tool, and `pinFileWriteNote` counts it in the same rows.
 A row's fifth value gives its own count where a prompt embeds another agent's write site, as decide's
