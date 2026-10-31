@@ -267,6 +267,14 @@ export default {
       respond: { ...GREEN_RUN, develop: firstRound(DEV_OK, { ...DEV_OK, review_needed: false }), quality: firstRound(FLAGGED, CLEAN) },
     },
     {
+      // Puts the quality and acceptance prompts that read and judge the DISMISSED ledger in the prompt
+      // snapshot, since DEV_OK leaves the ledger absent. Adds no node or edge.
+      name: 'the developer declines a finding',
+      when: 'the developer appends a line to its DISMISSED ledger and the block accepts',
+      args: { ...base, plans: [BLOCKS[0]] },
+      respond: { ...GREEN_RUN, develop: { ...DEV_OK, dismissed_count: 1 } },
+    },
+    {
       // The develop SELF-LOOP: a gate that is not green re-develops with NO reviewer spawned, until the
       // round budget runs out. The closing pass then gets the block's first blind review, and the closing
       // acceptance finds the gate red, a blocking gap, so the block parks.

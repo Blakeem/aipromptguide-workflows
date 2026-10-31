@@ -8,60 +8,62 @@ this file is stale.
 |---|---|---|---|---|
 | develop | 1 | 1 | 31634 | every block accepts first time |
 | quality | 1 | 1 | 8401 | every block accepts first time |
-| acceptance | 1 | 1 | 15079 | every block accepts first time |
+| acceptance | 1 | 1 | 13407 | every block accepts first time |
 | develop | 2 | 1 | 32059 | every block accepts first time |
-| acceptance | 2 | 2 | 15360 | every block accepts first time |
+| acceptance | 2 | 2 | 13688 | every block accepts first time |
 | final-sweep | 1 | 1 | 4619 | every block accepts first time |
 | develop | 3 | 2 | 35028 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 3 | 16379 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 3 | 14707 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 4610 | a feature block accepts under the proactive policy |
 | develop | 4 | 1 | 30795 | quality flags the first round |
-| acceptance | 4 | 1 | 15078 | quality flags the first round |
+| acceptance | 4 | 1 | 13406 | quality flags the first round |
 | develop | 5 | 1 | 31165 | quality flags the first round |
-| acceptance | 5 | 2 | 15359 | quality flags the first round |
+| acceptance | 5 | 2 | 13687 | quality flags the first round |
 | develop | 6 | 1 | 30791 | acceptance finds gaps, then passes |
-| acceptance | 6 | 1 | 15076 | acceptance finds gaps, then passes |
+| acceptance | 6 | 1 | 13404 | acceptance finds gaps, then passes |
 | develop | 7 | 1 | 31161 | acceptance finds gaps, then passes |
-| acceptance | 7 | 2 | 15357 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 18871 | a later round is judged low risk |
-| acceptance | 9 | 2 | 19152 | a later round is judged low risk |
+| acceptance | 7 | 2 | 13685 | acceptance finds gaps, then passes |
+| acceptance | 8 | 1 | 17199 | a later round is judged low risk |
+| acceptance | 9 | 2 | 17480 | a later round is judged low risk |
+| quality | 2 | 1 | 9185 | the developer declines a finding |
+| acceptance | 10 | 1 | 15257 | the developer declines a finding |
 | develop | 8 | 1 | 29617 | the gate never goes green |
 | develop-closing | 1 | 1 | 31239 | the gate never goes green |
-| quality | 2 | 1 | 8461 | the gate never goes green |
-| acceptance | 10 | 4 | 18471 | the gate never goes green |
+| quality | 3 | 1 | 8461 | the gate never goes green |
+| acceptance | 11 | 4 | 16608 | the gate never goes green |
 | park | 1 | 1 | 10319 | the gate never goes green |
 | develop | 9 | 1 | 30042 | the gate never goes green |
 | develop-closing | 2 | 1 | 31609 | the gate never goes green |
-| acceptance | 11 | 5 | 18752 | the gate never goes green |
-| acceptance | 12 | 1 | 15131 | a parked block, and the run carries on |
-| acceptance | 13 | 1 | 15186 | a parked block, and the run carries on |
-| acceptance | 14 | 1 | 15241 | a parked block, and the run carries on |
+| acceptance | 12 | 5 | 16889 | the gate never goes green |
+| acceptance | 13 | 1 | 13459 | a parked block, and the run carries on |
+| acceptance | 14 | 1 | 13514 | a parked block, and the run carries on |
+| acceptance | 15 | 1 | 13569 | a parked block, and the run carries on |
 | develop-closing | 3 | 1 | 32257 | a parked block, and the run carries on |
-| acceptance | 15 | 4 | 22481 | a parked block, and the run carries on |
+| acceptance | 16 | 4 | 20618 | a parked block, and the run carries on |
 | develop | 10 | 1 | 31616 | an ordered run stops at a parked block |
-| acceptance | 16 | 1 | 15073 | an ordered run stops at a parked block |
+| acceptance | 17 | 1 | 13401 | an ordered run stops at a parked block |
 | develop | 11 | 1 | 30773 | an ordered run stops at a parked block |
-| acceptance | 17 | 1 | 15070 | an ordered run stops at a parked block |
-| acceptance | 18 | 1 | 15125 | an ordered run stops at a parked block |
-| acceptance | 19 | 1 | 15180 | an ordered run stops at a parked block |
-| acceptance | 20 | 1 | 15235 | an ordered run stops at a parked block |
+| acceptance | 18 | 1 | 13398 | an ordered run stops at a parked block |
+| acceptance | 19 | 1 | 13453 | an ordered run stops at a parked block |
+| acceptance | 20 | 1 | 13508 | an ordered run stops at a parked block |
+| acceptance | 21 | 1 | 13563 | an ordered run stops at a parked block |
 | develop-closing | 4 | 1 | 32239 | an ordered run stops at a parked block |
-| acceptance | 21 | 4 | 22475 | an ordered run stops at a parked block |
+| acceptance | 22 | 4 | 20612 | an ordered run stops at a parked block |
 | park | 2 | 1 | 10331 | an ordered run stops at a parked block |
 | develop | 12 | 3 | 40678 | a fix block closes its issues |
-| acceptance | 22 | 6 | 23256 | a fix block closes its issues |
+| acceptance | 23 | 6 | 21496 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 4610 | a fix block closes its issues |
 | develop | 13 | 4 | 44154 | a fix block closes its issues under the proactive policy |
-| acceptance | 23 | 7 | 24763 | a fix block closes its issues under the proactive policy |
+| acceptance | 24 | 7 | 23003 | a fix block closes its issues under the proactive policy |
 | develop | 14 | 3 | 34601 | a fix block that continues no park closes its issues |
-| acceptance | 24 | 6 | 20447 | a fix block that continues no park closes its issues |
-| acceptance | 25 | 7 | 24777 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 25 | 6 | 18814 | a fix block that continues no park closes its issues |
+| acceptance | 26 | 7 | 23017 | a proactive fix block starts round 2 from the statuses it last reported |
 | develop | 15 | 4 | 35442 | a proactive fix block starts round 2 from the statuses it last reported |
-| acceptance | 26 | 7 | 24576 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 27 | 7 | 22816 | a proactive fix block starts round 2 from the statuses it last reported |
 | develop | 16 | 3 | 41032 | a pass of two fix blocks closes its issues |
-| acceptance | 27 | 6 | 23569 | a pass of two fix blocks closes its issues |
+| acceptance | 28 | 6 | 21781 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 4640 | a pass of two fix blocks closes its issues |
-| acceptance | 28 | 6 | 23255 | every issue is already fixed |
+| acceptance | 29 | 6 | 21495 | every issue is already fixed |
 | develop | 17 | 3 | 40660 | an ordered run stops on a fix block that closes nothing |
 | park | 3 | 1 | 10634 | passed with a regression, not staged |
 | park | 4 | 1 | 10080 | acceptance stages a rejected block |
@@ -76,24 +78,24 @@ this file is stale.
 | park | 13 | 1 | 10386 | the acceptance verifier dies |
 | park | 14 | 1 | 9902 | developer escalates |
 | park | 15 | 1 | 9892 | developer escalates in an ordered run |
-| acceptance | 29 | 6 | 25709 | log line cap before the sweep |
-| acceptance | 30 | 4 | 22261 | a closing acceptance lands the block |
+| acceptance | 30 | 6 | 23949 | log line cap before the sweep |
+| acceptance | 31 | 4 | 20398 | a closing acceptance lands the block |
 | develop-closing | 5 | 1 | 32627 | a closing acceptance lands the block |
-| acceptance | 31 | 5 | 22542 | a closing acceptance lands the block |
-| acceptance | 32 | 4 | 18525 | a closing pass gets a blind review |
-| acceptance | 33 | 5 | 18806 | a closing pass gets a blind review |
-| acceptance | 34 | 4 | 22554 | a closing acceptance finds a blocking gap |
+| acceptance | 32 | 5 | 20679 | a closing acceptance lands the block |
+| acceptance | 33 | 4 | 16662 | a closing pass gets a blind review |
+| acceptance | 34 | 5 | 16943 | a closing pass gets a blind review |
+| acceptance | 35 | 4 | 20691 | a closing acceptance finds a blocking gap |
 | park | 16 | 1 | 10469 | a closing acceptance finds a blocking gap |
-| acceptance | 35 | 5 | 22835 | a closing acceptance finds a blocking gap |
+| acceptance | 36 | 5 | 20972 | a closing acceptance finds a blocking gap |
 | park | 17 | 1 | 10469 | a closing acceptance finds a blocking gap |
 | develop | 18 | 5 | 31805 | every block commits first time |
-| quality | 3 | 1 | 8354 | every block commits first time |
-| acceptance | 36 | 8 | 16618 | every block commits first time |
+| quality | 4 | 1 | 8354 | every block commits first time |
+| acceptance | 37 | 8 | 14946 | every block commits first time |
 | develop | 19 | 5 | 32230 | every block commits first time |
-| acceptance | 37 | 9 | 16899 | every block commits first time |
+| acceptance | 38 | 9 | 15227 | every block commits first time |
 | final-sweep | 5 | 1 | 4931 | every block commits first time |
 | develop | 20 | 6 | 40880 | a fix block commits |
-| acceptance | 38 | 10 | 25012 | a fix block commits |
+| acceptance | 39 | 10 | 23252 | a fix block commits |
 | final-sweep | 6 | 1 | 4838 | a fix block commits |
 | park | 18 | 1 | 10086 | acceptance commits a rejected block |
 
@@ -694,24 +696,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -740,8 +728,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -760,11 +747,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -1347,24 +1332,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-b.md does not exist, so no amendment excuses a criterion.
 
@@ -1393,8 +1364,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -1413,11 +1383,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -2135,24 +2103,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's proactive change policy let the developer make, a record. A
     PROACTIVE line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -2197,8 +2151,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -2217,11 +2170,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -2877,24 +2828,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -2923,8 +2860,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -2943,11 +2879,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/gate/quality-review-block-a-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -3509,24 +3443,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-b.md does not exist, so no amendment excuses a criterion.
 
@@ -3555,8 +3475,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -3575,11 +3494,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/gate/quality-review-block-b-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -4140,24 +4057,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -4186,8 +4089,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -4206,11 +4108,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -4772,24 +4672,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-b.md does not exist, so no amendment excuses a criterion.
 
@@ -4818,8 +4704,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -4838,11 +4723,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-b-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -4996,24 +4879,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -5042,8 +4911,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -5062,11 +4930,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/gate/quality-review-block-a-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -5249,24 +5115,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-b.md does not exist, so no amendment excuses a criterion.
 
@@ -5295,8 +5147,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -5315,11 +5166,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/gate/quality-review-block-b-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -5467,6 +5316,373 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     "suite_result": {
       "type": "string",
       "description": "observed outcome of running the block gate (and, where the goal expects it, the full gates)"
+    }
+  }
+}
+~~~~
+
+## quality · variant 2 · schema 1
+
+`quality block-a r1` in "the developer declines a finding"
+
+~~~~text
+
+You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
+spec or goal. Judge the code PURELY ON ITS OWN MERITS.
+Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
+E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
+Before you review, read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there. At the WRITE step, once your findings are final,
+Read E:/flow/runs/flow/gate/quality-review-block-a-r1.md if it exists, so the Write tool accepts the overwrite, then replace its entire content.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+TARGET REPO: E:/repo
+GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
+Of the gates, run only the test command, and only for ONE targeted test that confirms a suspected defect.
+  build: npm run build
+  test:  npm test
+Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a
+temporary folder outside the repo and outside the folder that holds E:/flow/runs/flow/gate/ are allowed.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
+CONVENTIONS (judge against these): (none supplied — infer from the surrounding code)
+
+Before reviewing, READ this if it exists. It holds the settled decisions:
+  • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+diff FRESH, catching new or nearby issues.
+Before you skip a listed finding, check its stated reason against the code it cites. When the code
+contradicts a reason, at any tier, raise the finding ONCE, prefixed "CONTESTS DISMISSAL:", citing the
+file:line that contradicts it. A line whose reason starts `SKIPPED: SPEC:` rests on a plan you cannot
+read, and a later stage checks it, so skip its finding without that check.
+
+SCOPE — review ONLY this cycle's UNSTAGED work:
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
+  A ` A` entry (intent-to-add) is a new file `git diff` already shows in full. A first-column `A` or
+  `M` is STAGED: the staged half of an `AM` or `MM` file is baseline, and only its unstaged half
+  (`git -C E:/repo diff -- <file>`) is this cycle's work.
+  `git -C E:/repo diff --staged` is the ACCEPTED baseline — context only.
+
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
+
+Report every finding this diff introduces or exposes, at every tier. Drop silently anything
+pre-existing in code the diff neither changes nor interacts with, speculation, and redesigns.
+
+REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
+places as possible, at most one copy for users and one for agents, and update every copy in the same change.
+A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+
+CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error;
+  - maintainability: the nit list in the scale above.
+
+HUNT. Working from critical down to nit, find every finding through the CHECKLIST and the REACH
+step. A finding at medium or above names the concrete input or path that reaches it and its harm,
+cited by file:line. A real defect you cannot tie to a concrete input or path grades low at most. An
+EMPTY review is the normal, GOOD outcome.
+
+A hunk that changes ONLY comments, string text or documentation has four checkable defects: a change
+to executable code (`git -C E:/repo diff --word-diff` shows each hunk's exact tokens), a path, command,
+identifier or file the new text names that does not exist, a sentence the change removed that other
+text still refers to, and a claim the new text makes about this repo's code that the code contradicts,
+cited by line. Those four checks and the nit list bound your review of such a hunk.
+A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
+with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
+
+WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+Group them by tier, highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
+harm (for a finding at medium or above), and a fix direction you checked against the code it would change. When you found nothing, write
+exactly "No findings." Then return wrote_file (true ONLY if you wrote that file), clean (true if you
+found no finding and contested no dismissal), issue_count (every finding you wrote, at every tier) and
+contested_dismissals via the schema. Do NOT modify source, stage, or commit.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "clean",
+    "issue_count"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote your review file this round"
+    },
+    "clean": {
+      "type": "boolean",
+      "description": "true if you found no finding at any tier and contested no dismissal"
+    },
+    "issue_count": {
+      "type": "integer",
+      "description": "every finding written to the review file, at every tier from critical down to nit"
+    },
+    "contested_dismissals": {
+      "type": "integer",
+      "description": "how many DISMISSED entries you re-raised as \"CONTESTS DISMISSAL:\" this round (0 if none)"
+    }
+  }
+}
+~~~~
+
+## acceptance · variant 10 · schema 1
+
+`acceptance block-a r1` in "the developer declines a finding"
+
+~~~~text
+
+You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
+This round's blind code review passed, or did not run because the developer judged each
+change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
+TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
+CONVENTIONS (match these): (none supplied — infer from the surrounding code)
+GATES (the commands that define "it works"):
+  build: npm run build
+  test:  npm test
+BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
+need. Prefer targeted grep over broad reads. Do not restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+BLOCK: block-a   (mode: feature, gate: green)
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
+
+Before reviewing, READ these if they exist. They hold the settled decisions:
+  • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file or folder means nothing
+    is settled yet. Do not search for it elsewhere.
+  • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
+    this run's focused change policy let the developer make, a record. A
+    FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+diff FRESH, catching new or nearby issues. Read prior review files at your
+EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
+accepts the overwrite, then replace its entire content.
+OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
+ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
+OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
+A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
+the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
+Check it against this block's text and the plan's other blocks. When none of the three holds, the line
+declines nothing, so its finding counts as a gap.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
+
+AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
+
+EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
+satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
+CODE ZONES - every piece of code lies in one of three zones:
+  - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
+  - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
+    its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
+    that describe it, apart from code this block's text excludes or another block of the plan owns.
+  - Other code: everything else.
+A regression is any behavior the accepted baseline (the staged index, or HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, the same
+    defect on a sibling path of a change a criterion of this block requires or of such a finding, or a defect
+    that a "FOCUSED block-a:" line in E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you
+    confirm from the code that the baseline behavior it removes was itself that defect, that the change
+    alters no other behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when only a change in other code closes it. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
+
+SCOPE — this cycle's work is the UNSTAGED diff plus new files:
+  Read the diff in this order, and never run the entire `git diff` at once:
+  1. `git -C E:/repo diff --stat`.
+  2. `git -C E:/repo diff -- <file>` for each file it lists, one file per command.
+  3. `git -C E:/repo status --porcelain`, then READ every untracked file (`??`), since `git diff` OMITS those.
+  Check a hunk that changes only prose, such as comments, string text or documentation, for changed words with `git -C E:/repo diff --word-diff=porcelain` and the arguments of the `git diff` command that showed it. A rewrap with no changed word needs no further read.
+  `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
+
+PROCEDURE:
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
+   locator in your review file. A criterion asserted without one is not met.
+2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
+   fresh:
+     (none: no review in this run has flagged this block)
+   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
+   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   after the verdict that names it and before any later acceptance. A blind review that came back clean
+   is never on this list, since it found nothing. That includes this round's blind review, when one ran.
+3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
+   routed/bound/flagged and reachable from real entry points (grep to prove it).
+4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
+5. Run the FULL gates (GATES above) once and record the real outcome.
+   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
+   and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
+6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit.
+   TREE CHECK. Before any change step 8 makes, run these commands, which write a temporary index file
+   (create E:/flow/runs/flow/scratch/ if needed) and never the real index:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1-acceptance.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1-acceptance.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1-acceptance.index" git -C E:/repo write-tree
+   Delete the temporary index file once the last command has printed the tree id. Then run `git -C E:/repo diff --name-only a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 <the tree id the last command printed>`. It
+   lists each path that differs from a1b2c3d4e5f60718293a4b5c6d7e8f9012345678, the snapshot round 1's developer took after its
+   last change. A listed path that is untracked build output or a cache that a gate or test run regenerates
+   is no gap. Any other listed path changed after that snapshot, so the tree you would stage is not the tree
+   that developer handed on, which is a gap.
+   Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
+   Otherwise return risk_misclassified=false.
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+   numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
+   or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
+   clean."
+8. DECIDE. INDEX CHECK, before any `git add`: run `git -C E:/repo write-tree`. It must print c0ffee0000000000000000000000000000000001, the tree id this run last recorded for the index. When it
+   prints another id, the index holds work no acceptance staged, which no reviewer read: stage nothing,
+   write both ids in your file, and return index_matched=false and pass=false. Otherwise return index_matched=true. Return index_tree as the tree id `git -C E:/repo write-tree` prints once you
+   finish step 8: run it again after your `git add` when you stage, and otherwise return the id this check printed.
+   • All criteria met, reachable, gate satisfied, every earlier finding closed or declined, risk audit
+     clean, no regression → `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit);
+     return pass=true, staged=true.
+   • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the accepted baseline
+     already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
+     (nothing to add). Say so in your file.
+   • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r1.md this round.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "plan_obtained",
+    "wrote_file",
+    "pass",
+    "staged",
+    "earlier_reviews_read",
+    "risk_misclassified",
+    "reachable",
+    "evidence_recorded",
+    "index_matched",
+    "index_tree"
+  ],
+  "properties": {
+    "index_matched": {
+      "type": "boolean",
+      "description": "false when your INDEX CHECK found the index tree differs from the id your prompt names, else true"
+    },
+    "index_tree": {
+      "type": "string",
+      "description": "the tree id `git write-tree` printed once you finished DECIDE: after your `git add` when you staged, else the id your INDEX CHECK printed"
+    },
+    "plan_obtained": {
+      "type": "boolean",
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. FALSE halts the run."
+    },
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote your review file this round"
+    },
+    "pass": {
+      "type": "boolean",
+      "description": "true if every acceptance criterion is met, the feature is reachable, gates are green, every earlier finding is closed or declined, the risk audit is clean, and nothing regressed"
+    },
+    "staged": {
+      "type": "boolean",
+      "description": "true if you ran `git add` on this block's files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)"
+    },
+    "earlier_reviews_read": {
+      "type": "integer",
+      "description": "how many of the earlier review files your prompt lists you read in full (0 when it lists none)"
+    },
+    "risk_misclassified": {
+      "type": "boolean",
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, an answer the hunks of its round contradict, a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or a TREE CHECK path that changed after the snapshot your prompt names"
+    },
+    "reachable": {
+      "type": "boolean",
+      "description": "the feature is actually wired in / reachable from the app entry points"
+    },
+    "evidence_recorded": {
+      "type": "boolean",
+      "description": "true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file"
+    },
+    "regression": {
+      "type": "boolean",
+      "description": "true if the unstaged diff regressed previously-staged/accepted behavior"
+    },
+    "gap_count": {
+      "type": "integer",
+      "description": "number of unmet criteria / gaps written to the review file (0 on pass)"
+    },
+    "suite_result": {
+      "type": "string",
+      "description": "observed outcome of running the FULL gates"
     }
   }
 }
@@ -6308,7 +6524,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## quality · variant 2 · schema 1
+## quality · variant 3 · schema 1
 
 `quality block-a r6` in "the gate never goes green"
 
@@ -6444,7 +6660,7 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
 }
 ~~~~
 
-## acceptance · variant 10 · schema 4
+## acceptance · variant 11 · schema 4
 
 `acceptance block-a r6` in "the gate never goes green"
 
@@ -6478,24 +6694,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -6524,8 +6726,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes or observations.
 CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
 each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
@@ -6534,8 +6735,6 @@ each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" i
     changes no blind review has read, which is every gap your RISK AUDIT finds outside its TREE CHECK, a missing risk file included, or a path that changed after its round's snapshot,
     which is every gap your TREE CHECK finds.
   • Not blocking: every other gap, such as a low or nit finding or a cleanup.
-A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
-gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   Read the diff in this order, and never run the entire `git diff` at once:
@@ -6553,11 +6752,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -7665,7 +7862,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 11 · schema 5
+## acceptance · variant 12 · schema 5
 
 `acceptance block-b r6` in "the gate never goes green"
 
@@ -7699,24 +7896,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-b.md does not exist, so no amendment excuses a criterion.
 
@@ -7745,8 +7928,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes or observations.
 CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
 each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
@@ -7755,8 +7937,6 @@ each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" i
     changes no blind review has read, which is every gap your RISK AUDIT finds outside its TREE CHECK, a missing risk file included, or a path that changed after its round's snapshot,
     which is every gap your TREE CHECK finds.
   • Not blocking: every other gap, such as a low or nit finding or a cleanup.
-A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
-gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   Read the diff in this order, and never run the entire `git diff` at once:
@@ -7774,11 +7954,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -7920,7 +8098,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 12 · schema 1
+## acceptance · variant 13 · schema 1
 
 `acceptance block-a r3` in "a parked block, and the run carries on"
 
@@ -7953,24 +8131,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -7999,8 +8163,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -8020,11 +8183,9 @@ PROCEDURE:
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -8142,7 +8303,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 13 · schema 1
+## acceptance · variant 14 · schema 1
 
 `acceptance block-a r4` in "a parked block, and the run carries on"
 
@@ -8175,24 +8336,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -8221,8 +8368,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -8243,11 +8389,9 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -8365,7 +8509,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 14 · schema 1
+## acceptance · variant 15 · schema 1
 
 `acceptance block-a r5` in "a parked block, and the run carries on"
 
@@ -8398,24 +8542,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -8444,8 +8574,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -8467,11 +8596,9 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
      E:/flow/runs/flow/acceptance-review-block-a-r4.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -9019,7 +9146,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 15 · schema 4
+## acceptance · variant 16 · schema 4
 
 `acceptance block-a r6` in "a parked block, and the run carries on"
 
@@ -9053,24 +9180,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -9099,8 +9212,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes or observations.
 CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
 each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
@@ -9109,8 +9221,6 @@ each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" i
     changes no blind review has read, which is every gap your RISK AUDIT finds outside its TREE CHECK, a missing risk file included, or a path that changed after its round's snapshot,
     which is every gap your TREE CHECK finds.
   • Not blocking: every other gap, such as a low or nit finding or a cleanup.
-A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
-gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   Read the diff in this order, and never run the entire `git diff` at once:
@@ -9132,11 +9242,9 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
      E:/flow/runs/flow/acceptance-review-block-a-r4.md
      E:/flow/runs/flow/acceptance-review-block-a-r5.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -9735,7 +9843,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 16 · schema 1
+## acceptance · variant 17 · schema 1
 
 `acceptance block-a r1` in "an ordered run stops at a parked block"
 
@@ -9768,24 +9876,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -9814,8 +9908,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -9834,11 +9927,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -10363,7 +10454,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 17 · schema 1
+## acceptance · variant 18 · schema 1
 
 `acceptance block-a r2` in "an ordered run stops at a parked block"
 
@@ -10396,24 +10487,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -10442,8 +10519,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -10462,11 +10538,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -10584,7 +10658,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 18 · schema 1
+## acceptance · variant 19 · schema 1
 
 `acceptance block-a r3` in "an ordered run stops at a parked block"
 
@@ -10617,24 +10691,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -10663,8 +10723,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -10684,11 +10743,9 @@ PROCEDURE:
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -10806,7 +10863,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 19 · schema 1
+## acceptance · variant 20 · schema 1
 
 `acceptance block-a r4` in "an ordered run stops at a parked block"
 
@@ -10839,24 +10896,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -10885,8 +10928,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -10907,11 +10949,9 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -11029,7 +11069,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 20 · schema 1
+## acceptance · variant 21 · schema 1
 
 `acceptance block-a r5` in "an ordered run stops at a parked block"
 
@@ -11062,24 +11102,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -11108,8 +11134,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -11131,11 +11156,9 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
      E:/flow/runs/flow/acceptance-review-block-a-r4.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -11683,7 +11706,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 21 · schema 4
+## acceptance · variant 22 · schema 4
 
 `acceptance block-a r6` in "an ordered run stops at a parked block"
 
@@ -11717,24 +11740,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -11763,8 +11772,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes or observations.
 CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
 each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
@@ -11773,8 +11781,6 @@ each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" i
     changes no blind review has read, which is every gap your RISK AUDIT finds outside its TREE CHECK, a missing risk file included, or a path that changed after its round's snapshot,
     which is every gap your TREE CHECK finds.
   • Not blocking: every other gap, such as a low or nit finding or a cleanup.
-A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
-gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   Read the diff in this order, and never run the entire `git diff` at once:
@@ -11796,11 +11802,9 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
      E:/flow/runs/flow/acceptance-review-block-a-r4.md
      E:/flow/runs/flow/acceptance-review-block-a-r5.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -12627,7 +12631,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 22 · schema 6
+## acceptance · variant 23 · schema 6
 
 `acceptance block-c r1` in "a fix block closes its issues"
 
@@ -12665,23 +12669,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
-actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
-acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
@@ -12716,8 +12707,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
 non-blocking section.
 
@@ -12745,8 +12735,7 @@ PROCEDURE:
    `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
-   baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c.md
-   declines that gap under the OVERRIDE and ledger-line rules above, and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
+   baseline with the unstaged diff closes each gap its **What:** lists and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
 prints a block), and, for a feature or section block, the reachability of its work from real entry points.
    A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, that its **What:** lists counts as closed, since this block's first blind review, which
    runs before any acceptance, judges the entire restored work.
@@ -12771,11 +12760,9 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -13607,7 +13594,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 23 · schema 7
+## acceptance · variant 24 · schema 7
 
 `acceptance block-c r1` in "a fix block closes its issues under the proactive policy"
 
@@ -13645,23 +13632,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's proactive change policy let the developer make, a record. A
     PROACTIVE line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
-actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
-acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
@@ -13712,8 +13686,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
 non-blocking section.
 
@@ -13741,8 +13714,7 @@ PROCEDURE:
    `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
-   baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c.md
-   declines that gap under the OVERRIDE and ledger-line rules above, and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
+   baseline with the unstaged diff closes each gap its **What:** lists and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
 prints a block), and, for a feature or section block, the reachability of its work from real entry points.
    A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, that its **What:** lists counts as closed, since this block's first blind review, which
    runs before any acceptance, judges the entire restored work.
@@ -13767,11 +13739,9 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -14439,7 +14409,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 24 · schema 6
+## acceptance · variant 25 · schema 6
 
 `acceptance block-c r1` in "a fix block that continues no park closes its issues"
 
@@ -14473,23 +14443,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
-actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
-acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 
@@ -14520,8 +14477,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
 non-blocking section.
 
@@ -14563,11 +14519,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -14728,7 +14682,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 25 · schema 7
+## acceptance · variant 26 · schema 7
 
 `acceptance block-c r1` in "a proactive fix block starts round 2 from the statuses it last reported"
 
@@ -14766,23 +14720,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's proactive change policy let the developer make, a record. A
     PROACTIVE line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
-actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
-acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
@@ -14833,8 +14774,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
 non-blocking section.
 
@@ -14862,8 +14802,7 @@ PROCEDURE:
    `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
-   baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c.md
-   declines that gap under the OVERRIDE and ledger-line rules above, and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
+   baseline with the unstaged diff closes each gap its **What:** lists and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
 prints a block), and, for a feature or section block, the reachability of its work from real entry points.
    A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, that its **What:** lists counts as closed, since this block's first blind review, which
    runs before any acceptance, judges the entire restored work.
@@ -14888,11 +14827,9 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -15584,7 +15521,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 26 · schema 7
+## acceptance · variant 27 · schema 7
 
 `acceptance block-c r2` in "a proactive fix block starts round 2 from the statuses it last reported"
 
@@ -15622,23 +15559,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's proactive change policy let the developer make, a record. A
     PROACTIVE line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
-actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
-acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
@@ -15689,8 +15613,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
 non-blocking section.
 
@@ -15718,8 +15641,7 @@ PROCEDURE:
    `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
-   baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c.md
-   declines that gap under the OVERRIDE and ledger-line rules above, and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
+   baseline with the unstaged diff closes each gap its **What:** lists and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
 prints a block), and, for a feature or section block, the reachability of its work from real entry points.
    A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, that its **What:** lists counts as closed, since this block's first blind review, which
    runs before any acceptance, judges the entire restored work.
@@ -15744,11 +15666,9 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-c-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -16468,7 +16388,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 27 · schema 6
+## acceptance · variant 28 · schema 6
 
 `acceptance block-c-plus-1 r1` in "a pass of two fix blocks closes its issues"
 
@@ -16508,23 +16428,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md entries are the developer's judgment calls. A dismissed item that
-actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
-acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c-plus-1.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
@@ -16559,8 +16466,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
 non-blocking section.
 
@@ -16589,8 +16495,7 @@ PROCEDURE:
    `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
-   baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md
-   declines that gap under the OVERRIDE and ledger-line rules above, and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
+   baseline with the unstaged diff closes each gap its **What:** lists and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
 prints a block), and, for a feature or section block, the reachability of its work from real entry points.
    A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, that its **What:** lists counts as closed, since this block's first blind review, which
    runs before any acceptance, judges the entire restored work.
@@ -16617,11 +16522,9 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -16864,7 +16767,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 }
 ~~~~
 
-## acceptance · variant 28 · schema 6
+## acceptance · variant 29 · schema 6
 
 `acceptance block-c r1` in "every issue is already fixed"
 
@@ -16902,23 +16805,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
-actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
-acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
@@ -16953,8 +16843,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
 non-blocking section.
 
@@ -16982,8 +16871,7 @@ PROCEDURE:
    `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
-   baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c.md
-   declines that gap under the OVERRIDE and ledger-line rules above, and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
+   baseline with the unstaged diff closes each gap its **What:** lists and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
 prints a block), and, for a feature or section block, the reachability of its work from real entry points.
    A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, that its **What:** lists counts as closed, since this block's first blind review, which
    runs before any acceptance, judges the entire restored work.
@@ -17008,11 +16896,9 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -19337,7 +19223,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## acceptance · variant 29 · schema 6
+## acceptance · variant 30 · schema 6
 
 `acceptance block-c r1` in "log line cap before the sweep"
 
@@ -19375,23 +19261,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
-actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
-acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
@@ -19426,8 +19299,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
 non-blocking section.
 
@@ -19455,8 +19327,7 @@ PROCEDURE:
    `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
-   baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c.md
-   declines that gap under the OVERRIDE and ledger-line rules above, and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
+   baseline with the unstaged diff closes each gap its **What:** lists and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
 prints a block), and, for a feature or section block, the reachability of its work from real entry points.
    A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, that its **What:** lists counts as closed, since this block's first blind review, which
    runs before any acceptance, judges the entire restored work.
@@ -19481,11 +19352,9 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
@@ -19848,7 +19717,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 30 · schema 4
+## acceptance · variant 31 · schema 4
 
 `acceptance block-a r2` in "a closing acceptance lands the block"
 
@@ -19882,24 +19751,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -19928,8 +19783,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes or observations.
 CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
 each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
@@ -19938,8 +19792,6 @@ each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" i
     changes no blind review has read, which is every gap your RISK AUDIT finds outside its TREE CHECK, a missing risk file included, or a path that changed after its round's snapshot,
     which is every gap your TREE CHECK finds.
   • Not blocking: every other gap, such as a low or nit finding or a cleanup.
-A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
-gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   Read the diff in this order, and never run the entire `git diff` at once:
@@ -19957,11 +19809,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -20566,7 +20416,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 31 · schema 5
+## acceptance · variant 32 · schema 5
 
 `acceptance block-b r2` in "a closing acceptance lands the block"
 
@@ -20600,24 +20450,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-b.md does not exist, so no amendment excuses a criterion.
 
@@ -20646,8 +20482,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes or observations.
 CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
 each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
@@ -20656,8 +20491,6 @@ each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" i
     changes no blind review has read, which is every gap your RISK AUDIT finds outside its TREE CHECK, a missing risk file included, or a path that changed after its round's snapshot,
     which is every gap your TREE CHECK finds.
   • Not blocking: every other gap, such as a low or nit finding or a cleanup.
-A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
-gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   Read the diff in this order, and never run the entire `git diff` at once:
@@ -20675,11 +20508,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-b-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -20853,7 +20684,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 32 · schema 4
+## acceptance · variant 33 · schema 4
 
 `acceptance block-a r2` in "a closing pass gets a blind review"
 
@@ -20887,24 +20718,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -20933,8 +20750,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes or observations.
 CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
 each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
@@ -20943,8 +20759,6 @@ each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" i
     changes no blind review has read, which is every gap your RISK AUDIT finds outside its TREE CHECK, a missing risk file included, or a path that changed after its round's snapshot,
     which is every gap your TREE CHECK finds.
   • Not blocking: every other gap, such as a low or nit finding or a cleanup.
-A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
-gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   Read the diff in this order, and never run the entire `git diff` at once:
@@ -20963,11 +20777,9 @@ PROCEDURE:
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
      E:/flow/runs/flow/gate/quality-review-block-a-r2.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -21106,7 +20918,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 33 · schema 5
+## acceptance · variant 34 · schema 5
 
 `acceptance block-b r2` in "a closing pass gets a blind review"
 
@@ -21140,24 +20952,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-b.md does not exist, so no amendment excuses a criterion.
 
@@ -21186,8 +20984,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes or observations.
 CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
 each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
@@ -21196,8 +20993,6 @@ each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" i
     changes no blind review has read, which is every gap your RISK AUDIT finds outside its TREE CHECK, a missing risk file included, or a path that changed after its round's snapshot,
     which is every gap your TREE CHECK finds.
   • Not blocking: every other gap, such as a low or nit finding or a cleanup.
-A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
-gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   Read the diff in this order, and never run the entire `git diff` at once:
@@ -21216,11 +21011,9 @@ PROCEDURE:
    fresh:
      E:/flow/runs/flow/acceptance-review-block-b-r1.md
      E:/flow/runs/flow/gate/quality-review-block-b-r2.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -21362,7 +21155,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 34 · schema 4
+## acceptance · variant 35 · schema 4
 
 `acceptance block-a r2` in "a closing acceptance finds a blocking gap"
 
@@ -21396,24 +21189,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -21442,8 +21221,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes or observations.
 CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
 each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
@@ -21452,8 +21230,6 @@ each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" i
     changes no blind review has read, which is every gap your RISK AUDIT finds outside its TREE CHECK, a missing risk file included, or a path that changed after its round's snapshot,
     which is every gap your TREE CHECK finds.
   • Not blocking: every other gap, such as a low or nit finding or a cleanup.
-A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
-gap, sorted by the kinds above, unless the line it contests is a held escalation.
 RECORDED ENTRIES. The closing pass listed these backlog entries, each holding a fix it did not make:
      flow-block-a-1
 Before you rely on one, confirm that E:/flow/backlog/repo-0a1b2c3d/<the id without its last "-<n>">.md holds a "### [<the id>]" entry. Each
@@ -21475,11 +21251,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -21775,7 +21549,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## acceptance · variant 35 · schema 5
+## acceptance · variant 36 · schema 5
 
 `acceptance block-b r2` in "a closing acceptance finds a blocking gap"
 
@@ -21809,24 +21583,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-b.md does not exist, so no amendment excuses a criterion.
 
@@ -21855,8 +21615,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes or observations.
 CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
 each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
@@ -21865,8 +21624,6 @@ each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" i
     changes no blind review has read, which is every gap your RISK AUDIT finds outside its TREE CHECK, a missing risk file included, or a path that changed after its round's snapshot,
     which is every gap your TREE CHECK finds.
   • Not blocking: every other gap, such as a low or nit finding or a cleanup.
-A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
-gap, sorted by the kinds above, unless the line it contests is a held escalation.
 RECORDED ENTRIES. The closing pass listed these backlog entries, each holding a fix it did not make:
      flow-block-a-1
 Before you rely on one, confirm that E:/flow/backlog/repo-0a1b2c3d/<the id without its last "-<n>">.md holds a "### [<the id>]" entry. Each
@@ -21888,11 +21645,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-b-r1.md
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -22625,7 +22380,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## quality · variant 3 · schema 1
+## quality · variant 4 · schema 1
 
 `quality block-a r1` in "every block commits first time"
 
@@ -22761,7 +22516,7 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
 }
 ~~~~
 
-## acceptance · variant 36 · schema 8
+## acceptance · variant 37 · schema 8
 
 `acceptance block-a r1` in "every block commits first time"
 
@@ -22794,24 +22549,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
@@ -22840,8 +22581,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -22860,11 +22600,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
@@ -23457,7 +23195,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 37 · schema 9
+## acceptance · variant 38 · schema 9
 
 `acceptance block-b r1` in "every block commits first time"
 
@@ -23490,24 +23228,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
-ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
-OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-b.md does not exist, so no amendment excuses a criterion.
 
@@ -23536,8 +23260,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -23556,11 +23279,9 @@ PROCEDURE:
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -24335,7 +24056,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 38 · schema 10
+## acceptance · variant 39 · schema 10
 
 `acceptance block-c r1` in "a fix block commits"
 
@@ -24373,23 +24094,10 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
 accepts the overwrite, then replace its entire content.
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
-actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
-acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
-Check each such reason against the code it cites. A reason the code contradicts, or one that states no
-checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
-counts as a gap.
-A line whose reason starts `SKIPPED: SPEC:` names a file:line of code and declines a finding because
-the plan prescribes the code, this block's text excludes it, or another block of the plan owns it.
-Check it against this block's text and the plan's other blocks. When none of the three holds, the line
-declines nothing, so its finding counts as a gap.
-A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
-hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
-fails acceptance. Name it in your file as held.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
@@ -24424,8 +24132,7 @@ Every other such break or change is a regression. So is a comment or doc sentenc
 an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.
+when only a change in other code closes it.
 Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
 non-blocking section.
 
@@ -24453,8 +24160,7 @@ PROCEDURE:
    `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
-   baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/flow/runs/flow/gate/DISMISSED-block-c.md
-   declines that gap under the OVERRIDE and ledger-line rules above, and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
+   baseline with the unstaged diff closes each gap its **What:** lists and meets every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
 prints a block), and, for a feature or section block, the reachability of its work from real entry points.
    A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, that its **What:** lists counts as closed, since this block's first blind review, which
    runs before any acceptance, judges the entire restored work.
@@ -24479,11 +24185,9 @@ prints a block), and, for a feature or section block, the reachability of its wo
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
+   For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
+   sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not

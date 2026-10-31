@@ -5164,6 +5164,49 @@ else false, before you write to either file.`;
   }
 }
 
+section('an acceptance prompt leaves out every rule that judges a DISMISSED line when the engine knows the ledger does not exist');
+{
+  const ledger = (id) => `${STATE}/gate/DISMISSED-${id}.md`;
+  const ledgerRules = (id) => [
+    'A DISMISSED line covers exactly what it names',
+    `OVERRIDE: ${ledger(id)} entries are the developer's judgment calls.`,
+    'A line whose reason starts `SKIPPED:` declines a finding',
+    'A line whose reason starts `ESCALATED:` records a default',
+    `that no line in ${ledger(id)} covers`,
+    `${ledger(id)} holds a line for it`,
+    "Once the developer's ledger holds one, the OVERRIDE rule above governs it.",
+  ];
+  const CONTEST = 'A finding this pass\'s blind review raised as "CONTESTS DISMISSAL"';
+  const ORIGIN = `closes each gap its **What:** lists, or a line in ${ledger('fix-a')} declines that gap under the OVERRIDE and ledger-line rules above, and meets`;
+  const ORIGIN_GONE = 'closes each gap its **What:** lists and meets';
+  const CLOSED_ONLY = 'For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the REGRESSION step below, and a grep finds no sibling path that carries the same mechanism. Every other finding or gap counts as a gap.';
+  const REGRESSION_END = 'escalates it when only a change in other code closes it.';
+  // maxRounds 1 with a failing round 1 renders both an ordinary and a closing acceptance of each frame.
+  const withClosing = (dev) => (label) => (label.startsWith('develop-closing') ? { ...dev, review_needed: false, recorded_entries: [] } : dev);
+  const prompts = async (files) => {
+    const feature = await run({ develop: withClosing({ ...DEV_OK, ...files }), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 });
+    const fix = await run({ develop: withClosing(fixDev([{ issue_id: 'i-1', status: 'FIXED' }], files)), quality: CLEAN, acceptance: FIX_GAP, park: PARK_OK }, { ...FIX_ONE, maxRounds: 1 });
+    return [['block-a', 'r1', feature], ['block-a', 'r2', feature], ['fix-a', 'r1', fix], ['fix-a', 'r2', fix]]
+      .map(([id, round, r]) => ({ id, round, a: flat(r.prompt(`acceptance ${id} ${round}`)) }));
+  };
+
+  for (const { id, round, a } of await prompts({ earlier_files: false, dismissed_count: 0, plan_amendments: 0 })) {
+    const what = `absent ledger, ${id} ${round}`;
+    ok(a.includes(`${ledger(id)} does not exist, so no finding of this block is declined.`), `${what}: SETTLED says the ledger does not exist`);
+    ok(ledgerRules(id).every((t) => !a.includes(t)) && !a.includes(CONTEST), `${what}: no rule that judges a ledger line renders`);
+    ok(a.includes(CLOSED_ONLY), `${what}: the earlier-findings step confirms only that the code closes each finding`);
+    ok(a.includes(`${REGRESSION_END} Drop any other concern silently`), `${what}: the regression rule ends without the OVERRIDE tail`);
+    if (id === 'fix-a') ok(a.includes(ORIGIN_GONE) && !a.includes(ORIGIN), `${what}: the origin clause drops its DISMISSED alternative`);
+  }
+  for (const { id, round, a } of await prompts({ earlier_files: false, dismissed_count: 1, plan_amendments: 0 })) {
+    const what = `present ledger, ${id} ${round}`;
+    ok(ledgerRules(id).every((t) => a.includes(t)), `${what}: every rule that judges a ledger line renders`);
+    ok(!a.includes(CLOSED_ONLY), `${what}: the earlier-findings step keeps its ledger clause`);
+    ok(a.includes(CONTEST) === (round === 'r2'), `${what}: the CONTESTS DISMISSAL sentence renders only in the closing bar`);
+    if (id === 'fix-a') ok(a.includes(ORIGIN) && !a.includes(ORIGIN_GONE), `${what}: the origin clause keeps its DISMISSED alternative`);
+  }
+}
+
 section('the park prompt renders the ledger and amended lines and their existence checks only for a file that may exist');
 {
   const NONE_FILES = { ...DEV_OK, earlier_files: false, dismissed_count: 0, plan_amendments: 0 };

@@ -505,7 +505,7 @@ Review the CURRENT diff FRESH, catching new or nearby issues.` : `Before reviewi
   • ${DECISIONS} — defaults the developer took, plan amendment pointers, and one line per ${BASELINE_FIX} that
     this run's ${CHANGE_POLICY} change policy let the developer make, a record. A
     ${LOGGED_FIX_TAG} line is never skipped for its stated reason, since the regression rule below judges each one.`}
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON.${dismissedAbsent ? '' : ' A DISMISSED line covers exactly what it names: one place, or every place in the class it names.'} Review the CURRENT
 diff FRESH, catching new or nearby issues.${canContest ? `
 Before you skip a listed finding, check its stated reason against the code it cites. When the code
 contradicts a reason, at any tier, raise the finding ONCE, prefixed "CONTESTS DISMISSAL:", citing the
@@ -1120,7 +1120,7 @@ const CHECKLIST = `CHECKLIST:
 const DOC_REGRESSION = "a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false";
 // One rule for both acceptance frames, so they cannot drift. Its removed-defect item repeats the zones the
 // developer's rules let it change, which nothing else checks.
-const regressionRule = (id, mode) => {
+const regressionRule = (id, mode, dismissedAbsent) => {
   const prescriber = mode === 'fix' ? "an entry's **Fix:**" : "this block's own text";
   return `${CODE_ZONES(mode)}
 A regression is any behavior the accepted baseline (${BASELINE_DEF}) gave a caller or
@@ -1142,8 +1142,8 @@ Every other such break or change is a regression. So is ${DOC_REGRESSION}. Count
 ${prescriber} prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when ${prescriber} prescribes it, or escalates it
-when only a change in other code closes it. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it.`;
+when only a change in other code closes it.${dismissedAbsent ? '' : ` Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.`}`;
 };
 const REGRESSION_STEP = `REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
@@ -1638,16 +1638,19 @@ found no finding and contested no dismissal), issue_count (every finding you wro
 contested_dismissals via the schema. Do NOT modify source, stage, or commit.`;
 
 // Read after step 1, so the verifier's own first judgment stays unanchored (#5).
-const earlierFindingsStep = (p, earlierReviews) => `EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
+const earlierFindingsStep = (p, earlierReviews, dismissedAbsent) => {
+  const closed = `the current code closes it, the edit that closes it breaks nothing under the
+   REGRESSION step below, and a grep finds no
+   sibling path that carries the same mechanism`;
+  return `EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
 ${earlierReviews.map((path) => `     ${path}`).join('\n') || '     (none: no review in this run has flagged this block)'}
-   For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
-   REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in ${dismissedFile(p.id)} covers, or (b)
+   For each finding or gap in them, confirm ${dismissedAbsent ? `that ${closed}.` : `one of: (a) ${closed} and that no line in ${dismissedFile(p.id)} covers, or (b)
    ${dismissedFile(p.id)} holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
-   item still fails acceptance. Every other finding or gap counts as a gap. ${RISK_GAPS} is closed, since the engine runs a blind review
+   item still fails acceptance.`} Every other finding or gap counts as a gap. ${RISK_GAPS} is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.`;
+};
 
 // A round's base is the round before it. Round 1 is never audited, since the block's first blind review
 // covers it before any acceptance runs.
@@ -1757,7 +1760,7 @@ const indexCheck = (indexTree) => `INDEX CHECK, before any \`git add\`: run \`gi
 // No develop round follows the closing acceptance, so it lands a block whose open gaps are not blocking. A
 // wrong risk answer is blocking only when no blind review read its changes, since the review is what the answer gated.
 // A tree-check gap blocks whether or not a blind review ran, since the tree it finds is not the one the round handed on.
-const closingBar = (mode) => `CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
+const closingBar = (mode, dismissedAbsent) => `CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
 each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
   • Blocking: a regression, a gate not satisfied, ${mode === 'fix'
     ? `an ACTIONABLE entry whose root cause is not closed (an incomplete claimed fix, an unconfirmed STALE claim or an ACTIONABLE entry reported SKIPPED or left unreported), a change made for an entry that is not ACTIONABLE or a change that no FIXED claim${PROACTIVE ? ' of an entry or a pulled entry' : ''} accounts for`
@@ -1765,9 +1768,9 @@ each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" i
     medium severity or higher that this block's diff introduces, ${WRONG_RISK_ANSWER} or ${SWEEP_GAP}, in
     changes no blind review has read, which is every gap your RISK AUDIT finds outside its TREE CHECK, a missing risk file included, or ${CHANGED_PATH},
     which is every gap your TREE CHECK finds.
-  • Not blocking: every other gap, such as a low or nit finding or a cleanup.
+  • Not blocking: every other gap, such as a low or nit finding or a cleanup.${dismissedAbsent ? '' : `
 A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
-gap, sorted by the kinds above, unless the line it contests is a held escalation.`;
+gap, sorted by the kinds above, unless the line it contests is a held escalation.`}`;
 
 // The park entry names each id the closing pass listed, so an id that names no entry would point the user nowhere.
 // `recorded` is null when the closing pass gave no usable list.
@@ -1855,10 +1858,10 @@ BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
 ${ROUND_NOTE(round)}
 ${TOOLS_LINE}
 
-${SETTLED(p.id, false, continuesPark(p), absent.dismissed)}
+${SETTLED(p.id, false, continuesPark(p), absent.dismissed)}${absent.dismissed ? '' : `
 OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
-acceptance for it and record it in your review file. ${LEDGER_LINES}
+acceptance for it and record it in your review file. ${LEDGER_LINES}`}
 
 ${amendmentsSection(p.id, { overridden: '**Fix:** instructions', judged: 'issue', unexcused: 'that issue stays actually_fixed=false', origin: continuesPark(p) }, absent.amended)}
 ${pulledAcceptance(p, round, pulledReported, absent.pulled)}
@@ -1866,9 +1869,9 @@ EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a
 (actually_fixed=false), an unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED or left unreported, a touched entry that is not ACTIONABLE,
 a non-empty diff with no FIXED claim${PROACTIVE ? ' of an entry or a pulled entry' : ''}, a gate not satisfied, an earlier finding that is neither closed
 nor declined, a failed risk audit, or a regression.
-${regressionRule(p.id, 'fix')}
+${regressionRule(p.id, 'fix', absent.dismissed)}
 Drop any other concern silently, except a new issue (step 1). ${round === CLOSING_ROUND
-    ? `Your file holds no notes or observations.\n${closingBar('fix')}${recordedEntriesCheck(closingRecorded)}`
+    ? `Your file holds no notes or observations.\n${closingBar('fix', absent.dismissed)}${recordedEntriesCheck(closingRecorded)}`
     : 'Your file holds no notes, observations or\nnon-blocking section.'}
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -1892,8 +1895,8 @@ ${claimedFixed.map((id) => `     - ${id}`).join('\n') || '     (none claimed fix
    \`git -C ${REPO} diff <branch>^1 <branch> -- <file>\` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
-   baseline with the unstaged diff closes each gap its **What:** lists, or a line in ${dismissedFile(p.id)}
-   declines that gap under the OVERRIDE and ledger-line rules above, and meets ${ORIGIN_CRITERIA}.
+   baseline with the unstaged diff closes each gap its **What:** lists${absent.dismissed ? '' : `, or a line in ${dismissedFile(p.id)}
+   declines that gap under the OVERRIDE and ledger-line rules above,`} and meets ${ORIGIN_CRITERIA}.
    ${RISK_GAPS} that its **What:** lists counts as closed, since this block's first blind review, which
    runs before any acceptance, judges the entire restored work.` : ''}
    A harm an entry lists can come from a DIFFERENT mechanism: a cause that shares no code path with the
@@ -1909,7 +1912,7 @@ ${claimedStale.map((id) => `     - ${id}`).join('\n') || '     (none reported st
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
    Return a fix_check for it too. A STALE
    claim you cannot confirm is actually_fixed=false and fails acceptance exactly like an unclosed FIXED claim.
-2. ${earlierFindingsStep(p, earlierReviews)}
+2. ${earlierFindingsStep(p, earlierReviews, absent.dismissed)}
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose \`- decision:\` is not
    ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
    entry is the user's call. The developer reports these issues SKIPPED:
@@ -1987,19 +1990,19 @@ BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
 ${ROUND_NOTE(round)}
 ${TOOLS_LINE}
 
-${SETTLED(p.id, false, false, absent.dismissed)}
+${SETTLED(p.id, false, false, absent.dismissed)}${absent.dismissed ? '' : `
 OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-${LEDGER_LINES}
+${LEDGER_LINES}`}
 
 ${amendmentsSection(p.id, { overridden: 'plan clauses', judged: 'criterion', unexcused: 'that criterion stays UNMET' }, absent.amended)}
 ${pulledAcceptance(p, round, pulledReported, absent.pulled)}
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
-${regressionRule(p.id, p.mode)}
+${regressionRule(p.id, p.mode, absent.dismissed)}
 Drop any other concern silently. ${round === CLOSING_ROUND
-    ? `Your file holds no notes or observations.\n${closingBar(p.mode)}${recordedEntriesCheck(closingRecorded)}`
+    ? `Your file holds no notes or observations.\n${closingBar(p.mode, absent.dismissed)}${recordedEntriesCheck(closingRecorded)}`
     : 'Your file holds no notes, observations or non-blocking section.'}
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
@@ -2012,7 +2015,7 @@ PROCEDURE:
    (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
    test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
    locator in your review file. A criterion asserted without one is not met.
-2. ${earlierFindingsStep(p, earlierReviews)}
+2. ${earlierFindingsStep(p, earlierReviews, absent.dismissed)}
 3. ${reachStep}
 4. ${REGRESSION_STEP}
 5. ${gateStep}

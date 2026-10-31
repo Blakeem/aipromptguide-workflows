@@ -988,8 +988,9 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   `launch unrecorded`) and `earlier_files` (true when the block's `DISMISSED-<id>.md` or
   `AMENDED-<id>.md` existed before it wrote. Only `false` there, with no round, round 1 included,
   appending to a file, lets the blind review, acceptance and park (and, for DISMISSED, each later
-  developer round) say that file does not exist in place of a read step, so any other value keeps
-  every read step. Under `proactive`, a round-1 `pulled_results` of `[]` does the same for
+  developer round) say that file does not exist in place of a read step, and an absent DISMISSED file
+  also drops every acceptance rule that judges its lines. Any other value keeps every read step and
+  rule. Under `proactive`, a round-1 `pulled_results` of `[]` does the same for
   `PULLED-<id>.md`. Neither counts from a round 1 that reported `plan_obtained=false` or
   `needs_user=true`, since it may have stopped before those steps) · acceptance's `index_matched`
   (false halts `staging-unconfirmed`, and a
