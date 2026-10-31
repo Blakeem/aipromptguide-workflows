@@ -32,6 +32,8 @@ const SEARCH_RE = /^search:[ \t]*(.*?)[ \t]*$/;
 const SCOPE_RE = /^scope:[ \t]*(.*?)[ \t]*$/;
 const HIT_COUNT_RE = /^-[ \t]+(.+?)[ \t]+\((\d+) hits?\)[ \t]+(updated|unaffected)[ \t]*:[ \t]*(.*?)[ \t]*$/;
 const HIT_LINE_RE = /^-[ \t]+(.+?):(\d+)[ \t]+(updated|unaffected)[ \t]*:[ \t]*(.*?)[ \t]*$/;
+const REASON_PLACEHOLDER = '<reason>';
+const VERDICT_CHOICE = 'updated|unaffected';
 const ANSWER_SHAPE = '`no`, `no: <note>` or `yes: <evidence>`';
 const HIT_SHAPE = '`- <path>:<line> updated|unaffected: <reason>` or `- <path> (<n> hits) updated|unaffected: <reason>`';
 // A git grep of a common word can print megabytes, which the default child buffer would cut.
@@ -199,9 +201,15 @@ function readSweepLine(searches, search, line, n, errors) {
   const count = line.match(HIT_COUNT_RE);
   const single = count ? null : line.match(HIT_LINE_RE);
   const hit = count ? { path: count[1], lineNo: null, count: Number(count[2]), reason: count[4] } : single ? { path: single[1], lineNo: Number(single[2]), count: null, reason: single[4] } : null;
+  const oneVerdict = line.replace(VERDICT_CHOICE, 'updated');
+  if (!hit && oneVerdict !== line && (HIT_COUNT_RE.test(oneVerdict) || HIT_LINE_RE.test(oneVerdict))) {
+    errors.push(`line ${n} keeps \`${VERDICT_CHOICE}\` as printed, and a hit line takes one verdict`);
+    return search;
+  }
   if (!hit) { errors.push(`line ${n} is no sweep line: a search block holds \`search:\`, \`scope:\` and hit lines ${HIT_SHAPE}, got "${line.slice(0, 80)}"`); return search; }
   if (!search.scope) errors.push(`line ${n} lists a hit before the \`scope:\` line of the search on line ${search.line}`);
   if (!hit.reason) errors.push(`line ${n} marks a hit with no reason`);
+  else if (hit.reason === REASON_PLACEHOLDER) errors.push(`line ${n} still holds the printed reason \`${REASON_PLACEHOLDER}\`, and the line takes the reason the verdict rests on`);
   search.hits.push({ ...hit, line: n });
   return search;
 }
@@ -236,7 +244,11 @@ export function sweepProblems(searches, { found, scopeMatches, top }) {
       listed.add(key);
     }
     for (const h of hits) {
-      if (!listed.has(keyOf(h.path, h.line)) && !counted.has(h.path)) leftOut.push(`left out: the search on line ${s.line} ("${s.literal.slice(0, 60)}") finds ${h.path}:${h.line}: ${h.text.trim().slice(0, 120)}`);
+      if (listed.has(keyOf(h.path, h.line)) || counted.has(h.path)) continue;
+      leftOut.push([
+        `left out: the search on line ${s.line} ("${s.literal.slice(0, 60)}") finds ${h.path}:${h.line}: ${h.text.trim().slice(0, 120)}`,
+        `- ${h.path}:${h.line} ${VERDICT_CHOICE}: ${REASON_PLACEHOLDER}`,
+      ]);
     }
   }
   return { errors, leftOut };
@@ -253,14 +265,16 @@ export function checkText(text, { file, snapshot, found, scopeMatches, top }) {
     errors.unshift(`line 1 holds the snapshot ${parsed.snapshot}, not ${snapshot}. A file an earlier launch left, or one written before the round's last change, is replaced in full`);
   }
   const sweep = sweepProblems(parsed.searches, { found, scopeMatches, top });
-  const problems = [...errors, ...sweep.errors].map((e) => `error: ${e}`).concat(sweep.leftOut);
+  const errorLines = [...errors, ...sweep.errors].map((e) => `error: ${e}`);
+  const problemCount = errorLines.length + sweep.leftOut.length;
+  const problemLines = [...errorLines, ...sweep.leftOut.flat()];
 
   // Output
   // A file with a format error or another launch's snapshot is rewritten, and only the skeleton run showed the format.
   const formatHelp = errors.length ? ['', FORMAT] : [];
   const riskLine = parsed.lowRisk === null ? [] : [`low risk: ${parsed.lowRisk ? 'yes' : 'no'}`];
-  return problems.length
-    ? { lines: [`${problems.length} problem(s):`, ...problems, ...formatHelp, ...riskLine], code: EXIT.problems }
+  return problemCount
+    ? { lines: [`${problemCount} problem(s):`, ...problemLines, ...formatHelp, ...riskLine], code: EXIT.problems }
     : { lines: [`ok: ${file}`, ...riskLine], code: EXIT.ok };
 }
 

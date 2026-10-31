@@ -84,6 +84,15 @@ section('the rerun search finds every hit the file leaves out, in plain and esca
   const leftOut = check(repo, tree, fileOf(tree, ALL_HITS.filter((l) => !l.includes('src/b.md'))));
   eq(leftOut.code, 1, 'a left-out hit fails the check');
   ok(leftOut.lines.some((l) => l === 'left out: the search on line 10 ("the old rule") finds src/b.md:2: the old rule again'), `the left-out hit is named with its text: ${leftOut.lines.join(' | ')}`);
+  const printedAt = leftOut.lines.indexOf('left out: the search on line 10 ("the old rule") finds src/b.md:2: the old rule again');
+  eq(leftOut.lines[printedAt + 1], '- src/b.md:2 updated|unaffected: <reason>', 'the sweep line for the hit prints right under its left out line');
+  ok(leftOut.lines.includes('1 problem(s):'), 'a left-out hit counts as one problem, whatever lines it prints');
+  const withLine = (line) => fileOf(tree, [...ALL_HITS.filter((l) => !l.includes('src/b.md')), line]);
+  eq(check(repo, tree, withLine('- src/b.md:2 unaffected: prose example')).code, 0, 'the printed line passes once its verdict and reason are filled in');
+  const asPrinted = check(repo, tree, withLine(leftOut.lines[printedAt + 1]));
+  ok(asPrinted.code === 1 && asPrinted.lines.some((l) => l.startsWith('error:') && l.includes('keeps `updated|unaffected` as printed, and a hit line takes one verdict')), `the line as printed fails the check: ${asPrinted.lines.join(' | ')}`);
+  const unreasoned = check(repo, tree, withLine('- src/b.md:2 updated: <reason>'));
+  ok(unreasoned.code === 1 && unreasoned.lines.some((l) => l.startsWith('error:') && l.includes('still holds the printed reason `<reason>`')), `a verdict kept with the printed reason fails the check: ${unreasoned.lines.join(' | ')}`);
   ok(!leftOut.lines.some((l) => l.includes('src/b.md:1')), 'the search is case-sensitive, so "The old rule" is no hit');
   eq(leftOut.lines.at(-1), 'low risk: yes', 'the low-risk line still prints');
   ok(!leftOut.lines.includes(FORMAT), 'a left-out hit alone prints no format');

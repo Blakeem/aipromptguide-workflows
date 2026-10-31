@@ -256,14 +256,15 @@ per hit, `- <path>:<line> updated|unaffected: <reason>`, or `- <path> (<n> hits)
 the text as written and as a `'`, `"` or backtick source string escapes it, since a plain grep misses
 `block\'s`. It reports as an error each format break, each skeleton slot left in place, a Snapshot line that
 differs from `--snapshot`, a scope that names no file, a listed hit the search does not find, a hit listed
-twice and a hit count that differs. It prints each hit the file leaves out as a `left out:` line with its
-text. Exit 0 prints `ok: <file>`, and exit 1 prints the problem count and each problem, then `FORMAT` when
-a problem is a format error or a Snapshot line that differs. Both end
-`low risk: yes|no` once every answer parses, `yes` only when every answer is `no`. A usage error, a
-`--snapshot` the repo holds no tree for, a `--repo` outside git and a failed git call exit 2 on stderr and
-write nothing. A test compares `RISK_KEYS` with the question names develop's `RISK_QUESTIONS` renders, and
-`SNAPSHOT_LINE`, `SWEEP_HEADING` and `NO_CHANGES` with develop's own copies. The
-prompts keep the content rules, such as which names a sweep searches and what makes an answer yes.
+twice, a hit count that differs and a reason left as `<reason>`. It prints each hit the file leaves out as a
+`left out:` line with its text, and under it the sweep line `- <path>:<line> updated|unaffected: <reason>` to
+copy into the search block. A line copied as printed fails the check. Exit 0 prints `ok: <file>`, and exit 1
+prints the problem count and each problem, then `FORMAT` when a problem is a format error or a Snapshot line
+that differs. Both end `low risk: yes|no` once every answer parses, `yes` only when every answer is `no`. A
+usage error, a `--snapshot` the repo holds no tree for, a `--repo` outside git and a failed git call exit 2 on
+stderr and write nothing. A test compares `RISK_KEYS` with the question names develop's `RISK_QUESTIONS`
+renders, and `SNAPSHOT_LINE`, `SWEEP_HEADING` and `NO_CHANGES` with develop's own copies. The prompts keep the
+content rules, such as which names a sweep searches and what makes an answer yes.
 
 ## review-check.mjs
 
