@@ -256,7 +256,7 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
   const evalSchema = (expr, unknown) => {
     const scope = new Proxy({}, { has: (t, k) => typeof k === 'string' && !(k in globalThis), get: () => unknown });
     let v = new Function('__s', 'with (__s) { return (' + expr + '); }')(scope);
-    if (typeof v === 'function') v = v();     // develop-cycle.mjs builds developSchema(mode, closing) and others from args
+    if (typeof v === 'function') v = v();     // develop-cycle.mjs builds developSchema(mode, closing, round1) and others from args
     return v;
   };
 
@@ -327,7 +327,7 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
    * Every schema an agent() call is handed, ONE RECORD PER SITE — never a flattened per-engine field set,
    * which is what let two schemas' same-named fields cover for each other.
    * Driven off `schema:` sites rather than `*_SCHEMA` consts on purpose: develop-cycle.mjs passes
-   * `developSchema(mode, closing)`, and an extractor blind to a function-built schema would miss every
+   * `developSchema(mode, closing, round1)`, and an extractor blind to a function-built schema would miss every
    * field of the developer's return.
    * @returns {{sites:Array<{line:number,name:string,recv:string[],recvKind:string,keys:string[]}>,
    *            scan:string, errors:string[]}} `scan` is the masked source with the schema declarations
@@ -439,14 +439,14 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
       `${rel} — no attestation theater${unread.length ? ` — declared but never read THROUGH ITS OWN RECEIVER: ${unread.join(', ')}. Consume each (a guard, or surface it in the log line) or delete it from the schema AND the prompt text demanding it` : ''}`);
   }
   // The function-built schema specifically. `baseline_dirty_files` is reachable ONLY through
-  // developSchema(mode, closing), so this is what fails if the extractor ever regresses to `*_SCHEMA` consts —
+  // developSchema(mode, closing, round1), so this is what fails if the extractor ever regresses to `*_SCHEMA` consts —
   // silently, since every const-declared schema would still resolve and the sweep would look green. Asserted
   // on the SITE, not on a per-engine union: a union would still pass if some other schema grew that name.
   {
     const s = readSchemas(readFileSync(join(REPO_ROOT, 'workflows/develop/develop-cycle.mjs'), 'utf8'));
     const site = s.sites.find((x) => x.name === 'developSchema');
     ok(!!site && site.keys.includes('baseline_dirty_files'),
-      `the extractor reads FUNCTION-BUILT schemas too — develop-cycle.mjs's developSchema(mode, closing) SITE contributed baseline_dirty_files${site ? '' : ' — no developSchema site was found at all'}`);
+      `the extractor reads FUNCTION-BUILT schemas too — develop-cycle.mjs's developSchema(mode, closing, round1) SITE contributed baseline_dirty_files${site ? '' : ' — no developSchema site was found at all'}`);
   }
   // Cannot-rot: a FALLBACK entry whose site is gone, or whose return is bound to a variable now, is a
   // permanent excuse for coverage nobody is missing anymore.

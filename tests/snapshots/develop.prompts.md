@@ -15,56 +15,56 @@ this file is stale.
 | develop | 3 | 2 | 35028 | a feature block accepts under the proactive policy |
 | acceptance | 3 | 3 | 14707 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 4610 | a feature block accepts under the proactive policy |
-| develop | 4 | 1 | 30795 | quality flags the first round |
+| develop | 4 | 3 | 30718 | quality flags the first round |
 | acceptance | 4 | 1 | 13406 | quality flags the first round |
-| develop | 5 | 1 | 31165 | quality flags the first round |
+| develop | 5 | 3 | 31088 | quality flags the first round |
 | acceptance | 5 | 2 | 13687 | quality flags the first round |
-| develop | 6 | 1 | 30791 | acceptance finds gaps, then passes |
+| develop | 6 | 3 | 30714 | acceptance finds gaps, then passes |
 | acceptance | 6 | 1 | 13404 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 31161 | acceptance finds gaps, then passes |
+| develop | 7 | 3 | 31084 | acceptance finds gaps, then passes |
 | acceptance | 7 | 2 | 13685 | acceptance finds gaps, then passes |
 | acceptance | 8 | 1 | 17199 | a later round is judged low risk |
 | acceptance | 9 | 2 | 17480 | a later round is judged low risk |
 | quality | 2 | 1 | 9185 | the developer declines a finding |
 | acceptance | 10 | 1 | 15257 | the developer declines a finding |
-| develop | 8 | 1 | 29617 | the gate never goes green |
-| develop-closing | 1 | 1 | 31239 | the gate never goes green |
+| develop | 8 | 3 | 29540 | the gate never goes green |
+| develop-closing | 1 | 1 | 31162 | the gate never goes green |
 | quality | 3 | 1 | 8461 | the gate never goes green |
 | acceptance | 11 | 4 | 16608 | the gate never goes green |
 | park | 1 | 1 | 10319 | the gate never goes green |
-| develop | 9 | 1 | 30042 | the gate never goes green |
-| develop-closing | 2 | 1 | 31609 | the gate never goes green |
+| develop | 9 | 3 | 29965 | the gate never goes green |
+| develop-closing | 2 | 1 | 31532 | the gate never goes green |
 | acceptance | 12 | 5 | 16889 | the gate never goes green |
 | acceptance | 13 | 1 | 13459 | a parked block, and the run carries on |
 | acceptance | 14 | 1 | 13514 | a parked block, and the run carries on |
 | acceptance | 15 | 1 | 13569 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 32257 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 32180 | a parked block, and the run carries on |
 | acceptance | 16 | 4 | 20618 | a parked block, and the run carries on |
 | develop | 10 | 1 | 31616 | an ordered run stops at a parked block |
 | acceptance | 17 | 1 | 13401 | an ordered run stops at a parked block |
-| develop | 11 | 1 | 30773 | an ordered run stops at a parked block |
+| develop | 11 | 3 | 30696 | an ordered run stops at a parked block |
 | acceptance | 18 | 1 | 13398 | an ordered run stops at a parked block |
 | acceptance | 19 | 1 | 13453 | an ordered run stops at a parked block |
 | acceptance | 20 | 1 | 13508 | an ordered run stops at a parked block |
 | acceptance | 21 | 1 | 13563 | an ordered run stops at a parked block |
-| develop-closing | 4 | 1 | 32239 | an ordered run stops at a parked block |
+| develop-closing | 4 | 1 | 32162 | an ordered run stops at a parked block |
 | acceptance | 22 | 4 | 20612 | an ordered run stops at a parked block |
 | park | 2 | 1 | 10331 | an ordered run stops at a parked block |
-| develop | 12 | 3 | 40678 | a fix block closes its issues |
+| develop | 12 | 4 | 40678 | a fix block closes its issues |
 | acceptance | 23 | 6 | 21496 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 4610 | a fix block closes its issues |
-| develop | 13 | 4 | 44154 | a fix block closes its issues under the proactive policy |
+| develop | 13 | 5 | 44154 | a fix block closes its issues under the proactive policy |
 | acceptance | 24 | 7 | 23003 | a fix block closes its issues under the proactive policy |
-| develop | 14 | 3 | 34601 | a fix block that continues no park closes its issues |
+| develop | 14 | 4 | 34601 | a fix block that continues no park closes its issues |
 | acceptance | 25 | 6 | 18814 | a fix block that continues no park closes its issues |
 | acceptance | 26 | 7 | 23017 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 15 | 4 | 35442 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 15 | 6 | 35365 | a proactive fix block starts round 2 from the statuses it last reported |
 | acceptance | 27 | 7 | 22816 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 16 | 3 | 41032 | a pass of two fix blocks closes its issues |
+| develop | 16 | 4 | 41032 | a pass of two fix blocks closes its issues |
 | acceptance | 28 | 6 | 21781 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 4640 | a pass of two fix blocks closes its issues |
 | acceptance | 29 | 6 | 21495 | every issue is already fixed |
-| develop | 17 | 3 | 40660 | an ordered run stops on a fix block that closes nothing |
+| develop | 17 | 4 | 40660 | an ordered run stops on a fix block that closes nothing |
 | park | 3 | 1 | 10634 | passed with a regression, not staged |
 | park | 4 | 1 | 10080 | acceptance stages a rejected block |
 | park | 5 | 1 | 10487 | the quality reviewer fails a block without its file |
@@ -80,7 +80,7 @@ this file is stale.
 | park | 15 | 1 | 9892 | developer escalates in an ordered run |
 | acceptance | 30 | 6 | 23949 | log line cap before the sweep |
 | acceptance | 31 | 4 | 20398 | a closing acceptance lands the block |
-| develop-closing | 5 | 1 | 32627 | a closing acceptance lands the block |
+| develop-closing | 5 | 1 | 32550 | a closing acceptance lands the block |
 | acceptance | 32 | 5 | 20679 | a closing acceptance lands the block |
 | acceptance | 33 | 4 | 16662 | a closing pass gets a blind review |
 | acceptance | 34 | 5 | 16943 | a closing pass gets a blind review |
@@ -88,13 +88,13 @@ this file is stale.
 | park | 16 | 1 | 10469 | a closing acceptance finds a blocking gap |
 | acceptance | 36 | 5 | 20972 | a closing acceptance finds a blocking gap |
 | park | 17 | 1 | 10469 | a closing acceptance finds a blocking gap |
-| develop | 18 | 5 | 31805 | every block commits first time |
+| develop | 18 | 7 | 31805 | every block commits first time |
 | quality | 4 | 1 | 8354 | every block commits first time |
 | acceptance | 37 | 8 | 14946 | every block commits first time |
-| develop | 19 | 5 | 32230 | every block commits first time |
+| develop | 19 | 7 | 32230 | every block commits first time |
 | acceptance | 38 | 9 | 15227 | every block commits first time |
 | final-sweep | 5 | 1 | 4931 | every block commits first time |
-| develop | 20 | 6 | 40880 | a fix block commits |
+| develop | 20 | 8 | 40880 | a fix block commits |
 | acceptance | 39 | 10 | 23252 | a fix block commits |
 | final-sweep | 6 | 1 | 4838 | a fix block commits |
 | park | 18 | 1 | 10086 | acceptance commits a rejected block |
@@ -438,19 +438,19 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_index_tree": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
+      "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
     },
     "launch_number": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
+      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
+      "description": "true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false."
     },
     "review_needed": {
       "type": "boolean",
@@ -1210,19 +1210,19 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_index_tree": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
+      "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
     },
     "launch_number": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
+      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
+      "description": "true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false."
     },
     "review_needed": {
       "type": "boolean",
@@ -1981,19 +1981,19 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_index_tree": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
+      "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
     },
     "launch_number": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
+      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
+      "description": "true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false."
     },
     "review_needed": {
       "type": "boolean",
@@ -2388,7 +2388,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 }
 ~~~~
 
-## develop · variant 4 · schema 1
+## develop · variant 4 · schema 3
 
 `develop block-a r2` in "quality flags the first round"
 
@@ -2415,7 +2415,6 @@ BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/gate/quality-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
-Report baseline_dirty_files=-1, baseline_index_tree "" and launch_number=-1.
 E:/flow/runs/flow/gate/DISMISSED-block-a.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -2678,10 +2677,6 @@ Return ONLY the decision fields via the schema (no prose report).
   "required": [
     "plan_obtained",
     "relayed_request",
-    "baseline_dirty_files",
-    "baseline_index_tree",
-    "launch_number",
-    "earlier_files",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -2703,22 +2698,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request": {
       "type": "boolean",
       "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
-    },
-    "baseline_dirty_files": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
-    },
-    "baseline_index_tree": {
-      "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
-    },
-    "earlier_files": {
-      "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
     },
     "review_needed": {
       "type": "boolean",
@@ -2999,7 +2978,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## develop · variant 5 · schema 1
+## develop · variant 5 · schema 3
 
 `develop block-b r2` in "quality flags the first round"
 
@@ -3027,7 +3006,6 @@ GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/gate/quality-review-block-b-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
-Report baseline_dirty_files=-1, baseline_index_tree "" and launch_number=-1.
 E:/flow/runs/flow/gate/DISMISSED-block-b.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -3293,10 +3271,6 @@ Return ONLY the decision fields via the schema (no prose report).
   "required": [
     "plan_obtained",
     "relayed_request",
-    "baseline_dirty_files",
-    "baseline_index_tree",
-    "launch_number",
-    "earlier_files",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -3318,22 +3292,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request": {
       "type": "boolean",
       "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
-    },
-    "baseline_dirty_files": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
-    },
-    "baseline_index_tree": {
-      "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
-    },
-    "earlier_files": {
-      "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
     },
     "review_needed": {
       "type": "boolean",
@@ -3617,7 +3575,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## develop · variant 6 · schema 1
+## develop · variant 6 · schema 3
 
 `develop block-a r2` in "acceptance finds gaps, then passes"
 
@@ -3644,7 +3602,6 @@ BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
-Report baseline_dirty_files=-1, baseline_index_tree "" and launch_number=-1.
 E:/flow/runs/flow/gate/DISMISSED-block-a.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -3907,10 +3864,6 @@ Return ONLY the decision fields via the schema (no prose report).
   "required": [
     "plan_obtained",
     "relayed_request",
-    "baseline_dirty_files",
-    "baseline_index_tree",
-    "launch_number",
-    "earlier_files",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -3932,22 +3885,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request": {
       "type": "boolean",
       "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
-    },
-    "baseline_dirty_files": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
-    },
-    "baseline_index_tree": {
-      "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
-    },
-    "earlier_files": {
-      "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
     },
     "review_needed": {
       "type": "boolean",
@@ -4228,7 +4165,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## develop · variant 7 · schema 1
+## develop · variant 7 · schema 3
 
 `develop block-b r2` in "acceptance finds gaps, then passes"
 
@@ -4256,7 +4193,6 @@ GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-b-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
-Report baseline_dirty_files=-1, baseline_index_tree "" and launch_number=-1.
 E:/flow/runs/flow/gate/DISMISSED-block-b.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -4522,10 +4458,6 @@ Return ONLY the decision fields via the schema (no prose report).
   "required": [
     "plan_obtained",
     "relayed_request",
-    "baseline_dirty_files",
-    "baseline_index_tree",
-    "launch_number",
-    "earlier_files",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -4547,22 +4479,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request": {
       "type": "boolean",
       "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
-    },
-    "baseline_dirty_files": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
-    },
-    "baseline_index_tree": {
-      "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
-    },
-    "earlier_files": {
-      "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
     },
     "review_needed": {
       "type": "boolean",
@@ -5688,7 +5604,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## develop · variant 8 · schema 1
+## develop · variant 8 · schema 3
 
 `develop block-a r2` in "the gate never goes green"
 
@@ -5715,7 +5631,6 @@ BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
-Report baseline_dirty_files=-1, baseline_index_tree "" and launch_number=-1.
 E:/flow/runs/flow/gate/DISMISSED-block-a.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -5978,10 +5893,6 @@ Return ONLY the decision fields via the schema (no prose report).
   "required": [
     "plan_obtained",
     "relayed_request",
-    "baseline_dirty_files",
-    "baseline_index_tree",
-    "launch_number",
-    "earlier_files",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -6003,22 +5914,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request": {
       "type": "boolean",
       "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
-    },
-    "baseline_dirty_files": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
-    },
-    "baseline_index_tree": {
-      "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
-    },
-    "earlier_files": {
-      "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
     },
     "review_needed": {
       "type": "boolean",
@@ -6125,7 +6020,6 @@ develop round follows you. A blind review follows you when the block's changes s
 review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
 and otherwise the block parks. Your earlier work is already in the UNSTAGED working tree: build ON it,
 do NOT revert or redo it.
-Report baseline_dirty_files=-1, baseline_index_tree "" and launch_number=-1.
 E:/flow/runs/flow/gate/DISMISSED-block-a.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -6399,10 +6293,6 @@ Return ONLY the decision fields via the schema (no prose report).
   "required": [
     "plan_obtained",
     "relayed_request",
-    "baseline_dirty_files",
-    "baseline_index_tree",
-    "launch_number",
-    "earlier_files",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -6425,22 +6315,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request": {
       "type": "boolean",
       "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
-    },
-    "baseline_dirty_files": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
-    },
-    "baseline_index_tree": {
-      "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
-    },
-    "earlier_files": {
-      "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
     },
     "review_needed": {
       "type": "boolean",
@@ -7018,7 +6892,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## develop · variant 9 · schema 1
+## develop · variant 9 · schema 3
 
 `develop block-b r2` in "the gate never goes green"
 
@@ -7046,7 +6920,6 @@ GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
-Report baseline_dirty_files=-1, baseline_index_tree "" and launch_number=-1.
 E:/flow/runs/flow/gate/DISMISSED-block-b.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -7312,10 +7185,6 @@ Return ONLY the decision fields via the schema (no prose report).
   "required": [
     "plan_obtained",
     "relayed_request",
-    "baseline_dirty_files",
-    "baseline_index_tree",
-    "launch_number",
-    "earlier_files",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -7337,22 +7206,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request": {
       "type": "boolean",
       "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
-    },
-    "baseline_dirty_files": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
-    },
-    "baseline_index_tree": {
-      "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
-    },
-    "earlier_files": {
-      "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
     },
     "review_needed": {
       "type": "boolean",
@@ -7460,7 +7313,6 @@ develop round follows you. A blind review follows you when the block's changes s
 review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
 and otherwise the block parks. Your earlier work is already in the UNSTAGED working tree: build ON it,
 do NOT revert or redo it.
-Report baseline_dirty_files=-1, baseline_index_tree "" and launch_number=-1.
 E:/flow/runs/flow/gate/DISMISSED-block-b.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -7737,10 +7589,6 @@ Return ONLY the decision fields via the schema (no prose report).
   "required": [
     "plan_obtained",
     "relayed_request",
-    "baseline_dirty_files",
-    "baseline_index_tree",
-    "launch_number",
-    "earlier_files",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -7763,22 +7611,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request": {
       "type": "boolean",
       "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
-    },
-    "baseline_dirty_files": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
-    },
-    "baseline_index_tree": {
-      "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
-    },
-    "earlier_files": {
-      "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
     },
     "review_needed": {
       "type": "boolean",
@@ -8746,7 +8578,6 @@ develop round follows you. A blind review follows you when the block's changes s
 review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
 and otherwise the block parks. Your earlier work is already in the UNSTAGED working tree: build ON it,
 do NOT revert or redo it.
-Report baseline_dirty_files=-1, baseline_index_tree "" and launch_number=-1.
 E:/flow/runs/flow/gate/DISMISSED-block-a.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -9021,10 +8852,6 @@ Return ONLY the decision fields via the schema (no prose report).
   "required": [
     "plan_obtained",
     "relayed_request",
-    "baseline_dirty_files",
-    "baseline_index_tree",
-    "launch_number",
-    "earlier_files",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -9047,22 +8874,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request": {
       "type": "boolean",
       "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
-    },
-    "baseline_dirty_files": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
-    },
-    "baseline_index_tree": {
-      "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
-    },
-    "earlier_files": {
-      "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
     },
     "review_needed": {
       "type": "boolean",
@@ -9754,19 +9565,19 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_index_tree": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
+      "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
     },
     "launch_number": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
+      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
+      "description": "true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false."
     },
     "review_needed": {
       "type": "boolean",
@@ -10047,7 +9858,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## develop · variant 11 · schema 1
+## develop · variant 11 · schema 3
 
 `develop block-a r2` in "an ordered run stops at a parked block"
 
@@ -10074,7 +9885,6 @@ BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
-Report baseline_dirty_files=-1, baseline_index_tree "" and launch_number=-1.
 E:/flow/runs/flow/gate/DISMISSED-block-a.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -10337,10 +10147,6 @@ Return ONLY the decision fields via the schema (no prose report).
   "required": [
     "plan_obtained",
     "relayed_request",
-    "baseline_dirty_files",
-    "baseline_index_tree",
-    "launch_number",
-    "earlier_files",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -10362,22 +10168,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request": {
       "type": "boolean",
       "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
-    },
-    "baseline_dirty_files": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
-    },
-    "baseline_index_tree": {
-      "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
-    },
-    "earlier_files": {
-      "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
     },
     "review_needed": {
       "type": "boolean",
@@ -11306,7 +11096,6 @@ develop round follows you. A blind review follows you when the block's changes s
 review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
 and otherwise the block parks. Your earlier work is already in the UNSTAGED working tree: build ON it,
 do NOT revert or redo it.
-Report baseline_dirty_files=-1, baseline_index_tree "" and launch_number=-1.
 E:/flow/runs/flow/gate/DISMISSED-block-a.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -11581,10 +11370,6 @@ Return ONLY the decision fields via the schema (no prose report).
   "required": [
     "plan_obtained",
     "relayed_request",
-    "baseline_dirty_files",
-    "baseline_index_tree",
-    "launch_number",
-    "earlier_files",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -11607,22 +11392,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request": {
       "type": "boolean",
       "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
-    },
-    "baseline_dirty_files": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
-    },
-    "baseline_index_tree": {
-      "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
-    },
-    "earlier_files": {
-      "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
     },
     "review_needed": {
       "type": "boolean",
@@ -12100,7 +11869,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## develop · variant 12 · schema 3
+## develop · variant 12 · schema 4
 
 `develop block-c r1` in "a fix block closes its issues"
 
@@ -12508,19 +12277,19 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_index_tree": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
+      "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
     },
     "launch_number": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
+      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
+      "description": "true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false."
     },
     "results": {
       "type": "array",
@@ -12598,11 +12367,11 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "restore_failed": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
+      "description": "the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due."
     },
     "restored_branches": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many branches your restore applied into the tree. 0 when none was due or a restore failed. Report 0 on later rounds."
+      "description": "how many branches your restore applied into the tree. 0 when none was due or a restore failed."
     },
     "dismissed_count": {
       "type": "integer",
@@ -13004,7 +12773,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 }
 ~~~~
 
-## develop · variant 13 · schema 4
+## develop · variant 13 · schema 5
 
 `develop block-c r1` in "a fix block closes its issues under the proactive policy"
 
@@ -13471,19 +13240,19 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_index_tree": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
+      "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
     },
     "launch_number": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
+      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
+      "description": "true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false."
     },
     "results": {
       "type": "array",
@@ -13561,11 +13330,11 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "restore_failed": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
+      "description": "the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due."
     },
     "restored_branches": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many branches your restore applied into the tree. 0 when none was due or a restore failed. Report 0 on later rounds."
+      "description": "how many branches your restore applied into the tree. 0 when none was due or a restore failed."
     },
     "dismissed_count": {
       "type": "integer",
@@ -13927,7 +13696,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## develop · variant 14 · schema 3
+## develop · variant 14 · schema 4
 
 `develop block-c r1` in "a fix block that continues no park closes its issues"
 
@@ -14286,19 +14055,19 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_index_tree": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
+      "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
     },
     "launch_number": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
+      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
+      "description": "true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false."
     },
     "results": {
       "type": "array",
@@ -14376,11 +14145,11 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "restore_failed": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
+      "description": "the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due."
     },
     "restored_branches": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many branches your restore applied into the tree. 0 when none was due or a restore failed. Report 0 on later rounds."
+      "description": "how many branches your restore applied into the tree. 0 when none was due or a restore failed."
     },
     "dismissed_count": {
       "type": "integer",
@@ -15015,7 +14784,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## develop · variant 15 · schema 4
+## develop · variant 15 · schema 6
 
 `develop block-c r2` in "a proactive fix block starts round 2 from the statuses it last reported"
 
@@ -15051,7 +14820,6 @@ when its defect no longer exists, FAILED when you reverted its change or could n
 Report each listed status again unless this round's work changes it.
 A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-c-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
-Report baseline_dirty_files=-1, baseline_index_tree "" and launch_number=-1.
 E:/flow/runs/flow/gate/DISMISSED-block-c.md does not exist, so you have declined nothing in THIS block yet.
 You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below
 allows.
@@ -15341,13 +15109,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "required": [
     "plan_obtained",
     "relayed_request",
-    "baseline_dirty_files",
-    "baseline_index_tree",
-    "launch_number",
-    "earlier_files",
     "results",
-    "restore_failed",
-    "restored_branches",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -15395,22 +15157,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request": {
       "type": "boolean",
       "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
-    },
-    "baseline_dirty_files": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
-    },
-    "baseline_index_tree": {
-      "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
-    },
-    "earlier_files": {
-      "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
     },
     "results": {
       "type": "array",
@@ -15485,14 +15231,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "needs_user": {
       "type": "boolean",
       "description": "true ONLY if a HARD blocker / user-only decision stopped you; you wrote a full entry to the question file your prompt names and cannot proceed"
-    },
-    "restore_failed": {
-      "type": "string",
-      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
-    },
-    "restored_branches": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many branches your restore applied into the tree. 0 when none was due or a restore failed. Report 0 on later rounds."
     },
     "dismissed_count": {
       "type": "integer",
@@ -15853,7 +15591,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## develop · variant 16 · schema 3
+## develop · variant 16 · schema 4
 
 `develop block-c-plus-1 r1` in "a pass of two fix blocks closes its issues"
 
@@ -16265,19 +16003,19 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_index_tree": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
+      "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
     },
     "launch_number": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
+      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
+      "description": "true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false."
     },
     "results": {
       "type": "array",
@@ -16355,11 +16093,11 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "restore_failed": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
+      "description": "the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due."
     },
     "restored_branches": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many branches your restore applied into the tree. 0 when none was due or a restore failed. Report 0 on later rounds."
+      "description": "how many branches your restore applied into the tree. 0 when none was due or a restore failed."
     },
     "dismissed_count": {
       "type": "integer",
@@ -17063,7 +16801,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## develop · variant 17 · schema 3
+## develop · variant 17 · schema 4
 
 `develop block-c r1` in "an ordered run stops on a fix block that closes nothing"
 
@@ -17471,19 +17209,19 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_index_tree": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
+      "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
     },
     "launch_number": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
+      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
+      "description": "true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false."
     },
     "results": {
       "type": "array",
@@ -17561,11 +17299,11 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "restore_failed": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
+      "description": "the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due."
     },
     "restored_branches": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many branches your restore applied into the tree. 0 when none was due or a restore failed. Report 0 on later rounds."
+      "description": "how many branches your restore applied into the tree. 0 when none was due or a restore failed."
     },
     "dismissed_count": {
       "type": "integer",
@@ -20013,7 +19751,6 @@ develop round follows you. A blind review follows you when the block's changes s
 review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
 and otherwise the block parks. Your earlier work is already in the UNSTAGED working tree: build ON it,
 do NOT revert or redo it.
-Report baseline_dirty_files=-1, baseline_index_tree "" and launch_number=-1.
 E:/flow/runs/flow/gate/DISMISSED-block-b.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -20291,10 +20028,6 @@ Return ONLY the decision fields via the schema (no prose report).
   "required": [
     "plan_obtained",
     "relayed_request",
-    "baseline_dirty_files",
-    "baseline_index_tree",
-    "launch_number",
-    "earlier_files",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -20317,22 +20050,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request": {
       "type": "boolean",
       "description": "true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent."
-    },
-    "baseline_dirty_files": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
-    },
-    "baseline_index_tree": {
-      "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
-    },
-    "earlier_files": {
-      "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
     },
     "review_needed": {
       "type": "boolean",
@@ -21946,7 +21663,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## develop · variant 18 · schema 5
+## develop · variant 18 · schema 7
 
 `develop block-a r1` in "every block commits first time"
 
@@ -22287,23 +22004,23 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_staged_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many files were STAGED BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many files were STAGED BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_index_tree": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
+      "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
     },
     "launch_number": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
+      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
+      "description": "true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false."
     },
     "review_needed": {
       "type": "boolean",
@@ -22757,7 +22474,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## develop · variant 19 · schema 5
+## develop · variant 19 · schema 7
 
 `develop block-b r1` in "every block commits first time"
 
@@ -23102,23 +22819,23 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_staged_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many files were STAGED BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many files were STAGED BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_index_tree": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
+      "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
     },
     "launch_number": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
+      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
+      "description": "true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false."
     },
     "review_needed": {
       "type": "boolean",
@@ -23519,7 +23236,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 }
 ~~~~
 
-## develop · variant 20 · schema 6
+## develop · variant 20 · schema 8
 
 `develop block-c r1` in "a fix block commits"
 
@@ -23929,23 +23646,23 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_staged_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many files were STAGED BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+      "description": "how many files were STAGED BEFORE you touched anything. 0 = clean, >0 HALTS the run."
     },
     "baseline_index_tree": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report \"\" on later rounds."
+      "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
     },
     "launch_number": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds."
+      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
-      "description": "ROUND 1 ONLY: true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds."
+      "description": "true when this block's DISMISSED file or AMENDED file existed before you wrote anything, else false."
     },
     "results": {
       "type": "array",
@@ -24023,11 +23740,11 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "restore_failed": {
       "type": "string",
-      "description": "ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due. Report \"\" on later rounds."
+      "description": "the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or \"\" when every restore applied or none was due."
     },
     "restored_branches": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many branches your restore applied into the tree. 0 when none was due or a restore failed. Report 0 on later rounds."
+      "description": "how many branches your restore applied into the tree. 0 when none was due or a restore failed."
     },
     "dismissed_count": {
       "type": "integer",

@@ -534,9 +534,10 @@ function gateOk(gate, dev) {
 // A fix worker returns per-issue `results`, from which the engine derives whether a round closed anything,
 // so a round that only SKIPPED entries cannot claim work it never did. `closing` marks the closing pass.
 const RELAYED_REQUEST = { type: 'boolean', description: 'true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent.' };
-const developSchema = (mode, closing) => ({
+// `round1` false drops the fields only round 1 reports. It defaults true so tests/static.test.mjs, which calls this with no arguments, sweeps every round-1 field.
+const developSchema = (mode, closing, round1 = true) => ({
   type: 'object',
-  required: ['plan_obtained', 'relayed_request', 'baseline_dirty_files', ...(COMMIT ? ['baseline_staged_files'] : []), 'baseline_index_tree', 'launch_number', 'earlier_files', ...(mode === 'fix' ? ['results', 'restore_failed', 'restored_branches'] : []), 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments', 'dismissed_count', 'backlog_entries', 'backlog_blocks', 'review_needed', 'risk_snapshot', ...(closing ? ['recorded_entries'] : []), ...(PROACTIVE ? ['pulled_results'] : [])],
+  required: ['plan_obtained', 'relayed_request', ...(round1 ? ['baseline_dirty_files', ...(COMMIT ? ['baseline_staged_files'] : []), 'baseline_index_tree', 'launch_number', 'earlier_files'] : []), ...(mode === 'fix' ? ['results', ...(round1 ? ['restore_failed', 'restored_branches'] : [])] : []), 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments', 'dismissed_count', 'backlog_entries', 'backlog_blocks', 'review_needed', 'risk_snapshot', ...(closing ? ['recorded_entries'] : []), ...(PROACTIVE ? ['pulled_results'] : [])],
   properties: {
     // Proactive only: the statuses of the backlog entries round 1 took beside the block, in the shape of fix results.
     ...(PROACTIVE ? {
@@ -555,17 +556,19 @@ const developSchema = (mode, closing) => ({
     } : {}),
     plan_obtained:     { type: 'boolean', description: 'true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. FALSE halts the run.' },
     relayed_request:   RELAYED_REQUEST,
-    baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds.' },
-    // Commit mode only: acceptance's commit would carry anything staged, which no reviewer reads.
-    ...(COMMIT ? {
-      baseline_staged_files: { type: 'integer', description: 'ROUND 1 ONLY: how many files were STAGED BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds.' },
+    ...(round1 ? {
+      baseline_dirty_files: { type: 'integer', description: 'how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything. 0 = clean, >0 HALTS the run.' },
+      // Commit mode only: acceptance's commit would carry anything staged, which no reviewer reads.
+      ...(COMMIT ? {
+        baseline_staged_files: { type: 'integer', description: 'how many files were STAGED BEFORE you touched anything. 0 = clean, >0 HALTS the run.' },
+      } : {}),
+      // The first acceptance of a launch confirms the index against it, since no earlier acceptance recorded one.
+      baseline_index_tree: { type: 'string', description: 'the tree id `git write-tree` printed at STEP 0, before you touched anything.' },
+      // A launch has no id of its own, so its number is counted from the amendment headers earlier launches wrote.
+      launch_number: { type: 'integer', description: 'the launch number your prompt says how to count from the AMENDED file.' },
+      // A later stage calls a file absent only when no earlier launch left it and no developer round wrote it.
+      earlier_files: { type: 'boolean', description: 'true when this block\'s DISMISSED file or AMENDED file existed before you wrote anything, else false.' },
     } : {}),
-    // The first acceptance of a launch confirms the index against it, since no earlier acceptance recorded one.
-    baseline_index_tree: { type: 'string', description: 'ROUND 1 ONLY: the tree id `git write-tree` printed at STEP 0, before you touched anything. Report "" on later rounds.' },
-    // A launch has no id of its own, so its number is counted from the amendment headers earlier launches wrote.
-    launch_number: { type: 'integer', description: 'ROUND 1 ONLY: the launch number your prompt says how to count from the AMENDED file. Report -1 on later rounds.' },
-    // A later stage calls a file absent only when no earlier launch left it and no developer round wrote it.
-    earlier_files: { type: 'boolean', description: 'ROUND 1 ONLY: true when this block\'s DISMISSED file or AMENDED file existed before you wrote anything, else false. Report true on later rounds.' },
     ...(mode === 'fix' ? {
       results: {
         type: 'array',
@@ -595,9 +598,9 @@ const developSchema = (mode, closing) => ({
     unstaged_confirmed:{ type: 'boolean', description: 'true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run.' },
     needs_user:        { type: 'boolean', description: 'true ONLY if a HARD blocker / user-only decision stopped you; you wrote a full entry to the question file your prompt names and cannot proceed' },
     // Fix mode only: a branch the round-1 restore could not apply stops the block before any review.
-    ...(mode === 'fix' ? {
-      restore_failed: { type: 'string', description: 'ROUND 1 ONLY: the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or "" when every restore applied or none was due. Report "" on later rounds.' },
-      restored_branches: { type: 'integer', description: 'ROUND 1 ONLY: how many branches your restore applied into the tree. 0 when none was due or a restore failed. Report 0 on later rounds.' },
+    ...(mode === 'fix' && round1 ? {
+      restore_failed: { type: 'string', description: 'the branch whose restore failed and why (missing, the `git apply` error, or a conflict you could not confirm), or "" when every restore applied or none was due.' },
+      restored_branches: { type: 'integer', description: 'how many branches your restore applied into the tree. 0 when none was due or a restore failed.' },
     } : {}),
     dismissed_count:   { type: 'integer', description: 'how many lines you appended to this block\'s DISMISSED file this round, such as a declined finding, an ESCALATED line or a ledger line copied in (0 if none)' },
     // dismissed_count and plan_amendments are required: an omitted field must not read as "none this round".
@@ -1540,8 +1543,7 @@ do NOT revert or redo it.`
         ? `A prior review flagged issues in ${reviewPath}. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.`
         : `A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
-tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.`}
-Report baseline_dirty_files=-1${COMMIT ? ', baseline_staged_files=-1' : ''}, baseline_index_tree "" and launch_number=-1.`;
+tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.`}`;
   // A feature or section round that answers a review routes its findings in place of the build, and a fix
   // round routes them beside its entry rules. A round after a red gate with no review still owes round 1's BUILD.
   const reviewRework = reviewPath
@@ -2899,12 +2901,12 @@ for (const p of pending) {
     let dev;
     if (!closing) {
       dev = await callAgent(developPrompt(p, round, reviewPath, launchNumber, lastReports()), roleOpts('develop', {
-        model: devModel, effort: devEffort, schema: developSchema(p.mode), phase: 'Develop', label: `develop ${p.id} r${round}`,
+        model: devModel, effort: devEffort, schema: developSchema(p.mode, false, round === 1), phase: 'Develop', label: `develop ${p.id} r${round}`,
       }));
     } else {
       logLine(`  ↻ ${p.id}: round ${MAX_ROUNDS} ended without a passed acceptance → closing pass (r${round}), with no develop round after it`);
       dev = await callAgent(developPrompt(p, round, reviewPath, launchNumber, lastReports()), roleOpts('develop', {
-        model: devModel, effort: devEffort, schema: developSchema(p.mode, true), phase: 'Develop', label: `develop-closing ${p.id}`,
+        model: devModel, effort: devEffort, schema: developSchema(p.mode, true, false), phase: 'Develop', label: `develop-closing ${p.id}`,
       }));
     }
 

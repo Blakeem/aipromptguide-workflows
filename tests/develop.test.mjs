@@ -619,6 +619,8 @@ section('a block whose last round fails gets one closing pass, whose acceptance 
   ok(String(closingSchema.required ?? '').includes('recorded_entries')
     && !('recorded_entries' in (lands.byLabel('develop block-a r1')[0]?.opts?.schema?.properties ?? {})),
     'only the closing pass returns recorded_entries');
+  ok(['baseline_dirty_files', 'baseline_index_tree', 'launch_number', 'earlier_files'].every((f) => !closingSchema.required.includes(f) && !(f in closingSchema.properties)),
+    'the closing pass declares no round-1 field');
   const [earlyAcc, closingAcc] = [flat(lands.prompt('acceptance block-a r1')), flat(lands.prompt('acceptance block-a r2'))];
   ok(closingAcc.includes('E:/r/runs/t/risk-block-a-r2.md'), 'the closing acceptance audits the closing pass\'s risk file');
   ok(closingAcc.includes('makes it a blocking gap, since no round follows to send to a blind review') && !closingAcc.includes('which sends the next round to a blind review'),
@@ -1880,6 +1882,7 @@ section('a fix block restores each branch its ACTIONABLE entries link, in round 
   ok(!/step 0 below/.test(r1), 'a fix block names no procedure step 0, since its procedure starts at step 1');
   ok(!flat(prompt('develop fix-a r2')).includes('RESTORE unfinished work'), 'round 2 restores nothing');
   ok(String(byLabel('develop fix-a r1')[0]?.opts?.schema?.required ?? '').includes('restore_failed'), 'a fix developer returns restore_failed');
+  ok(!('restore_failed' in (byLabel('develop fix-a r2')[0]?.opts?.schema?.properties ?? {})) && !String(byLabel('develop fix-a r2')[0]?.opts?.schema?.required ?? '').includes('restored_branches'), 'a later-round fix developer returns neither restore field');
   ok(!flat((await run(GREEN_RUN, ONE_BLOCK)).prompt('develop block-a r1')).includes('RESTORE unfinished work'), 'a feature block restores nothing');
   const accept = flat(prompt('acceptance fix-a r2'));
   ok(accept.includes('An entry with an "- origin:" line holds a parked block\'s unfinished work. When it also carries a "- branch:" line, the developer restored that branch\'s work into the unstaged diff in round 1, unless the accepted baseline already held it, and its fix is that entire branch work and every change made on it: read every hunk of that range, by `git -C E:/repo diff --stat <branch>^1 <branch>` first, then `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted baseline.'),
@@ -4167,7 +4170,9 @@ section('in commit mode a round-1 developer that finds staged files halts before
     ok(r.logs.some((l) => /empty-index precondition was NOT verified/.test(l)), `a staged count of ${JSON.stringify(bad)} is not silently an empty index`);
   }
   const later = await run({ ...C_RUN, quality: firstRound(FLAGGED, CLEAN) }, COMMIT_ONE);
-  ok(later.prompt('develop block-a r2').includes('Report baseline_dirty_files=-1, baseline_staged_files=-1, baseline_index_tree "" and launch_number=-1.'), 'a later round reports -1 for both counts');
+  ok(!later.prompt('develop block-a r2').includes('Report baseline_dirty_files=-1'), 'a later round is not told to report -1 for the round-1 fields');
+  const laterSchema = schemaOf(later, 'develop block-a r2');
+  ok(!laterSchema.required.includes('baseline_staged_files') && !('baseline_staged_files' in laterSchema.properties), 'a later round declares no staged count');
   const stage = await run({ ...GREEN_RUN, develop: { ...DEV_OK, baseline_staged_files: 3 } }, ONE_BLOCK);
   eq(stage.out.status, 'done (all blocks staged)', 'stage mode, whose index holds the accepted blocks, never halts on a staged count');
   ok(!stage.prompt('develop block-a r1').includes('baseline_staged_files') && !('baseline_staged_files' in schemaOf(stage, 'develop').properties),
@@ -4904,9 +4909,13 @@ section('an amendment header names its launch, which round 1 counts from the AME
   ok(r1.includes(`${STATE}/AMENDED-block-a.md, when it exists, holds plan amendments, each another agent's claim under a header that names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose defect the current code does not reproduce, with its pointer line in ${STATE}/DECISIONS.md, the line that names its block id, round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match that pointer by its block id, round and defect file:line alone.`),
     'round 1 counts the launch and re-checks every earlier launch\'s amendment as it re-checks a DISMISSED line, an unnumbered one included');
   ok(r2 !== '' && !r2.includes('report launch_number as one past'), 'a later round counts no launch');
-  ok(r2.includes('baseline_index_tree "" and launch_number=-1.'), 'a later round reports no launch number');
+  ok(!r2.includes('Report baseline_dirty_files=-1'), 'a later round is not told to report the round-1 fields');
   const schema = r.calls.find((c) => c.label === 'develop block-a r1')?.opts.schema;
   ok(['launch_number', 'baseline_index_tree'].every((f) => schema?.required?.includes(f)), 'the developer schema requires the launch number and the baseline index tree');
+  const ROUND1_ONLY = ['baseline_dirty_files', 'baseline_index_tree', 'launch_number', 'earlier_files'];
+  const laterSchema = r.calls.find((c) => c.label === 'develop block-a r2')?.opts.schema;
+  ok(ROUND1_ONLY.every((f) => schema.required.includes(f) && f in schema.properties), 'the round-1 developer schema declares and requires every round-1 field');
+  ok(ROUND1_ONLY.every((f) => !laterSchema.required.includes(f) && !(f in laterSchema.properties)), 'a later-round developer schema declares and requires none of them');
   for (const bad of [undefined, 0, 1.5, '2']) {
     const u = await run(twoRounds({ ...DEV_OK, launch_number: bad }), ONE_BLOCK);
     ok(flat(u.prompt('develop block-a r2')).includes('`## Plan amendment: block-a r2, launch unrecorded`')
