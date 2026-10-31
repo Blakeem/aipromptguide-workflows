@@ -178,6 +178,15 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 - **Reviewers read an earlier launch's round file at the write step.** A reviewer reads that file once
   its findings are final, since the Write tool overwrites only a file the agent has read. A developer
   reads its risk file after `risk-check.mjs` writes the skeleton.
+- **Acceptance leaves out the ledger rules when a block has no dismissal ledger.** The rules judge
+  lines of a file the same prompt says does not exist, and they cost about 1,600 characters, or 7
+  percent of the average acceptance prompt.
+- **A developer after round 1 no longer reports the round 1 fields.** Seven fields leave the schema of
+  every later round and of the closing pass.
+- **Under proactive, a fix block gets the park branch text only when its own entries continue a parked
+  block.** The text for a parked block's origin also drops once round 1 pulled no entry.
+- **`risk-check.mjs` prints a sweep line ready to fill in under each hit it finds left out.** A line
+  left as printed fails the check.
 
 ### 2026-10-30
 
