@@ -325,6 +325,30 @@ export default {
       respond: { develop: FIX_DONE, quality: CLEAN, acceptance: ACC_FIX, 'final-sweep': SWEEP_OK },
     },
     {
+      // Puts the proactive prompts that keep the origin text for a pulled entry and drop the branch text. Adds no node or edge.
+      name: 'a proactive fix block that continues no park closes its issues and a pulled entry',
+      when: 'changePolicy is proactive and a fix block whose row carries continues false fixes an issue and a pulled entry and accepts',
+      args: { ...base, changePolicy: 'proactive', plans: [{ ...FIX_BLOCK, continues: false }] },
+      respond: {
+        develop: devFix([{ issue_id: 'i-1', status: 'FIXED' }], { pulled_results: [{ issue_id: `${PULLED_FILE_ID}-1`, status: 'FIXED' }] }),
+        quality: CLEAN,
+        acceptance: { ...ACC_FIX, pulled_checks: [{ issue_id: `${PULLED_FILE_ID}-1`, actually_fixed: true }] },
+        'final-sweep': SWEEP_OK,
+      },
+    },
+    {
+      // Puts the proactive acceptance prompt with neither branch nor origin text in the snapshot. Adds no node or edge.
+      name: 'a proactive fix block that continues no park and pulled nothing closes its issues',
+      when: 'changePolicy is proactive, a fix block whose row carries continues false reports pulled_results [] in round 1, fixes an issue and accepts',
+      args: { ...base, changePolicy: 'proactive', plans: [{ ...FIX_BLOCK, continues: false }] },
+      respond: {
+        develop: devFix([{ issue_id: 'i-1', status: 'FIXED' }], { pulled_results: [] }),
+        quality: CLEAN,
+        acceptance: { ...ACC_FIX, pulled_checks: [] },
+        'final-sweep': SWEEP_OK,
+      },
+    },
+    {
       // Round 2 of a proactive fix block is the only prompt that renders both lists of statuses the developer
       // last reported, its entries' and its pulled entries'.
       name: 'a proactive fix block starts round 2 from the statuses it last reported',

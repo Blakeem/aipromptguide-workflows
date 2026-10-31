@@ -209,7 +209,7 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| done (all blocks staged) | every block accepts and the sweep runs · changePolicy is proactive and a feature block accepts · the whole-goal sweep dies · sweep:none on a fully accepted run · the blind review finds defects · acceptance finds gaps · the developer judges every change since the last blind review low risk · the developer appends a line to its DISMISSED ledger and the block accepts · a fix block fixes an issue and accepts · changePolicy is proactive and a fix block fixes an issue and accepts · a fix block whose row carries continues false fixes an issue and accepts · changePolicy is proactive and acceptance fails a fix block with a pulled entry, then passes it · a packed pass of two fix blocks fixes its issues and accepts · every issue in a fix block is stale · the last round fails and the closing acceptance finds no blocking gap · the closing pass judges a change not low risk and the closing acceptance finds no blocking gap | derived |
+| done (all blocks staged) | every block accepts and the sweep runs · changePolicy is proactive and a feature block accepts · the whole-goal sweep dies · sweep:none on a fully accepted run · the blind review finds defects · acceptance finds gaps · the developer judges every change since the last blind review low risk · the developer appends a line to its DISMISSED ledger and the block accepts · a fix block fixes an issue and accepts · changePolicy is proactive and a fix block fixes an issue and accepts · a fix block whose row carries continues false fixes an issue and accepts · changePolicy is proactive and a fix block whose row carries continues false fixes an issue and a pulled entry and accepts · changePolicy is proactive, a fix block whose row carries continues false reports pulled_results [] in round 1, fixes an issue and accepts · changePolicy is proactive and acceptance fails a fix block with a pulled entry, then passes it · a packed pass of two fix blocks fixes its issues and accepts · every issue in a fix block is stale · the last round fails and the closing acceptance finds no blocking gap · the closing pass judges a change not low risk and the closing acceptance finds no blocking gap | derived |
 | partial slice complete (every selected block staged) | runOnly builds a subset of the blocks | derived |
 | nothing to run (no todo blocks) | no block still has status todo | derived |
 | run complete (N block(s) parked) | the block gate is never green · a block parks and ordered is false · the developer hits a user-only blocker in an unordered run · the closing acceptance finds a blocking gap | derived |
@@ -276,11 +276,11 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | throw: plan title(s) [...] are not one line of text | commit is true and a block title spans two lines | throw (line 381) |
 | throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 401) |
 | throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 412) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 2300) |
-| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 2311) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 2318) |
-| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 2326) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 2313) |
+| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 2324) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 2331) |
+| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 2339) |
 
 ## Coverage
 
-100 scenarios · 6/6 roles · 45/45 throw sites · 19/19 halt statuses · 71 terminal states.
+102 scenarios · 6/6 roles · 45/45 throw sites · 19/19 halt statuses · 71 terminal states.

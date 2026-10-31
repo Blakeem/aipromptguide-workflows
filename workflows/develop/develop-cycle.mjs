@@ -1123,7 +1123,7 @@ const CHECKLIST = `CHECKLIST:
 const DOC_REGRESSION = "a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false";
 // One rule for both acceptance frames, so they cannot drift. Its removed-defect item repeats the zones the
 // developer's rules let it change, which nothing else checks.
-const regressionRule = (id, mode, dismissedAbsent) => {
+const regressionRule = (id, mode, dismissedAbsent, pulledNone) => {
   const prescriber = mode === 'fix' ? "an entry's **Fix:**" : "this block's own text";
   return `${CODE_ZONES(mode)}
 A regression is any behavior the accepted baseline (${BASELINE_DEF}) gave a caller or
@@ -1137,7 +1137,7 @@ so it is a regression. Not a regression:
     defect on a sibling path of a change ${requiredBy(mode)} requires or of such a finding, or a defect
     that a "${LOGGED_FIX_TAG} ${id}:" line in ${DECISIONS} names. It is not a regression only when you
     confirm from the code that the baseline behavior it removes was itself that defect, that the change
-    alters no other behavior, that it lies ${UNCLAIMED_CODE}, and that it lies ${changeZones(mode)}.${PROACTIVE ? `
+    alters no other behavior, that it lies ${UNCLAIMED_CODE}, and that it lies ${changeZones(mode)}.${PROACTIVE && !pulledNone ? `
   - a behavior change that closes the defect of a backlog entry ${pulledFile(id)} lists. It is not a
     regression only when you confirm from the code that the baseline behavior it removes was that
     entry's defect and that the change alters no other behavior.` : ''}
@@ -1395,9 +1395,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
 // Every apply runs before any intent-to-add, so undoing a failed restore leaves the index untouched.
 const restoreIndex = (id) => `${STATE_DIR}/scratch/restore-${slug(id)}.index`;
 // A landed block may hold a FAILED entry's restored work while its branch stays, so step b skips that branch.
-// The blind reviewer reads only this block's ledger, so round 1 copies the origin ledger's kept lines into it.
-const restoreOpening = (p) => `fix this block's entries on top of the accepted
-baseline. First RESTORE unfinished work, once you have read your block and before VERIFY-FIRST.
+const restoreSteps = (p) => `First RESTORE unfinished work, once you have read your block and before VERIFY-FIRST.
 The branch of ${BRANCH_ENTRIES} holds a parked block's work.
   a. Run \`git -C ${REPO} diff --cached --stat\` and keep its output. Then run
      \`cp "$(git -C ${REPO} rev-parse --path-format=absolute --git-path index)" "${restoreIndex(p.id)}"\`.
@@ -1422,15 +1420,16 @@ The branch of ${BRANCH_ENTRIES} holds a parked block's work.
      Then run \`git -C ${REPO} add -N -- <file>\` on each new file the restores or that regeneration created
      (\`git -C ${REPO} status --porcelain\` lists it as \`??\`).
   d. Confirm \`git -C ${REPO} diff --cached --stat\` is the same as the output step a kept.
-The restored diff is THIS block's own unstaged work, and it is the work of the entry whose branch it is.
-An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished work. On top of its
-branch's work, which step b restored or the accepted baseline already holds, or on the accepted baseline
+The restored diff is THIS block's own unstaged work, and it is the work of the entry whose branch it is.`;
+// `restored` is false when round 1 restores no branch, so the paragraph names no restore step.
+const originParagraph = (restored) => `An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished work. On top of its
+branch's work, ${restored ? 'which step b restored or the accepted baseline already holds, ' : ''}or on the accepted baseline
 when it carries no "- branch:" line, close the gaps its **What:** lists and meet ${ORIGIN_CRITERIA}.
 Those gaps are copied from a review. ${REVIEW_CLAIMS} A gap you refute gets its DISMISSED line under
 rule 1. ${RISK_GAPS} takes no fix and no log, since this block's first blind review judges the entire
 restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line
-and the origin criteria hold, never STALE.
-If the restore FAILS for a branch, because it is missing, its \`git apply -3\` fails with an error other
+and the origin criteria hold, never STALE.`;
+const RESTORE_FAILS = `If the restore FAILS for a branch, because it is missing, its \`git apply -3\` fails with an error other
 than a conflict, or a conflict stays that you cannot confirm, undo every restore. The unstaged tree was
 empty when you started, so run \`git -C ${REPO} checkout -- <file>\` for each file
 \`git -C ${REPO} diff --name-only\` lists, and \`git -C ${REPO} clean -f -- <file>\` for each \`??\` file
@@ -1439,21 +1438,35 @@ empty when you started, so run \`git -C ${REPO} checkout -- <file>\` for each fi
 else, set restore_failed to the branch that failed and why (missing, the \`git apply\` error, or the
 conflict you could not confirm), set restored_branches to 0, and STOP.
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
-branches step b applied.
-An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
+branches step b applied.`;
+// The blind reviewer reads only this block's ledger, so round 1 copies the origin ledger's kept lines into it.
+const ledgerParagraph = (p) => `An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
 continues. Before you build, READ each file it names, re-check each line there as the ledger rule below re-checks an earlier
 launch's line, and append each line you keep to ${dismissedFile(p.id)} unless that file already holds it,
 since that is the one ledger the blind reviewer reads. Its "- amended:" line names the plan
 amendments of the blocks its "- origin:" line names, each another agent's claim. READ each file it names
 and reproduce each amendment's defect against the file:line it cites. Meet an origin criterion under an
 amendment whose defect you reproduce, and as its block's text states it otherwise.`;
+const restoreOpening = (p) => `fix this block's entries on top of the accepted
+baseline. ${restoreSteps(p)}
+${originParagraph(true)}
+${RESTORE_FAILS}
+${ledgerParagraph(p)}`;
 
-// Whether a fix block's prompts carry the park-continuation text. `plan-pull.mjs pullable` can list an entry with an
-// "- origin:" line, so under proactive a pulled entry may need the text whatever the block's own entries hold.
-const continuesPark = (p) => PROACTIVE || (p.blocks ? p.blocks.some((b) => b.continues) : p.continues);
+// Whether a fix block's own entries continue a parked block's work. `plan-pull.mjs pullable` never lists an entry
+// with a "- branch:" line, so this alone gates the branch text.
+const ownContinues = (p) => (p.blocks ? p.blocks.some((b) => b.continues) : p.continues);
+// A pulled entry may carry an "- origin:" line, so under proactive the origin text stays until round 1 reports
+// `pulled_results: []`, which `pulledNone` (the engine's `pulled.none()`) records.
+const originMayApply = (p, pulledNone) => ownContinues(p) || (PROACTIVE && !pulledNone);
 const NO_RESTORE = `fix this block's entries on top of the accepted
 baseline. No entry of this block continues a parked block's work, so report restore_failed "" and
 restored_branches 0, and go on to VERIFY-FIRST.`;
+const PULLED_ORIGIN = 'An entry you pull below may still carry an "- origin:" line, so the next two paragraphs apply to it.';
+// Round 1 pulls its entries, so its developer cannot yet know whether one carries an "- origin:" line.
+const fixOpening = (p) => (ownContinues(p) ? restoreOpening(p)
+  : PROACTIVE ? `${NO_RESTORE}\n${PULLED_ORIGIN}\n${originParagraph(false)}\n${ledgerParagraph(p)}`
+  : NO_RESTORE);
 
 // The misclassified verdict itself sends the next round to a blind review, so the gap holds no work.
 const RISK_GAP_NOTE = `${RISK_GAPS} takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.`;
@@ -1531,7 +1544,7 @@ return immediately with both counts. The run halts for the operator. If both are
 immediately with that count. The run halts for the operator. If it IS 0, `}run \`git -C ${REPO} write-tree\`
 and report the tree id it prints as baseline_index_tree. Next, report earlier_files=true when ${dismissedFile(p.id)} or ${amendedFile(p.id)} exists,
 else false, before you write to either file. Then ${p.mode === 'fix'
-      ? (continuesPark(p) ? restoreOpening(p) : NO_RESTORE)
+      ? fixOpening(p)
       : 'implement this block from\nscratch on top of the accepted baseline.'}${PROACTIVE ? `\n${pullStep(p)}` : ''}`
     : `${PROACTIVE ? `${pulledLaterNote(p, lastPulled, pulledNone)}\n` : ''}${closing
       ? `Round ${MAX_ROUNDS} ended without a passed acceptance, so you are this block's CLOSING PASS, and no
@@ -1860,18 +1873,18 @@ BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
 ${ROUND_NOTE(round)}
 ${TOOLS_LINE}
 
-${SETTLED(p.id, false, continuesPark(p), absent.dismissed)}${absent.dismissed ? '' : `
+${SETTLED(p.id, false, originMayApply(p, absent.pulled), absent.dismissed)}${absent.dismissed ? '' : `
 OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
 acceptance for it and record it in your review file. ${LEDGER_LINES}`}
 
-${amendmentsSection(p.id, { overridden: '**Fix:** instructions', judged: 'issue', unexcused: 'that issue stays actually_fixed=false', origin: continuesPark(p) }, absent.amended)}
+${amendmentsSection(p.id, { overridden: '**Fix:** instructions', judged: 'issue', unexcused: 'that issue stays actually_fixed=false', origin: originMayApply(p, absent.pulled) }, absent.amended)}
 ${pulledAcceptance(p, round, pulledReported, absent.pulled)}
 EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
 (actually_fixed=false), an unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED or left unreported, a touched entry that is not ACTIONABLE,
 a non-empty diff with no FIXED claim${PROACTIVE ? ' of an entry or a pulled entry' : ''}, a gate not satisfied, an earlier finding that is neither closed
 nor declined, a failed risk audit, or a regression.
-${regressionRule(p.id, 'fix', absent.dismissed)}
+${regressionRule(p.id, 'fix', absent.dismissed, absent.pulled)}
 Drop any other concern silently, except a new issue (step 1). ${round === CLOSING_ROUND
     ? `Your file holds no notes or observations.\n${closingBar('fix', absent.dismissed)}${recordedEntriesCheck(closingRecorded)}`
     : 'Your file holds no notes, observations or\nnon-blocking section.'}
@@ -1889,13 +1902,13 @@ ${claimedFixed.map((id) => `     - ${id}`).join('\n') || '     (none claimed fix
    COMPLETELY. If the same mechanism still has a live residual path the diff left open (a sibling code
    path, an already-started async chain that still writes the bad state, an untouched branch or caller
    with the identical defect), that is actually_fixed=false — EVEN IF the described edit was made — and
-   its residual path goes in your review file at step 7. Return one fix_check per claimed issue.${continuesPark(p) ? `
-   An entry with an "- origin:" line holds a parked block's unfinished work. When it also carries a
+   its residual path goes in your review file at step 7. Return one fix_check per claimed issue.${originMayApply(p, absent.pulled) ? `
+   An entry with an "- origin:" line holds a parked block's unfinished work.${ownContinues(p) ? ` When it also carries a
    "- branch:" line, the developer restored that branch's work into the unstaged diff in round 1, unless
    the accepted baseline already held it, and its fix is that entire branch work and every change made on
    it: read every hunk of that range, by \`git -C ${REPO} diff --stat <branch>^1 <branch>\` first, then
    \`git -C ${REPO} diff <branch>^1 <branch> -- <file>\` for each file it lists, one file per command, in the unstaged diff or the accepted
-   baseline. The gaps its **What:** lists are another agent's claims, which the developer confirmed or
+   baseline.` : ''} The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
    baseline with the unstaged diff closes each gap its **What:** lists${absent.dismissed ? '' : `, or a line in ${dismissedFile(p.id)}
    declines that gap under the OVERRIDE and ledger-line rules above,`} and meets ${ORIGIN_CRITERIA}.
@@ -1950,7 +1963,7 @@ ${unreportedIssues.map((id) => `     - ${id}`).join('\n') || '     (none: it rep
      a change, so the unstaged diff MUST be empty. Any change there fails acceptance: name the files in your
      file and return pass=false.
    • ${failBullet(round)}${commitStep(p, round)}
-${!continuesPark(p)
+${!ownContinues(p)
     ? `${COMMIT ? '10' : '9'}. LANDED BRANCHES: round 1 restored no branch, since no entry of this block continues a parked block's work, so no branch landed. Delete no branch and return branches_kept=[].`
     : COMMIT
     ? `10. DELETE LANDED BRANCHES, only on a pass that returns regression=false, committed=true, commit_subject equal to the block's title, tree_matches=true and tree_clean=true:
@@ -2002,7 +2015,7 @@ ${amendmentsSection(p.id, { overridden: 'plan clauses', judged: 'criterion', une
 ${pulledAcceptance(p, round, pulledReported, absent.pulled)}
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
-${regressionRule(p.id, p.mode, absent.dismissed)}
+${regressionRule(p.id, p.mode, absent.dismissed, absent.pulled)}
 Drop any other concern silently. ${round === CLOSING_ROUND
     ? `Your file holds no notes or observations.\n${closingBar(p.mode, absent.dismissed)}${recordedEntriesCheck(closingRecorded)}`
     : 'Your file holds no notes, observations or non-blocking section.'}
@@ -2106,7 +2119,7 @@ const parkPrompt = (p, { lastReviewPath, escalated, haltKind, haltText, stopsRun
   // The operator picks a held park's route, so each branch its round 1 restored then stays.
   const unheldFix = p.mode === 'fix' && !heldHalt;
   // Round 1 restored branches only for a block that continues parked work, and the new commit then supersedes them.
-  const restoredBranches = unheldFix && continuesPark(p);
+  const restoredBranches = unheldFix && ownContinues(p);
   const buildable = parkBuildable(p);
   // The command renders a flag only for a file that may exist, so the rule names only the rendered flags.
   const ledgerFlag = absent.dismissed ? '' : ` --ledger ${shq(dismissedFile(p.id))}`;
@@ -3442,7 +3455,7 @@ for (const p of pending) {
     rec.parkCleared = pk?.cleared === true;
     rec.entryWritten = pk?.entry_written === true;
     // Only a saved commit holds the restored work, so a park with no commit supersedes no entry.
-    if (fix && pk?.saved === true && !heldHalt && continuesPark(p) && Array.isArray(pk.superseded_entries)) {
+    if (fix && pk?.saved === true && !heldHalt && ownContinues(p) && Array.isArray(pk.superseded_entries)) {
       superseded = new Set(pk.superseded_entries.map(trimmedText).filter(Boolean));
     }
     rec.superseded = [...superseded];

@@ -906,9 +906,11 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   outside `opus | sonnet | haiku | fable` or an `effort` outside `low | medium | high | xhigh | max`
   **throws** naming the row. `continues`, on a fix row or a pass member, is false when no entry of
   that block continues a parked block's work, so round 1 skips the restore, acceptance skips the
-  park-entry checks and lands no branch, and the park supersedes no branch. Absent counts as true, a
-  pass renders those steps when any member's is not false, and under `proactive` they always render,
-  since a pulled entry may carry an `- origin:` line. A non-boolean **throws** naming the row.) ·
+  park-entry checks and lands no branch, and the park supersedes no branch. Absent counts as true, and a
+  pass renders those steps when any member's is not false. Under `proactive`, a pulled entry may carry an
+  `- origin:` line but never a `- branch:` line, so a false row still keeps the origin, ledger and amended
+  text, without its branch text, until round 1 reports `pulled_results: []`. A non-boolean **throws**
+  naming the row.) ·
   `target.repo` (**throws** if missing) · `gates.build` (**throws** if missing) · `gates.test`
   (**throws** when any PENDING block's gate is `green` — deliberately pending-scoped, so an all-done
   relaunch reaches its terminal) · `backlogDir` (the absolute folder `project-settings.mjs backlog`

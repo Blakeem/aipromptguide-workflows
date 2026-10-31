@@ -5322,15 +5322,42 @@ section('a fix block whose entries continue no parked work skips the park-contin
     'continues false: the park returns no superseded entry and carries no supersede or Pulled text');
   eq(syncOf((await parkRun(false, ['i-1'])).out), 'fix-a=backlogged,i-1=needs-attention', 'continues false: the engine ignores a superseded list the park returns anyway');
   ok((await parkOf(true)).includes(SUPERSEDE), 'continues true: the park still supersedes each restored branch');
+  const BRANCH_HUNKS = 'When it also carries a "- branch:" line, the developer restored that branch\'s work';
   for (const [label, args] of [
     ['continues true', { ...FIX_ONE, plans: [{ ...FIX_ONE.plans[0], continues: true }] }],
     ['continues absent', FIX_ONE],
-    ['proactive with continues false', { ...FIX_ONE, changePolicy: 'proactive', plans: [{ ...FIX_ONE.plans[0], continues: false }] }],
+    ['proactive with continues true', { ...PRO_FIX_ONE, plans: [{ ...FIX_ONE.plans[0], continues: true }] }],
   ]) {
     const on = promptsOf(await fixRun(args), 'fix-a');
     eq(shows(on).join(','), 'true,true,true,true,true', `${label}: every park-continuation text renders`);
-    ok(on.a.includes('9. LIST LANDED BRANCHES'), `${label}: acceptance lists the landed branches`);
+    ok(on.a.includes('9. LIST LANDED BRANCHES') && on.a.includes(BRANCH_HUNKS), `${label}: acceptance reads the restored hunks and lists the landed branches`);
   }
+
+  // A pulled entry never carries a "- branch:" line, so a proactive block whose own entries continue nothing keeps only
+  // the origin text, and drops that too once round 1 reports it pulled nothing.
+  const proOff = { ...PRO_FIX_ONE, plans: [{ ...FIX_ONE.plans[0], continues: false }] };
+  const proRun = (pulled) => run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }], { pulled_results: pulled.map((id) => ({ issue_id: id, status: 'FIXED' })) }),
+    quality: CLEAN, acceptance: { ...FIX_PASS, pulled_checks: pulledChecks(pulled.map((id) => [id, true])) } }, proOff);
+  const ORIGIN_NO_BRANCH = 'An ACTIONABLE entry with an "- origin:" line holds a parked block\'s unfinished work. On top of its branch\'s work, or on the accepted baseline when it carries no "- branch:" line, close the gaps its **What:** lists';
+  const PULLED_ORIGIN = 'An entry you pull below may still carry an "- origin:" line, so the next two paragraphs apply to it.';
+  const LEDGER_PARA = 'An ACTIONABLE entry\'s "- ledger:" line names the DISMISSED ledger of the parked block whose work it continues.';
+  for (const [label, pulled] of [['a pulled entry', [PULL_A]], ['pulled_results []', []]]) {
+    const r = await proRun(pulled);
+    const { d, a } = promptsOf(r, 'fix-a');
+    ok(d.includes(`fix this block's entries on top of the accepted baseline. ${NO_RESTORE} ${PULLED_ORIGIN} ${ORIGIN_NO_BRANCH}`) && d.includes(LEDGER_PARA),
+      `proactive, continues false, ${label}: round 1 reports no restore, then names a pulled entry as the subject of the origin and ledger paragraphs`);
+    ok(!d.includes(RESTORE) && !d.includes('which step b restored') && !d.includes('If the restore FAILS') && !d.includes('The restored diff is THIS block\'s own unstaged work'),
+      `proactive, continues false, ${label}: round 1 carries no restore step, restored-diff sentence or restore-failure paragraph`);
+    ok(!a.includes(BRANCH_HUNKS) && a.includes(`9. ${NO_LANDING}`) && !a.includes('LIST LANDED BRANCHES'), `proactive, continues false, ${label}: acceptance reads no restored hunk and lists no landed branch`);
+    const keepsOrigin = pulled.length > 0;
+    eq([a.includes(ORIGIN), a.includes(LEDGER_BULLET), a.includes(AMENDED_LINE), a.includes(pulledRegressionItem('fix-a'))].join(','), [keepsOrigin, keepsOrigin, keepsOrigin, keepsOrigin].join(','),
+      `proactive, continues false, ${label}: acceptance ${keepsOrigin ? 'keeps' : 'drops'} the origin, ledger and amended text and the pulled regression item`);
+  }
+  const proPark = flat((await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_GAP, park: PARK_OK }, { ...proOff, maxRounds: 1 })).prompt('park:fix-a'));
+  ok(!proPark.includes('This is a fix block, so its round 1 restored') && !proPark.includes(SUPERSEDE) && proPark.includes('Return superseded_entries=[], since round 1 restored no branch.'),
+    'proactive, continues false: the park takes no restored branch as a parent and supersedes none');
+  eq(syncOf((await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_GAP, park: { ...PARK_OK, superseded_entries: ['i-1'] } }, { ...proOff, maxRounds: 1 })).out),
+    'fix-a=backlogged,i-1=needs-attention', 'proactive, continues false: the engine ignores a superseded list the park returns anyway');
   const passOf = (a, b) => ({ ...PASS_ARGS, plans: [{ ...PASS, blocks: [{ ...PASS.blocks[0], continues: a }, { ...PASS.blocks[1], continues: b }] }] });
   const passRun = (args) => run({ develop: passDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'FIXED' }, { issue_id: 'i-3', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, args);
   eq(shows(promptsOf(await passRun(passOf(false, false)), 'fix-a-plus-1')).join(','), 'false,false,false,false,false', 'a pass whose every member continues nothing skips the text');
