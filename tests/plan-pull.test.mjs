@@ -159,6 +159,18 @@ section('pullable lists a ready entry beside an unfilled NEEDS_USER entry, since
   ok(!/still holds the placeholder/.test(notes), `no note names the NEEDS_USER entry: ${notes.trim()}`);
 }
 
+section('pullable skips a status edit it cannot read that names no backlog file, and fails on one that names one');
+{
+  const backlog = tmpDir();
+  const ready = backlogFile(backlog, 'ready', 'todo', [{ id: 'ready-1', file: 'src/a.js:1' }]);
+  const skewed = (planPath) => ({ runId: 'wf_skew', timestamp: '2026-09-25T10:00:00.000Z', workflowName: 'develop-cycle', status: 'failed', args: {},
+    logs: [`status-sync ${JSON.stringify([{ planPath, id: 'ready-1', key: 'status', value: 'fixed', expectNoOpen: 'yes' }])}`], result: null });
+  const foreign = pullable(configWith([skewed(join(tmpDir(), 'elsewhere.md'))]), '--backlog', backlog, '--files', 'src/a.js');
+  eq((foreign.entries ?? []).map((e) => e.id).join(','), 'ready-1', `an edit that names another plan leaves the listing as it is: ${foreign.err ?? ''}`);
+  const own = pullable(configWith([skewed(ready)]), '--backlog', backlog, '--files', 'src/a.js');
+  ok(/holds a status edit that names .*ready\.md.*a different aipg version/.test(own.err ?? ''), `an edit that names a backlog file it folds fails: ${(own.err ?? 'no error').slice(0, 160)}`);
+}
+
 section('pullable fails on a missing flag or file list, and a missing folder lists nothing');
 {
   const backlog = tmpDir();

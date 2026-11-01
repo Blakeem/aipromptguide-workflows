@@ -754,9 +754,50 @@ section('a status line the runtime cut short blocks only the plans it names');
   const completed = withCut(many(done, ['bus-parser', 'triage', 'inventory']), { result: { statusSync: many(done, ['bus-parser']) } });
   const fromResult = argsWith(configWith([completed]), done);
   ok(!fromResult.err && read(done).includes('status: done'), `a completed run folds from its uncut result, past its cut logs: ${fromResult.err ?? ''}`);
+}
 
-  const broken = { ...record({ runId: 'wf_bad' }), logs: ['status-sync [{"planPath": nope'] };
-  ok(/wf_bad\.json has a status line that is not JSON — the Claude Code run-record format changed/.test(argsWith(configWith([broken]), plan).err ?? ''), 'a status line broken without the cut marker still fails as a format change');
+section('a status edit or line this plan-edit.mjs cannot read blocks only the plans it names');
+// A develop engine of another aipg version may log an edit or a line this copy cannot read. One such record from
+// another project's run must not stop every launch on the machine, as for a cut line.
+{
+  const plan = fixture();
+  const other = fixture(DEST, 'inbox.md');
+  const logged = (path) => path.replace(/\\/g, '/');
+  const odd = (planPath) => ({ ...status('inbox', 'done', logged(planPath)), expectNoOpen: 'yes' });
+  const notJson = (planPath) => `status-sync [{"planPath":${JSON.stringify(logged(planPath))},"id": nope`;
+  const withLogs = (lines, { runId = 'wf_skew', timestamp } = {}) => ({ ...record({ runId, timestamp }), logs: ['develop: 1/1 block(s) to build', ...lines] });
+
+  const foreignEdit = withLogs([`status-sync ${JSON.stringify([status('bus-parser', 'done', plan), odd(other)])}`]);
+  const passed = argsWith(configWith([foreignEdit]), plan);
+  ok(!passed.err && JSON.parse(passed.out ?? '{}').plans?.length === 3, `an edit that fails the type check and names another plan lets args print: ${passed.err ?? ''}`);
+  ok(read(plan).includes('status: done'), 'and the run\'s readable edits still apply');
+  ok(/skipped 1 status edit\(s\) that fail the type check in run wf_skew \(.*\), since their text names no plan given here: \{.*"expectNoOpen":"yes"\}/.test(passed.notes ?? ''), `the note names the edit and its run: ${(passed.notes ?? '').trim().split('\n')[0]}`);
+
+  const own = fixture(PLAN, 'own.md');
+  const ownBefore = read(own);
+  const ownEdit = withLogs([`status-sync ${JSON.stringify([odd(own)])}`]);
+  const failed = argsWith(configWith([ownEdit]), own);
+  ok(/^run wf_skew \(.*wf_skew\.json, 2026-09-25T10:00:00\.000Z\) holds a status edit that names .*own\.md, and it is not \{ planPath \(absolute\).*: \{.*"expectNoOpen":"yes"\}, so its status edits cannot be applied/.test(failed.err ?? ''), `an edit that names a given plan fails with its run, record, timestamp and reason: ${(failed.err ?? 'no error').slice(0, 160)}`);
+  ok(/may be a different aipg version from this plan-edit\.mjs\. Run "args" with the plan-edit\.mjs of the aipg copy that launched that run, or set those statuses by hand, applying an edit that carries "expectPulled".*"synced:" file key to 2026-09-25T10:00:00\.000Z$/.test(failed.err ?? ''), `and names both ways out: ${(failed.err ?? 'no error').slice(-160)}`);
+  eq(read(own), ownBefore, 'and writes no file');
+
+  const older = record({ runId: 'wf_older', timestamp: '2026-09-25T09:00:00.000Z', blocks: [[status('bus-parser', 'parked', own)]] });
+  ok(/older run\(s\) wf_older, which that key also skips$/.test(argsWith(configWith([ownEdit, older]), own).err ?? ''), 'an older unapplied run that names the plan is listed');
+
+  const lineFor = fixture(PLAN, 'line.md');
+  const foreignLine = argsWith(configWith([withLogs([notJson(other)])]), lineFor);
+  ok(!foreignLine.err, `a status line that is not JSON and names another plan is skipped: ${foreignLine.err ?? ''}`);
+  ok(/skipped 1 status line\(s\) that are not JSON in run wf_skew \(.*\), since their text names no plan given here\n/.test(foreignLine.notes ?? ''), `the note names the line's kind and its run: ${(foreignLine.notes ?? '').trim()}`);
+  const lineBefore = read(lineFor);
+  const ownLine = argsWith(configWith([withLogs([notJson(lineFor)])]), lineFor);
+  ok(/^run wf_skew \(.*\) holds a status line that names .*line\.md, and it is not JSON, so its status edits cannot be applied\. A develop engine of another aipg version may have written it, or Claude Code may have changed how it logs, .*readRunRecord in tools\/plan-edit\.mjs\. The record's logs hold the line\. Run "args"/.test(ownLine.err ?? ''), `a status line that is not JSON and names a given plan fails, naming both causes:${(ownLine.err ?? 'no error').slice(0, 160)}`);
+  eq(read(lineFor), lineBefore, 'and writes no file');
+
+  const relative = argsWith(configWith([record({ blocks: [[status('bus-parser', 'done', 'plans/x.md')]] })]), plan);
+  ok(!relative.err && /skipped 1 status edit\(s\) that fail the type check in run wf_1 .*"planPath":"plans\/x\.md"/.test(relative.notes ?? ''), `a relative planPath names no plan given, so it is skipped with a note: ${relative.err ?? ''}`);
+
+  const synced = fixture(`synced: 2026-09-25T11:00:00.000Z\n${PLAN}`, 'synced.md');
+  ok(!argsWith(configWith([withLogs([`status-sync ${JSON.stringify([odd(synced)])}`])]), synced).err, 'an unread edit the synced key already covers is skipped');
 }
 
 section('args writes the synced key under frontmatter, and keeps a BOM and CRLF endings');
@@ -814,7 +855,6 @@ section('every args failure writes no file, and names what to do');
   const cases = [
     [[record({ blocks: [good, [status('ghost', 'done', dest)]] })], /run wf_1 .* sets ghost status=done in .*no id "ghost".*set its "synced:" file key/, 'an unknown id in the LAST file'],
     [[record({ blocks: [good, [status('inbox', 'nearly', dest)]] })], /illegal preamble key "status: nearly"/, 'an illegal value'],
-    [[record({ blocks: [[status('bus-parser', 'done', 'plans/x.md')]] })], /is not \{ planPath \(absolute\)/, 'a relative planPath'],
     [[{ runId: 'wf_x', timestamp: '2026-09-25T10:00:00.000Z' }], /has no workflowName — the Claude Code run-record format changed/, 'a record with no workflowName'],
     [[{ ...record(), logs: undefined }], /has no valid logs — the Claude Code run-record format changed/, 'a develop record with no logs'],
     [[{ ...record(), status: 'done', timestamp: 'soon' }], /has no valid status, timestamp/, 'a develop record with an unknown status and date'],
@@ -824,6 +864,12 @@ section('every args failure writes no file, and names what to do');
     ok(re.test(err ?? ''), `${what}: ${(err ?? 'no error').slice(0, 110)}`);
     eq(read(plan) + read(dest), planBefore + destBefore, `${what}: neither file was written`);
   }
+  const garbled = configWith([]);
+  const runs = join(garbled, 'projects', 'proj', 'session', 'workflows');
+  mkdirSync(runs, { recursive: true });
+  writeFileSync(join(runs, 'wf_garbled.json'), '{ not json');
+  ok(/^cannot read run record .*wf_garbled\.json: /.test(argsWith(garbled, plan, dest).err ?? ''), 'a record file that is not JSON fails for every plan');
+  eq(read(plan) + read(dest), planBefore + destBefore, 'a record file that is not JSON: neither file was written');
   ok(/no develop run record for wf_missing .*moved its run records/.test(argsWith(configWith([]), plan, '--expect', 'wf_missing').err), '--expect names a run it cannot find');
   ok(!argsWith(configWith([record()]), plan, '--expect', 'wf_1').err, 'and passes when the record exists');
   ok(/usage:/.test(argsWith(configWith([]), '--expect').err ?? ''), 'no plan is a usage error');
@@ -1257,9 +1303,9 @@ section('a status edit whose value is null removes that key\'s line, with its ow
   const renamed = argsWith(configWith([record({ blocks: [[{ planPath: path, id: 'inbox-1', key: 'effort', value: null }]] })]), path).err ?? '';
   ok(/removes the effort line of inbox-1 .*was renamed to "size", so use size in its place/.test(renamed), `a renamed key fails with a message that never asks for a value: ${renamed}`);
   const typed = argsWith(configWith([record({ blocks: [[{ planPath: path, id: 'inbox-1', key: 'pulled', value: 7 }]] })]), path).err ?? '';
-  ok(/is not \{ planPath \(absolute\), id, key, value \(a string, or null to remove the line\), expectPulled \(absent, or the pulled value the entry must carry\), expectNoOpen \(absent, or true\) \}/.test(typed), 'a value that is neither a string nor null still fails the record');
+  ok(/is not \{ planPath \(absolute\), id, key, value \(a string, or null to remove the line\), expectPulled \(absent, or the pulled value the entry must carry\), expectNoOpen \(absent, or true\) \}/.test(typed), 'a value that is neither a string nor null still fails the plan it names');
   const badExpect = argsWith(configWith([record({ blocks: [[{ planPath: path, id: 'inbox-1', key: 'pulled', value: null, expectPulled: 7 }]] })]), path).err ?? '';
-  ok(/is not \{ planPath \(absolute\), id, key, value/.test(badExpect), `an expectPulled that is not a string fails the record: ${badExpect}`);
+  ok(/is not \{ planPath \(absolute\), id, key, value/.test(badExpect), `an expectPulled that is not a string fails the plan it names: ${badExpect}`);
 }
 
 section('a status edit with expectPulled applies only to an entry whose pulled line holds that mark');
@@ -1331,7 +1377,7 @@ section('a status edit with expectNoOpen sets a todo block done only once it hol
   const issueErr = argsWith(configWith([record({ blocks: [[{ planPath: onIssue, id: 'inbox-2', key: 'status', value: 'fixed', expectNoOpen: true }]] })]), onIssue).err ?? '';
   ok(/sets inbox-2 status=fixed in .*inbox\.md, which fails: "inbox-2" in .*inbox\.md is an issue entry, not a block/.test(issueErr), `an expectNoOpen on an issue id fails, naming the edit: ${issueErr}`);
   const badFlag = argsWith(configWith([record({ blocks: [[{ ...done(onIssue), expectNoOpen: false }]] })]), onIssue).err ?? '';
-  ok(/is not \{ planPath \(absolute\), id, key, value .*expectNoOpen \(absent, or true\) \}/.test(badFlag), `an expectNoOpen that is not true fails the record: ${badFlag}`);
+  ok(/is not \{ planPath \(absolute\), id, key, value .*expectNoOpen \(absent, or true\) \}/.test(badFlag), `an expectNoOpen that is not true fails the plan it names: ${badFlag}`);
 }
 
 section('--backlog never builds an entry another block\'s developer pulled');

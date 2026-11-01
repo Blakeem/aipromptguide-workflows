@@ -376,12 +376,21 @@ export function envelopeFaults(data) {
 
 // The runtime keeps a long log line's head and tail and replaces its middle with this marker.
 const CUT_MARK = /\n\n\.\.\. \[\d+ characters truncated\] \.\.\.\n\n/;
+const EDIT_SHAPE = '{ planPath (absolute), id, key, value (a string, or null to remove the line), expectPulled (absent, or the pulled value the entry must carry), expectNoOpen (absent, or true) }';
+// Each kind of status item a record keeps unread, as a note counts it.
+const UNREAD_KINDS = {
+  cut: 'status line(s) the runtime cut short',
+  line: 'status line(s) that are not JSON',
+  edit: 'status edit(s) that fail the type check',
+};
 
 /**
- * A develop run's record as { path, runId, developRunId, backlogDir, rows, status, time, edits, cut }, or null for any
- * other workflow. `runId` is the runtime's wf_ id, `developRunId` the runId arg develop names its backlog files with
+ * A develop run's record as { path, runId, developRunId, backlogDir, rows, status, time, edits, unread }, or null for
+ * any other workflow. `runId` is the runtime's wf_ id, `developRunId` the runId arg develop names its backlog files with
  * (null when the record keeps neither its args nor its result), `backlogDir` its backlogDir arg (null when the record
- * keeps none), and `rows` its `plans` arg. `cut` holds each status line the runtime cut short, which no longer parses.
+ * keeps none), and `rows` its `plans` arg. `unread` holds each status item that cannot be applied, as { kind, text,
+ * reason }: a line the runtime cut short (reason null), a line that is not JSON, or an edit that fails the type check,
+ * which a develop engine of another aipg version may write. Only a plan an item names fails its fold.
  */
 export function readRunRecord(path) {
   let data = null;
@@ -398,52 +407,53 @@ export function readRunRecord(path) {
   // A completed run returns every edit uncut. A failed or stopped run has no result, so its edits come from
   // the per-block log lines, which the runtime may cut.
   const fromResult = Array.isArray(data.result?.statusSync);
-  const edits = fromResult ? [...data.result.statusSync] : [];
-  const cut = [];
+  const logged = fromResult ? [...data.result.statusSync] : [];
+  const unread = [];
   const lines = fromResult ? [] : data.logs.filter((l) => l.startsWith(STATUS_LOG));
   for (const line of lines) {
     if (CUT_MARK.test(line)) {
-      cut.push(line);
+      unread.push({ kind: 'cut', text: line, reason: null });
       continue;
     }
     let parsed = null;
     try {
       parsed = JSON.parse(line.slice(STATUS_LOG.length));
     } catch {
-      throw new Error(`${path} has a status line that is not JSON — ${FORMAT_CHANGED}`);
+      unread.push({ kind: 'line', text: line, reason: 'it is not JSON' });
+      continue;
     }
-    edits.push(...[].concat(parsed));
+    logged.push(...[].concat(parsed));
   }
-  edits.forEach((e, i) => {
+  const edits = [];
+  for (const e of logged) {
     const typed = e && ['planPath', 'id', 'key'].every((k) => typeof e[k] === 'string') && (typeof e.value === 'string' || e.value === null)
       && (e.expectPulled === undefined || typeof e.expectPulled === 'string')
       && (e.expectNoOpen === undefined || e.expectNoOpen === true);
-    if (!typed || !isAbsolute(e.planPath)) {
-      throw new Error(`status edit [${i}] in ${path} is not { planPath (absolute), id, key, value (a string, or null to remove the line), expectPulled (absent, or the pulled value the entry must carry), expectNoOpen (absent, or true) }: ${JSON.stringify(e)}`);
-    }
-  });
+    if (typed && isAbsolute(e.planPath)) edits.push(e);
+    else unread.push({ kind: 'edit', text: JSON.stringify(e), reason: `it is not ${EDIT_SHAPE}` });
+  }
   // Older records keep no args, so the result's echo of the runId arg stands in for it. develop takes a numeric
   // runId too and writes it into a backlog file's header as text.
   const runIdArg = [data.args?.runId, data.result?.runId].find((v) => typeof v === 'string' || Number.isFinite(v));
   const developRunId = runIdArg === undefined ? null : String(runIdArg);
   const backlogDir = typeof data.args?.backlogDir === 'string' ? data.args.backlogDir : null;
   const rows = Array.isArray(data.args?.plans) ? data.args.plans : [];
-  return { path, runId: data.runId, developRunId, backlogDir, rows, status: data.status, time: Date.parse(data.timestamp), edits, cut };
+  return { path, runId: data.runId, developRunId, backlogDir, rows, status: data.status, time: Date.parse(data.timestamp), edits, unread };
 }
 
 /**
- * Whether the surviving text of a cut status line names *planPath*: a whole `planPath` value that resolves to
- * the same file, or the path's text in any slash direction or case, as the log escapes it.
+ * Whether the text of an unread status item, which may be cut short, names *planPath*: a whole `planPath` value that
+ * resolves to the same file, or the path's text in any slash direction or case, as the log escapes it.
  */
-function namesPlan(line, planPath) {
+function namesPlan(text, planPath) {
   const key = fileKey(planPath);
-  const resolved = [...line.matchAll(/"planPath":("(?:[^"\\]|\\.)*")/g)].some((m) => {
+  const resolved = [...text.matchAll(/"planPath":("(?:[^"\\]|\\.)*")/g)].some((m) => {
     try {
       return fileKey(JSON.parse(m[1])) === key;
     } catch { return false; }
   });
   const spellings = [planPath, key].flatMap((p) => [p, p.replace(/\\/g, '/'), p.replace(/\//g, '\\')]);
-  const haystack = line.toLowerCase();
+  const haystack = text.toLowerCase();
   return resolved || spellings.some((p) => haystack.includes(JSON.stringify(p).slice(1, -1).toLowerCase()));
 }
 
@@ -512,13 +522,22 @@ function foldRecords(plan, records, note) {
   const marker = Date.parse(parseFileKeys(plan.text).values.synced ?? '') || 0;
   const key = fileKey(plan.path);
   const [lost] = records
-    .filter((r) => r.time > marker && r.cut.some((line) => namesPlan(line, plan.path)))
+    .filter((r) => r.time > marker && r.unread.some((item) => namesPlan(item.text, plan.path)))
     .sort((a, b) => a.time - b.time);
   if (lost) {
+    const item = lost.unread.find((x) => namesPlan(x.text, plan.path));
     const iso = new Date(lost.time).toISOString();
     const older = records.filter((r) => r.time > marker && r.time < lost.time && r.edits.some((e) => fileKey(e.planPath) === key));
     const skipped = older.length ? ` after applying by hand the edits of the older run(s) ${older.map((r) => r.runId).join(', ')}, which that key also skips` : '';
-    throw new Error(`run ${lost.runId} (${lost.path}, ${iso}) logged a status line the runtime cut short, and it names ${plan.path}, so its status edits cannot be applied. The record's logs hold what survived. Set those statuses by hand, applying an edit that carries "expectPulled" only to an entry whose "- pulled:" value equals it and one that carries "expectNoOpen" only to a todo block that holds no open entry, then set the plan's "synced:" file key to ${iso}${skipped}`);
+    const byHand = `applying an edit that carries "expectPulled" only to an entry whose "- pulled:" value equals it and one that carries "expectNoOpen" only to a todo block that holds no open entry, then set the plan's "synced:" file key to ${iso}${skipped}`;
+    if (item.kind === 'cut') {
+      throw new Error(`run ${lost.runId} (${lost.path}, ${iso}) logged a status line the runtime cut short, and it names ${plan.path}, so its status edits cannot be applied. The record's logs hold what survived. Set those statuses by hand, ${byHand}`);
+    }
+    // develop-cycle.mjs logs every status line as JSON, so a line that is not JSON may also mean a new runtime cut marker.
+    const cause = item.kind === 'edit'
+      ? 'The develop engine that wrote the record may be a different aipg version from this plan-edit.mjs'
+      : 'A develop engine of another aipg version may have written it, or Claude Code may have changed how it logs, such as the marker it cuts a long line with, which needs an update to readRunRecord in tools/plan-edit.mjs. The record\'s logs hold the line';
+    throw new Error(`run ${lost.runId} (${lost.path}, ${iso}) holds a status ${item.kind} that names ${plan.path}, and ${item.reason}${item.kind === 'edit' ? `: ${item.text}` : ''}, so its status edits cannot be applied. ${cause}. Run "args" with the plan-edit.mjs of the aipg copy that launched that run, or set those statuses by hand, ${byHand}`);
   }
   const fresh = records
     .filter((r) => r.time > marker)
@@ -1039,8 +1058,13 @@ function runArgs(argv, note, invokedScript) {
   }
   const backlog = flags['--backlog'] ? foldBacklog(flags['--backlog'], plans, records, note, { choose: !foldOnly }) : [];
   const known = [...plans, ...backlog];
-  for (const r of records.filter((x) => x.cut.length && !known.some((p) => x.cut.some((line) => namesPlan(line, p.path))))) {
-    note(`skipped ${r.cut.length} status line(s) the runtime cut short in run ${r.runId} (${r.path}), since their surviving text names no plan given here\n`);
+  for (const r of records) {
+    const unnamed = r.unread.filter((item) => !known.some((p) => namesPlan(item.text, p.path)));
+    for (const [kind, label] of Object.entries(UNREAD_KINDS)) {
+      const items = unnamed.filter((item) => item.kind === kind);
+      const texts = kind === 'edit' ? `: ${items.map((item) => item.text).join(', ')}` : '';
+      if (items.length) note(`skipped ${items.length} ${label} in run ${r.runId} (${r.path}), since their text names no plan given here${texts}\n`);
+    }
   }
   const folded = plans.map((p) => foldRecords(p, records, note));
   const added = backlog.filter((f) => f.chosen);

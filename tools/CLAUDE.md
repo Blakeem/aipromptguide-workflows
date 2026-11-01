@@ -112,9 +112,14 @@ files' included. It sets no `done` backlog file to `todo`, holds back nothing an
 operator reads current statuses without a launch. It refuses `--pack`. The record format is Claude Code's and
 undocumented. A completed run's edits come from its result, which holds them uncut. A failed or stopped run's
 come from its log lines, and the runtime cuts a long line short: a cut line that names a plan being folded
-fails `args`, and one that names none is skipped with a note. A changed develop record fails `args` loudly,
-`--expect <wf-id>` fails when a known run's record is missing, and `tests/plan-bus.test.mjs` checks the newest
-records on the machine on every suite run. Records expire after `cleanupPeriodDays` (30 by default).
+fails `args`, and one that names none is skipped with a note. A changed develop record fails `args` loudly
+when the record file does not parse, has no `workflowName` or has an envelope fault. A status edit that fails
+the type check, which a develop engine of another aipg version may write, fails only a plan it names, as a cut
+line does. So does a status line that is not JSON, which that engine or a change to the runtime's cut marker
+may write. The error names those causes and says to run `args` with the `plan-edit.mjs` of the aipg copy that
+launched the run, or to set the statuses by hand. `--expect <wf-id>` fails when a known run's record is
+missing, and `tests/plan-bus.test.mjs` checks the newest records on the machine on every suite run. Records
+expire after `cleanupPeriodDays` (30 by default).
 
 `--backlog <dir>` adds each backlog file in `<dir>` whose `status:` is `todo` or `done` and that holds an
 entry with `- decision: ACTIONABLE` and `- status: open`, after folding the finished runs into it. A file that
