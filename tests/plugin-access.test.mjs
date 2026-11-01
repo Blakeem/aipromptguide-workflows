@@ -5,13 +5,13 @@
 // grant never damages the user's settings file.
 import { execFileSync } from 'node:child_process';
 import {
-  copyFileSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync, existsSync, lstatSync,
+  copyFileSync, cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync, existsSync, lstatSync,
   symlinkSync,
 } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
-import { grantDir, ruleFor, withRule } from '../tools/plugin-access.mjs';
+import { grantDir, orphanRefusal, ruleFor, withRule } from '../tools/plugin-access.mjs';
 
 const CLI = join(REPO_ROOT, 'tools/plugin-access.mjs');
 
@@ -198,6 +198,58 @@ section('a plugin path through a link grants both the invoked spelling and the r
     } else {
       ok(true, 'skipped: this machine cannot create a link');
     }
+  } finally {
+    rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+  }
+}
+
+section('an orphaned plugin copy refuses with the installed sibling named, and writes nothing');
+{
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), 'aipg-orphan-')));
+  const configDir = join(dir, 'config');
+  const cache = join(dir, 'aipg');
+  const version = (name, { orphan = false, manifest = true } = {}) => {
+    const root = join(cache, name);
+    mkdirSync(join(root, '.claude-plugin'), { recursive: true });
+    cpSync(join(REPO_ROOT, 'tools'), join(root, 'tools'), { recursive: true, filter: (src) => basename(src) !== '.cache' });
+    if (manifest) copyFileSync(join(REPO_ROOT, '.claude-plugin', 'plugin.json'), join(root, '.claude-plugin', 'plugin.json'));
+    if (orphan) writeFileSync(join(root, '.orphaned_at'), '1');
+    return root;
+  };
+  try {
+    mkdirSync(configDir);
+    const old = version('1.0.0', { orphan: true });
+    eq(orphanRefusal(REPO_ROOT), null, 'a folder with no marker returns null');
+
+    const alone = orphanRefusal(old);
+    ok(alone.includes('${CLAUDE_PLUGIN_ROOT}') && alone.includes('new Claude Code session') && alone.includes('No installed copy was found')
+      && alone.includes('Install or update the plugin'),
+      'with no installed sibling the text says to install or update, and names ${CLAUDE_PLUGIN_ROOT} and a new session');
+
+    const fresh = version('1.1.0');
+    version('0.9.0', { manifest: false });
+    version('0.8.0', { orphan: true });
+    const named = orphanRefusal(old);
+    ok(named.includes(old) && named.includes(`load ${fresh}`) && named.includes(`by hand runs from ${fresh}`),
+      'with one installed sibling the text names both folders and leads with the restart');
+    ok(named.indexOf('Restart Claude Code') < named.indexOf('by hand'), 'and the restart comes before the hand-run remedy');
+    ok(!named.includes('0.9.0') && !named.includes('0.8.0') && !named.includes('${CLAUDE_PLUGIN_ROOT}'),
+      'a sibling with no manifest or with a marker is not named');
+    ok(named.includes('no longer the installed version') && !named.includes('—'),
+      'the text says the copy is replaced and holds no em dash');
+
+    version('1.2.0');
+    ok(orphanRefusal(old).includes('new Claude Code session') && !orphanRefusal(old).includes(fresh),
+      'with two installed siblings the text names ${CLAUDE_PLUGIN_ROOT} and a new session');
+
+    const script = join(old, 'tools', 'plugin-access.mjs');
+    for (const verb of ['check', 'grant']) {
+      const r = cliAt(script, configDir, verb);
+      eq(r.code, 1, `${verb} from the orphaned copy exits 1`);
+      ok(r.stderr.startsWith('plugin-access: ') && r.stderr.includes(old), `and ${verb} prints the refusal on stderr`);
+    }
+    eq(existsSync(join(configDir, 'settings.json')), false, 'and neither wrote the user settings');
+    eq(cliAt(join(fresh, 'tools', 'plugin-access.mjs'), configDir, 'check').code, 0, 'a copy with no marker still checks as before');
   } finally {
     rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
   }

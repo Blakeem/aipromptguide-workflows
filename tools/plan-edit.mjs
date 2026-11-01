@@ -33,6 +33,7 @@ import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } fr
 import { homedir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { PLUGIN_ROOT, orphanRefusal } from './plugin-access.mjs';
 import { RUN_KEYS, TITLE_SPLIT_RE, listObject, parseBlocks, parseFileKeys, resolveRoadmap, validate } from './plan-block.mjs';
 
 const USAGE = `usage:
@@ -1090,8 +1091,11 @@ try {
     && pathToFileURL(realpathSync(process.argv[1])).href === pathToFileURL(realpathSync(fileURLToPath(import.meta.url))).href;
 } catch { invokedDirectly = false; }
 
+// An orphaned plugin copy refuses before any verb, so a stale copy writes no plan. An import runs no check.
 if (invokedDirectly) {
   try {
+    const refusal = orphanRefusal(PLUGIN_ROOT);
+    if (refusal) throw new Error(refusal);
     process.stdout.write(run(process.argv.slice(2), toStderr, process.argv[1]));
   } catch (err) {
     process.stderr.write(`plan-edit: ${err.message}\n`);

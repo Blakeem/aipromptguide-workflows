@@ -46,6 +46,7 @@ for (const name of SKILLS) {
   ok(body.includes('${CLAUDE_PLUGIN_ROOT}'), 'body resolves the plugin root');
   ok(body.includes('${CLAUDE_PLUGIN_DATA}'), 'body resolves the data dir (run-state root)');
   ok(body.includes(`/workflows/${name}/CLAUDE.md`), 'body points at this workflow\'s guide');
+  ok(!src.includes('—'), 'skill text holds no em dash');
   // The Workflow tool refuses a scriptPath the session cannot already read, and a plugin cannot grant
   // itself its own folder. The onboarding check asks for that access along with the build settings.
   const accessCheck = body.indexOf('node "${CLAUDE_PLUGIN_ROOT}/tools/plugin-access.mjs" check');
@@ -68,6 +69,8 @@ for (const name of SKILLS) {
   } else {
     ok(accessCheck >= 0 && accessCheck < handover,
       'body runs the plugin-access check before it hands over to the guide');
+    ok(body.replace(/\s+/g, ' ').includes('When `plugin-access.mjs` exits 1, show the user its message, which names the cause, and run it again once the cause is fixed.'),
+      'body shows the user the message of an exit-1 plugin-access check, an orphaned plugin copy included');
     ok(onboardCheck < 0, 'body runs no onboarding check, since this workflow builds no code');
   }
   ok(/\$ARGUMENTS\s*$/.test(body), 'body ends with $ARGUMENTS');

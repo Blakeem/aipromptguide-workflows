@@ -10,11 +10,14 @@
 //   node tools/plugin-access.mjs check    # "granted <rules> in <settings>" or "missing <rules> in <settings>"
 //   node tools/plugin-access.mjs grant    # adds the missing rules to the user settings, a no-op when present
 //
+// A copy whose folder holds `.orphaned_at` is a replaced plugin version, so `accessState` throws `orphanRefusal`'s
+// text and the verbs above exit 1 without a write.
+//
 // The user settings are <$CLAUDE_CONFIG_DIR or ~/.claude>/settings.json. Ordinary Node: `node --check` applies.
 
 import {
-  chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, realpathSync, renameSync, statSync,
-  writeFileSync,
+  chmodSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSync, realpathSync, renameSync,
+  statSync, writeFileSync,
 } from 'node:fs';
 import { homedir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
@@ -22,6 +25,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const USAGE = 'usage: node tools/plugin-access.mjs check|grant';
 const VERBS = ['check', 'grant'];
+const ORPHAN_MARKER = '.orphaned_at';
+// The plugin folder that holds this file's tools/ folder, so a tool beside this file finds its own plugin root here.
+export const PLUGIN_ROOT = fileURLToPath(new URL('..', import.meta.url)).replace(/[\\/]$/, '');
 const DRIVE_RE = /^([A-Za-z]):\//;
 
 const toPosix = (p) => p.replace(/\\/g, '/').replace(/(.)\/+$/, '$1');
@@ -76,6 +82,39 @@ export function withRule(settings, rule) {
   return { settings: { ...settings, permissions: { ...permissions, allow: [...allow, rule] } }, present: false };
 }
 
+/** The installed copies beside an orphaned plugin folder: the sibling folders that hold a plugin manifest and no marker. */
+function installedSiblings(orphanRoot) {
+  // Input
+  const cache = dirname(orphanRoot);
+  let names = [];
+
+  // Process
+  try {
+    names = readdirSync(cache);
+  } catch { return []; }
+
+  // Output
+  return names.map((name) => join(cache, name))
+    .filter((dir) => existsSync(join(dir, '.claude-plugin', 'plugin.json')) && !existsSync(join(dir, ORPHAN_MARKER)));
+}
+
+/** Null when the plugin folder `pluginRoot` holds no `.orphaned_at` file. Otherwise the refusal text, which names the
+ *  folder and, when exactly one installed sibling exists, that copy to run from. */
+export function orphanRefusal(pluginRoot) {
+  // Input
+  if (!existsSync(join(pluginRoot, ORPHAN_MARKER))) return null;
+  const siblings = installedSiblings(pluginRoot);
+
+  // Output
+  const runFromRoot = 'run the tool from the folder ${CLAUDE_PLUGIN_ROOT} names';
+  const newSession = `${runFromRoot} in a new Claude Code session`;
+  let remedy = `Restart Claude Code to start a new Claude Code session, then ${runFromRoot}.`;
+  if (siblings.length === 0) remedy = `No installed copy was found beside it. Install or update the plugin, then ${newSession}.`;
+  if (siblings.length === 1) remedy = `Restart Claude Code so the session's skills load ${siblings[0]}. A tool run by hand runs from ${siblings[0]}.`;
+  return `${pluginRoot} is an orphaned plugin copy. Claude Code deletes an orphaned plugin version, and this copy is no `
+    + `longer the installed version. ${remedy} Nothing was written.`;
+}
+
 /** The user settings file: <$CLAUDE_CONFIG_DIR or ~/.claude>/settings.json. */
 export function settingsPath() {
   return join(process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude'), 'settings.json');
@@ -118,7 +157,9 @@ export function accessState(invokedScript) {
   // Node realpaths the main module, so only argv[1] keeps the ${CLAUDE_PLUGIN_ROOT} spelling through a link.
   // Whether the scriptPath gate matches that spelling or the resolved one is unmeasured, so both are granted.
   const invokedRoot = dirname(dirname(resolve(invokedScript)));
-  const realRoot = fileURLToPath(new URL('..', import.meta.url)).replace(/[\\/]$/, '');
+  const realRoot = PLUGIN_ROOT;
+  const refusal = orphanRefusal(realRoot);
+  if (refusal) throw new Error(refusal);
   const pluginName = JSON.parse(readFileSync(join(realRoot, '.claude-plugin', 'plugin.json'), 'utf8')).name;
   const userSettings = settingsPath();
   const settings = readSettings(userSettings);

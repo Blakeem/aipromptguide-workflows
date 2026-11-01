@@ -10,6 +10,8 @@ engines the session can read. On `missing`, unless the working directory is `${C
 folder above it, ask the user once whether to add the printed Read rule to their user settings. On yes,
 run the command again with `grant` (settings reload live, no restart). On no, the user can run
 `/add-dir ${CLAUDE_PLUGIN_ROOT}` for this session only.
+When `plugin-access.mjs` exits 1, show the user its message, which names the cause, and run it again
+once the cause is fixed.
 
 Read `${CLAUDE_PLUGIN_ROOT}/workflows/docs/CLAUDE.md` and follow it exactly.
 Use these paths wherever the guide says "this checkout" or "the tool's own directory":

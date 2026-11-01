@@ -11,6 +11,7 @@ import { execFileSync } from 'node:child_process';
 import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, sep } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
 import { RUN_KEYS, parseBlocks, resolveRoadmap, validate, run as planBlock } from '../tools/plan-block.mjs';
 import { PLACEHOLDER, STRENGTH, run } from '../tools/plan-edit.mjs';
@@ -554,7 +555,7 @@ section('args prints blockTool, the plan-block.mjs beside the plan-edit.mjs that
   const real = join(dir, 'real');
   const link = join(dir, 'link');
   mkdirSync(join(real, 'tools'), { recursive: true });
-  for (const name of ['plan-edit.mjs', 'plan-block.mjs']) copyFileSync(join(REPO_ROOT, 'tools', name), join(real, 'tools', name));
+  for (const name of ['plan-edit.mjs', 'plan-block.mjs', 'plugin-access.mjs']) copyFileSync(join(REPO_ROOT, 'tools', name), join(real, 'tools', name));
   const cliArgs = (script) => {
     try {
       const out = execFileSync(process.execPath, [script, 'args', plan], { encoding: 'utf8', stdio: 'pipe', env: { ...process.env, CLAUDE_CONFIG_DIR: config } });
@@ -589,6 +590,42 @@ section('args prints blockTool, the plan-block.mjs beside the plan-edit.mjs that
     ok(existsSync(viaFileLink), 'and that path reaches the file');
   } else {
     ok(true, 'skipped: this machine cannot create a file link');
+  }
+}
+
+section('an orphaned plugin copy refuses every verb before it runs, and an import runs no check');
+// The marker sits above the tools folder, so the copy holds the .orphaned_at file beside tools/.
+{
+  const plan = fixture();
+  const config = configWith([]);
+  const before = read(plan);
+  const dir = tmpDir();
+  mkdirSync(join(dir, 'tools'), { recursive: true });
+  for (const name of ['plan-edit.mjs', 'plan-block.mjs', 'plugin-access.mjs']) copyFileSync(join(REPO_ROOT, 'tools', name), join(dir, 'tools', name));
+  const script = join(dir, 'tools', 'plan-edit.mjs');
+  const at = (...argv) => {
+    try {
+      return { code: 0, stderr: '', stdout: execFileSync(process.execPath, [script, ...argv], { encoding: 'utf8', stdio: 'pipe', env: { ...process.env, CLAUDE_CONFIG_DIR: config } }) };
+    } catch (e) { return { code: e.status ?? 1, stderr: String(e.stderr || ''), stdout: String(e.stdout || '') }; }
+  };
+  eq(at('args', plan).code, 0, 'a copy with no marker runs args as before');
+  writeFileSync(join(dir, '.orphaned_at'), '1');
+  for (const argv of [['args', plan], ['set', plan, 'bus-parser', 'status=done'], ['move', plan, 'x', plan, 'y']]) {
+    const r = at(...argv);
+    eq(r.code, 1, `${argv[0]} from the orphaned copy exits 1`);
+    ok(r.stderr.startsWith('plan-edit: ') && r.stderr.includes('orphaned plugin copy'), `and ${argv[0]} prints the refusal on stderr`);
+    eq(r.stdout, '', `and ${argv[0]} prints nothing on stdout`);
+  }
+  eq(read(plan), before, 'and the plan file is byte-identical afterwards');
+  const saved = process.env.CLAUDE_CONFIG_DIR;
+  process.env.CLAUDE_CONFIG_DIR = config;
+  try {
+    const imported = await import(pathToFileURL(script).href);
+    const out = JSON.parse(imported.run(['args', plan], () => {}, script));
+    eq(out.blockTool.endsWith('plan-block.mjs'), true, 'an import of the orphaned copy still runs a verb, since an import runs no check');
+  } finally {
+    if (saved === undefined) delete process.env.CLAUDE_CONFIG_DIR;
+    else process.env.CLAUDE_CONFIG_DIR = saved;
   }
 }
 

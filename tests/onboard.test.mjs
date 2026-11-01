@@ -3,9 +3,9 @@
 // What matters here is that a repo with every answer saved prints one ready line, that each missing answer shows its
 // question and no other, that save writes each answer to its own file, and that a bad argument writes nothing.
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
 
 const CLI = join(REPO_ROOT, 'tools/onboard.mjs');
@@ -138,4 +138,24 @@ withFixture(USER, (fx) => {
     ok(r.code === 1 && cause.test(r.stderr), `${JSON.stringify(argv.filter((a) => !a.includes(fx.root)))} exits 1 with the cause: ${r.stderr.trim()}`);
   }
   ok(!existsSync(fx.settingsPath) && !existsSync(fx.state), 'nothing was written');
+});
+
+section('check and save from an orphaned plugin copy exit 1 with the refusal and write nothing');
+withFixture(USER, (fx) => {
+  const copy = join(fx.root, 'cache', 'aipg', '1.0.0');
+  mkdirSync(join(copy, '.claude-plugin'), { recursive: true });
+  cpSync(join(REPO_ROOT, 'tools'), join(copy, 'tools'), { recursive: true, filter: (src) => basename(src) !== '.cache' });
+  copyFileSync(join(REPO_ROOT, '.claude-plugin', 'plugin.json'), join(copy, '.claude-plugin', 'plugin.json'));
+  const script = join(copy, 'tools', 'onboard.mjs');
+  const env = { ...process.env, CLAUDE_CONFIG_DIR: join(fx.root, 'config') };
+  const at = (...argv) => run(process.execPath, [script, ...argv, '--root', fx.state, '--repo', fx.repo], env, fx.root);
+
+  eq(at('check').code, 0, 'a copy with no marker checks as before');
+  writeFileSync(join(copy, '.orphaned_at'), '1');
+  for (const argv of [['check'], ['save', '--policy', 'focused', '--access', 'allow']]) {
+    const r = at(...argv);
+    eq(r.code, 1, `${argv[0]} from the orphaned copy exits 1`);
+    ok(r.stderr.includes(copy) && r.stderr.includes('orphaned plugin copy'), `and ${argv[0]} prints the refusal on stderr`);
+  }
+  eq(existsSync(fx.settingsPath) || existsSync(join(fx.state, 'projects.json')), false, 'and neither wrote the user settings or the store');
 });
