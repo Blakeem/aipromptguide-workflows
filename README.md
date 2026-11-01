@@ -163,6 +163,17 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-11-01
+
+- **The aipg tools refuse to run from a replaced plugin copy.** Claude Code keeps a replaced plugin
+  version on disk for 14 days, and a session that finds aipg with a Bash search can run that copy.
+  `plugin-access.mjs`, `onboard.mjs` and `plan-edit.mjs` now exit 1 from it. The message says to restart
+  Claude Code and names the installed copy when only one exists.
+- **One unreadable run record no longer stops `plan-edit.mjs args` for every plan.** A develop run from
+  another aipg version can log a status edit this version cannot read. That edit now fails only the
+  plans it names, and a note lists each one it skipped. A record whose format Claude Code changed still
+  fails every plan.
+
 ### 2026-10-31
 
 - **Decide scores a do-nothing option.** When not acting is possible, the decider scores doing nothing
