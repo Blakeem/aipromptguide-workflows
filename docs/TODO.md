@@ -16,6 +16,13 @@ args-JSON guard, prose-sniff tripwire, top-level attestation sweep, and required
    interval heartbeat, which the wt-land reviewer noted and the build declined because wt.mjs is
    wholly synchronous. Worth doing only if real gates start tripping 75 mid-gate; until then the
    playbook's rule (set `--stale-ms` above the slowest gate) covers it.
+8. **Rules per stage.** Each workflow stage, such as develop's build, review and fix, reads its own
+   rule file, and the user can edit each file. The rules a job needs, such as the comment rules for a
+   build, move out of the user's global CLAUDE.md into that stage's file. So each agent reads only the
+   rules that match its job, which saves context. The first rule to move is the one in the global
+   CLAUDE.md Code Comments section: a line that departs from a default gets a one-line comment with
+   its reason. To decide: where the files live, and whether a project can add to or override a
+   stage's rules.
 
 ## Judgment-only (stays in tests/CLAUDE.md §3 — not mechanically checkable)
 
