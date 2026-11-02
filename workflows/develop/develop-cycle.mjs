@@ -757,8 +757,8 @@ const SWEEP_SCHEMA = {
 // =============================================================================
 // Shared prompt fragments + decision matrix (developer-owned)
 // =============================================================================
-// Agents that wrote edits through a shell heredoc lost backslashes and backticks, and the gate caught it a cycle later.
-const FILE_WRITE_NOTE = 'Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.';
+// Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
+const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
 const ENV = `${GOAL ? `GOAL (this run's ONE goal, split into the plan file's blocks): ${GOAL}\n` : ''}TARGET REPO: ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})
 ${REFERENCE_P ? `REFERENCE (a COMPLETED example to mirror for the canonical pattern): ${REFERENCE_P}\n` : ''}CONVENTIONS (match these): ${CONVENTIONS}
 ${CONVENTION_FILES_BLOCK}GATES (the commands that define "it works"):
@@ -1610,7 +1610,7 @@ const qualityPrompt = (p, round, absent) => `
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside ${GATE_DIR}/.
-${GATE_DIR}/ also holds other blocks' review and DISMISSED files.
+${GATE_DIR}/ may also hold other blocks' review and DISMISSED files.
 Before you review, read ${absent.dismissed ? 'no file there' : `only ${dismissedFile(p.id)} there`}. At the WRITE step, once your findings are final,
 Read ${qualityFile(p.id, round)} if it exists, so the Write tool accepts the overwrite, then replace its entire content.
 ${ROUND_NOTE(round)}

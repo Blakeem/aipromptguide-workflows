@@ -6,101 +6,101 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 32475 | every block accepts first time |
-| quality | 1 | 1 | 8401 | every block accepts first time |
-| acceptance | 1 | 1 | 13407 | every block accepts first time |
-| develop | 2 | 1 | 32900 | every block accepts first time |
-| acceptance | 2 | 2 | 13688 | every block accepts first time |
-| final-sweep | 1 | 1 | 4619 | every block accepts first time |
-| develop | 3 | 2 | 35869 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 3 | 14707 | a feature block accepts under the proactive policy |
-| final-sweep | 2 | 1 | 4610 | a feature block accepts under the proactive policy |
-| develop | 4 | 3 | 31571 | quality flags the first round |
-| acceptance | 4 | 1 | 13406 | quality flags the first round |
-| develop | 5 | 3 | 31941 | quality flags the first round |
-| acceptance | 5 | 2 | 13687 | quality flags the first round |
-| develop | 6 | 3 | 31567 | acceptance finds gaps, then passes |
-| acceptance | 6 | 1 | 13404 | acceptance finds gaps, then passes |
-| develop | 7 | 3 | 31937 | acceptance finds gaps, then passes |
-| acceptance | 7 | 2 | 13685 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 18056 | a later round is judged low risk |
-| acceptance | 9 | 2 | 18337 | a later round is judged low risk |
-| quality | 2 | 1 | 9185 | the developer declines a finding |
-| acceptance | 10 | 1 | 15257 | the developer declines a finding |
-| develop | 8 | 3 | 30393 | the gate never goes green |
-| develop-closing | 1 | 1 | 32015 | the gate never goes green |
-| quality | 3 | 1 | 8461 | the gate never goes green |
-| acceptance | 11 | 4 | 16608 | the gate never goes green |
-| park | 1 | 1 | 10319 | the gate never goes green |
-| develop | 9 | 3 | 30818 | the gate never goes green |
-| develop-closing | 2 | 1 | 32385 | the gate never goes green |
-| acceptance | 12 | 5 | 16889 | the gate never goes green |
-| acceptance | 13 | 1 | 13459 | a parked block, and the run carries on |
-| acceptance | 14 | 1 | 13514 | a parked block, and the run carries on |
-| acceptance | 15 | 1 | 13569 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 33033 | a parked block, and the run carries on |
-| acceptance | 16 | 4 | 21475 | a parked block, and the run carries on |
-| develop | 10 | 1 | 32457 | an ordered run stops at a parked block |
-| acceptance | 17 | 1 | 13401 | an ordered run stops at a parked block |
-| develop | 11 | 3 | 31549 | an ordered run stops at a parked block |
-| acceptance | 18 | 1 | 13398 | an ordered run stops at a parked block |
-| acceptance | 19 | 1 | 13453 | an ordered run stops at a parked block |
-| acceptance | 20 | 1 | 13508 | an ordered run stops at a parked block |
-| acceptance | 21 | 1 | 13563 | an ordered run stops at a parked block |
-| develop-closing | 4 | 1 | 33015 | an ordered run stops at a parked block |
-| acceptance | 22 | 4 | 21469 | an ordered run stops at a parked block |
-| park | 2 | 1 | 10331 | an ordered run stops at a parked block |
-| develop | 12 | 4 | 41519 | a fix block closes its issues |
-| acceptance | 23 | 6 | 21496 | a fix block closes its issues |
-| final-sweep | 3 | 1 | 4610 | a fix block closes its issues |
-| develop | 13 | 5 | 44995 | a fix block closes its issues under the proactive policy |
-| acceptance | 24 | 7 | 23003 | a fix block closes its issues under the proactive policy |
-| develop | 14 | 4 | 35442 | a fix block that continues no park closes its issues |
-| acceptance | 25 | 6 | 18814 | a fix block that continues no park closes its issues |
-| develop | 15 | 5 | 41658 | a proactive fix block that continues no park closes its issues and a pulled entry |
-| acceptance | 26 | 7 | 22078 | a proactive fix block that continues no park closes its issues and a pulled entry |
-| acceptance | 27 | 7 | 19089 | a proactive fix block that continues no park and pulled nothing closes its issues |
-| acceptance | 28 | 7 | 23017 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 16 | 6 | 36218 | a proactive fix block starts round 2 from the statuses it last reported |
-| acceptance | 29 | 7 | 22816 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 17 | 4 | 41873 | a pass of two fix blocks closes its issues |
-| acceptance | 30 | 6 | 21781 | a pass of two fix blocks closes its issues |
-| final-sweep | 4 | 1 | 4640 | a pass of two fix blocks closes its issues |
-| acceptance | 31 | 6 | 21495 | every issue is already fixed |
-| develop | 18 | 4 | 41501 | an ordered run stops on a fix block that closes nothing |
-| park | 3 | 1 | 10634 | passed with a regression, not staged |
-| park | 4 | 1 | 10080 | acceptance stages a rejected block |
-| park | 5 | 1 | 10487 | the quality reviewer fails a block without its file |
-| park | 6 | 1 | 10487 | acceptance fails a block without its file |
-| park | 7 | 1 | 10425 | the developer staged its own work |
-| park | 8 | 1 | 10486 | the index changed outside acceptance |
-| park | 9 | 1 | 10517 | developer never got its block |
-| park | 10 | 1 | 10063 | acceptance never got its block |
-| park | 11 | 1 | 10353 | the developer dies |
-| park | 12 | 1 | 10008 | the quality reviewer dies |
-| park | 13 | 1 | 10386 | the acceptance verifier dies |
-| park | 14 | 1 | 9902 | developer escalates |
-| park | 15 | 1 | 9892 | developer escalates in an ordered run |
-| acceptance | 32 | 6 | 23949 | log line cap before the sweep |
-| acceptance | 33 | 4 | 21255 | a closing acceptance lands the block |
-| develop-closing | 5 | 1 | 33403 | a closing acceptance lands the block |
-| acceptance | 34 | 5 | 21536 | a closing acceptance lands the block |
-| acceptance | 35 | 4 | 16662 | a closing pass gets a blind review |
-| acceptance | 36 | 5 | 16943 | a closing pass gets a blind review |
-| acceptance | 37 | 4 | 21548 | a closing acceptance finds a blocking gap |
-| park | 16 | 1 | 10469 | a closing acceptance finds a blocking gap |
-| acceptance | 38 | 5 | 21829 | a closing acceptance finds a blocking gap |
-| park | 17 | 1 | 10469 | a closing acceptance finds a blocking gap |
-| develop | 19 | 7 | 32646 | every block commits first time |
-| quality | 4 | 1 | 8354 | every block commits first time |
-| acceptance | 39 | 8 | 14946 | every block commits first time |
-| develop | 20 | 7 | 33071 | every block commits first time |
-| acceptance | 40 | 9 | 15227 | every block commits first time |
-| final-sweep | 5 | 1 | 4931 | every block commits first time |
-| develop | 21 | 8 | 41721 | a fix block commits |
-| acceptance | 41 | 10 | 23252 | a fix block commits |
-| final-sweep | 6 | 1 | 4838 | a fix block commits |
-| park | 18 | 1 | 10086 | acceptance commits a rejected block |
+| develop | 1 | 1 | 32533 | every block accepts first time |
+| quality | 1 | 1 | 8404 | every block accepts first time |
+| acceptance | 1 | 1 | 13465 | every block accepts first time |
+| develop | 2 | 1 | 32958 | every block accepts first time |
+| acceptance | 2 | 2 | 13746 | every block accepts first time |
+| final-sweep | 1 | 1 | 4677 | every block accepts first time |
+| develop | 3 | 2 | 35927 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 3 | 14765 | a feature block accepts under the proactive policy |
+| final-sweep | 2 | 1 | 4668 | a feature block accepts under the proactive policy |
+| develop | 4 | 3 | 31629 | quality flags the first round |
+| acceptance | 4 | 1 | 13464 | quality flags the first round |
+| develop | 5 | 3 | 31999 | quality flags the first round |
+| acceptance | 5 | 2 | 13745 | quality flags the first round |
+| develop | 6 | 3 | 31625 | acceptance finds gaps, then passes |
+| acceptance | 6 | 1 | 13462 | acceptance finds gaps, then passes |
+| develop | 7 | 3 | 31995 | acceptance finds gaps, then passes |
+| acceptance | 7 | 2 | 13743 | acceptance finds gaps, then passes |
+| acceptance | 8 | 1 | 18114 | a later round is judged low risk |
+| acceptance | 9 | 2 | 18395 | a later round is judged low risk |
+| quality | 2 | 1 | 9188 | the developer declines a finding |
+| acceptance | 10 | 1 | 15315 | the developer declines a finding |
+| develop | 8 | 3 | 30451 | the gate never goes green |
+| develop-closing | 1 | 1 | 32073 | the gate never goes green |
+| quality | 3 | 1 | 8464 | the gate never goes green |
+| acceptance | 11 | 4 | 16666 | the gate never goes green |
+| park | 1 | 1 | 10377 | the gate never goes green |
+| develop | 9 | 3 | 30876 | the gate never goes green |
+| develop-closing | 2 | 1 | 32443 | the gate never goes green |
+| acceptance | 12 | 5 | 16947 | the gate never goes green |
+| acceptance | 13 | 1 | 13517 | a parked block, and the run carries on |
+| acceptance | 14 | 1 | 13572 | a parked block, and the run carries on |
+| acceptance | 15 | 1 | 13627 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 33091 | a parked block, and the run carries on |
+| acceptance | 16 | 4 | 21533 | a parked block, and the run carries on |
+| develop | 10 | 1 | 32515 | an ordered run stops at a parked block |
+| acceptance | 17 | 1 | 13459 | an ordered run stops at a parked block |
+| develop | 11 | 3 | 31607 | an ordered run stops at a parked block |
+| acceptance | 18 | 1 | 13456 | an ordered run stops at a parked block |
+| acceptance | 19 | 1 | 13511 | an ordered run stops at a parked block |
+| acceptance | 20 | 1 | 13566 | an ordered run stops at a parked block |
+| acceptance | 21 | 1 | 13621 | an ordered run stops at a parked block |
+| develop-closing | 4 | 1 | 33073 | an ordered run stops at a parked block |
+| acceptance | 22 | 4 | 21527 | an ordered run stops at a parked block |
+| park | 2 | 1 | 10389 | an ordered run stops at a parked block |
+| develop | 12 | 4 | 41577 | a fix block closes its issues |
+| acceptance | 23 | 6 | 21554 | a fix block closes its issues |
+| final-sweep | 3 | 1 | 4668 | a fix block closes its issues |
+| develop | 13 | 5 | 45053 | a fix block closes its issues under the proactive policy |
+| acceptance | 24 | 7 | 23061 | a fix block closes its issues under the proactive policy |
+| develop | 14 | 4 | 35500 | a fix block that continues no park closes its issues |
+| acceptance | 25 | 6 | 18872 | a fix block that continues no park closes its issues |
+| develop | 15 | 5 | 41716 | a proactive fix block that continues no park closes its issues and a pulled entry |
+| acceptance | 26 | 7 | 22136 | a proactive fix block that continues no park closes its issues and a pulled entry |
+| acceptance | 27 | 7 | 19147 | a proactive fix block that continues no park and pulled nothing closes its issues |
+| acceptance | 28 | 7 | 23075 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 16 | 6 | 36276 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 29 | 7 | 22874 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 17 | 4 | 41931 | a pass of two fix blocks closes its issues |
+| acceptance | 30 | 6 | 21839 | a pass of two fix blocks closes its issues |
+| final-sweep | 4 | 1 | 4698 | a pass of two fix blocks closes its issues |
+| acceptance | 31 | 6 | 21553 | every issue is already fixed |
+| develop | 18 | 4 | 41559 | an ordered run stops on a fix block that closes nothing |
+| park | 3 | 1 | 10692 | passed with a regression, not staged |
+| park | 4 | 1 | 10138 | acceptance stages a rejected block |
+| park | 5 | 1 | 10545 | the quality reviewer fails a block without its file |
+| park | 6 | 1 | 10545 | acceptance fails a block without its file |
+| park | 7 | 1 | 10483 | the developer staged its own work |
+| park | 8 | 1 | 10544 | the index changed outside acceptance |
+| park | 9 | 1 | 10575 | developer never got its block |
+| park | 10 | 1 | 10121 | acceptance never got its block |
+| park | 11 | 1 | 10411 | the developer dies |
+| park | 12 | 1 | 10066 | the quality reviewer dies |
+| park | 13 | 1 | 10444 | the acceptance verifier dies |
+| park | 14 | 1 | 9960 | developer escalates |
+| park | 15 | 1 | 9950 | developer escalates in an ordered run |
+| acceptance | 32 | 6 | 24007 | log line cap before the sweep |
+| acceptance | 33 | 4 | 21313 | a closing acceptance lands the block |
+| develop-closing | 5 | 1 | 33461 | a closing acceptance lands the block |
+| acceptance | 34 | 5 | 21594 | a closing acceptance lands the block |
+| acceptance | 35 | 4 | 16720 | a closing pass gets a blind review |
+| acceptance | 36 | 5 | 17001 | a closing pass gets a blind review |
+| acceptance | 37 | 4 | 21606 | a closing acceptance finds a blocking gap |
+| park | 16 | 1 | 10527 | a closing acceptance finds a blocking gap |
+| acceptance | 38 | 5 | 21887 | a closing acceptance finds a blocking gap |
+| park | 17 | 1 | 10527 | a closing acceptance finds a blocking gap |
+| develop | 19 | 7 | 32704 | every block commits first time |
+| quality | 4 | 1 | 8357 | every block commits first time |
+| acceptance | 39 | 8 | 15004 | every block commits first time |
+| develop | 20 | 7 | 33129 | every block commits first time |
+| acceptance | 40 | 9 | 15285 | every block commits first time |
+| final-sweep | 5 | 1 | 4989 | every block commits first time |
+| develop | 21 | 8 | 41779 | a fix block commits |
+| acceptance | 41 | 10 | 23310 | a fix block commits |
+| final-sweep | 6 | 1 | 4896 | a fix block commits |
+| park | 18 | 1 | 10144 | acceptance commits a rejected block |
 
 ## develop · variant 1 · schema 1
 
@@ -124,7 +124,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
@@ -539,7 +539,7 @@ Return ONLY the decision fields via the schema (no prose report).
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
-E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
+E:/flow/runs/flow/gate/ may also hold other blocks' review and DISMISSED files.
 Before you review, read no file there. At the WRITE step, once your findings are final,
 Read E:/flow/runs/flow/gate/quality-review-block-a-r1.md if it exists, so the Write tool accepts the overwrite, then replace its entire content.
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -688,7 +688,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -892,7 +892,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -1324,7 +1324,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -1529,7 +1529,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-a, block-b
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
 only if it exists. An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
@@ -1609,7 +1609,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
@@ -2095,7 +2095,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -2334,7 +2334,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-a
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
 only if it exists. An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
@@ -2413,7 +2413,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/gate/quality-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
@@ -2799,7 +2799,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -3003,7 +3003,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -3393,7 +3393,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -3600,7 +3600,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
@@ -3986,7 +3986,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -4190,7 +4190,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -4580,7 +4580,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -4787,7 +4787,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -5023,7 +5023,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -5249,7 +5249,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
-E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
+E:/flow/runs/flow/gate/ may also hold other blocks' review and DISMISSED files.
 Before you review, read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there. At the WRITE step, once your findings are final,
 Read E:/flow/runs/flow/gate/quality-review-block-a-r1.md if it exists, so the Write tool accepts the overwrite, then replace its entire content.
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -5406,7 +5406,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -5629,7 +5629,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
@@ -6015,7 +6015,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
@@ -6410,7 +6410,7 @@ Return ONLY the decision fields via the schema (no prose report).
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
-E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
+E:/flow/runs/flow/gate/ may also hold other blocks' review and DISMISSED files.
 Before you review, read no file there. At the WRITE step, once your findings are final,
 Read E:/flow/runs/flow/gate/quality-review-block-a-r6.md if it exists, so the Write tool accepts the overwrite, then replace its entire content.
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -6560,7 +6560,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -6788,7 +6788,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -6917,7 +6917,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -7307,7 +7307,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -7720,7 +7720,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -7955,7 +7955,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -8160,7 +8160,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -8366,7 +8366,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -8573,7 +8573,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
@@ -8983,7 +8983,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -9251,7 +9251,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
@@ -9679,7 +9679,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -9883,7 +9883,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
@@ -10269,7 +10269,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -10473,7 +10473,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -10678,7 +10678,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -10884,7 +10884,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -11091,7 +11091,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
@@ -11501,7 +11501,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -11765,7 +11765,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -11896,7 +11896,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -12426,7 +12426,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -12719,7 +12719,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-c
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
 only if it exists. An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
@@ -12800,7 +12800,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -13389,7 +13389,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -13723,7 +13723,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -14204,7 +14204,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -14478,7 +14478,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -15034,7 +15034,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -15358,7 +15358,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -15654,7 +15654,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -15988,7 +15988,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -16462,7 +16462,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -16797,7 +16797,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c-plus-1
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -17331,7 +17331,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c-plus-1   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -17628,7 +17628,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-c-plus-1
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
 only if it exists. An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
@@ -17708,7 +17708,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -18005,7 +18005,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -18530,7 +18530,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -18655,7 +18655,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -18780,7 +18780,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -18905,7 +18905,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19030,7 +19030,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19155,7 +19155,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19280,7 +19280,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19406,7 +19406,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19531,7 +19531,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19657,7 +19657,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19782,7 +19782,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19907,7 +19907,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -20033,7 +20033,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -20164,7 +20164,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -20658,7 +20658,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -20922,7 +20922,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -21336,7 +21336,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -21604,7 +21604,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -21838,7 +21838,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -22075,7 +22075,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -22339,7 +22339,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -22469,7 +22469,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -22736,7 +22736,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -22865,7 +22865,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
@@ -23286,7 +23286,7 @@ Return ONLY the decision fields via the schema (no prose report).
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
-E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
+E:/flow/runs/flow/gate/ may also hold other blocks' review and DISMISSED files.
 Before you review, read no file there. At the WRITE step, once your findings are final,
 Read E:/flow/runs/flow/gate/quality-review-block-a-r1.md if it exists, so the Write tool accepts the overwrite, then replace its entire content.
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -23435,7 +23435,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -23676,7 +23676,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -24114,7 +24114,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -24356,7 +24356,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-a, block-b
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
 only if it exists. An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
@@ -24440,7 +24440,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
@@ -24976,7 +24976,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -25307,7 +25307,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-c
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
 only if it exists. An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
@@ -25384,7 +25384,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files

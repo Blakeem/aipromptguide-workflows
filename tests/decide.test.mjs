@@ -860,7 +860,7 @@ section("every prompt that writes a file says to Read an earlier launch's file f
     ['the ranked decision file and ledger', ranked.prompt('decide'), 2, 1],
     // The tool writes the blind file's skeleton, so the reviewer empties an earlier launch's file instead of replacing it.
     ['the round 1 blind review', single.prompt('review r1'), 0, 1],
-    // The embedded reveal carries the final review's write site, whose heredoc warning the check agent copies.
+    // The embedded reveal carries the final review's write site, whose file-write warning the check agent copies.
     ['the check spec, the reveal, the final review it names and the reset', single.prompt('check-setup r1'), 3, 1, 2],
   ];
   pinWriteNotes(sites);

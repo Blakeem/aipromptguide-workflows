@@ -249,8 +249,8 @@ const haltIfRelayed = (role, relayed) => {
 // a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
 const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
-// Agents that wrote files through a shell heredoc lost backslashes and backticks.
-const FILE_WRITE_NOTE = 'Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.';
+// Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
+const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
 
 // Both ledger writers share one line shape. The round tag lets a critic find the lines no critic has
 // checked yet, and the locator is what it checks each one against.

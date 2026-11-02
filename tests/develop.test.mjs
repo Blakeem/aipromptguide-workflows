@@ -2453,8 +2453,8 @@ section('the quality reviewer is blind BY PLACEMENT: no run-state path outside g
     'and it is told never to open a plan file, an inventory or run-state outside gate/');
   // gate/ is shared by every block, so its own DISMISSED file is the one gate/ file it may read. Its own
   // review file is read at the WRITE step, where the Write tool needs a prior read to overwrite it.
-  ok(q.replace(/\s+/g, ' ').includes(`${STATE}/gate/ also holds other blocks' review and DISMISSED files. Before you review, read only ${STATE}/gate/DISMISSED-block-a.md there. At the WRITE step, once your findings are final, Read ${STATE}/gate/quality-review-block-a-r1.md if it exists`),
-    'and it is told gate/ holds other blocks\' files and to read only its own DISMISSED file there, plus its own review file at the WRITE step');
+  ok(q.replace(/\s+/g, ' ').includes(`${STATE}/gate/ may also hold other blocks' review and DISMISSED files. Before you review, read only ${STATE}/gate/DISMISSED-block-a.md there. At the WRITE step, once your findings are final, Read ${STATE}/gate/quality-review-block-a-r1.md if it exists`),
+    'and it is told gate/ may hold other blocks\' files and to read only its own DISMISSED file there, plus its own review file at the WRITE step');
   const a = (await run(GREEN_RUN)).prompt('acceptance block-a');
   ok(a.includes(`${STATE}/gate/DISMISSED-block-a.md`) && a.includes(`${STATE}/question-block-a.md`)
     && a.includes(`${STATE}/DECISIONS.md`),
@@ -5305,9 +5305,9 @@ section('a prompt drops the PULLED read when round 1 took no entry');
   }
 }
 
-section('the developer, acceptance and park prompts tell the agent to use the file-editing tool, not a shell heredoc');
+section('the developer, acceptance and park prompts tell the agent to write and edit files with the Write or Edit tool, not a Bash command');
 {
-  const NOTE = 'Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.';
+  const NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
   const r = await run({ develop: DEV_OK, quality: CLEAN, acceptance: ACC_FAIL }, { ...ONE_BLOCK, maxRounds: 1 });
   for (const label of ['develop block-a r1', 'acceptance block-a r1', 'park:block-a']) {
     ok(flat(r.prompt(label)).includes(NOTE), `the ${label.split(/[ :]/)[0]} prompt carries the file-writing rule`);

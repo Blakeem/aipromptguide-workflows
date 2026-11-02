@@ -6,28 +6,28 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| research | 1 | 1 | 2700 | reviewer accepts |
-| decide | 1 | 1 | 7303 | reviewer accepts |
-| check-setup | 1 | 1 | 2793 | reviewer accepts |
-| review | 1 | 1 | 3503 | reviewer accepts |
+| research | 1 | 1 | 2758 | reviewer accepts |
+| decide | 1 | 1 | 7361 | reviewer accepts |
+| check-setup | 1 | 1 | 2909 | reviewer accepts |
+| review | 1 | 1 | 3561 | reviewer accepts |
 | check | 1 | 1 | 411 | reviewer accepts |
-| decide | 2 | 1 | 9487 | reject with a challenger |
-| check-setup | 2 | 1 | 3319 | rejects to the round budget |
-| research-issue | 1 | 1 | 2601 | research covers the open issues |
-| decide | 3 | 1 | 7915 | research covers the open issues |
-| research-issue | 2 | 1 | 2667 | research saturates |
-| decide | 4 | 1 | 8026 | research saturates |
-| research-issue | 3 | 1 | 2714 | research hits the cap |
-| decide | 5 | 1 | 8076 | research hits the cap |
-| research-issue | 4 | 1 | 2601 | more open issues than maxResearchers |
-| decide | 6 | 1 | 8134 | more open issues than maxResearchers |
-| research-issue | 5 | 1 | 2714 | more open issues than maxResearchers |
-| research-issue | 6 | 1 | 2714 | more open issues than maxResearchers |
-| decide | 7 | 1 | 8295 | more open issues than maxResearchers |
-| research-issue | 7 | 1 | 2808 | more open issues than maxResearchers |
-| research-issue | 8 | 1 | 2808 | more open issues than maxResearchers |
-| decide | 8 | 1 | 8395 | more open issues than maxResearchers |
-| decide | 9 | 1 | 7240 | one lens dies |
+| decide | 2 | 1 | 9545 | reject with a challenger |
+| check-setup | 2 | 1 | 3435 | rejects to the round budget |
+| research-issue | 1 | 1 | 2659 | research covers the open issues |
+| decide | 3 | 1 | 7973 | research covers the open issues |
+| research-issue | 2 | 1 | 2725 | research saturates |
+| decide | 4 | 1 | 8084 | research saturates |
+| research-issue | 3 | 1 | 2772 | research hits the cap |
+| decide | 5 | 1 | 8134 | research hits the cap |
+| research-issue | 4 | 1 | 2659 | more open issues than maxResearchers |
+| decide | 6 | 1 | 8192 | more open issues than maxResearchers |
+| research-issue | 5 | 1 | 2772 | more open issues than maxResearchers |
+| research-issue | 6 | 1 | 2772 | more open issues than maxResearchers |
+| decide | 7 | 1 | 8353 | more open issues than maxResearchers |
+| research-issue | 7 | 1 | 2866 | more open issues than maxResearchers |
+| research-issue | 8 | 1 | 2866 | more open issues than maxResearchers |
+| decide | 8 | 1 | 8453 | more open issues than maxResearchers |
+| decide | 9 | 1 | 7298 | one lens dies |
 
 ## research · variant 1 · schema 1
 
@@ -56,7 +56,7 @@ PROCEDURE:
    met, partly met or missed on each weighted criterion.
 4. Recommend the one option your lens favours, say what it gives up against your runner-up, and name
    the ELEMENTS of it worth keeping even if another option wins (so the decider can build a hybrid).
-WRITE E:/flow/runs/flow/lenses/efficiency.md (create E:/flow/runs/flow/lenses/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Per option, write a short block with title,
+WRITE E:/flow/runs/flow/lenses/efficiency.md (create E:/flow/runs/flow/lenses/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write a short block with title,
 description, and its scores with the evidence behind each. For your pick, add the keep-worthy elements. Be
 concrete and terse. Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none. The final reviewer sees only the original sources, never your file, and
 re-checks the source behind each fact that moves the outcome. Do NOT modify any repo, stage, or commit.
@@ -141,7 +141,7 @@ PROCEDURE:
    the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
    requirements lack, write it under `## Checks for the user` with the result that would change the
    answer. Otherwise it fails: cite the evidence that refutes it.
-WRITE E:/flow/runs/flow/decide/decision-r1.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
+WRITE E:/flow/runs/flow/decide/decision-r1.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
 `## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
@@ -251,13 +251,13 @@ matrix and reasoning, and sort each objection of your review into one of three:
 A reject keeps at least one objection: a non-negotiable the winner violates, or a challenger with its scores. An accept keeps none.
 Leave your blind review unchanged, since the check compares it with its lock. The check wrote the skeleton
 of your final review, E:/flow/runs/flow/decide/review-r1-final.md, and prints its format below. Read it and fill in every section
-with the Write or Edit tool. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Then run `node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r1.md'` again,
+with the Write or Edit tool. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Then run `node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r1.md'` again,
 fix each error it prints, and return via the schema with your final verdict.
 END TEXT
 3. WRITE E:/flow/runs/flow/locks/review-r1.lock with the content {}, and E:/flow/runs/flow/review/review-r1.md (create E:/flow/runs/flow/review/ if needed) and
 E:/flow/runs/flow/decide/review-r1-final.md with no content, so no lock or review from an earlier launch stands in for this round's.
 The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Do NOT modify any repo, stage, or commit.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Do NOT modify any repo, stage, or commit.
 Return via the schema.
 ~~~~
 
@@ -313,7 +313,7 @@ path. A breach reachable only through operator action is a caveat.
 WRITE E:/flow/runs/flow/review/review-r1.md through its check command. The file may hold an earlier reviewer's text, so when it
 holds any, Read it and write it with no content. Then run `node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r1.md'`, which
 writes the file's skeleton and prints the format of each section. Read the skeleton and fill in every
-section with the Write or Edit tool. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+section with the Write or Edit tool. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Do NOT modify any repo, stage, or commit. If a requirement contradiction only the user can resolve
 surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r1 reviewer`, and set needs_user=true. Return via the schema once you are done.
 When the review file is complete, run `node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r1.md'` again and follow what it prints.
@@ -463,7 +463,7 @@ PROCEDURE:
    the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
    requirements lack, write it under `## Checks for the user` with the result that would change the
    answer. Otherwise it fails: cite the evidence that refutes it.
-WRITE E:/flow/runs/flow/decide/decision-r2.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
+WRITE E:/flow/runs/flow/decide/decision-r2.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
 `## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
@@ -579,13 +579,13 @@ the ONE requirement and the ONE change to it (a weight, a non-negotiable's depth
 that would let a decision converge.
 Leave your blind review unchanged, since the check compares it with its lock. The check wrote the skeleton
 of your final review, E:/flow/runs/flow/decide/review-r3-final.md, and prints its format below. Read it and fill in every section
-with the Write or Edit tool. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Then run `node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r3.md'` again,
+with the Write or Edit tool. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Then run `node 'E:/flow/tools/review-check.mjs' 'E:/flow/runs/flow/review/review-r3.md'` again,
 fix each error it prints, and return via the schema with your final verdict.
 END TEXT
 3. WRITE E:/flow/runs/flow/locks/review-r3.lock with the content {}, and E:/flow/runs/flow/review/review-r3.md (create E:/flow/runs/flow/review/ if needed) and
 E:/flow/runs/flow/decide/review-r3-final.md with no content, so no lock or review from an earlier launch stands in for this round's.
 The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Do NOT modify any repo, stage, or commit.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Do NOT modify any repo, stage, or commit.
 Return via the schema.
 ~~~~
 
@@ -629,7 +629,7 @@ PROCEDURE:
 2. State the answer with its evidence, or say the question stays open and what you searched. Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
 3. When no agent can settle the question, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, write it as a
    CHECK FOR THE USER: the check to run and the result that would change the answer.
-WRITE E:/flow/runs/flow/research/r1-p99-unproven.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+WRITE E:/flow/runs/flow/research/r1-p99-unproven.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Set new_evidence=true only when your file holds a cited fact that no earlier file of this run holds: the
 lens files in E:/flow/runs/flow/lenses/ and E:/flow/runs/flow/decide/decision-r1.md.
 Do NOT modify any repo, stage, or commit.
@@ -716,7 +716,7 @@ PROCEDURE:
    the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
    requirements lack, write it under `## Checks for the user` with the result that would change the
    answer. Otherwise it fails: cite the evidence that refutes it.
-WRITE E:/flow/runs/flow/decide/decision-r2.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
+WRITE E:/flow/runs/flow/decide/decision-r2.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
 `## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
@@ -826,7 +826,7 @@ PROCEDURE:
 2. State the answer with its evidence, or say the question stays open and what you searched. Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
 3. When no agent can settle the question, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, write it as a
    CHECK FOR THE USER: the check to run and the result that would change the answer.
-WRITE E:/flow/runs/flow/research/r2-p99-unproven.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+WRITE E:/flow/runs/flow/research/r2-p99-unproven.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Set new_evidence=true only when your file holds a cited fact that no earlier file of this run holds: the
 lens files in E:/flow/runs/flow/lenses/, E:/flow/runs/flow/decide/decision-r2.md and the research files E:/flow/runs/flow/research/r1-p99-unproven.md.
 Do NOT modify any repo, stage, or commit.
@@ -915,7 +915,7 @@ PROCEDURE:
    the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
    requirements lack, write it under `## Checks for the user` with the result that would change the
    answer. Otherwise it fails: cite the evidence that refutes it.
-WRITE E:/flow/runs/flow/decide/decision-r3.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
+WRITE E:/flow/runs/flow/decide/decision-r3.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
 `## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
@@ -1025,7 +1025,7 @@ PROCEDURE:
 2. State the answer with its evidence, or say the question stays open and what you searched. Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
 3. When no agent can settle the question, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, write it as a
    CHECK FOR THE USER: the check to run and the result that would change the answer.
-WRITE E:/flow/runs/flow/research/r3-p99-unproven.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+WRITE E:/flow/runs/flow/research/r3-p99-unproven.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Set new_evidence=true only when your file holds a cited fact that no earlier file of this run holds: the
 lens files in E:/flow/runs/flow/lenses/, E:/flow/runs/flow/decide/decision-r3.md and the research files E:/flow/runs/flow/research/r1-p99-unproven.md, E:/flow/runs/flow/research/r2-p99-unproven.md.
 Do NOT modify any repo, stage, or commit.
@@ -1115,7 +1115,7 @@ PROCEDURE:
    the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
    requirements lack, write it under `## Checks for the user` with the result that would change the
    answer. Otherwise it fails: cite the evidence that refutes it.
-WRITE E:/flow/runs/flow/decide/decision-r4.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
+WRITE E:/flow/runs/flow/decide/decision-r4.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
 `## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
@@ -1225,7 +1225,7 @@ PROCEDURE:
 2. State the answer with its evidence, or say the question stays open and what you searched. Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
 3. When no agent can settle the question, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, write it as a
    CHECK FOR THE USER: the check to run and the result that would change the answer.
-WRITE E:/flow/runs/flow/research/r1-cost-unknown.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+WRITE E:/flow/runs/flow/research/r1-cost-unknown.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Set new_evidence=true only when your file holds a cited fact that no earlier file of this run holds: the
 lens files in E:/flow/runs/flow/lenses/ and E:/flow/runs/flow/decide/decision-r1.md.
 Do NOT modify any repo, stage, or commit.
@@ -1315,7 +1315,7 @@ PROCEDURE:
    the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
    requirements lack, write it under `## Checks for the user` with the result that would change the
    answer. Otherwise it fails: cite the evidence that refutes it.
-WRITE E:/flow/runs/flow/decide/decision-r2.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
+WRITE E:/flow/runs/flow/decide/decision-r2.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
 `## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
@@ -1425,7 +1425,7 @@ PROCEDURE:
 2. State the answer with its evidence, or say the question stays open and what you searched. Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
 3. When no agent can settle the question, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, write it as a
    CHECK FOR THE USER: the check to run and the result that would change the answer.
-WRITE E:/flow/runs/flow/research/r2-p99-unproven.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+WRITE E:/flow/runs/flow/research/r2-p99-unproven.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Set new_evidence=true only when your file holds a cited fact that no earlier file of this run holds: the
 lens files in E:/flow/runs/flow/lenses/, E:/flow/runs/flow/decide/decision-r2.md and the research files E:/flow/runs/flow/research/r1-p99-unproven.md, E:/flow/runs/flow/research/r1-cost-unknown.md.
 Do NOT modify any repo, stage, or commit.
@@ -1477,7 +1477,7 @@ PROCEDURE:
 2. State the answer with its evidence, or say the question stays open and what you searched. Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
 3. When no agent can settle the question, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, write it as a
    CHECK FOR THE USER: the check to run and the result that would change the answer.
-WRITE E:/flow/runs/flow/research/r2-cost-unknown.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+WRITE E:/flow/runs/flow/research/r2-cost-unknown.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Set new_evidence=true only when your file holds a cited fact that no earlier file of this run holds: the
 lens files in E:/flow/runs/flow/lenses/, E:/flow/runs/flow/decide/decision-r2.md and the research files E:/flow/runs/flow/research/r1-p99-unproven.md, E:/flow/runs/flow/research/r1-cost-unknown.md.
 Do NOT modify any repo, stage, or commit.
@@ -1570,7 +1570,7 @@ PROCEDURE:
    the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
    requirements lack, write it under `## Checks for the user` with the result that would change the
    answer. Otherwise it fails: cite the evidence that refutes it.
-WRITE E:/flow/runs/flow/decide/decision-r3.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
+WRITE E:/flow/runs/flow/decide/decision-r3.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
 `## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
@@ -1680,7 +1680,7 @@ PROCEDURE:
 2. State the answer with its evidence, or say the question stays open and what you searched. Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
 3. When no agent can settle the question, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, write it as a
    CHECK FOR THE USER: the check to run and the result that would change the answer.
-WRITE E:/flow/runs/flow/research/r3-p99-unproven.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+WRITE E:/flow/runs/flow/research/r3-p99-unproven.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Set new_evidence=true only when your file holds a cited fact that no earlier file of this run holds: the
 lens files in E:/flow/runs/flow/lenses/, E:/flow/runs/flow/decide/decision-r3.md and the research files E:/flow/runs/flow/research/r1-p99-unproven.md, E:/flow/runs/flow/research/r1-cost-unknown.md, E:/flow/runs/flow/research/r2-p99-unproven.md, E:/flow/runs/flow/research/r2-cost-unknown.md.
 Do NOT modify any repo, stage, or commit.
@@ -1732,7 +1732,7 @@ PROCEDURE:
 2. State the answer with its evidence, or say the question stays open and what you searched. Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
 3. When no agent can settle the question, such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware, write it as a
    CHECK FOR THE USER: the check to run and the result that would change the answer.
-WRITE E:/flow/runs/flow/research/r3-cost-unknown.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks.
+WRITE E:/flow/runs/flow/research/r3-cost-unknown.md (create E:/flow/runs/flow/research/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Set new_evidence=true only when your file holds a cited fact that no earlier file of this run holds: the
 lens files in E:/flow/runs/flow/lenses/, E:/flow/runs/flow/decide/decision-r3.md and the research files E:/flow/runs/flow/research/r1-p99-unproven.md, E:/flow/runs/flow/research/r1-cost-unknown.md, E:/flow/runs/flow/research/r2-p99-unproven.md, E:/flow/runs/flow/research/r2-cost-unknown.md.
 Do NOT modify any repo, stage, or commit.
@@ -1827,7 +1827,7 @@ PROCEDURE:
    the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
    requirements lack, write it under `## Checks for the user` with the result that would change the
    answer. Otherwise it fails: cite the evidence that refutes it.
-WRITE E:/flow/runs/flow/decide/decision-r4.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
+WRITE E:/flow/runs/flow/decide/decision-r4.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
 `## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.
@@ -1964,7 +1964,7 @@ PROCEDURE:
    the WINNER, TRADE-OFF and FLIP CHECK steps on the rescored matrix. When it rests on a criterion or non-negotiable the
    requirements lack, write it under `## Checks for the user` with the result that would change the
    answer. Otherwise it fails: cite the evidence that refutes it.
-WRITE E:/flow/runs/flow/decide/decision-r1.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content with the file-editing tool, since a shell heredoc can alter backslashes and backticks. Write the matrix (table), the chosen conclusion
+WRITE E:/flow/runs/flow/decide/decision-r1.md (create E:/flow/runs/flow/decide/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Write the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, a
 `## Devil's advocate` section, an
 `## Open issues` section and a `## Checks for the user` section. Do NOT modify any repo, stage, or commit.

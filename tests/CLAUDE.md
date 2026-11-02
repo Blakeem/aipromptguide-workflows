@@ -116,7 +116,8 @@ Two replace sites add a guard after `REPLACE_NOTE`: the investigator's options f
 capture files. Each engine's test counts both notes in each such prompt through `pinWriteNotes`, so a new
 write site needs a row there.
 In every engine but develop, `WROTE_NOTE` is followed by `FILE_WRITE_NOTE`, which tells the agent to
-write file content with the file-editing tool, and `pinFileWriteNote` counts it in the same rows.
+write file content, and any script that edits a file, with the Write or Edit tool.
+`pinFileWriteNote` counts it in the same rows.
 A row's fifth value gives its own count where a prompt embeds another agent's write site, as decide's
 check-setup prompt embeds the reveal text.
 Docs' scrubber carries `FILE_WRITE_NOTE` without `WROTE_NOTE`, so docs' test gives it its own row.
@@ -243,9 +244,10 @@ against (halt); an unreachable feature does not (flag).
   also copy the changed code files over the export and apply the mutant to those copies. Never swap
   files in the working tree for a red run.
 - **Edit engine template text with the Edit tool or a script file written by the Write tool**, never
-  through a Bash heredoc, as `FILE_WRITE_NOTE` in develop-cycle.mjs tells agents. The shell alters backslashes
-  and backticks in a heredoc, so the exact-match replacement it feeds then finds nothing. The Edit tool edits
-  only a file the Read tool has read, so a Bash `cat` does not unlock it.
+  through a Bash command, as `FILE_WRITE_NOTE` in develop-cycle.mjs tells agents. Agents that edited files
+  through a Bash command or a script it carried lost backslashes, in single quotes too, so the exact-match
+  replacement that command feeds then finds nothing. The Edit tool edits only a file the Read tool has read,
+  so a Bash `cat` does not unlock it.
 - **A cross-engine sweep must RUN each engine, not grep it.** Grepping for the shape of a fix cannot tell
   you the fix is wired to the thing it must guard.
 - **Don't hand an unguarded loop a huge bound to prove a cap exists.** Probing `maxRounds: 1e21` against an
