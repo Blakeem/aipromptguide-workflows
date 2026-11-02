@@ -405,16 +405,19 @@ section('acceptance audits the risk file of each round since the block\'s last b
   // The sweep: the developer records it in CLASSIFY and acceptance's risk audit checks the latest audited round's.
   const d1 = flat(r.prompt('develop block-a r1'));
   const q1 = flat(r.prompt('quality block-a r1'));
-  ok(d1.includes("again until it prints ok. Add a sweep search for each function, constant, field, message or rule phrase this round changed. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A changed field, return value, file format or output that other code or prompts read needs a search that finds those readers.")
+  ok(d1.includes("again until it prints ok. Add a sweep search for each function, constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name,")
+    && d1.includes("Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A changed field, return value, file format or output that other code or prompts read needs a search that finds those readers.")
     && !d1.includes('marked `updated` or `unaffected`') && !d1.includes('"No changes."'),
-    'CLASSIFY has the developer add a sweep search for each changed name or phrase, and leaves the file format to the risk tool');
+    'CLASSIFY has the developer add a sweep search for each changed name a line outside its hunks holds, says how the tool lists dropped names, and leaves the file format to the risk tool');
   // The risk tool holds the risk file format and reruns each search, so neither prompt restates the format or reruns a search by hand.
-  ok(d1.includes(`Then run \`node '${RISK_TOOL}' 'E:/r/runs/t/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id>\`. This risk tool holds the file's format.`)
+  ok(d1.includes(`Then run \`node '${RISK_TOOL}' 'E:/r/runs/t/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>\`. This risk tool holds the file's format.`)
     && d1.includes('Then run the command again until it prints ok.')
     && d1.includes("Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise."),
   'CLASSIFY runs the risk tool on its own file until it prints ok, and returns review_needed from its last line');
-  ok(a3.includes(`SWEEP CHECK. When E:/r/runs/t/risk-block-a-r3.md, the file of the latest round named above, exists, run \`node '${RISK_TOOL}' 'E:/r/runs/t/risk-block-a-r3.md' --repo 'E:/repo' --snapshot ${DEV_OK.risk_snapshot}\`.`)
+  ok(a3.includes(`SWEEP CHECK. When E:/r/runs/t/risk-block-a-r3.md, the file of the latest round named above, exists, run \`node '${RISK_TOOL}' 'E:/r/runs/t/risk-block-a-r3.md' --repo 'E:/repo' --snapshot ${DEV_OK.risk_snapshot} --base ${DEV_OK.risk_snapshot}\`.`)
     && a3.includes('Each line it prints that starts `error:` is a gap.')
+    && a3.includes("needs a line there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line")
+    && a3.includes('An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap.')
     && !a3.includes('Run the search each line names again.')
     && a3.includes('A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap.')
     && a3.includes('A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap.')
@@ -422,7 +425,7 @@ section('acceptance audits the risk file of each round since the block\'s last b
     && a3.includes('A round whose file reads "No changes." has no section and no gap here.')
     && !a1.includes('SWEEP CHECK'),
   'a missing sweep line or an unaffected hit that disagrees is a gap in the latest audited round, and a reviewed round has no sweep to audit');
-  ok(d1.includes("that the sweep of the latest such round lists each changed name or phrase of that round's hunks and each hit it marks unaffected still agrees with the change and a rerun of each line's search finds no hit the line leaves out that the change left wrong"),
+  ok(d1.includes("that the sweep of the latest such round lists each changed name or phrase of that round's hunks that a line outside them holds, leaves no `uncovered:` line of the risk tool for a name that round removed or renamed, and each hit it marks unaffected still agrees with the change and a rerun of each line's search finds no hit the line leaves out that the change left wrong"),
     'the developer is told the acceptance check on the sweep');
   ok(d1.includes("that a search of each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it finds no hit the sweep leaves out that the change left wrong, and that the tree it stages"),
     'the developer is told acceptance also searches a changed rule by its old wording');
@@ -497,10 +500,12 @@ section('every developer round records a snapshot of its tree in its risk file, 
       `GIT_INDEX_FILE="${index}" git -C ${repo} add -A`, `GIT_INDEX_FILE="${index}" git -C ${repo} write-tree`].join(' ');
   };
   const FIRST_LINE = 'First take a snapshot of the working tree after your last change, with these commands, which write a temporary index file (create E:/r/runs/t/scratch/ if needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:';
+  // Round 1's base is the tree its own STEP 0 printed, and a later round's is the snapshot the round before it returned.
   const pinned = (prompt, id, round, where) => {
     const text = flat(prompt);
-    ok(text.includes(`${FIRST_LINE} ${snapshotLines(id, round)} Delete the temporary index file once the last command has printed the tree id. Then run \`node '${RISK_TOOL}' 'E:/r/runs/t/risk-${id}-r${round}.md' --repo 'E:/repo' --snapshot <that tree id>\`.`),
-      `${where}: CLASSIFY takes the snapshot with the three commands and their own temporary index, then hands its tree id to the risk tool`);
+    const base = round === 1 ? '<the tree id STEP 0 printed>' : DEV_OK.risk_snapshot;
+    ok(text.includes(`${FIRST_LINE} ${snapshotLines(id, round)} Delete the temporary index file once the last command has printed the tree id. Then run \`node '${RISK_TOOL}' 'E:/r/runs/t/risk-${id}-r${round}.md' --repo 'E:/repo' --snapshot <that tree id> --base ${base}\`.`),
+      `${where}: CLASSIFY takes the snapshot with the three commands and their own temporary index, then hands its tree id and its round's base to the risk tool`);
   };
 
   const feat = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, baseArgs);
@@ -4628,6 +4633,26 @@ section('the risk file is tied to the snapshot its developer returned');
   const noField = await run({ develop: firstRound(DEV_OK, { ...DEV_OK, review_needed: false, risk_snapshot: undefined }), quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS) }, ONE_BLOCK);
   ok(flat(noField.prompt('acceptance block-a r2')).includes('round 2: none returned'), 'a missing value counts as none');
   ok(!flat(r.prompt('acceptance block-a r1')).includes('returned the tree id'), 'a round the blind review judged has no snapshot to confirm');
+  // The risk tool diffs a round from its base to read the names it dropped: the round before's snapshot, else the accepted baseline.
+  const toolRun = (id, round, base) => `node '${RISK_TOOL}' 'E:/r/runs/t/risk-${id}-r${round}.md' --repo 'E:/repo' --snapshot <that tree id>${base ? ` --base ${base}` : ''}\``;
+  ok(flat(r.prompt('develop block-a r2')).includes(toolRun('block-a', 2, tree('a'))) && flat(r.prompt('develop block-a r3')).includes(toolRun('block-a', 3, tree('b'))),
+    "a later round's CLASSIFY passes the snapshot the round before it returned as --base");
+  ok(flat(r.prompt('acceptance block-a r2')).includes(`--snapshot ${tree('b')} --base ${tree('a')}\``),
+    "acceptance's SWEEP CHECK passes the snapshot of the round before the latest audited one as --base");
+  const fallback = await run({
+    develop: firstRound({ ...DEV_OK, risk_snapshot: '' }, { ...DEV_OK, review_needed: false, risk_snapshot: tree('b') }),
+    quality: CLEAN, acceptance: firstRound({ ...ACC_FAIL, index_tree: tree('d') }, ACC_PASS),
+  }, ONE_BLOCK);
+  ok(flat(fallback.prompt('develop block-a r2')).includes(toolRun('block-a', 2, tree('d')))
+    && flat(fallback.prompt('acceptance block-a r2')).includes(`--snapshot ${tree('b')} --base ${tree('d')}\``),
+    'when the round before returned no snapshot, the base is the tree the engine last recorded for the index');
+  const noBase = await run({
+    develop: firstRound({ ...DEV_OK, risk_snapshot: '', baseline_index_tree: '' }, { ...DEV_OK, review_needed: false, risk_snapshot: tree('b') }),
+    quality: CLEAN, acceptance: firstRound({ ...ACC_FAIL, index_tree: '' }, ACC_PASS),
+  }, ONE_BLOCK);
+  ok(flat(noBase.prompt('develop block-a r2')).includes(toolRun('block-a', 2, null))
+    && flat(noBase.prompt('acceptance block-a r2')).includes(`--snapshot ${tree('b')}\``),
+    'with no tree to diff from, the risk tool runs without --base');
 }
 
 section('the closing acceptance confirms each backlog entry the closing pass listed');

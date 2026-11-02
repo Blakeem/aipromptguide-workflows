@@ -9,7 +9,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
-import { FORMAT, NO_CHANGES, RISK_KEYS, SNAPSHOT_LINE, SWEEP_HEADING, parseRiskFile, repoPath, run, searchForms, skeleton } from '../tools/risk-check.mjs';
+import { FORMAT, NO_CHANGES, RISK_KEYS, SNAPSHOT_LINE, SWEEP_HEADING, changedNames, codeNames, parseRiskFile, repoPath, run, searchForms, skeleton } from '../tools/risk-check.mjs';
 
 const dirs = [];
 const tmpDir = () => { const d = mkdtempSync(join(tmpdir(), 'aipg-risk-check-')); dirs.push(d); return d; };
@@ -21,12 +21,17 @@ function fixtureRepo(files) {
   git(repo, ['init', '-q']);
   // A user-level autocrlf would warn on each fixture file and change no byte the test reads.
   git(repo, ['config', 'core.autocrlf', 'false']);
+  return { repo, tree: writeTree(repo, files) };
+}
+
+/** Writes `files` into the repo's working tree, and returns the tree id of the result. */
+function writeTree(repo, files) {
   for (const [path, text] of Object.entries(files)) {
     mkdirSync(join(repo, path, '..'), { recursive: true });
     writeFileSync(join(repo, path), text);
   }
   git(repo, ['add', '-A']);
-  return { repo, tree: git(repo, ['write-tree']) };
+  return git(repo, ['write-tree']);
 }
 
 const FILES = {
@@ -162,6 +167,13 @@ section('a usage or git error exits 2 and writes nothing');
   ok(run([path, '--repo', repo, '--snapshot', 'f'.repeat(40)]).lines[0].includes('names no tree'), 'a --snapshot the repo does not hold');
   ok(run([path, '--repo', tmpDir(), '--snapshot', tree]).lines[0].includes('is no git work tree'), 'a --repo outside git');
   eq(run([path, '--repo', repo, '--snapshot', tree, 'extra']).code, 2, 'an extra argument');
+  const absentBase = run([path, '--repo', repo, '--snapshot', tree, '--base', 'f'.repeat(40)]);
+  ok(absentBase.code === 2 && absentBase.lines[0].includes(`--base ${'f'.repeat(40)} names no tree`), `a --base the repo does not hold exits 2: ${absentBase.lines.join(' | ')}`);
+  const notTreeBase = run([path, '--repo', repo, '--snapshot', tree, '--base', 'HEAD']);
+  ok(notTreeBase.code === 2 && notTreeBase.lines[0].includes('--base takes the tree id'), 'a --base that is no tree id exits 2');
+  const blobBase = run([path, '--repo', repo, '--snapshot', tree, '--base', git(repo, ['rev-parse', `${tree}:src/a.mjs`])]);
+  ok(blobBase.code === 2 && blobBase.lines[0].includes('names no tree'), 'a --base that names a blob exits 2');
+  eq(run([path, '--repo', repo, '--snapshot', tree, '--base', tree, '--base', tree]).code, 2, 'a repeated --base');
   let exists = true;
   try { readFileSync(path); } catch { exists = false; }
   ok(!exists, 'no refused call wrote the file');
@@ -174,6 +186,87 @@ section('a usage or git error exits 2 and writes nothing');
   ok(cli.code === 2 && cli.stderr.startsWith('risk-check: usage:'), `the CLI prints a usage error on stderr with exit 2 (exit ${cli.code})`);
 }
 
+section('with --base, each changed name a line outside the hunks holds and no search covers prints as uncovered');
+{
+  const BASE_FILES = {
+    'src/lib.mjs': 'export function oldHelperName(x) {\n  return x;\n}\nconst MOVED_NAME = 1;\nconst other = 2;\nrun();\n',
+    'src/use.mjs': "import { oldHelperName } from './lib.mjs';\noldHelperName(MOVED_NAME);\nrun();\n",
+    'docs/guide.md': 'The parser reads the input.\n',
+  };
+  const { repo, tree: base } = fixtureRepo(BASE_FILES);
+  const tree = writeTree(repo, {
+    'src/lib.mjs': 'export function newHelperName(x) {\n  return x;\n}\nconst other = 2;\nconst MOVED_NAME = 1;\nconst ADDED_ONLY = 3;\nlog(ADDED_ONLY);\n',
+    'docs/guide.md': 'The lexer reads the source.\n',
+  });
+  const RENAMED = ['search: newHelperName', 'scope: src', '- src/lib.mjs:1 updated: the renamed function'];
+  const text = [`Snapshot: ${tree}`, '', '## src/lib.mjs:1', ...answers(), '', '## Sweep', ...RENAMED, ''].join('\n');
+  const withBase = (body, extra = []) => {
+    const path = join(tmpDir(), 'risk-x-r2.md');
+    writeFileSync(path, body);
+    return { path, ...run([path, '--repo', repo, '--snapshot', tree, '--base', base, ...extra]) };
+  };
+  const renamed = withBase(text);
+  const uncovered = renamed.lines.filter((l) => l.startsWith('uncovered:'));
+  eq(JSON.stringify(uncovered), JSON.stringify(["uncovered: oldHelperName is held outside the round's hunks by src/use.mjs:1 and 1 other line(s), and no search for it finds each of them"]),
+    'the old name of a function renamed at its definition only is uncovered, with its first reader and the count of the others');
+  ok(!renamed.lines.some((l) => /newHelperName|ADDED_ONLY|MOVED_NAME/.test(l) && l.startsWith('uncovered:')), 'a new name, a name added and used only on added lines, and a moved name print no uncovered line');
+  ok(!renamed.lines.some((l) => /\brun\b|parser|input/.test(l) && l.startsWith('uncovered:')), 'a one-word name and an English word in a changed prose line print no uncovered line');
+  eq(renamed.lines.join('\n'), `ok: ${renamed.path}\n${uncovered[0]}\nlow risk: yes`, 'an uncovered line is no problem: the file still prints ok, and the low-risk line stays last');
+  eq(renamed.code, 0, 'and the exit code is the one the other checks give');
+  const swept = withBase(`${text}search: oldHelperName\nscope: .\n- src/use.mjs:1 updated: the import\n- src/use.mjs:2 updated: the call\n`);
+  eq(swept.lines.join('\n'), `ok: ${swept.path}\nlow risk: yes`, `a search for the old name with scope . and every hit listed removes the uncovered line: ${swept.lines.join(' | ')}`);
+  const unlisted = withBase(`${text}search: oldHelperName\nscope: .\n`);
+  ok(unlisted.code === 1 && unlisted.lines.filter((l) => l.startsWith('left out:')).length === 2 && !unlisted.lines.some((l) => l.startsWith('uncovered:')),
+    `that search with its hits not yet listed prints each hit as left out instead: ${unlisted.lines.join(' | ')}`);
+  const partial = withBase(`${text}search: oldHelperName\nscope: src/lib.mjs\n`);
+  ok(partial.lines.some((l) => l.startsWith('uncovered: oldHelperName')), 'a search whose scope misses a reader does not cover the name');
+  const failing = withBase(text.replace('- src/lib.mjs:1 updated', '- src/lib.mjs:9 updated'));
+  ok(failing.code === 1 && failing.lines.at(-2) === uncovered[0] && failing.lines.at(-1) === 'low risk: yes',
+    `beside a problem the uncovered line still prints, and the exit code stays the problem's: ${failing.lines.join(' | ')}`);
+  const plain = check(repo, tree, text);
+  eq(plain.lines.join('\n'), `ok: ${plain.path}\nlow risk: yes`, 'without --base no uncovered line prints');
+  eq(withBase(`Snapshot: ${tree}\n\nNo changes.\n`).lines.join('\n').includes('uncovered:'), false, 'a file with no change section reads no diff');
+  ok(!withBase(text.replace('- Paths: no', '- Paths: maybe')).lines.some((l) => l.startsWith('uncovered:')), 'a file with a format error reads no diff');
+  // An unchanged blob the diff never reads but the readers' grep does: losing it fails only that grep.
+  const useBlob = git(repo, ['rev-parse', `${tree}:src/use.mjs`]);
+  rmSync(join(repo, '.git', 'objects', useBlob.slice(0, 2), useBlob.slice(2)));
+  const lostBlob = withBase(text);
+  ok(lostBlob.code === 2 && lostBlob.lines[0].startsWith(`risk-check: git grep failed for the changed names in --snapshot ${tree}:`),
+    `a failed grep for the readers exits 2 and names the snapshot: ${lostBlob.lines.join(' | ')}`);
+  // A blob of a changed file, which the diff itself reads, fails the diff before the grep runs.
+  const libBlob = git(repo, ['rev-parse', `${base}:src/lib.mjs`]);
+  rmSync(join(repo, '.git', 'objects', libBlob.slice(0, 2), libBlob.slice(2)));
+  const lostDiff = withBase(text);
+  ok(lostDiff.code === 2 && lostDiff.lines[0].startsWith(`risk-check: git diff failed from --base ${base} to --snapshot ${tree}:`),
+    `a failed diff of the round exits 2 and names both trees: ${lostDiff.lines.join(' | ')}`);
+}
+
+section('with --base, a shell $ name and a code name are one name, and a name with no reader left prints nothing');
+{
+  const { repo, tree: base } = fixtureRepo({
+    'a.mjs': 'const v = process.env.OLD_VAR;\nconst w = process.env.SHELL_VAR;\nconst gone_name = 1;\n',
+    'run.sh': 'echo $OLD_VAR\necho $SHELL_VAR\n',
+  });
+  const riskOf = (tree) => {
+    const path = join(tmpDir(), 'risk-x-r2.md');
+    writeFileSync(path, [`Snapshot: ${tree}`, '', '## a.mjs:1', ...answers(), '', '## Sweep', 'search: NEW_VAR', 'scope: a.mjs', '- a.mjs:1 updated: the renamed variable', ''].join('\n'));
+    return { path, ...run([path, '--repo', repo, '--snapshot', tree, '--base', base]) };
+  };
+  const partTree = writeTree(repo, {
+    'a.mjs': 'const v = process.env.NEW_VAR;\nconst w = process.env.SHELL_VAR;\n',
+    'run.sh': 'echo $OLD_VAR\necho $SHELL_NAME\n',
+  });
+  const part = riskOf(partTree);
+  eq(JSON.stringify(part.lines.filter((l) => l.startsWith('uncovered:'))), JSON.stringify([
+    "uncovered: OLD_VAR is held outside the round's hunks by run.sh:1, and no search for it finds each of them",
+    "uncovered: SHELL_VAR is held outside the round's hunks by a.mjs:2, and no search for it finds each of them",
+  ]), `a code line's dropped name is held by a shell $ line, and a shell line's dropped $ name by a code line: ${part.lines.join(' | ')}`);
+  const fullTree = writeTree(repo, { 'a.mjs': 'const v = process.env.NEW_VAR;\n', 'run.sh': 'echo $NEW_VAR\n' });
+  const full = riskOf(fullTree);
+  eq(full.lines.join('\n'), `ok: ${full.path}\nlow risk: yes`, `a round whose dropped names no line still holds prints ok and no uncovered line: ${full.lines.join(' | ')}`);
+  eq(full.code, 0, 'and exits 0');
+}
+
 section('helpers');
 {
   eq(JSON.stringify(searchForms('plain')), JSON.stringify(['plain']), 'a literal with no quote or backslash has one form');
@@ -181,6 +274,11 @@ section('helpers');
   eq(JSON.stringify(searchForms('a\\b')), JSON.stringify(['a\\b', 'a\\\\b']), 'a backslash doubles');
   eq(repoPath('.\\src\\a.mjs', 'E:/r'), 'src/a.mjs', 'a Windows relative path takes forward slashes');
   eq(repoPath('e:/R/src/a.mjs', 'E:/r'), 'src/a.mjs', 'an absolute path inside the repo becomes relative');
+  eq(JSON.stringify(codeNames('PLUGIN_ROOT installedSiblings run Parser 3fooBar a.b_c $x_y __x v2_0')), JSON.stringify(['PLUGIN_ROOT', 'installedSiblings', 'b_c', 'x_y', 'v2_0']),
+    'a code name holds an _ between two letters or digits or a lowercase letter before an uppercase one, and starts at a token boundary, a $ included');
+  const patch = ['diff --git a/x b/x', '--- a/x', '+++ b/x', '@@ -1,2 +1,2 @@', '-old_name kept_name', '-moved_name', '+kept_name', '+moved_name\r', '-- a/y', '@@ -5 +5 @@', '--- line_gone'].join('\n');
+  eq(JSON.stringify(changedNames(patch)), JSON.stringify(['line_gone', 'old_name']),
+    'a changed name is held by a removed line and no added line, a header line holds none, and a removed line that starts with -- is content');
 }
 
 section("the risk file constants agree with develop's copies");

@@ -447,7 +447,8 @@ The roles:
   self-review judged that round's code, and each blind review judges the entire block diff. CLASSIFY
   answers the risk questions (§6) for each change its round made, writes `risk-<id>-rN.md`, which
   starts with a snapshot of its round's tree and ends with a sweep of each changed name or
-  phrase (§6), and returns `review_needed` and the snapshot's tree id as `risk_snapshot`. Each
+  phrase that a line outside its round's hunks holds (§6), and returns `review_needed` and the
+  snapshot's tree id as `risk_snapshot`. Each
   phase after BUILD runs a targeted test while it works. The gate runs once more after the last
   phase that changed code, and that run's outcome is the one it reports. Every gate run sets the
   shell tool's timeout to its maximum (600000 ms) and writes the gate's entire output to a log
@@ -674,14 +675,23 @@ the line `Snapshot: <tree id>`. The tree id is a snapshot of the round's working
 makes with `git add -A` and `git write-tree` on a temporary index file under `scratch/`, seeded with a copy of
 the real index, and deletes that file once it prints the tree id. The real index, which holds the accepted
 baseline, is never written. After its answers the risk file holds a `## Sweep` section with one search for
-each function, constant, field, message or rule phrase the round changed, and each hit marked `updated` or
-`unaffected` with a few words of reason. The tool reruns each search and names each hit the file leaves out.
-A changed or removed rule phrase, message or name is searched by its old wording, and by its new wording too
-when other text must repeat it, since a copy that still holds the old wording matches no search of the new
-one. A changed field, return value, file format or output that other code or prompts read needs a search that
-finds those readers. A change that adds, removes or renames a field of an agent's return schema also needs a
-search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns",
-"only" and "nothing else". A round that changed nothing writes no section. The blind review runs in a
+each function, constant, field, message or rule phrase the round changed that a line outside the round's
+hunks holds, and each hit marked `updated` or `unaffected` with a few words of reason. A name the round only
+adds needs no search, since acceptance reads every hit inside the hunks. The tool reruns each search and
+names each hit the file leaves out. The developer passes the tool `--base`, the tree the round's diff starts
+from: the tree id STEP 0 printed in round 1, and in a later round the `risk_snapshot` the round before it
+returned, or the index's tree id the engine last recorded when that round returned none. The engine leaves
+`--base` out when it holds neither. With it, the tool prints the `uncovered:` lines whose selection rule
+`tools/CLAUDE.md` holds. A name the round removed or renamed takes a search for it with
+scope `.`, and a name the round only stopped using takes none. The tool finds no other changed name, such as
+a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each
+of those takes a search the tool does not ask for. A changed or removed rule phrase, message or name is
+searched by its old wording, and by its new wording too when other text must repeat it, since a copy that
+still holds the old wording matches no search of the new one. A changed field, return value, file format or
+output that other code or prompts read needs a search that finds those readers. A change that adds, removes or
+renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose
+that lists that agent's return fields, such as "returns", "only" and "nothing else". A round that changed
+nothing writes no section. The blind review runs in a
 block's first round with a satisfied gate in a launch, a fix block that restored a parked block's branch
 included. A later round
 gets one when a round since the block's last blind review returned `review_needed` true or no boolean, or an
@@ -701,9 +711,11 @@ round on, unless it is untracked build output or a cache that a gate or test run
 last round returned no snapshot, this check has nothing to compare, and an unreviewed round's missing
 snapshot is already a missing file. It checks each answer in the risk file of each round since the last
 blind review or last clean risk audit against that round's hunks. It also checks the sweep of the latest of
-those rounds. It runs `tools/risk-check.mjs` on that round's file with the tree id the round returned, and
-each error the tool prints is a gap. Each changed name or phrase in that round's hunks needs a line, and each
-hit marked `unaffected` must still agree with the change.
+those rounds. It runs `tools/risk-check.mjs` on that round's file with the tree id the round returned and
+`--base` by the developer's rule, and each error the tool prints is a gap. So is an `uncovered:` line for a
+name the round removed or renamed, and one for a name the round only stopped using is no gap. Each changed
+name or phrase in that round's hunks that a line outside them holds needs a line, and each hit marked
+`unaffected` must still agree with the change.
 Acceptance also searches each changed or removed rule phrase, message or name by its old wording, and by
 its new wording too when other text must repeat it, whatever its line names. A round whose hunks add,
 remove or rename a field of an agent's return schema also needs a line that lists each sentence that

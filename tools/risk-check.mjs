@@ -1,12 +1,14 @@
 // tools/risk-check.mjs: the risk file checker and the only copy of the risk file format. A develop developer
 // runs it on its risk file in its CLASSIFY phase, and acceptance runs it on the latest audited one in its risk audit.
 //
-//   node tools/risk-check.mjs <risk file> --repo <repo> --snapshot <tree id>
+//   node tools/risk-check.mjs <risk file> --repo <repo> --snapshot <tree id> [--base <tree id>]
 //
 // A missing file gets a skeleton. A written one is checked: its format, its Snapshot line against --snapshot, and
-// each sweep search, rerun in the repo's working tree in its plain and source-escaped forms. Exit 0 prints
-// `ok: <file>`, 1 lists each problem and, after a format or Snapshot error, the format, and 2 is a usage or git
-// error. Both 0 and 1 end `low risk: yes|no` once every answer parses. tools/CLAUDE.md holds the contract. FORMAT below holds the file format.
+// each sweep search, rerun in the repo's working tree in its plain and source-escaped forms. With --base, a file
+// with no format error and a change section also gets an `uncovered:` line for each changed name that no search
+// covers. Exit 0 prints `ok: <file>`, 1 lists each problem and, after a format or Snapshot error, the format, and
+// 2 is a usage or git error. Both 0 and 1 end `low risk: yes|no` once every answer parses. tools/CLAUDE.md holds
+// the contract. FORMAT below holds the file format.
 
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
@@ -38,6 +40,12 @@ const ANSWER_SHAPE = '`no`, `no: <note>` or `yes: <evidence>`';
 const HIT_SHAPE = '`- <path>:<line> updated|unaffected: <reason>` or `- <path> (<n> hits) updated|unaffected: <reason>`';
 // A git grep of a common word can print megabytes, which the default child buffer would cut.
 const MAX_BUFFER = 256 * 1024 * 1024;
+// A token bounded by characters no code name holds, so `3fooBar` and `a.b` yield no false name. `$` bounds a
+// token too, so a shell or PowerShell `$OLD_VAR` yields the `OLD_VAR` that a code line names.
+const NAME_TOKEN_RE = /(?<![A-Za-z0-9_])[A-Za-z_][A-Za-z0-9_]*/g;
+// A one-word name such as `run` and an English word match neither, so prose and common names stay out.
+const CODE_NAME_RE = /[A-Za-z0-9]_[A-Za-z0-9]|[a-z][A-Z]/;
+const HUNK_RE = /^@@ -\d+(?:,\d+)? \+\d+(?:,\d+)? @@/;
 
 export const FORMAT = `A risk file holds, in this order:
   ${SNAPSHOT_LINE} <tree id>
@@ -58,9 +66,13 @@ export const FORMAT = `A risk file holds, in this order:
       hit in one generated file the gate checks.
 A round that changed nothing holds the ${SNAPSHOT_LINE} line and the line \`${NO_CHANGES}\` alone.`;
 
-const USAGE = `usage: node tools/risk-check.mjs <risk file> --repo <repo> --snapshot <tree id>
+const USAGE = `usage: node tools/risk-check.mjs <risk file> --repo <repo> --snapshot <tree id> [--base <tree id>]
   writes a skeleton when the file is missing. Otherwise it checks the file, reruns each sweep search in the
   repo's working tree, prints "ok: <file>" or each problem, and ends "low risk: yes|no" once every answer parses.
+  With --base, the round's diff runs from --base to --snapshot, and each name shaped like a code name, such as
+  PLUGIN_ROOT or installedSiblings, that its removed lines hold and its added lines do not, that a line of the
+  --snapshot tree holds and that no search with that literal finds at each such line prints as an "uncovered:"
+  line. An "uncovered:" line is no problem and changes no exit code.
 
 ${FORMAT}`;
 
@@ -254,36 +266,95 @@ export function sweepProblems(searches, { found, scopeMatches, top }) {
   return { errors, leftOut };
 }
 
-/** The report lines and exit code for a written file. */
-export function checkText(text, { file, snapshot, found, scopeMatches, top }) {
+/** Each token of a line shaped like a code name. */
+export const codeNames = (line) => (line.match(NAME_TOKEN_RE) ?? []).filter((token) => CODE_NAME_RE.test(token));
+
+/**
+ * The names a `git diff -U0` patch's removed lines hold and its added lines do not, sorted. A name that only
+ * moved, or that an added line still uses, is left out.
+ */
+export function changedNames(patch) {
+  const removed = new Set();
+  const added = new Set();
+  let inHunk = false;
+  for (const raw of String(patch).split('\n')) {
+    const line = raw.replace(/\r$/, '');
+    if (line.startsWith('diff ')) inHunk = false;
+    else if (HUNK_RE.test(line)) inHunk = true;
+    else if (inHunk && line.startsWith('+')) codeNames(line.slice(1)).forEach((name) => added.add(name));
+    else if (inHunk && line.startsWith('-')) codeNames(line.slice(1)).forEach((name) => removed.add(name));
+  }
+  return [...removed].filter((name) => !added.has(name)).sort();
+}
+
+/**
+ * Each name's readers among `rows`, the `{ path, line, text }` lines of the snapshot tree, as a Map in name order.
+ * A changed name is held by no added line, so every row that holds it lies outside the round's hunks.
+ */
+function readersOf(rows, names) {
+  const readers = new Map(names.map((name) => [name, []]));
+  for (const row of rows) {
+    for (const token of new Set(row.text.match(NAME_TOKEN_RE) ?? [])) readers.get(token)?.push({ path: row.path, line: row.line });
+  }
+  return new Map([...readers].filter(([, held]) => held.length));
+}
+
+/** An `uncovered:` line for each name with a reader that no search with that literal finds at every reader. */
+function uncoveredLines(readers, searches, found) {
+  const lines = [];
+  for (const [name, held] of readers) {
+    const covers = (s) => {
+      const hitKeys = new Set(found(s).map((h) => `${h.path}:${h.line}`));
+      return held.every((r) => hitKeys.has(`${r.path}:${r.line}`));
+    };
+    if (searches.some((s) => s.literal === name && covers(s))) continue;
+    const others = held.length - 1;
+    lines.push(`uncovered: ${name} is held outside the round's hunks by ${held[0].path}:${held[0].line}${others ? ` and ${others} other line(s)` : ''}, and no search for it finds each of them`);
+  }
+  return lines;
+}
+
+/**
+ * The report lines and exit code for a written file. `roundReaders()`, given only with --base, returns each
+ * changed name's readers, and runs only for a file with no format error and a change section.
+ */
+export function checkText(text, { file, snapshot, found, scopeMatches, top, roundReaders = null }) {
   // Input
   const parsed = parseRiskFile(text);
+  const foundBySearch = new Map();
+  const foundOnce = (s) => {
+    if (!foundBySearch.has(s)) foundBySearch.set(s, found(s));
+    return foundBySearch.get(s);
+  };
 
   // Process
   const errors = [...parsed.errors];
   if (parsed.snapshot && parsed.snapshot !== snapshot) {
     errors.unshift(`line 1 holds the snapshot ${parsed.snapshot}, not ${snapshot}. A file an earlier launch left, or one written before the round's last change, is replaced in full`);
   }
-  const sweep = sweepProblems(parsed.searches, { found, scopeMatches, top });
+  const sweep = sweepProblems(parsed.searches, { found: foundOnce, scopeMatches, top });
   const errorLines = [...errors, ...sweep.errors].map((e) => `error: ${e}`);
   const problemCount = errorLines.length + sweep.leftOut.length;
   const problemLines = [...errorLines, ...sweep.leftOut.flat()];
+  const checksNames = roundReaders !== null && !parsed.errors.length && parsed.changes.length > 0;
+  const uncovered = checksNames ? uncoveredLines(roundReaders(), parsed.searches, foundOnce) : [];
 
   // Output
   // A file with a format error or another launch's snapshot is rewritten, and only the skeleton run showed the format.
   const formatHelp = errors.length ? ['', FORMAT] : [];
   const riskLine = parsed.lowRisk === null ? [] : [`low risk: ${parsed.lowRisk ? 'yes' : 'no'}`];
   return problemCount
-    ? { lines: [`${problemCount} problem(s):`, ...problemLines, ...formatHelp, ...riskLine], code: EXIT.problems }
-    : { lines: [`ok: ${file}`, ...riskLine], code: EXIT.ok };
+    ? { lines: [`${problemCount} problem(s):`, ...problemLines, ...uncovered, ...formatHelp, ...riskLine], code: EXIT.problems }
+    : { lines: [`ok: ${file}`, ...uncovered, ...riskLine], code: EXIT.ok };
 }
 
 // =============================================================================
 // CLI: every read, write and git call happens here.
 // =============================================================================
 
-function git(top, args) {
-  const r = spawnSync('git', ['-C', top, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: MAX_BUFFER });
+function git(top, args, input = null) {
+  const stdin = input === null ? 'ignore' : 'pipe';
+  const r = spawnSync('git', ['-C', top, ...args], { encoding: 'utf8', input: input ?? undefined, stdio: [stdin, 'pipe', 'pipe'], maxBuffer: MAX_BUFFER });
   if (r.error) throw new Error(`cannot run git in ${top}: ${r.error.message}`);
   return { code: r.status ?? 1, stdout: r.stdout, stderr: r.stderr };
 }
@@ -302,18 +373,37 @@ function grepHits(top, search) {
   });
 }
 
+/** Each changed name of the round's diff from `base` to `snapshot`, mapped to the lines of the snapshot tree that hold it. */
+function roundReaders(top, base, snapshot) {
+  const diff = git(top, ['diff', '-U0', '--no-color', '--no-ext-diff', '--no-textconv', base, snapshot]);
+  if (diff.code !== 0) throw new Error(`git diff failed from --base ${base} to --snapshot ${snapshot}: ${firstLine(diff.stderr) || `exit ${diff.code}`}`);
+  const names = changedNames(diff.stdout);
+  if (!names.length) return new Map();
+  // The names go in on stdin, since a large diff's names would overrun the command line.
+  const grep = git(top, ['grep', '-n', '-I', '-z', '-F', '-f', '-', snapshot], `${names.join('\n')}\n`);
+  // git grep exits 1, as for no match, when it cannot read a blob, and says so only on stderr.
+  const failed = grep.code > 1 || /^(?:error|fatal):/m.test(grep.stderr);
+  if (failed) throw new Error(`git grep failed for the changed names in --snapshot ${snapshot}: ${firstLine(grep.stderr) || `exit ${grep.code}`}`);
+  if (grep.code === 1) return new Map();
+  const rows = grep.stdout.split('\n').filter(Boolean).map((row) => {
+    const [treePath, line, ...rest] = row.split('\0');
+    return { path: treePath.slice(snapshot.length + 1), line: Number(line), text: rest.join('\0').replace(/\r$/, '') };
+  });
+  return readersOf(rows, names);
+}
+
 function scopeMatches(top, pathspec) {
   const r = git(top, ['ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', pathspec]);
   if (r.code !== 0) throw new Error(`git ls-files failed for the scope "${pathspec}": ${firstLine(r.stderr) || `exit ${r.code}`}`);
   return r.stdout.length > 0;
 }
 
-/** The --repo and --snapshot values and the file path, or an error naming the bad argument. */
+/** The --repo, --snapshot and optional --base values and the file path, or an error naming the bad argument. */
 function parseArgs(argv) {
-  const values = { file: null, '--repo': null, '--snapshot': null };
+  const values = { file: null, '--repo': null, '--snapshot': null, '--base': null };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg === '--repo' || arg === '--snapshot') {
+    if (arg === '--repo' || arg === '--snapshot' || arg === '--base') {
       if (values[arg] !== null || argv[i + 1] === undefined) throw new Error(USAGE);
       values[arg] = argv[++i];
     } else if (values.file === null && !arg.startsWith('--')) values.file = arg;
@@ -326,13 +416,17 @@ function parseArgs(argv) {
 export function run(argv) {
   try {
     // Input
-    const { file, '--repo': repo, '--snapshot': snapshot } = parseArgs(argv);
+    const { file, '--repo': repo, '--snapshot': snapshot, '--base': base } = parseArgs(argv);
     if (!TREE_RE.test(snapshot)) throw new Error(`--snapshot takes the tree id \`git write-tree\` printed, got "${snapshot}"`);
+    if (base !== null && !TREE_RE.test(base)) throw new Error(`--base takes the tree id the round's diff starts from, got "${base}"`);
     const topRun = spawnSync('git', ['-C', repo, 'rev-parse', '--show-toplevel'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
     if (topRun.error || topRun.status !== 0) throw new Error(`--repo ${repo} is no git work tree: ${firstLine(topRun.stderr) || topRun.error?.message}`);
     const top = topRun.stdout.trim();
-    const treeType = git(top, ['cat-file', '-t', snapshot]);
-    if (treeType.code !== 0 || treeType.stdout.trim() !== 'tree') throw new Error(`--snapshot ${snapshot} names no tree in ${top}`);
+    const trees = base === null ? [['--snapshot', snapshot]] : [['--snapshot', snapshot], ['--base', base]];
+    for (const [flag, tree] of trees) {
+      const treeType = git(top, ['cat-file', '-t', tree]);
+      if (treeType.code !== 0 || treeType.stdout.trim() !== 'tree') throw new Error(`${flag} ${tree} names no tree in ${top}`);
+    }
 
     // Process and output
     if (!existsSync(file)) {
@@ -342,6 +436,7 @@ export function run(argv) {
     }
     return checkText(readFileSync(file, 'utf8'), {
       file, snapshot, top, found: (search) => grepHits(top, search), scopeMatches: (pathspec) => scopeMatches(top, pathspec),
+      roundReaders: base === null ? null : () => roundReaders(top, base, snapshot),
     });
   } catch (err) {
     return { lines: [`risk-check: ${err.message}`], code: EXIT.usage };

@@ -18,7 +18,7 @@ own artifacts or are operator-invoked.
 | `plan-edit.mjs` | Rewrites plan files, the only tool that does: `set` upserts one block or issue metadata line, `move` relocates an issue entry (a cut, never a copy), `args` folds finished develop runs' statuses into the plans and prints the next launch's args. **Operator-invoked between runs**, never handed to a run-time agent. Its CLI exits 1 before any verb from an orphaned plugin copy, through `orphanRefusal` from `plugin-access.mjs`, and an import runs no check. Imports plan-block's exported grammar. |
 | `plan-pull.mjs` | Prints, read-only, the ready backlog entries in the files a block changes: `pullable --backlog <dir> --files <path,...> [--exclude <plan.md,...>]`. **Called by a proactive round-1 developer at run time**, so it holds no write verb. Imports the backlog rules from `plan-edit.mjs`. |
 | `plan-entry.mjs` | The backlog entry writer and the only copy of a backlog file's header and entry shape: `new` appends an entry with the next free id and the given metadata lines, and `check` reports a grammar error and each placeholder left in place. **Called by develop's backlog writers at run time.** It only appends to a backlog file, so it is a separate file from `plan-edit.mjs` for the reason `plan-edit.mjs` is a separate file. Imports plan-block's grammar. |
-| `risk-check.mjs` | The risk file checker and the only copy of develop's risk file format: `<risk file> --repo <repo> --snapshot <tree id>` writes a missing file's skeleton, and otherwise checks the file's format and its `Snapshot:` line, reruns each sweep search in the repo's working tree and lists each hit the file leaves out. Its last line, `low risk: yes\|no`, gives the developer's `review_needed`. **Called by develop's developer and acceptance at run time** (see above). Its spec is below. |
+| `risk-check.mjs` | The risk file checker and the only copy of develop's risk file format: `<risk file> --repo <repo> --snapshot <tree id> [--base <tree id>]` writes a missing file's skeleton, and otherwise checks the file's format and its `Snapshot:` line, reruns each sweep search in the repo's working tree and lists each hit the file leaves out. With `--base` it also lists, as `uncovered:` lines, each name the round's diff dropped that a line outside its hunks still holds and no search covers. Its last line, `low risk: yes\|no`, gives the developer's `review_needed`. **Called by develop's developer and acceptance at run time** (see above). Its spec is below. |
 | `review-check.mjs` | The staged-review checker and the only copy of the review file format: `<review file>` writes a missing blind review's skeleton, checks a written one's format, then locks it, writes the final file's skeleton and prints the reveal text, and on later runs checks the final file against the lock and the decision file. `--verify <review file>` reports the lock state and the counts. **Called by decide's final reviewer and check agent at run time** (see above). Its spec and lock are below. |
 | `plugin-access.mjs` | `check`s for, and on the user's yes `grant`s, the Read allow rule in the user settings that lets the Workflow tool launch an **installed** plugin's engines. A plugin path through a link gets a second rule for the resolved folder. The tool refuses a scriptPath the session cannot already read, and a plugin cannot grant itself its own folder. **Run by each skill's first step**, operator-side, never by a run-time agent, apart from the develop and debug skills, whose `onboard.mjs` check asks for access through the exported `accessState`. A cache install is granted the plugin folder above the version folder, so updates keep the rule. A copy whose folder holds `.orphaned_at` is a replaced version, so `accessState` throws the text of the exported `orphanRefusal`, which names the installed sibling copy when exactly one exists, and every verb exits 1 with no write. |
 | `onboard.mjs` | Asks every setup answer a build needs from the user once per repo, together. `check --root --repo` prints `ready <key> policy=<policy> delivery=<commit\|stage>` when nothing is missing. Otherwise it prints `ask <key>`, then each open question with its options and the one `save` command. The questions are plugin access (skipped when the working directory holds the plugin folder, or when `--access session` says the user declined it and ran `/add-dir` for this session), the change policy, the delivery, and, only beside the delivery, whether to hide Claude's author details. The policy and delivery options list the recommendation first: `proactive` and `commit` when every commit of the repo is the user's own, else `focused` and `stage`. `check` takes `--access session`, which writes nothing. `save` takes `--access allow\|session`, `--policy`, `--delivery commit\|stage` and `--attribution hide\|keep`, writes the user settings once for access and attribution and the store through `project-settings.mjs`, then prints what `check` prints. It reads every answer from where its tool keeps it, so a skill runs it before every run. `check` and `save` exit 1 with no write from an orphaned plugin copy, through `accessState`. **Operator-invoked** by the develop and debug skills' first step, never by a run-time agent. |
@@ -246,7 +246,7 @@ content rules, such as what a `**What:**` holds, the decision rule and the dedup
 ## risk-check.mjs
 
 ```bash
-node tools/risk-check.mjs <risk file> --repo <repo> --snapshot <tree id>
+node tools/risk-check.mjs <risk file> --repo <repo> --snapshot <tree id> [--base <tree id>]
 ```
 
 A missing file gets a skeleton that holds the `--snapshot` id and one `TODO:` slot per part, and the tool
@@ -265,9 +265,19 @@ twice, a hit count that differs and a reason left as `<reason>`. It prints each 
 `left out:` line with its text, and under it the sweep line `- <path>:<line> updated|unaffected: <reason>` to
 copy into the search block. A line copied as printed fails the check. Exit 0 prints `ok: <file>`, and exit 1
 prints the problem count and each problem, then `FORMAT` when a problem is a format error or a Snapshot line
-that differs. Both end `low risk: yes|no` once every answer parses, `yes` only when every answer is `no`. A
-usage error, a `--snapshot` the repo holds no tree for, a `--repo` outside git and a failed git call exit 2 on
-stderr and write nothing. A test compares `RISK_KEYS` with the question names develop's `RISK_QUESTIONS`
+that differs. Both end `low risk: yes|no` once every answer parses, `yes` only when every answer is `no`.
+`--base` names the tree the round's diff starts from. Once the file has no format error and holds a change
+section, the tool reads `git diff -U0 <base> <snapshot>`. A changed name is a token of the diff's removed
+lines that no added line holds and that is shaped like a code name. Such a token holds only letters, digits
+and `_`, starts with a letter or `_`, and holds an `_` between two letters or digits or a lowercase
+letter before an uppercase one, such as `PLUGIN_ROOT` or `installedSiblings`. A one-word name and an English
+word fall outside. A reader is a line of the `--snapshot` tree that holds the name as a whole word. A search
+covers a name when its text is the name and its rerun finds each reader. Each changed name with a reader and
+no covering search prints as `uncovered: <name> is held outside the round's hunks by <path>:<line> and <n>
+other line(s), ...` before the low-risk line. An `uncovered:` line is no problem, so it changes neither the
+exit code nor the `ok:` line, and the prompts say how an agent judges it. A usage error, a `--snapshot` or
+`--base` the repo holds no tree for, a `--repo` outside git and a failed git call exit 2 on stderr and write
+nothing. A test compares `RISK_KEYS` with the question names develop's `RISK_QUESTIONS`
 renders, and `SNAPSHOT_LINE`, `SWEEP_HEADING` and `NO_CHANGES` with develop's own copies. The prompts keep the
 content rules, such as which names a sweep searches and what makes an answer yes.
 
