@@ -174,6 +174,15 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   plans it names, and a note lists each one it skipped. A record whose format Claude Code changed still
   fails every plan.
 
+### 2026-11-02
+
+- **The risk check lists removed names that other code still uses.** With the round's base tree,
+  `risk-check.mjs` prints each code name that the round's removed lines hold and its added lines do not,
+  when a line outside the round's hunks still holds it. The developer adds a sweep search for each one the
+  round removed or renamed. A name the round adds no longer needs a sweep line.
+- **The file-write note covers scripts.** Every engine tells agents to write file content, and any script
+  that edits a file, with the Write or Edit tool. Text sent through a Bash command can lose backslashes.
+
 ### 2026-10-31
 
 - **Decide scores a do-nothing option.** When not acting is possible, the decider scores doing nothing
