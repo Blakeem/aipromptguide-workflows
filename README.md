@@ -180,6 +180,15 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 - **Decide drops lenses, research rounds and the blind review.** `tools/review-check.mjs` is removed. The
   args `lenses`, `checkTool`, `selection`, `shortlist`, `maxRounds`, `maxResearchRounds` and
   `maxResearchers` now throw with the reason. The role keys are `investigate`, `decide` and `review`.
+- **Decide's investigators record each defect they find.** An investigator records a defect in any option
+  it reads or verifies, and fixes it when it can. A defect counts as progress with or without a fix, so
+  expect most runs to use every investigator.
+- **The investigator chain builds every combination.** The decider ranks the options the chain built and
+  builds none of its own. A combination the chain did not build comes to you as an untested check.
+- **Decide's final reviewer hunts defects in the top three options.** It also checks the last
+  investigator's contributions, since no later investigator read them. A defect it can show lowers that
+  option's score, or rules the option out when it breaks a non-negotiable. Each defect goes under
+  `## Defects` in `review.md`, with the fix it would take when it has one. The run returns a `defects` count.
 
 ### 2026-11-02
 
