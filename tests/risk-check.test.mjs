@@ -5,12 +5,13 @@
 //
 // Fixtures live under os.tmpdir(), never under tests/fixtures/, as in plan-entry.test.mjs.
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
 import { FORMAT, NO_CHANGES, RISK_KEYS, SNAPSHOT_LINE, SWEEP_HEADING, changedNames, codeNames, parseRiskFile, repoPath, run, searchForms, skeleton } from '../tools/risk-check.mjs';
 
+const UID = typeof process.getuid === 'function' ? process.getuid() : null;
 const dirs = [];
 const tmpDir = () => { const d = mkdtempSync(join(tmpdir(), 'aipg-risk-check-')); dirs.push(d); return d; };
 const git = (repo, args) => execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8' }).trim();
@@ -184,6 +185,30 @@ section('a usage or git error exits 2 and writes nothing');
     catch (e) { return { code: e.status, stderr: String(e.stderr) }; }
   })();
   ok(cli.code === 2 && cli.stderr.startsWith('risk-check: usage:'), `the CLI prints a usage error on stderr with exit 2 (exit ${cli.code})`);
+}
+
+section('a sweep search over a file git grep cannot read exits 2');
+if (process.platform !== 'win32' && UID === 0) {
+  console.log('    (skipped as root: no permission bit stops root from reading a file)');
+} else {
+  const { repo, tree } = fixtureRepo(FILES);
+  const locked = join(repo, 'src', 'locked.md');
+  // Windows ignores the mode bits, so a deny entry for Everyone stops the read there.
+  const setLocked = (on) => {
+    if (process.platform !== 'win32') chmodSync(locked, on ? 0o000 : 0o600);
+    else execFileSync('icacls', on ? [locked, '/deny', '*S-1-1-0:(R)'] : [locked, '/remove:d', '*S-1-1-0'], { stdio: 'pipe' });
+  };
+  writeFileSync(locked, 'the old rule\n');
+  setLocked(true);
+  try {
+    // git grep exits 0 when another file matches and 1 when none does, and names the unreadable file only on stderr.
+    const withHits = check(repo, tree, fileOf(tree, ALL_HITS));
+    ok(withHits.code === 2 && withHits.lines[0].startsWith('risk-check: git grep failed for the search on line '),
+      `a search with hits in readable files exits 2: ${withHits.lines.join(' | ')}`);
+    const noHits = check(repo, tree, fileOf(tree, ['search: a phrase no file holds', 'scope: src']));
+    ok(noHits.code === 2 && noHits.lines[0].startsWith('risk-check: git grep failed for the search on line '),
+      `a search with no other hit exits 2 instead of reading as no hit: ${noHits.lines.join(' | ')}`);
+  } finally { setLocked(false); }
 }
 
 section('with --base, each changed name a line outside the hunks holds and no search covers prints as uncovered');

@@ -138,9 +138,10 @@ defect found that way is a con of the option, or, for a challenger, a contributi
   graded **dominant**, **robust** or **fragile**), `## Ruled out` (each option that fails a must, with the
   evidence and the one observation that would reverse it, #16), `## Changes to investigation facts` and
   `## Checks for the user` (each question no agent can settle, with the result that would change the
-  ranking). **The tie rule:** down the list sorted by total, the options within 5% of the sum of the weights
-  of the highest total left form a tie group, ranked simplest first. The margin is a share of the weights,
-  since they have no fixed scale. Every option of the investigation files is ranked or ruled out.
+  ranking). **The tie rule:** down the list sorted by total, the options whose totals lie at most M below
+  the highest total left, where M is 5% of the sum of every criterion's weight, form a tie group, ranked
+  simplest first. The margin is a share of the weights, since they have no fixed scale. Every option of the
+  investigation files is ranked or ruled out.
   It returns `wrote_file`, the `ranking` index (`rank`, `title`, `combines_with`, `excludes`), `flip` and
   `user_checks`.
 - **Final reviewer** (`review`) reads the rubric, every investigation file and `decision.md`. It opens the
@@ -163,14 +164,16 @@ defect found that way is a con of the option, or, for a challenger, a contributi
   a feature added to an option, a feature removed for a stated reason (overkill, or an edge case too unlikely
   to justify its cost), or a correction of an error in an earlier file. It makes the option better on at
   least one weighted criterion or on a plain measure the rubric does not name, such as simpler, faster or
-  more robust where robustness is needed, and it cites its evidence. No size threshold applies. It targets
-  one of the three leading options of the latest standing (every option when fewer stand), unless it names
-  the shortcoming that holds a lower option down and gives evidence that the contribution resolves it.
+  more robust where robustness is needed, and it cites its evidence. No size threshold applies. A feature
+  added, a feature removed or a correction targets one of the three leading options of the latest standing
+  (every option when fewer stand), unless it names the shortcoming that holds a lower option down and gives
+  evidence that the contribution resolves it.
 - **The early stop.** `contributed` false is valid only with a `## Contributions` section that reads `None.`
-  and a `## Searched` section that holds a replacement attempt and an improvement attempt for each of the
-  three leading options (every option when fewer stand), each with the reason it adds nothing. The engine
-  stops the chain at the first challenger that returns `contributed` false (`dry`), or after
-  `maxInvestigators` agents (`cap`), and the decider runs either way. Only an explicit false stops it.
+  and a `## Searched` section that holds a replacement attempt against the leader's assumptions and an
+  improvement attempt for each of the three leading options (every option when fewer stand), each with the
+  reason it adds nothing. The engine stops the chain at the first challenger that returns `contributed`
+  false (`dry`), or after `maxInvestigators` agents (`cap`), and the decider runs either way. Only an
+  explicit false stops it.
 - **Every agent is on the critical path**, since the next agent reads its file. An agent that returns nothing
   throws. An agent whose `wrote_file` is not true halts the run on
   `BLOCKED (an agent did not confirm writing its file)` before any later agent, with `haltReason` naming the

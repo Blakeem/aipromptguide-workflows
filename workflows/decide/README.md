@@ -24,8 +24,8 @@ A **bounded chain** built on the shared [Workflow Principles](../../principles/)
   do-nothing option against the same requirements. Non-negotiables are pass/fail, and an option that fails
   one is ruled out with its evidence. Each weighted criterion scores met, partly met or missed, and the total
   counts met as full weight, partly met as half and missed as zero. A criterion scores met only on a cited
-  source or a measurement. Options whose totals lie within 5% of the sum of the weights of the highest
-  remaining total form a tie group, and the group ranks simplest first.
+  source or a measurement. Options whose totals lie at most M below the highest remaining total, where M is
+  5% of the sum of every criterion's weight, form a tie group, and the group ranks simplest first.
 - **Measured claims can be rerun.** A measurement cites its exact command and result, and any script it ran
   is saved in the run folder. The final reviewer reruns each script behind the scores it verifies.
 - **Verification against the sources.** The final reviewer opens the source behind every score of the top

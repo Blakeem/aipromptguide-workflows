@@ -365,8 +365,10 @@ const firstLine = (s) => String(s).split('\n')[0].trim();
 function grepHits(top, search) {
   const forms = searchForms(search.literal).flatMap((f) => ['-e', f]);
   const r = git(top, ['grep', '-n', '-I', '-z', '--full-name', '--untracked', '-F', ...forms, '--', ...search.scope]);
+  // git grep sets its exit code by the hits alone and names a file it cannot read only on stderr.
+  const failed = r.code > 1 || /^(?:error|fatal):/m.test(r.stderr);
+  if (failed) throw new Error(`git grep failed for the search on line ${search.line}: ${firstLine(r.stderr) || `exit ${r.code}`}`);
   if (r.code === 1) return [];
-  if (r.code !== 0) throw new Error(`git grep failed for the search on line ${search.line}: ${firstLine(r.stderr) || `exit ${r.code}`}`);
   return r.stdout.split('\n').filter(Boolean).map((row) => {
     const [path, line, ...rest] = row.split('\0');
     return { path, line: Number(line), text: rest.join('\0').replace(/\r$/, '') };
@@ -381,7 +383,7 @@ function roundReaders(top, base, snapshot) {
   if (!names.length) return new Map();
   // The names go in on stdin, since a large diff's names would overrun the command line.
   const grep = git(top, ['grep', '-n', '-I', '-z', '-F', '-f', '-', snapshot], `${names.join('\n')}\n`);
-  // git grep exits 1, as for no match, when it cannot read a blob, and says so only on stderr.
+  // git grep sets its exit code by the hits alone and names a blob it cannot read only on stderr.
   const failed = grep.code > 1 || /^(?:error|fatal):/m.test(grep.stderr);
   if (failed) throw new Error(`git grep failed for the changed names in --snapshot ${snapshot}: ${firstLine(grep.stderr) || `exit ${grep.code}`}`);
   if (grep.code === 1) return new Map();

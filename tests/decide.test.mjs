@@ -249,7 +249,7 @@ section('the challenger carries the contribution rule and the early-stop proof')
     'unless it names the shortcoming that holds a lower option down and gives evidence that the contribution resolves it.',
     'Never repeat a contribution an earlier file holds, and never edit an earlier file.',
     '`## Contributions`: each under an id C2.1, C2.2 and so on',
-    'Set contributed=false only when `## Contributions` reads `None.` and `## Searched` holds at least one replacement attempt and one improvement attempt for each of the three leading options (every option when fewer stand) under `## Standing`',
+    'Set contributed=false only when `## Contributions` reads `None.` and `## Searched` holds at least one replacement attempt against the leader\'s assumptions and one improvement attempt for each of the three leading options (every option when fewer stand) under `## Standing`',
   ]) ok(i2.includes(piece), `the challenger prompt holds: ${piece.slice(0, 70)}`);
   const i1 = flat((await run(CLEAN)).prompt('investigate i1'));
   ok(['## Options', '## Leader assumptions', '## Standing', '## Searched'].every((h) => i1.includes(`\`${h}\``)), 'the opening investigator writes the four sections');
@@ -263,7 +263,7 @@ section('the decider ranks under the tie rule and writes every section, and the 
   const order = ['## Ranking', '## Options', '## Matrix', '## Flip check', '## Ruled out', '## Changes to investigation facts', '## Checks for the user'];
   ok(ascending(positions(dec, order.map((h) => `- \`${h}\``))), 'the decision file\'s sections are listed in order');
   // Groups formed down one sorted list give every chain of near totals an order, which a pairwise margin cannot.
-  const tieRule = 'sort the ranked options by total, best first. The options whose totals lie within 5% of the sum of the weights of the highest total form a tie group, ranked simplest first. Form each next group the same way from the options left.';
+  const tieRule = 'sort the ranked options by total, best first. The options whose totals lie at most M below the highest total, where M is 5% of the sum of every criterion\'s weight, form a tie group, ranked simplest first. Form each next group the same way from the options left.';
   ok(dec.includes(`under the TIE RULE: ${tieRule} The file says where a tie group puts a simpler option above a higher total.`), 'the tie rule, scaled to the weights and grouped down one list');
   ok(dec.includes('Every option an investigation file holds appears under `## Ranking` or `## Ruled out`.'), 'every option is ranked or ruled out');
   ok(dec.includes('the one observation that would reverse that.'), 'a ruled-out option names what would reverse it');

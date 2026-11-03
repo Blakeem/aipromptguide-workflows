@@ -7,15 +7,15 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | investigate i1 | 1 | 1 | 4122 | every challenger contributes |
-| investigate i | 1 | 1 | 5802 | every challenger contributes |
-| investigate i | 2 | 1 | 5845 | every challenger contributes |
-| investigate i | 3 | 1 | 5888 | every challenger contributes |
-| decide | 1 | 1 | 6236 | every challenger contributes |
-| review | 1 | 1 | 5661 | every challenger contributes |
-| decide | 2 | 1 | 6150 | a challenger contributes nothing |
-| review | 2 | 1 | 5575 | a challenger contributes nothing |
-| decide | 3 | 1 | 6107 | one investigator |
-| review | 3 | 1 | 5532 | one investigator |
+| investigate i | 1 | 1 | 5880 | every challenger contributes |
+| investigate i | 2 | 1 | 5923 | every challenger contributes |
+| investigate i | 3 | 1 | 5966 | every challenger contributes |
+| decide | 1 | 1 | 6268 | every challenger contributes |
+| review | 1 | 1 | 5693 | every challenger contributes |
+| decide | 2 | 1 | 6182 | a challenger contributes nothing |
+| review | 2 | 1 | 5607 | a challenger contributes nothing |
+| decide | 3 | 1 | 6139 | one investigator |
+| review | 3 | 1 | 5564 | one investigator |
 
 ## investigate i1 · variant 1 · schema 1
 
@@ -123,8 +123,8 @@ reason (it is overkill, or it serves an edge case too unlikely to justify its co
 error in an earlier file. It must make the option better on at least one weighted criterion or on a plain
 measure the rubric does not name, such as simpler, more efficient, faster, or more robust where robustness
 is needed, and it cites its evidence. No size threshold applies, since several small contributions can lift
-an option over another. A contribution targets one of the three leading options (every option when fewer
-stand) under `## Standing` in E:/flow/runs/flow/investigations/i1.md, unless it names the shortcoming that holds a lower option down and gives evidence that the
+an option over another. A FEATURE ADDED, FEATURE REMOVED or CORRECTION contribution targets one of the
+three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i1.md, unless it names the shortcoming that holds a lower option down and gives evidence that the
 contribution resolves it.
 
 PROCEDURE:
@@ -144,8 +144,8 @@ It holds these sections, in this order:
   saying which criteria place it there.
 - `## Searched`: each replacement and improvement attempt that added nothing, with why.
 Set contributed=false only when `## Contributions` reads `None.` and `## Searched` holds at least one
-replacement attempt and one improvement attempt for each of the three leading options (every option
-when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i1.md, each with the reason it adds nothing under the contribution rule.
+replacement attempt against the leader's assumptions and one improvement attempt for each of the three
+leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i1.md, each with the reason it adds nothing under the contribution rule.
 contributed=false ends the chain, and the decider runs next.
 Do NOT modify any repo, stage, or commit.
 Return via the schema.
@@ -210,8 +210,8 @@ reason (it is overkill, or it serves an edge case too unlikely to justify its co
 error in an earlier file. It must make the option better on at least one weighted criterion or on a plain
 measure the rubric does not name, such as simpler, more efficient, faster, or more robust where robustness
 is needed, and it cites its evidence. No size threshold applies, since several small contributions can lift
-an option over another. A contribution targets one of the three leading options (every option when fewer
-stand) under `## Standing` in E:/flow/runs/flow/investigations/i2.md, unless it names the shortcoming that holds a lower option down and gives evidence that the
+an option over another. A FEATURE ADDED, FEATURE REMOVED or CORRECTION contribution targets one of the
+three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i2.md, unless it names the shortcoming that holds a lower option down and gives evidence that the
 contribution resolves it.
 
 PROCEDURE:
@@ -231,8 +231,8 @@ It holds these sections, in this order:
   saying which criteria place it there.
 - `## Searched`: each replacement and improvement attempt that added nothing, with why.
 Set contributed=false only when `## Contributions` reads `None.` and `## Searched` holds at least one
-replacement attempt and one improvement attempt for each of the three leading options (every option
-when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i2.md, each with the reason it adds nothing under the contribution rule.
+replacement attempt against the leader's assumptions and one improvement attempt for each of the three
+leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i2.md, each with the reason it adds nothing under the contribution rule.
 contributed=false ends the chain, and the decider runs next.
 Do NOT modify any repo, stage, or commit.
 Return via the schema.
@@ -298,8 +298,8 @@ reason (it is overkill, or it serves an edge case too unlikely to justify its co
 error in an earlier file. It must make the option better on at least one weighted criterion or on a plain
 measure the rubric does not name, such as simpler, more efficient, faster, or more robust where robustness
 is needed, and it cites its evidence. No size threshold applies, since several small contributions can lift
-an option over another. A contribution targets one of the three leading options (every option when fewer
-stand) under `## Standing` in E:/flow/runs/flow/investigations/i3.md, unless it names the shortcoming that holds a lower option down and gives evidence that the
+an option over another. A FEATURE ADDED, FEATURE REMOVED or CORRECTION contribution targets one of the
+three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i3.md, unless it names the shortcoming that holds a lower option down and gives evidence that the
 contribution resolves it.
 
 PROCEDURE:
@@ -319,8 +319,8 @@ It holds these sections, in this order:
   saying which criteria place it there.
 - `## Searched`: each replacement and improvement attempt that added nothing, with why.
 Set contributed=false only when `## Contributions` reads `None.` and `## Searched` holds at least one
-replacement attempt and one improvement attempt for each of the three leading options (every option
-when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i3.md, each with the reason it adds nothing under the contribution rule.
+replacement attempt against the leader's assumptions and one improvement attempt for each of the three
+leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i3.md, each with the reason it adds nothing under the contribution rule.
 contributed=false ends the chain, and the decider runs next.
 Do NOT modify any repo, stage, or commit.
 Return via the schema.
@@ -391,9 +391,9 @@ PROCEDURE:
    possible, the do-nothing option, judged pass or fail on every non-negotiable and scored on every
    weighted criterion, with its weighted total. Each cell cites its source (the investigation file and the
    claim, with the original source it cites) or is marked "own judgment". Never fabricate a citation.
-3. RANK every option that passes every non-negotiable by weighted total under the TIE RULE: sort the ranked options by total, best first. The options whose totals lie within 5% of
-   the sum of the weights of the highest total form a tie group, ranked simplest first. Form each next
-   group the same way from the options left.
+3. RANK every option that passes every non-negotiable by weighted total under the TIE RULE: sort the ranked options by total, best first. The options whose totals lie at most M below
+   the highest total, where M is 5% of the sum of every criterion's weight, form a tie group, ranked
+   simplest first. Form each next group the same way from the options left.
    The file says where a tie group puts a simpler option above a higher total. When the do-nothing
    option ranks first, the answer is not to act.
 4. FLIP CHECK: the smallest single change to one cell or one weight that swaps rank 1 and rank 2. Grade
@@ -528,9 +528,9 @@ PROCEDURE:
 1. Open the source behind every cell of the three top-ranked options, behind every non-negotiable
    judgment of every ranked option and behind the evidence of every `## Ruled out` entry. Rerun each script under E:/flow/runs/flow/scripts/ such a cell rests on.
    Sample the sources behind the other cells.
-2. Recompute every total. Check that the order follows the TIE RULE: sort the ranked options by total, best first. The options whose totals lie within 5% of
-   the sum of the weights of the highest total form a tie group, ranked simplest first. Form each next
-   group the same way from the options left.
+2. Recompute every total. Check that the order follows the TIE RULE: sort the ranked options by total, best first. The options whose totals lie at most M below
+   the highest total, where M is 5% of the sum of every criterion's weight, form a tie group, ranked
+   simplest first. Form each next group the same way from the options left.
    Check that every option of the investigation files is ranked or ruled out, and that each
    `combines with` and `excludes` claim agrees with the entry it names.
 3. Fix in E:/flow/runs/flow/decision.md, with the Edit tool, each error a source, a rerun or the arithmetic proves,
@@ -668,9 +668,9 @@ PROCEDURE:
    possible, the do-nothing option, judged pass or fail on every non-negotiable and scored on every
    weighted criterion, with its weighted total. Each cell cites its source (the investigation file and the
    claim, with the original source it cites) or is marked "own judgment". Never fabricate a citation.
-3. RANK every option that passes every non-negotiable by weighted total under the TIE RULE: sort the ranked options by total, best first. The options whose totals lie within 5% of
-   the sum of the weights of the highest total form a tie group, ranked simplest first. Form each next
-   group the same way from the options left.
+3. RANK every option that passes every non-negotiable by weighted total under the TIE RULE: sort the ranked options by total, best first. The options whose totals lie at most M below
+   the highest total, where M is 5% of the sum of every criterion's weight, form a tie group, ranked
+   simplest first. Form each next group the same way from the options left.
    The file says where a tie group puts a simpler option above a higher total. When the do-nothing
    option ranks first, the answer is not to act.
 4. FLIP CHECK: the smallest single change to one cell or one weight that swaps rank 1 and rank 2. Grade
@@ -803,9 +803,9 @@ PROCEDURE:
 1. Open the source behind every cell of the three top-ranked options, behind every non-negotiable
    judgment of every ranked option and behind the evidence of every `## Ruled out` entry. Rerun each script under E:/flow/runs/flow/scripts/ such a cell rests on.
    Sample the sources behind the other cells.
-2. Recompute every total. Check that the order follows the TIE RULE: sort the ranked options by total, best first. The options whose totals lie within 5% of
-   the sum of the weights of the highest total form a tie group, ranked simplest first. Form each next
-   group the same way from the options left.
+2. Recompute every total. Check that the order follows the TIE RULE: sort the ranked options by total, best first. The options whose totals lie at most M below
+   the highest total, where M is 5% of the sum of every criterion's weight, form a tie group, ranked
+   simplest first. Form each next group the same way from the options left.
    Check that every option of the investigation files is ranked or ruled out, and that each
    `combines with` and `excludes` claim agrees with the entry it names.
 3. Fix in E:/flow/runs/flow/decision.md, with the Edit tool, each error a source, a rerun or the arithmetic proves,
@@ -942,9 +942,9 @@ PROCEDURE:
    possible, the do-nothing option, judged pass or fail on every non-negotiable and scored on every
    weighted criterion, with its weighted total. Each cell cites its source (the investigation file and the
    claim, with the original source it cites) or is marked "own judgment". Never fabricate a citation.
-3. RANK every option that passes every non-negotiable by weighted total under the TIE RULE: sort the ranked options by total, best first. The options whose totals lie within 5% of
-   the sum of the weights of the highest total form a tie group, ranked simplest first. Form each next
-   group the same way from the options left.
+3. RANK every option that passes every non-negotiable by weighted total under the TIE RULE: sort the ranked options by total, best first. The options whose totals lie at most M below
+   the highest total, where M is 5% of the sum of every criterion's weight, form a tie group, ranked
+   simplest first. Form each next group the same way from the options left.
    The file says where a tie group puts a simpler option above a higher total. When the do-nothing
    option ranks first, the answer is not to act.
 4. FLIP CHECK: the smallest single change to one cell or one weight that swaps rank 1 and rank 2. Grade
@@ -1076,9 +1076,9 @@ PROCEDURE:
 1. Open the source behind every cell of the three top-ranked options, behind every non-negotiable
    judgment of every ranked option and behind the evidence of every `## Ruled out` entry. Rerun each script under E:/flow/runs/flow/scripts/ such a cell rests on.
    Sample the sources behind the other cells.
-2. Recompute every total. Check that the order follows the TIE RULE: sort the ranked options by total, best first. The options whose totals lie within 5% of
-   the sum of the weights of the highest total form a tie group, ranked simplest first. Form each next
-   group the same way from the options left.
+2. Recompute every total. Check that the order follows the TIE RULE: sort the ranked options by total, best first. The options whose totals lie at most M below
+   the highest total, where M is 5% of the sum of every criterion's weight, form a tie group, ranked
+   simplest first. Form each next group the same way from the options left.
    Check that every option of the investigation files is ranked or ruled out, and that each
    `combines with` and `excludes` claim agrees with the entry it names.
 3. Fix in E:/flow/runs/flow/decision.md, with the Edit tool, each error a source, a rerun or the arithmetic proves,

@@ -216,9 +216,9 @@ const HOSTILE_INPUTS = 'a failure, a concurrent edit, a human-set value, state s
 // The decider and the reviewer apply the same tie rule and flip rule, so each is stated once.
 // The weights have no fixed scale, so the margin is a share of their sum. A pairwise margin has no order
 // for a chain of near totals (12, 11.4, 10.8 with a margin of 1), so the rule forms groups down one list.
-const TIE_RULE = `sort the ranked options by total, best first. The options whose totals lie within 5% of
-   the sum of the weights of the highest total form a tie group, ranked simplest first. Form each next
-   group the same way from the options left.`;
+const TIE_RULE = `sort the ranked options by total, best first. The options whose totals lie at most M below
+   the highest total, where M is 5% of the sum of every criterion's weight, form a tie group, ranked
+   simplest first. Form each next group the same way from the options left.`;
 const FLIP_RULE = `the smallest single change to one cell or one weight that swaps rank 1 and rank 2. Grade
    it DOMINANT when rank 1 is at least as good as rank 2 on every criterion, ROBUST when the smallest swap
    is larger than the uncertainty of the input it moves, FRAGILE when it is not. When one option ranks
@@ -261,8 +261,8 @@ reason (it is overkill, or it serves an edge case too unlikely to justify its co
 error in an earlier file. It must make the option better on at least one weighted criterion or on a plain
 measure the rubric does not name, such as simpler, more efficient, faster, or more robust where robustness
 is needed, and it cites its evidence. No size threshold applies, since several small contributions can lift
-an option over another. A contribution targets one of the three leading options (every option when fewer
-stand) under \`## Standing\` in ${latest}, unless it names the shortcoming that holds a lower option down and gives evidence that the
+an option over another. A FEATURE ADDED, FEATURE REMOVED or CORRECTION contribution targets one of the
+three leading options (every option when fewer stand) under \`## Standing\` in ${latest}, unless it names the shortcoming that holds a lower option down and gives evidence that the
 contribution resolves it.`;
 
 // =============================================================================
@@ -314,8 +314,8 @@ It holds these sections, in this order:
   saying which criteria place it there.
 - \`## Searched\`: each replacement and improvement attempt that added nothing, with why.
 Set contributed=false only when \`## Contributions\` reads \`None.\` and \`## Searched\` holds at least one
-replacement attempt and one improvement attempt for each of the three leading options (every option
-when fewer stand) under \`## Standing\` in ${invFile(k - 1)}, each with the reason it adds nothing under the contribution rule.
+replacement attempt against the leader's assumptions and one improvement attempt for each of the three
+leading options (every option when fewer stand) under \`## Standing\` in ${invFile(k - 1)}, each with the reason it adds nothing under the contribution rule.
 contributed=false ends the chain, and the decider runs next.
 Do NOT modify any repo, stage, or commit.
 Return via the schema.`;
