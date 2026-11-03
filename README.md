@@ -163,6 +163,24 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-11-03
+
+- **Decide runs a chain of investigators.** The investigators run one at a time, up to `maxInvestigators`
+  (default 4). The first one searches for every option worth weighing. Each later one reads every earlier
+  file, tries to replace the leading option, and adds, removes or corrects features of the top three
+  options. The chain stops early when an investigator shows it can add nothing.
+- **Decide starts a known number of agents.** One decider ranks every option, and one final reviewer
+  checks the ranking against its sources. No stage loops back, so a run starts at most `maxInvestigators`
+  + 2 agents.
+- **Decide's final reviewer corrects the decision file.** It fixes each error a source, a rerun or the
+  arithmetic proves, and logs each edit in `review.md`. A score it would judge differently with no proven
+  error comes to you as a flag. The run ends `decided`, `decided with corrections` or `decided with flags`.
+- **Decide returns a ranked list.** Each entry names the entries it combines with and the ones it excludes.
+  Options whose totals lie within 5% of the sum of the weights below the top total rank simplest first.
+- **Decide drops lenses, research rounds and the blind review.** `tools/review-check.mjs` is removed. The
+  args `lenses`, `checkTool`, `selection`, `shortlist`, `maxRounds`, `maxResearchRounds` and
+  `maxResearchers` now throw with the reason. The role keys are `investigate`, `decide` and `review`.
+
 ### 2026-11-01
 
 - **The aipg tools refuse to run from a replaced plugin copy.** Claude Code keeps a replaced plugin
