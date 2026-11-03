@@ -199,7 +199,8 @@ on it.
   stand), each with the reason it adds nothing. A defect check on a design of software or a process names
   each of the five hostile inputs with its result. The engine stops the chain at the first challenger that
   returns `contributed` false (`dry`), or after `maxInvestigators` agents (`cap`), and the decider runs
-  either way. Only an explicit false stops it.
+  either way. Only an explicit false stops it. Expect most runs to stop at `cap`, since a DEFECT on any
+  option counts without a fix, and `dry` saves the rest of the chain on a decision with little left to find.
 - **Every agent is on the critical path**, since the next agent reads its file. An agent that returns nothing
   throws. An agent whose `wrote_file` is not true halts the run on
   `BLOCKED (an agent did not confirm writing its file)` before any later agent, with `haltReason` naming the

@@ -24,7 +24,8 @@ A **bounded chain** built on the shared [Workflow Principles](../../principles/)
   defect counts as progress with or without a fix, so the chain keeps going.
 - **A known agent count.** The run starts at most `maxInvestigators` + 2 agents (default 4 + 2). The chain
   stops early when an investigator shows it can add nothing to the three leading options (every option when
-  fewer stand).
+  fewer stand). Expect most runs to use every investigator, since a defect found in any option counts as
+  progress.
 - **One matrix under one rubric.** The decider scores every option the investigators built and the
   do-nothing option against the same requirements. It builds no option and no combination of its own. A
   combination no investigator built comes to you as a check. Non-negotiables are pass/fail, and an option

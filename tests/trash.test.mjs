@@ -11,7 +11,7 @@
 // The cases that drive the real platform backend run only under AIPG_TRASH_LIVE=1. They trash temp directories, on
 // Windows one at a path of MAX_PATH or more, and on Windows one runs the helper against a name its shell parses as
 // another item.
-import { spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import {
   chmodSync, closeSync, existsSync, linkSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync,
   realpathSync, rmSync, symlinkSync, writeFileSync,
@@ -357,7 +357,7 @@ if (process.platform !== 'win32' && UID === 0) {
   // Windows ignores the mode bits, so a deny entry for Everyone stops the listing there.
   const setLocked = (p, on) => {
     if (process.platform !== 'win32') chmodSync(p, on ? 0o000 : 0o700);
-    else spawnSync('icacls', on ? [p, '/deny', '*S-1-1-0:(RD)'] : [p, '/remove:d', '*S-1-1-0']);
+    else execFileSync('icacls', on ? [p, '/deny', '*S-1-1-0:(RD)'] : [p, '/remove:d', '*S-1-1-0'], { stdio: 'pipe' });
   };
   try {
     makeTree(dir, 'x');
@@ -369,7 +369,10 @@ if (process.platform !== 'win32' && UID === 0) {
     eq(readOr(join(dir, 'sub', 'marker.txt')), 'x', 'the item is still in place with its contents');
   } finally {
     // A regression trashes the tree, so the locked directory may sit in the fixture's trash instead.
-    for (const p of [locked, join(fx.trash, 'files', 'tree', 'locked')]) if (existsSync(p)) setLocked(p, false);
+    // A failed unlock must not replace the try block's error, and rmSync reports a directory it left locked.
+    for (const p of [locked, join(fx.trash, 'files', 'tree', 'locked')]) {
+      if (existsSync(p)) try { setLocked(p, false); } catch { /* best effort */ }
+    }
     rmSync(fx.root, { recursive: true, force: true });
   }
 }
