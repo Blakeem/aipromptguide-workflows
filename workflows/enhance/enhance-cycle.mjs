@@ -586,7 +586,7 @@ return {
   summary: { lenses: live.length, adopt, roadmap, needsUser, rejected: total('rejected'), defects, tooRisky: total('tooRisky'), unjudged: unjudgedTotal },
   // Cross-lens overlap is SIGNAL, not duplication: two lenses landing on the same change independently
   // is the strongest evidence in the run. The engine keeps lens files separate and lets the human see
-  // the convergence (matching how brainstorm/decide treat their lenses) — no merge agent (#4/#6).
+  // the convergence (matching how brainstorm treats its lenses) — no merge agent (#4/#6).
   lenses: live.map((r) => ({ lens: r.lens, focus: r.focus, file: r.file, counts: r.counts, kept: r.kept })),
   failed,
   nextStep: live.length === 0

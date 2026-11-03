@@ -11,9 +11,9 @@ export const meta = {
 // =============================================================================
 // Config - everything plan-specific arrives via args so the engine stays general.
 // Refine is a CONVERGENCE workflow over a PLAN FILE: it produces an edited plan, not code - nothing is
-// built, staged or committed, and there are no gates args. It is the non-blind review-loop family's third
-// member (decide-cycle and investigate-cycle are the siblings): the critic MUST see the plan and the repo
-// to judge them, so #3's blindness does not apply here.
+// built, staged or committed, and there are no gates args. It is a member of the non-blind review-loop
+// family with investigate-cycle: the critic MUST see the plan and the repo to judge them, so #3's
+// blindness does not apply here.
 // What makes THIS loop converge is four things together: the
 // DEFECT BAR (the critic judges only whether the plan's text is correct, and what the plan does not say
 // is never a gap), the severity FLOOR (below-floor findings are recorded, not folded), the DISMISSAL

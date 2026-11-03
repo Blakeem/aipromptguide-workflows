@@ -6,11 +6,11 @@ Plain Node, run directly, **zero dependencies**. These are NOT Workflow engines:
 `trash.mjs` starts are osascript on macOS and, on Windows, `pwsh.exe`, or the `powershell.exe` that
 Windows ships when pwsh cannot start. Its Linux backend runs no program.
 
-Five of them run DURING a workflow, invoked by agents: `plan-block.mjs` (handed as a command by develop-cycle
-and refine-cycle), `plan-pull.mjs`, `plan-entry.mjs`, `risk-check.mjs` and `review-check.mjs`. Their argv,
-printed output and exit codes are a run-time contract the engines depend on. Change them and you change what
-an agent receives, so treat them as engine surface, not dev machinery. The rest build and verify this repo's
-own artifacts or are operator-invoked.
+Four of them run DURING a workflow, invoked by agents: `plan-block.mjs` (handed as a command by develop-cycle
+and refine-cycle), `plan-pull.mjs`, `plan-entry.mjs` and `risk-check.mjs`. Their argv, printed output and
+exit codes are a run-time contract the engines depend on. Change them and you change what an agent receives,
+so treat them as engine surface, not dev machinery. The rest build and verify this repo's own artifacts or are
+operator-invoked.
 
 | File | What it does |
 |---|---|
@@ -19,7 +19,6 @@ own artifacts or are operator-invoked.
 | `plan-pull.mjs` | Prints, read-only, the ready backlog entries in the files a block changes: `pullable --backlog <dir> --files <path,...> [--exclude <plan.md,...>]`. **Called by a proactive round-1 developer at run time**, so it holds no write verb. Imports the backlog rules from `plan-edit.mjs`. |
 | `plan-entry.mjs` | The backlog entry writer and the only copy of a backlog file's header and entry shape: `new` appends an entry with the next free id and the given metadata lines, and `check` reports a grammar error and each placeholder left in place. **Called by develop's backlog writers at run time.** It only appends to a backlog file, so it is a separate file from `plan-edit.mjs` for the reason `plan-edit.mjs` is a separate file. Imports plan-block's grammar. |
 | `risk-check.mjs` | The risk file checker and the only copy of develop's risk file format: `<risk file> --repo <repo> --snapshot <tree id> [--base <tree id>]` writes a missing file's skeleton, and otherwise checks the file's format and its `Snapshot:` line, reruns each sweep search in the repo's working tree and lists each hit the file leaves out. With `--base` it also lists, as `uncovered:` lines, each name the round's diff dropped that a line outside its hunks still holds and no search covers. Its last line, `low risk: yes\|no`, gives the developer's `review_needed`. **Called by develop's developer and acceptance at run time** (see above). Its spec is below. |
-| `review-check.mjs` | The staged-review checker and the only copy of the review file format: `<review file>` writes a missing blind review's skeleton, checks a written one's format, then locks it, writes the final file's skeleton and prints the reveal text, and on later runs checks the final file against the lock and the decision file. `--verify <review file>` reports the lock state and the counts. **Called by decide's final reviewer and check agent at run time** (see above). Its spec and lock are below. |
 | `plugin-access.mjs` | `check`s for, and on the user's yes `grant`s, the Read allow rule in the user settings that lets the Workflow tool launch an **installed** plugin's engines. A plugin path through a link gets a second rule for the resolved folder. The tool refuses a scriptPath the session cannot already read, and a plugin cannot grant itself its own folder. **Run by each skill's first step**, operator-side, never by a run-time agent, apart from the develop and debug skills, whose `onboard.mjs` check asks for access through the exported `accessState`. A cache install is granted the plugin folder above the version folder, so updates keep the rule. A copy whose folder holds `.orphaned_at` is a replaced version, so `accessState` throws the text of the exported `orphanRefusal`, which names the installed sibling copy when exactly one exists, and every verb exits 1 with no write. |
 | `onboard.mjs` | Asks every setup answer a build needs from the user once per repo, together. `check --root --repo` prints `ready <key> policy=<policy> delivery=<commit\|stage>` when nothing is missing. Otherwise it prints `ask <key>`, then each open question with its options and the one `save` command. The questions are plugin access (skipped when the working directory holds the plugin folder, or when `--access session` says the user declined it and ran `/add-dir` for this session), the change policy, the delivery, and, only beside the delivery, whether to hide Claude's author details. The policy and delivery options list the recommendation first: `proactive` and `commit` when every commit of the repo is the user's own, else `focused` and `stage`. `check` takes `--access session`, which writes nothing. `save` takes `--access allow\|session`, `--policy`, `--delivery commit\|stage` and `--attribution hide\|keep`, writes the user settings once for access and attribution and the store through `project-settings.mjs`, then prints what `check` prints. It reads every answer from where its tool keeps it, so a skill runs it before every run. `check` and `save` exit 1 with no write from an orphaned plugin copy, through `accessState`. **Operator-invoked** by the develop and debug skills' first step, never by a run-time agent. |
 | `project-settings.mjs` | Holds each repo's settings in `<root>/projects.json`, which maps a repo key to an object whose optional fields are `changePolicy` (`focused`, `proactive` or `auto`, and the engines take only the first two), `commit` (a boolean, whether develop commits each accepted block), `provision` (the command that readies a fresh run worktree for the gates, or `none`), `worktreeDir` (the absolute parent folder of the run worktrees, when it is not the default one under the repo) and the role settings `models` and `efforts`, each mapping a role key (`develop`, `park`, `quality`, `acceptance` or `sweep`) to a model name or a reasoning level. `check` prints a repo's saved policy, and `set` saves `--policy focused|proactive|auto`, `--commit on|off`, `--provision "<cmd>"|none`, `--worktree-dir <abs dir>|default` or any of them together and keeps every other key. The value `default` removes `worktreeDir`. A repo with no saved policy reads `missing` from `check`, whatever else it saved. `commit` prints `on <key>`, `off <key>` or `missing <key>` for the saved commit choice and never asks or recommends. `provision` prints `{"key":...,"provision":...,"worktreeDir":...}`, each null when none is saved. `onboard.mjs` imports `POLICIES`, `checkPolicy`, `repoSettings`, `saveRepoSettings` and `recommendedPolicy`. `roles` prints the repo's saved `models` and `efforts` as one JSON line. `set-roles` merges the roles named in `--models` and `--efforts` into them and keeps every other setting, and the value `default` removes a role's saved value. The tool imports the `model:` and `effort:` sets from plan-block's exported grammar and holds its own copy of the role keys, and a test compares all three with the develop engine's. `backlog` prints the project's backlog folder, `<root>/backlog/<project>/`, and never creates it. `<project>` is the key's last path segment without the characters a Windows file name refuses and cut to 48 characters, a hyphen, and the first 8 hex digits of the key's SHA-256, taken after case folding where keys fold, so two repos with the same folder name get different folders. The key is the repo's main checkout, so a linked worktree shares its settings and its backlog folder. A bare repository or a separate git dir is keyed by its git dir. For a missing key, `check` recommends `proactive` when the repo has no commits or only the user's `git config user.email` as author, and `focused` otherwise. **Operator-invoked** through `onboard.mjs` or by the develop guide's §2 steps 3 and 4, §4 and §10, never by a run-time agent. develop takes the folder `backlog` prints as its `backlogDir` arg. |
@@ -280,58 +279,6 @@ exit code nor the `ok:` line, and the prompts say how an agent judges it. A usag
 nothing. A test compares `RISK_KEYS` with the question names develop's `RISK_QUESTIONS`
 renders, and `SNAPSHOT_LINE`, `SWEEP_HEADING` and `NO_CHANGES` with develop's own copies. The prompts keep the
 content rules, such as which names a sweep searches and what makes an answer yes.
-
-## review-check.mjs
-
-```bash
-node tools/review-check.mjs <review file>            # no file: its skeleton. Then format check, lock + reveal; later: the final-file check
-node tools/review-check.mjs --verify <review file>   # lock state and counts; exit 0 match, 2 no lock, 3 mismatch
-```
-
-A generic two-stage review check. Its only path argument is the review file, and it finds the rest by a
-fixed convention: the spec is `<parent of the review file's folder>/locks/<stem>.json` and the lock is
-`<stem>.lock` beside it. The spec is JSON, `{ stage2, decision, reveal }`: the final file's path, the
-decision file's path and the reveal text's path. decide's check agent writes the spec and the reveal text
-before each review.
-
-The tool owns the format of both files, the blind review and the final file. Its exported `GRAMMAR`
-constant is the one copy: each file's sections in order and the line shape each section allows. The tool
-writes a file's skeleton from it, prints each section's shape after the write, and reads the file back
-by it, so no prompt restates the format. A skeleton holds every required heading over a `TODO:`
-placeholder line and a placeholder verdict last, and the final file's skeleton holds one `- O<n>:` line
-per objection of the locked blind review, each waiting for its sort word. The check reports as a format
-error each missing, unknown, repeated or out-of-order section, text above the first section, a
-placeholder left in place, an empty section, a line that matches no shape its section allows, an id
-line in a list, sort or table section other than its own, `None.` beside other lines, and a verdict line
-that is not the last non-blank line. A text section, such as `## WHERE NEXT`, holds any prose. Every
-count comes from its own section. A malformed line in the caveats section still counts as a caveat, so a
-format error never drops a caveat from the count. A final file with no caveats section counts the blind
-file's caveats plus one per downgraded objection. A final file's caveats section that holds fewer lines
-than the downgraded objections is a format error, and the count is the higher of the two, so a
-downgraded objection is never dropped. A blind reject holds at least one objection, and a blind accept
-holds none. A withdrawal's quote, in straight or curly double quotes, is at least `MIN_QUOTE_CHARS` (20)
-characters, and the decision file holds it word for word once runs of whitespace are folded to one
-space. A final reject keeps at least one objection, and a final accept keeps none.
-
-- **First run** (no lock): a missing or blank blind file gets its skeleton and the format of each
-  section, with exit 0 and no lock. A written blind file with format errors prints them, writes nothing
-  and exits 1. A complete one writes the final file's skeleton over any earlier final file, writes the
-  lock, `{ sha256, verdict }`, prints the reveal text and the final file's format, and exits 0.
-- **Later runs**: a blind file that no longer matches its lock exits 1. While the final file is blank
-  or still its skeleton, the reveal text and the format print again, and a blank final file gets its
-  skeleton back. Then each final-file error prints with exit 1, or the counts line
-  `raised N, withdrawn N, kept N, downgraded N, caveats N` prints with exit 0. The caveat count comes
-  from the final file once it is written, and from the blind file before.
-- **`--verify`** prints any final-file errors, then the counts line last. An unsorted objection, and a
-  withdrawal whose quote is missing, short or not found, counts as kept. Exit 0 when the lock matches,
-  2 when there is no lock, and 3 when the blind file does not match its lock. Exit 3, and exit 0 while
-  the final file is not written, also print `locked verdict: <verdict>` above the counts line. It
-  writes no file.
-- A missing spec, reveal text or argument exits 1 with the reason. `--verify` reports a missing review
-  file through the lock state: exit 2 with no lock, exit 3 with one.
-- A lock with no `sha256`, such as `{}` or text that is not JSON, counts as no lock, and a blank blind
-  or final file counts as not written. A caller resets a round by writing those, so an earlier launch's
-  blind file, lock or final file never stands in for the round's own.
 
 ## gen-flows.mjs
 

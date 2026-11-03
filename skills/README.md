@@ -13,7 +13,7 @@ together.
 | `/aipg:debug`       | `workflows/debug/CLAUDE.md`          | Find production defects. Its triaged issue files are fix-mode plan files develop builds. |
 | `/aipg:enhance`     | `workflows/enhance/CLAUDE.md`        | Audit a working system for enhancements (read-only). You triage its proposals, and nothing is applied. |
 | `/aipg:brainstorm`  | `workflows/brainstorm/CLAUDE.md`     | Diverge: one fully-committed variation per lens for a human to pick/combine. |
-| `/aipg:decide`      | `workflows/decide/CLAUDE.md`         | Converge: lensed analysis → weighted matrix → a justified conclusion. |
+| `/aipg:decide`      | `workflows/decide/CLAUDE.md`         | Converge: a bounded investigator chain → one weighted matrix → a ranked list a final reviewer verifies. |
 | `/aipg:investigate` | `workflows/investigate/CLAUDE.md`    | Search: find an answer that already exists and qualify it against fixed pass/fail criteria. |
 | `/aipg:docs`        | `workflows/docs/CLAUDE.md`           | Provision: copy the docs a project needs verbatim (web/repo/files) → curate + index. |
 

@@ -19,7 +19,7 @@ chose at setup. The **generative** ones leave cited files for you to use and nev
 | **[debug](workflows/debug/)** | `/aipg:debug` | [map](workflows/debug/FLOW-review.md) | **Find production defects** in a repo or change. Each unit's issues are written as a fix-mode plan file that develop builds once you triage it. An inventory from manual testing or bug reports works the same way. |
 | **[enhance](workflows/enhance/)** | `/aipg:enhance` | [map](workflows/enhance/FLOW.md) | **Audit**: what a working system could do *better*. One lens per angle → verified, impact-scored proposals you triage. Nothing auto-applied. |
 | **[brainstorm](workflows/brainstorm/)** | `/aipg:brainstorm` | [map](workflows/brainstorm/FLOW.md) | **Diverge**: one fully-committed variation per lens (designs, ideas) for you to pick or combine. No AI verdict. |
-| **[decide](workflows/decide/)** | `/aipg:decide` | [map](workflows/decide/FLOW.md) | **Converge**: lensed analysis → a weighted decision matrix → a justified conclusion, adversarially reviewed. |
+| **[decide](workflows/decide/)** | `/aipg:decide` | [map](workflows/decide/FLOW.md) | **Converge**: a bounded investigator chain → one weighted decision matrix → a ranked answer that a final reviewer verifies against its sources. |
 | **[investigate](workflows/investigate/)** | `/aipg:investigate` | [map](workflows/investigate/FLOW.md) | **Search**: find an answer that already exists and qualify it against fixed **pass/fail** criteria, until nothing qualifying is left unsearched. |
 | **[docs](workflows/docs/)** | `/aipg:docs` | [map](workflows/docs/FLOW.md) | **Provision**: copy the docs a project needs **verbatim** (web/repo/files) → curate + index into a folder the LLM builds against. |
 

@@ -32,7 +32,7 @@ fix modes) · [debug](../workflows/debug/) (review, feeding develop's fix mode)
 [enhance-cycle](../workflows/enhance/) · [brainstorm-cycle](../workflows/brainstorm/) ·
 [docs-cycle](../workflows/docs/)
 
-**Convergence** (reach a conclusion through a review loop, nothing staged or committed):
+**Convergence** (reach a conclusion, nothing staged or committed):
 [decide-cycle](../workflows/decide/) · [investigate-cycle](../workflows/investigate/) ·
 [refine-cycle](../workflows/refine/) (converges the plan develop builds)
 

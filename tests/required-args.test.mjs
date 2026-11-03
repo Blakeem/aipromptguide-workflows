@@ -61,13 +61,8 @@ const REFINE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, pla
 const REVIEW_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units: [UNIT] };
 const ENHANCE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   scope: ['workflows/'], lenses: ['efficiency', 'simplification'] };
-// decide and docs are the two engines that do NOT reach a terminal on empty returns (measured
-// 2026-08-01: decide throws "No lens researcher produced a lens file", docs throws "Every source reported
-// zero doc files"), so their rows script the returns their per-engine table already uses.
-const LENS    = { wrote_file: true, top_pick: 'in-process LRU' };
-const DECIDE  = { wrote_file: true, chosen: 'in-process LRU', meets_all_requirements: true, open_issue_ids: [], user_checks: 0, needs_user: false };
-const ACCEPT  = { wrote_file: true, verdict: 'accept', needs_user: false };
-const CHECK   = { wrote_file: true, exit_code: 0, final_line: 'raised 0, withdrawn 0, kept 0, downgraded 0, caveats 0', stage1_verdict: '' };
+// docs does NOT reach a terminal on empty returns (measured 2026-08-01: it throws "Every source reported
+// zero doc files"), so its row scripts the returns its per-engine table already uses.
 const GATHER  = { files_written: 6, skipped: 2 };
 const SCRUB   = { files_cleaned: 4 };
 const CURATE  = { wrote_index: true, files: 11, deleted: 1, inconsistencies: 0, fidelity_checked: 3,
@@ -118,10 +113,9 @@ const SWEEP = [
   },
   {
     engine: 'workflows/decide/decide-cycle.mjs',
-    baseArgs: { runId: 't', root: 'E:/r', lenses: ['efficiency', 'simplest'],
-      planPath: 'E:/r/plans/t/requirements.md', checkTool: 'E:/r/tools/review-check.mjs' },
-    respond: { research: LENS, decide: DECIDE, review: ACCEPT, check: CHECK },
-    required: ['runId', 'root', 'planPath', 'lenses', 'checkTool'],
+    baseArgs: { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/requirements.md' },
+    respond: {},
+    required: ['runId', 'root', 'planPath'],
   },
   {
     engine: 'workflows/docs/docs-cycle.mjs',

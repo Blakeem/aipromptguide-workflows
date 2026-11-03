@@ -17,12 +17,13 @@ const LEGAL = {
  * @param {object} spec.defaults  role key to its default model, in the engine's role-key order
  * @param {Array<{args:object, respond:object, labels:object}>} spec.runs  runs that together spawn every role.
  *        `labels` maps a role key to the label prefix of its agents in that run.
+ * @param {string} [spec.launchTail]  the text the launch line carries after its role list, the same in every run
  */
-export async function pinRoleMaps({ engine, name, defaults, runs }) {
+export async function pinRoleMaps({ engine, name, defaults, runs, launchTail = '' }) {
   const keys = Object.keys(defaults);
   const roles = keys.join(' | ');
   const jsonArgs = (arg, mapJson) => JSON.parse(`${JSON.stringify(runs[0].args).slice(0, -1)},"${arg}":${mapJson}}`);
-  const launchLine = (models, efforts) => `${name}: roles ${keys.map((k) => `${k}=${models[k]}/${efforts[k]}`).join(', ')}`;
+  const launchLine = (models, efforts) => `${name}: roles ${keys.map((k) => `${k}=${models[k]}/${efforts[k]}`).join(', ')}${launchTail}`;
 
   // Each role's agents, over every run: the set of values the opts carried for it.
   const optsByRole = async (extra) => {
@@ -105,14 +106,13 @@ const WROTE_NOTE = 'A write the tool rejected has not written the file, so repor
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
 
 /**
- * Pins the file-write warning at each write site, which is each place a prompt carries the rejected-write note
- * unless a row's fifth value gives the warning's own count, as for a prompt that embeds another agent's text.
- * @param {Array<[string, string, number, number, number?]>} sites  the rows given to pinWriteNotes
+ * Pins the file-write warning at each write site, which is each place a prompt carries the rejected-write note.
+ * @param {Array<[string, string, number, number]>} sites  the rows given to pinWriteNotes
  */
 export function pinFileWriteNote(sites) {
   const times = (text, needle) => text.split(needle).length - 1;
-  for (const [where, text, , wrotes, fileWrites = wrotes] of sites) {
-    eq(times(text, FILE_WRITE_NOTE), fileWrites, `${where}: the prompt tells the agent to write file content with the Write or Edit tool`);
+  for (const [where, text, , wrotes] of sites) {
+    eq(times(text, FILE_WRITE_NOTE), wrotes, `${where}: the prompt tells the agent to write file content with the Write or Edit tool`);
   }
 }
 

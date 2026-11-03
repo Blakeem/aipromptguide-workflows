@@ -13,7 +13,7 @@ const RULE = 'Launch from a notification turn';
 // A throw engine reports the halt as a thrown message, and a returning engine as halted + haltReason.
 const EXPECT = {
   'brainstorm': { how: 'throw', laterRoles: [] },
-  'decide': { how: 'throw', laterRoles: ['decide', 'review', 'check'] },
+  'decide': { how: 'throw', laterRoles: ['decide', 'review'] },
   'docs': { how: 'throw', laterRoles: ['scrub', 'curate'], noLater: ['a user request is relayed to the gap-fill gatherer'] },
   'enhance': { how: 'throw', laterRoles: ['verify'] },
   'investigate': { how: 'throw', laterRoles: ['critique'], noLater: ['a user request is relayed to the criteria critic'] },

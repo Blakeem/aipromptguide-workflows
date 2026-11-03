@@ -171,9 +171,9 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
 // SCOPED TO EACH SITE'S OWN RECEIVER, which is what makes the rule mean anything. The first version
 // matched a field name anywhere in the engine file, so two schemas in one engine that share a property
 // name covered for each other: resolve's `pk?.notes` alone made FIX_SCHEMA's `notes` look read, and the
-// same collision hid PARK_SCHEMA's `notes` in feature and migrate. Census: 21 `schema:` sites across 8
-// engines — 16 bind their return to a variable and are checked through it; 5 do not and keep the old
-// name-level match, listed in FALLBACK below so the degraded coverage is visible rather than assumed.
+// same collision hid PARK_SCHEMA's `notes` in feature and migrate. A `schema:` site that binds its return to a
+// variable is checked through it. One that does not keeps the old name-level match and is listed in FALLBACK
+// below, so the degraded coverage is visible rather than assumed.
 {
   // Sites where a top-level field genuinely has no consumer. `reason` is mandatory, and an entry whose
   // field turns out to BE consumed fails below — the cannot-rot rule, mirroring flow-coverage's
@@ -182,16 +182,12 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
   const ALLOW = [];   // { engine, schema, field, reason }
 
   // The sites whose return the receiver grammar cannot bind to a variable. Each keeps the OLD file-wide
-  // name-level match, so on these five the sweep still cannot tell two same-named fields apart — which is
+  // name-level match, so on these sites the sweep still cannot tell two same-named fields apart — which is
   // exactly why they are enumerated rather than silently degraded. A `.then` callback parameter is not
   // resolved in v1: a stated choice, not a claim that it cannot be done. Keyed on (engine, schema) rather
   // than a line number so an unrelated edit above the site does not redden the suite; the live line is
   // printed by the assertion.
   const FALLBACK = [
-    { engine: 'workflows/decide/decide-cycle.mjs', schema: 'LENS_SCHEMA',
-      reason: 'inside parallel(LENSES.map((lens) => () => callAgent(...))) — the return is never named' },
-    { engine: 'workflows/decide/decide-cycle.mjs', schema: 'RESEARCH_SCHEMA',
-      reason: 'inside parallel(issues.map((u) => () => callAgent(...))) — the return is never named' },
     { engine: 'workflows/docs/docs-cycle.mjs', schema: 'GATHER_SCHEMA',
       reason: 'callAgent(...).then((g) => ...) — the return reaches a callback parameter, not a variable' },
     { engine: 'workflows/docs/docs-cycle.mjs', schema: 'SCRUB_SCHEMA',

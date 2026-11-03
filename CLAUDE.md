@@ -12,7 +12,7 @@ no workflow instructions. Pick the match, then read that workflow's `CLAUDE.md` 
 | **Debug**: find production defects in a repo or change. Its triaged issue files are fix-mode plan files develop builds. Bring your own inventory from manual testing the same way | `workflows/debug/CLAUDE.md` |
 | **Enhance** a system that already works — lensed audit → verified, impact-scored proposals you triage (nothing auto-applied) | `workflows/enhance/CLAUDE.md` |
 | **Brainstorm** several fully-committed variations (one per lens) for a human to pick/combine — creative, no AI verdict | `workflows/brainstorm/CLAUDE.md` |
-| **Decide** among approaches — lensed analysis → weighted matrix → a justified conclusion, adversarially reviewed | `workflows/decide/CLAUDE.md` |
+| **Decide** among approaches — a bounded investigator chain → one weighted matrix → a ranked conclusion a final reviewer verifies | `workflows/decide/CLAUDE.md` |
 | **Investigate** — find an answer that already exists and qualify it against fixed pass/fail criteria, until nothing qualifying is left unsearched | `workflows/investigate/CLAUDE.md` |
 | Gather the **docs** a project needs — verbatim capture (web/repo/files) → curate + index into a working folder | `workflows/docs/CLAUDE.md` |
 | Audit a workflow engine against the design rules | `principles/WORKFLOW-PRINCIPLES.md` — e.g. as a lens in a debug run |
@@ -71,8 +71,8 @@ skill first runs `tools/plugin-access.mjs`, which adds one Read rule for the plu
 user agrees. The develop and debug skills run `tools/onboard.mjs` in its place, which asks for that
 access together with every other setup answer the repo is missing. Rename an engine, guide,
 `tools/plan-block.mjs`, `tools/plan-edit.mjs`, `tools/plugin-access.mjs`, `tools/onboard.mjs`,
-`tools/project-settings.mjs`, `tools/wt.mjs`, `tools/review-check.mjs`, or `workflows/debug/gen-units.mjs`
-and the matching `skills/<x>/SKILL.md` paths must move with it.
+`tools/project-settings.mjs`, `tools/wt.mjs` or `workflows/debug/gen-units.mjs` and the matching
+`skills/<x>/SKILL.md` paths must move with it.
 
 **Want to see what a run actually does?** Each workflow ships a generated `FLOW.md` beside its engine
 (`workflows/<x>/FLOW.md`; debug's is `FLOW-review.md`) — every agent, gate, loop and

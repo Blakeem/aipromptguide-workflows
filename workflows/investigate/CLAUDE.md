@@ -19,8 +19,9 @@ that nothing better was left unsearched. The domain need not be code: everything
 through the criteria file.
 
 - **No established answer, and the real work is weighing trade-offs** among approaches the AI generates →
-  **`decide-cycle`**. That is the sharpest split here: decide converges on *reviewer agreement about an
-  argument*; investigate converges on *coverage* — the claim that nothing qualifying was left unsearched.
+  **`decide-cycle`**. That is the sharpest split here: decide ends on a *ranking* after a bounded chain of
+  investigators, and investigate converges on *coverage*, the claim that nothing qualifying was left
+  unsearched.
 - **Creative variations for a human to pick between** (no AI verdict) → `brainstorm-cycle`.
 - **Provisioning the docs** to build against → `docs-cycle`.
 - **Building what the determination names** → a `develop-cycle` plan file.

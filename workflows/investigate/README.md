@@ -44,8 +44,8 @@ A **bounded exhaustive search** built on the shared [Workflow Principles](../../
 ### investigate or decide?
 
 They look adjacent and are not. **[`decide-cycle`](../decide/)** is for when no established answer exists
-and the real work is *weighing trade-offs* among approaches the AI generates. It converges on reviewer
-agreement about an argument, via a weighted matrix. **investigate** is for when the answer is already out
+and the real work is *weighing trade-offs* among approaches the AI generates. A bounded chain of investigators
+finds them, and a weighted matrix ranks them. **investigate** is for when the answer is already out
 there and the work is *finding it and proving it fits*. It converges on coverage.
 
 If you want to trade one criterion off against another, you want decide. If missing a criterion

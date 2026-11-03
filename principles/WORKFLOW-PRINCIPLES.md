@@ -72,10 +72,11 @@ When a tool parses, counts or routes on a file an agent writes, that tool owns t
 writes the file's skeleton, prints the shape each section allows and reads the file back by the same
 grammar, so the format exists once, in the tool, and no prompt restates it. The agent fills in the
 content with its file tools and never passes content as command arguments, since a shell changes quotes
-and backticks. For example, `tools/review-check.mjs` holds decide's review file format in one grammar
-constant: it writes each review file's skeleton, prints its format and checks the file by that grammar,
-so the reviewer's prompt holds only the judgment rules. A file that only agents read, such as a ledger of
-one line per entry, keeps its format in the prompt that writes it, unless a defect shows it needs a tool.
+and backticks. For example, `tools/risk-check.mjs` holds develop's risk file format. It writes a missing
+risk file's skeleton, prints the format and checks the file, and all three use the same heading and line
+constants, so the developer's prompt holds only the content rules. A file that only agents read, such as
+a ledger of one line per entry, keeps its format in the prompt that writes it, unless a defect shows it
+needs a tool.
 
 ### 5. Staged, escalating reviews
 When building to a spec, gate the work in stages that must each pass:
@@ -119,10 +120,10 @@ Narration about the run is forbidden, such as status files, run summaries, progr
 did" reports. A run writes only three kinds of file. These are the inter-agent messages, numbered by
 round or keyed by unit like enhance's `candidates/<lens>.md`, the ledgers and user notes below, and the
 workflow's own product, the thing the run exists to produce. The
-product files are `issues/`, `proposals/`, `variations/`, `lenses/`, the decision files, investigate's
-`options/` and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md` and backlog files, and a
-parked block's commit on its `aipg-unfinished/<backlog file id>` branch, whose earlier parks stay in that
-branch's history.
+product files are `issues/`, `proposals/`, `variations/`, decide's `investigations/` and `scripts/` and
+its decision files, investigate's `options/` and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's
+`SWEEP.md` and backlog files, and a parked block's commit on its `aipg-unfinished/<backlog file id>`
+branch, whose earlier parks stay in that branch's history.
 `DETERMINATION.md` earns its place the same way develop's `SWEEP.md` does. It holds the cross-option
 comparison and the coverage evidence, which no per-option file contains, and it links to
 `options/<id>.md` instead of restating them.
@@ -389,16 +390,16 @@ rules and apply only where they fit.
   since there is always another enhancement. So a workflow that generates one stops at the inventory
   and hands it to a human. For this reason enhance has no fix-mode output and writes to `proposals/`,
   never `issues/`.
-- **Convergence workflows** reach a conclusion (decide, investigate, refine). They run a review loop in
-  the spirit of #5. investigate and refine are non-blind by design: the reviewer must see the conclusion
-  and the requirements it is judged against. decide stages its review instead. A judge shown a prior
-  score anchors on it, so its reviewer first scores the candidates blind from the sourced evidence, and
-  sees the decision only after a check tool has locked that judgment. Each of the three shapes converges
-  on something different:
-  - **Argument** (decide) converges when the final reviewer keeps no objection against a fixed
-    requirements rubric, bounded by `maxRounds`. An objection is a non-negotiable the winner violates or
-    a challenger that scores higher on the same rubric. Every other concern is a caveat carried into the
-    plan. One up-front fan-out fixes the candidate set.
+- **Convergence workflows** reach a conclusion (decide, investigate, refine). investigate and refine run
+  a review loop in the spirit of #5, non-blind by design: the reviewer must see the conclusion and the
+  requirements it is judged against. decide runs a bounded chain with no review loop. Each of the three
+  shapes ends on something different:
+  - **Bounded chain** (decide) ends at a fixed bound rather than at agreement, since a decision has no
+    clean convergence point. At most `maxInvestigators` investigators run one at a time, each reading
+    every earlier file and required to beat or improve it, and the chain stops early at the first one that
+    shows it can add nothing. One decider then ranks every option against a fixed requirements rubric, and
+    one final reviewer verifies the ranking against its sources and corrects each error it can prove. No
+    stage loops back, so the most agents the run starts is known at launch.
   - **Plan review** (refine) converges on one round in which a read-only critic finds no gap at or above
     a fixed defect floor. The critic judges only whether the plan's text is correct, so what the plan
     does not say never counts. Its editor checks each gap against the plan and the repo before folding
@@ -490,10 +491,11 @@ Use these as yes/no checks when reviewing any workflow.
       `reviews/<unit>-<lens>.md` reviewer messages, the developer's terse
       `DISMISSED-<id>.md` ledger and `AMENDED-<id>.md` (or investigate's `DISQUALIFIED.md` and
       `SEARCHED.md`), the full user-facing `NEEDS-USER.md` and develop's `question-<id>.md`, `DECISIONS.md`,
-      and the workflow's own product (`issues/`, `proposals/`, `variations/`, `lenses/`, decision files,
-      investigate's `options/` and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md` and
-      backlog files, a parked block's commit)? Any status, summary, progress, or "what I did" file is
-      narration and a violation, including one that restates numbers the harness already has. (#6)
+      and the workflow's own product (`issues/`, `proposals/`, `variations/`, decide's `investigations/`,
+      `scripts/` and decision files, investigate's `options/` and `DETERMINATION.md`, the docs set and
+      `INDEX.md`, develop's `SWEEP.md` and backlog files, a parked block's commit)? Any status, summary,
+      progress, or "what I did" file is narration and a violation, including one that restates numbers the
+      harness already has. (#6)
 - [ ] Does the blind reviewer read the dismissed ledger from its own `gate/` directory (#3) and no prior
       review file (its own round file from an earlier launch is read only at its write step), and the
       acceptance stage the ledger, user notes and every earlier review file of its block? (#5)

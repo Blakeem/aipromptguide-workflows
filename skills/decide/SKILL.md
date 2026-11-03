@@ -1,5 +1,5 @@
 ---
-description: "Run the AIPG decide workflow, which compares approaches through lenses and a weighted matrix, then reaches a justified conclusion under adversarial review. Use only when the user explicitly asks for the AIPG decide workflow."
+description: "Run the AIPG decide workflow, which runs a bounded chain of investigators that find and improve the options, ranks the options in one weighted matrix and has a final reviewer verify the ranking. Use only when the user explicitly asks for the AIPG decide workflow."
 argument-hint: "[decision question]"
 ---
 
@@ -19,6 +19,5 @@ Use these paths wherever the guide says "this checkout" or "the tool's own direc
 - Engine `scriptPath`: `${CLAUDE_PLUGIN_ROOT}/workflows/decide/decide-cycle.mjs`
 - `root` arg: `${CLAUDE_PLUGIN_DATA}`. Runs land in its `runs/<runId>/`. Never the plugin install dir,
   which is version-swapped on update.
-- `checkTool` arg (the reviewer's check command): `${CLAUDE_PLUGIN_ROOT}/tools/review-check.mjs`
 
 $ARGUMENTS

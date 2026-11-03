@@ -22,20 +22,20 @@ triage.
   mode's frame can still recur in the other two modes' frames in the same file.
 - **Read-only fan-outs:** `debug/review` · `enhance-cycle`
   (finder → verifier, one output file per unit/lens, clean-marker written by the finder)
-- **Lensed generative:** `brainstorm` · `decide` · `docs` · `enhance`
+- **Lensed generative:** `brainstorm` · `docs` · `enhance`
   (an id-keyed array fanned out to one file each)
-- **Rubric review loops:** `decide` · `investigate` · `refine`
+- **Rubric review loops:** `investigate` · `refine`
   (producer ⇄ adversarial critic against a fixed rubric, bounded by `maxRounds`, solo critical agents
   that **throw** on a null return rather than defaulting to a clean verdict). `refine` pairs a read-only
   critic with a minimal-fold editor under a fixed defect bar. Its dead critic throws, because zero gaps
-  from a dead agent would read as convergence. `decide` stages its critic: the reviewer scores blind
-  from an evidence ledger, and `tools/review-check.mjs` locks that judgment before it sees the decision.
+  from a dead agent would read as convergence.
+- **Bounded chain:** `decide` alone (a serial investigator chain bounded by `maxInvestigators`, then one
+  decider and one final reviewer, with no loop back). Every agent's file is the next agent's input, so
+  every agent is solo critical and throws on a null return.
 
-`investigate` is the family's odd member: its candidates are *found* round by round rather than fanned
-out once, so its loop state lives in a ledger (`DISQUALIFIED.md`) instead of an up-front id array. When
-fixing a loop defect in `decide`, check whether investigate's round loop has the same shape — and note
-that the reverse is often NOT true, since decide's two-variable `review`/`lastReviewFiles` split
-is correct there only because it has an agree-gate investigate lacks.
+`investigate` is the review loops' odd member: its candidates are *found* round by round, so its loop
+state lives in a ledger (`DISQUALIFIED.md`). decide's chain also finds candidates one agent at a time, so
+when fixing how one of them hands the earlier files to the next agent, check the other.
 
 **Do it by grep, not memory.** `grep -n "TARGET.repo" workflows/*/*.mjs` finds in seconds what a reviewer
 cannot find at all. Then fix each in its own file with parallel wording — never by extracting a shared
@@ -118,8 +118,6 @@ write site needs a row there.
 In every engine but develop, `WROTE_NOTE` is followed by `FILE_WRITE_NOTE`, which tells the agent to
 write file content, and any script that edits a file, with the Write or Edit tool.
 `pinFileWriteNote` counts it in the same rows.
-A row's fifth value gives its own count where a prompt embeds another agent's write site, as decide's
-check-setup prompt embeds the reveal text.
 Docs' scrubber carries `FILE_WRITE_NOTE` without `WROTE_NOTE`, so docs' test gives it its own row.
 
 **Prose-sniffing for control flow.** `status = haltReason.includes('needs user') ? … : …` silently
@@ -130,8 +128,8 @@ site and map it.
 a coerced numeric bound silently producing a zero-agent run — is gate-enforced now: `static.test.mjs`
 runs every engine against garbage bounds and expects a throw, so it needs no manual vigilance.)
 `haltKind` starts as `'rounds'`, so `determination: haltKind === 'rounds' ? FILE : ''` named a file
-nothing wrote. Gate such a flag on `round > 0` — the proof an agent actually ran — the way decide's
-`round ? decisionFile(round) : ''` already did.
+nothing wrote. Gate such a flag on proof that an agent actually ran, such as `round > 0` or an attested
+write, the way decide sets `decisionFile` only once its decider attests the file.
 
 **A pre-filter that drops candidates before the verifier makes the floor invisible.** enhance cut
 below-floor candidates on the *finder's own unverified score*, logged the count, and dropped it — so a
