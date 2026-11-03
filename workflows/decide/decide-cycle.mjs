@@ -1,11 +1,11 @@
 export const meta = {
   name: 'decide-cycle',
-  description: 'Convergent decision, lean/file-bus design, as a bounded chain with no loop back. An OPENING INVESTIGATOR searches for every option worth weighing and writes investigations/i1.md. Then up to maxInvestigators - 1 CHALLENGERS run one at a time: each reads the rubric and every earlier investigation file, tries to replace the leading option by rejecting one assumption it rests on, tries to improve any option, and writes its own file of contributions. The chain stops at the first challenger that shows it can add nothing, or at maxInvestigators. ONE DECIDER then scores every option, every combination it builds and the do-nothing option in one weighted matrix and writes decision.md, a ranked list. ONE FINAL REVIEWER verifies decision.md against the sources, reruns the saved scripts, recomputes the totals, corrects each error it can prove in place and writes review.md with its edits and its flags. The run starts at most maxInvestigators + 2 agents. The harness only routes paths + counts; rich content lives in files.',
+  description: 'Convergent decision, lean/file-bus design, as a bounded chain with no loop back. An OPENING INVESTIGATOR searches for every option worth weighing and writes investigations/i1.md. Then up to maxInvestigators - 1 CHALLENGERS run one at a time: each reads the rubric and every earlier investigation file, tries to replace the leading option by rejecting one assumption it rests on, tries to improve any option, a combination of options included, and writes its own file of contributions. Every investigator records each defect it finds in an option as it goes, and a recorded defect counts as a contribution with or without a fix. The chain stops at the first challenger that shows it can add nothing, or at maxInvestigators. ONE DECIDER then scores the options the investigation files hold and the do-nothing option in one weighted matrix, builds no option of its own, and writes decision.md, a ranked list. ONE FINAL REVIEWER first hunts defects in what would be built under the three top-ranked options and in the contributions no later investigator read, then verifies decision.md against the sources, reruns the saved scripts, recomputes the totals, records each defect it shows as a con or a ruled-out entry, corrects each error it can prove in place and writes review.md with its defects, its edits and its flags. The run starts at most maxInvestigators + 2 agents. The harness only routes paths + counts; rich content lives in files.',
   whenToUse: 'Have the AI reach a JUSTIFIED, RANKED answer among approaches, weighing real trade-offs. Rank 1 is the top answer, and the user may combine the entries marked as combinable. The main agent authors the REQUIREMENTS (non-negotiable constraints + weighted criteria, the rubric every agent judges against) in PLAN MODE and approves them with the user, then runs this engine. To explore open-ended creative variations for a HUMAN to pick (no AI verdict) use brainstorm-cycle; to find an answer that already exists against pass/fail criteria use investigate-cycle; to BUILD a pick, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.',
   phases: [
-    { title: 'Investigate', detail: 'A serial chain of at most maxInvestigators agents. The opening investigator reads the requirements (verbatim), searches the web, and the codebase when target.repo is passed, for every option worth weighing and writes investigations/i1.md: the options with their pros and cons, the assumptions the leader rests on, the standing and the directions searched. Each challenger k reads the requirements and every earlier investigation file in order, tries to replace the leader and to improve any option, and writes investigations/i<k>.md with its contributions. The chain stops at the first challenger that returns contributed false (dry) or after maxInvestigators agents (cap).' },
-    { title: 'Decide', detail: 'One decider reads the requirements and every investigation file, scores every option, every combination it builds and the do-nothing option in one weighted matrix, every cell citing its source or marked own judgment, and writes decision.md: the ranking, the options, the matrix, the flip check, the options ruled out, the investigation facts its own research changed and the checks for the user. Returns the ranking index, the flip grade and the count of checks for the user.' },
-    { title: 'Review', detail: 'One final reviewer reads the requirements, every investigation file and decision.md, opens the source behind every cell of the three top-ranked options, every must judgment and every ruled-out entry, reruns each saved script and testbed command they rest on, and recomputes every total. It corrects in decision.md each error a source, a rerun or the arithmetic proves, redoes the flip check when an edit moves rank 1 or rank 2, and writes review.md with its edits and its flags. Returns the counts, the ranking index and the flip grade after its edits.' },
+    { title: 'Investigate', detail: 'A serial chain of at most maxInvestigators agents. The opening investigator reads the requirements (verbatim), searches the web, and the codebase when target.repo is passed, for every option worth weighing and writes investigations/i1.md: the options with their pros and cons, each defect it finds and does not fix written as a con, the assumptions the leader rests on, the standing and the directions searched. Each challenger k reads the requirements and every earlier investigation file in order, tries to replace the leader and to improve any option, a combination of options included, records each defect it comes across, and writes investigations/i<k>.md with its contributions. The chain stops at the first challenger that returns contributed false (dry) or after maxInvestigators agents (cap).' },
+    { title: 'Decide', detail: 'One decider reads the requirements and every investigation file, scores the options the files hold and the do-nothing option in one weighted matrix, every cell citing its source or marked own judgment, with each recorded defect no file fixes as a con, and writes decision.md: the ranking, the options, the matrix, the flip check, the options ruled out, the investigation facts its own research changed and the checks for the user, each combination the files do not hold among them as an untested combination. It builds no option and no combination. Returns the ranking index, the flip grade and the count of checks for the user.' },
+    { title: 'Review', detail: 'One final reviewer reads the requirements, every investigation file and decision.md. It first hunts defects: it tests what would be built under each of the three top-ranked options, checks that the parts of a combination fit together, and checks each contribution of the last investigation file (each option when that file is i1.md), since no later investigator read it. Each defect it shows with a concrete failure becomes a con or a ruled-out entry in decision.md and an entry under ## Defects in review.md, with the fix it would take but never written into the option. Then it opens the source behind every cell of the three top-ranked options, every must judgment and every ruled-out entry, reruns each saved script and testbed command they rest on, and recomputes every total. It corrects in decision.md each error a source, a rerun or the arithmetic proves, redoes the flip check when an edit moves rank 1 or rank 2, and writes review.md with its defects, its edits and its flags. Returns the counts, the ranking index and the flip grade after its edits.' },
   ],
 };
 
@@ -173,7 +173,7 @@ const CHALLENGE_SCHEMA = {
   required: ['wrote_file', 'contributed'],
   properties: {
     wrote_file:  { type: 'boolean', description: 'true if you wrote your investigation file' },
-    contributed: { type: 'boolean', description: 'false only when your `## Contributions` section reads "None." and your `## Searched` section holds the attempts the prompt names. false ends the chain.' },
+    contributed: { type: 'boolean', description: 'false only when your `## Contributions` section reads "None." and your `## Searched` section holds the attempts and the defect checks the prompt names. A DEFECT contribution with no fix is a contribution. false ends the chain.' },
   },
 };
 
@@ -190,9 +190,10 @@ const DECIDE_SCHEMA = {
 
 const REVIEW_SCHEMA = {
   type: 'object',
-  required: ['wrote_file', 'edits', 'flags', 'ranking', 'flip'],
+  required: ['wrote_file', 'defects', 'edits', 'flags', 'ranking', 'flip'],
   properties: {
     wrote_file: { type: 'boolean', description: 'true if you wrote your review file and the decision file holds every edit it lists' },
+    defects:    { type: 'integer', description: 'count of entries under `## Defects` in your review file (0 when it reads "None.")' },
     edits:      { type: 'integer', description: 'count of lines under `## Edits` in your review file (0 when it reads "None.")' },
     flags:      { type: 'integer', description: 'count of entries under `## Flags` in your review file (0 when it reads "None.")' },
     ranking:    { ...RANKING, description: 'the ranking of the decision file after your edits, best first, as an INDEX only' },
@@ -249,21 +250,33 @@ ${CITE}
 A MEASUREMENT cites its exact command and its result. Save any script it ran under ${SCRIPTS_DIR}/ (create it
 if needed) with a file name that no file there holds yet, and never change a script already there, so a later
 agent can rerun it and get the result its citer got.
-When an option is a design of software or a process, test it against each of five hostile inputs: ${HOSTILE_INPUTS}. A defect found that way is a con of the option, or, for a challenger, a
-contribution when it also fixes it.`;
+DEFECT RULE: a defect is a concrete failure of an option as stated: the input or path that triggers it, the
+step that fails and the wrong result, with its source or a trace through the option's text. Record each
+defect you find in an option you read, verify or build on at the moment you find it, where your procedure
+says. An investigator also fixes the defect when a fix is within its reach. For an option that is a design
+of software or a process, the defect test is each of five hostile inputs: ${HOSTILE_INPUTS}. A recorded
+defect holds until a file fixes it, the file that records it included, so never treat the defective part
+as working or build on it.`;
 
 const list = (paths) => paths.map((p) => `  - ${p}`).join('\n');
 
 // A challenger's contributions are what the next agent must beat, so the rule is stated where it is applied.
-const contributionRule = (latest) => `CONTRIBUTION: a change, inside the scope the rubric decides, to what would be built or done. It is one of
-four kinds: a NEW OPTION, a FEATURE ADDED to an option, a FEATURE REMOVED from an option for a stated
-reason (it is overkill, or it serves an edge case too unlikely to justify its cost), or a CORRECTION of an
-error in an earlier file. It must make the option better on at least one weighted criterion or on a plain
-measure the rubric does not name, such as simpler, more efficient, faster, or more robust where robustness
-is needed, and it cites its evidence. No size threshold applies, since several small contributions can lift
-an option over another. A FEATURE ADDED, FEATURE REMOVED or CORRECTION contribution targets one of the
+const contributionRule = (latest) => `CONTRIBUTION: one of five kinds:
+- a NEW OPTION, which includes a COMBINATION of options that genuinely compose (no Frankenstein), naming
+  each part by its option id
+- a FEATURE ADDED to an option
+- a FEATURE REMOVED from an option for a stated reason (it is overkill, or it serves an edge case too
+  unlikely to justify its cost)
+- a CORRECTION of an error in an earlier file
+- a DEFECT in an option under the DEFECT RULE, with its fix when you have one
+A NEW OPTION, FEATURE ADDED, FEATURE REMOVED or CORRECTION is a change, inside the scope the rubric decides,
+to what would be built or done. It must make the option better on at least one weighted criterion or on a
+plain measure the rubric does not name, such as simpler, more efficient, faster, or more robust where
+robustness is needed, and it cites its evidence. A DEFECT counts with or without a fix, since it records a
+failure that no later agent may build on. No size threshold applies, since several small contributions can
+lift an option over another. A FEATURE ADDED, FEATURE REMOVED or CORRECTION contribution targets one of the
 three leading options (every option when fewer stand) under \`## Standing\` in ${latest}, unless it names the shortcoming that holds a lower option down and gives evidence that the
-contribution resolves it.`;
+contribution resolves it. A DEFECT targets the option it is found in, at any standing.`;
 
 // =============================================================================
 // Role prompts
@@ -281,7 +294,9 @@ WRITE ${invFile(1)} (create ${INV_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE
 It holds these sections, in this order:
 - \`## Options\`: every option you weighed, each under a run-wide id (O1, O2 and so on) with a description
   of what would be built or done, its pros and its cons. Each pro and con names the non-negotiable or
-  criterion it bears on and its source.
+  criterion it bears on and its source. Each defect you find in one of your options and do not fix is a
+  con of that option that states the failure. A defect you fix goes into that option's description, with
+  the failure the fix removes.
 - \`## Leader assumptions\`: the assumptions the leading option rests on.
 - \`## Standing\`: every option in order, best first, one line each saying which criteria place it there.
 - \`## Searched\`: each direction you tried that yielded no option, with why.
@@ -301,8 +316,10 @@ PROCEDURE:
 1. REPLACE THE LEADER: reject one assumption under \`## Leader assumptions\` in ${invFile(k - 1)} and
    search for an option that does better without it. Think past the framing the earlier files share.
 2. IMPROVE: try to improve any option under the contribution rule above.
-3. Contribute one or more things whenever you can. Never repeat a contribution an earlier file holds,
-   and never edit an earlier file.
+3. Contribute one or more things whenever you can. Record each defect you come across while you replace,
+   improve or verify as a DEFECT contribution. Never build a contribution on a part a recorded defect
+   names unless that contribution fixes it. Never repeat a contribution an earlier file holds, and never
+   edit an earlier file.
 WRITE ${invFile(k)}. ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE}
 It holds these sections, in this order:
 - \`## Contributions\`: each under an id C${k}.1, C${k}.2 and so on, with its kind, the option id it targets
@@ -310,31 +327,37 @@ It holds these sections, in this order:
   its cons (each naming the non-negotiable or criterion it bears on and its source), and the earlier
   statement it corrects, if any. With no contribution the section reads \`None.\`
 - \`## Leader assumptions\`: the assumptions the leading option now rests on.
-- \`## Standing\`: every option of the run in order after your contributions, best first, one line each
-  saying which criteria place it there.
-- \`## Searched\`: each replacement and improvement attempt that added nothing, with why.
+- \`## Standing\`: every option of the run in order after your contributions, with each recorded defect no
+  file fixes yet weighed against its option, best first, one line each saying which criteria place it
+  there.
+- \`## Searched\`: each replacement attempt, improvement attempt and defect check that added nothing, with
+  why.
 Set contributed=false only when \`## Contributions\` reads \`None.\` and \`## Searched\` holds at least one
-replacement attempt against the leader's assumptions and one improvement attempt for each of the three
-leading options (every option when fewer stand) under \`## Standing\` in ${invFile(k - 1)}, each with the reason it adds nothing under the contribution rule.
+replacement attempt against the leader's assumptions, and an improvement attempt and a defect check for
+each of the three leading options (every option when fewer stand) under \`## Standing\` in ${invFile(k - 1)}. A defect check on a design of software or a process names each of the five hostile inputs with its
+result. Each attempt and check gives the reason it adds nothing under the contribution rule.
 contributed=false ends the chain, and the decider runs next.
 Do NOT modify any repo, stage, or commit.
 Return via the schema.`;
 
 const decidePrompt = (files) => `
-You are the DECIDER. Rank every option the investigation files hold, and every combination you build from
-them, in one weighted decision matrix.
+You are the DECIDER. Rank every option the investigation files hold in one weighted decision matrix. You
+rank only those options: the investigation chain builds every option and every combination.
 ${ENV}
 INVESTIGATION FILES (read each VERBATIM, in this order):
 ${list(files)}
 You MAY search the web${REPO ? ' and the codebase' : ''} to fill a gap the files leave.
 
 PROCEDURE:
-1. Collect every option of the investigation files under its id, with the contributions it carries. You
-   MAY build a combination of options where they genuinely compose (no Frankenstein), under the next free
-   option id.
-2. Build ONE decision matrix under the rubric: every option, every combination and, when not acting is
-   possible, the do-nothing option, judged pass or fail on every non-negotiable and scored on every
-   weighted criterion, with its weighted total. Each cell cites its source (the investigation file and the
+1. Collect every option of the investigation files under its id, with the contributions it carries. Each
+   defect you find, or that an investigation file records and no file fixes, is a con of that option and
+   bears on its cells. A combination the files do not hold goes under \`## Checks for the user\` as an
+   untested combination, with the option ids it would join and the result that would change the ranking,
+   and is not ranked. A \`combines with\` mark says only that two ranked options compose, and adds no
+   check.
+2. Build ONE decision matrix under the rubric: every option and, when not acting is possible, the
+   do-nothing option, judged pass or fail on every non-negotiable and scored on every weighted criterion,
+   with its weighted total. Each cell cites its source (the investigation file and the
    claim, with the original source it cites) or is marked "own judgment". Never fabricate a citation.
 3. RANK every option that passes every non-negotiable by weighted total under the TIE RULE: ${TIE_RULE}
    The file says where a tie group puts a simpler option above a higher total. When the do-nothing
@@ -355,42 +378,53 @@ It holds these sections, in this order:
 - \`## Changes to investigation facts\`: each fact of an investigation file your own research changed,
   with the old fact, the new fact and the source, or \`None.\`
 - \`## Checks for the user\`: each question no agent can settle, ${NO_AGENT_CHECK}, with
-  the check and the result that would change the ranking, or \`None.\` When the decision is about what to
-  test, these checks are part of the deliverable.
+  the check and the result that would change the ranking, and each untested combination of step 1, or
+  \`None.\` When the decision is about what to test, these checks are part of the deliverable.
 Every option an investigation file holds appears under \`## Ranking\` or \`## Ruled out\`.
 Do NOT modify any repo, stage, or commit.
 Return via the schema.`;
 
+// The last investigation file reaches the ranking with no later investigator reading it, so the reviewer hunts there too.
 const reviewPrompt = (files) => `
-You are the FINAL REVIEWER. Verify the decision file against its sources and correct each error you can
-prove.
+You are the FINAL REVIEWER. Hunt defects in the top options first, then verify the decision file against
+its sources and correct each error you can prove.
 ${ENV}
 INVESTIGATION FILES (read each VERBATIM, in this order):
 ${list(files)}
 THE DECISION FILE (read it verbatim): ${DECISION_FILE}
 
 PROCEDURE:
-1. Open the source behind every cell of the three top-ranked options, behind every non-negotiable
+1. DEFECT HUNT, before the source checks: test what would be built under each of the three top-ranked
+   options against the DEFECT RULE. For a combination, check that its parts fit together. Check ${files.length > 1 ? 'each contribution' : 'each option'} of ${files[files.length - 1]}, since no later investigator read it.
+   A defect you show with a concrete failure, cited to the option's text, is an edit to ${DECISION_FILE}:
+   add it as a con under that option in \`## Options\` and rescore the cells it bears on, or move the
+   option to \`## Ruled out\` when the defect breaks a non-negotiable. Then update the totals, the order,
+   the \`combines with\` and \`excludes\` ranks and \`## Flip check\` as steps 3 to 5 say. Never write the
+   fix into the option, since no agent would check a fix added after the chain. A defect you suspect and
+   cannot show is a flag.
+2. Open the source behind every cell of the three top-ranked options, behind every non-negotiable
    judgment of every ranked option and behind the evidence of every \`## Ruled out\` entry. Rerun each script under ${SCRIPTS_DIR}/${TESTBED ? ' and each testbed command' : ''} such a cell rests on.
    Sample the sources behind the other cells.
-2. Recompute every total. Check that the order follows the TIE RULE: ${TIE_RULE}
+3. Recompute every total. Check that the order follows the TIE RULE: ${TIE_RULE}
    Check that every option of the investigation files is ranked or ruled out, and that each
    \`combines with\` and \`excludes\` claim agrees with the entry it names.
-3. Fix in ${DECISION_FILE}, with the Edit tool, each error a source, a rerun or the arithmetic proves,
+4. Fix in ${DECISION_FILE}, with the Edit tool, each error a source, a rerun or the arithmetic proves,
    such as a wrong citation, a fact the source contradicts, a wrong total, an order that does not follow
    the totals, a missing option, a ranked option that fails a non-negotiable (move it to
    \`## Ruled out\`), or a ruled-out option whose failing non-negotiable a source disproves (score it in
    \`## Matrix\` and rank it). Change no judgment you cannot prove wrong. An edit that moves an option
    to another rank or out of the ranking updates every \`combines with\` and \`excludes\` rank that names a
    moved option.
-4. When an edit changes rank 1 or rank 2, or a cell, weight or total either one rests on, redo
+5. When an edit changes rank 1 or rank 2, or a cell, weight or total either one rests on, redo
    \`## Flip check\` in ${DECISION_FILE} and log it as an edit. The FLIP CHECK is ${FLIP_RULE}
 WRITE ${REVIEW_FILE}. ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE}
 It holds these sections, in this order:
+- \`## Defects\`: each defect step 1 showed, with the option id, its failure and the fix it would take
+  when one is within reach, or \`None.\`
 - \`## Edits\`: one line per edit you made to the decision file: the section, the text before, the text
   after and the evidence, or \`None.\`
-- \`## Flags\`: each score or order you would judge differently with no proven error, with your reason,
-  or \`None.\`
+- \`## Flags\`: each score or order you would judge differently with no proven error, and each defect you
+  suspect and cannot show, each with your reason, or \`None.\`
 Do NOT modify any repo, stage, or commit.
 Return via the schema.`;
 
@@ -408,6 +442,7 @@ let reviewFile = '';
 let ranking = [];
 let flip = '';
 let userChecks = 0;
+let defects = 0;
 let edits = 0;
 let flags = 0;
 const unattested = (who, file) => { haltKind = 'write-unattested'; haltReason = `The ${who} did not confirm writing ${file}.`; log(`  ✋ the ${who} did NOT confirm writing ${file} → halting before any later agent`); };
@@ -477,9 +512,10 @@ run: {
   reviewFile = REVIEW_FILE;
   ranking = rankingOf(rev.ranking);
   flip = FLIP_GRADES.includes(rev.flip) ? rev.flip : '';
+  defects = countOf(rev.defects);
   edits = countOf(rev.edits);
   flags = countOf(rev.flags);
-  log(`  ✓ the final reviewer made ${edits} edit(s) and raised ${flags} flag(s), rank 1 = "${ranking[0]?.title ?? '?'}" (flip=${flip || '?'})`);
+  log(`  ✓ the final reviewer showed ${defects} defect(s), made ${edits} edit(s) and raised ${flags} flag(s), rank 1 = "${ranking[0]?.title ?? '?'}" (flip=${flip || '?'})`);
 }
 
 const halted = haltKind !== '';
@@ -501,9 +537,13 @@ const flipNote = flip === 'fragile'
 const checksNote = userChecks
   ? `Present the ${userChecks} check(s) under \`## Checks for the user\` in ${DECISION_FILE}: each names the result that would change the ranking. `
   : '';
+// The reviewer never writes a defect's fix into decision.md, so the fix reaches a build only through the plan file.
+const defectsNote = defects
+  ? ` Carry each defect under \`## Defects\` in ${REVIEW_FILE}, with its fix when it names one, into the plan file of any pick it names.`
+  : '';
 // With nothing ranked there is no rank 1 to present or build, so that hand-back names only the ruled-out options.
 const decidedStep = ranking.length
-  ? `Present the ranking under \`## Ranking\` in ${DECISION_FILE}, with ${reviewNote}. ${flipNote}${checksNote}Rank 1 is the top answer, and the user may combine the entries marked as combinable. When rank 1 is the do-nothing option, the answer is not to act. To build a pick, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle (several picks become several blocks of one plan file).`
+  ? `Present the ranking under \`## Ranking\` in ${DECISION_FILE}, with ${reviewNote}. ${flipNote}${checksNote}Rank 1 is the top answer, and the user may combine the entries marked as combinable. When rank 1 is the do-nothing option, the answer is not to act. To build a pick, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle (several picks become several blocks of one plan file).${defectsNote}`
   : `No option passes every non-negotiable: present \`## Ruled out\` in ${DECISION_FILE}, with ${reviewNote}. ${checksNote}Refine the requirements with the user before a relaunch.`;
 
 return {
@@ -518,6 +558,7 @@ return {
   investigators: { ran: agents.investigate, stop },
   agents,
   userChecks,
+  defects,
   edits,
   flags,
   stateDir: STATE_DIR,

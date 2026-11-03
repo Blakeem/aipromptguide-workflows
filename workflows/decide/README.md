@@ -16,25 +16,38 @@ A **bounded chain** built on the shared [Workflow Principles](../../principles/)
 
 - **Each investigator builds on the last.** An investigator rejects one assumption the leading option rests
   on and searches for an option that does better without it. Then it adds, removes or corrects features of
-  the options. Since every investigator reads every earlier file, no option is lost between them.
+  the options, or combines options that fit together. Since every investigator reads every earlier file, no
+  option is lost between them.
+- **Defects are recorded where they are found.** A defect is a concrete failure of an option, with the input
+  that triggers it, the step that fails and the wrong result. Each investigator records every defect it
+  finds and fixes it when it can. This way no later investigator builds on the broken part. A recorded
+  defect counts as progress with or without a fix, so the chain keeps going.
 - **A known agent count.** The run starts at most `maxInvestigators` + 2 agents (default 4 + 2). The chain
   stops early when an investigator shows it can add nothing to the three leading options (every option when
   fewer stand).
-- **One matrix under one rubric.** The decider scores every option, every combination of options and the
-  do-nothing option against the same requirements. Non-negotiables are pass/fail, and an option that fails
-  one is ruled out with its evidence. Each weighted criterion scores met, partly met or missed, and the total
-  counts met as full weight, partly met as half and missed as zero. A criterion scores met only on a cited
-  source or a measurement. Options whose totals lie at most M below the highest remaining total, where M is
-  5% of the sum of every criterion's weight, form a tie group, and the group ranks simplest first.
+- **One matrix under one rubric.** The decider scores every option the investigators built and the
+  do-nothing option against the same requirements. It builds no option and no combination of its own. A
+  combination no investigator built comes to you as a check. Non-negotiables are pass/fail, and an option
+  that fails one is ruled out with its evidence. Each weighted criterion scores met, partly met or missed,
+  and the total counts met as full weight, partly met as half and missed as zero. A criterion scores met
+  only on a cited source or a measurement. Options whose totals lie at most M below the highest remaining
+  total, where M is 5% of the sum of every criterion's weight, form a tie group, and the group ranks
+  simplest first.
 - **Measured claims can be rerun.** A measurement cites its exact command and result, and any script it ran
   is saved in the run folder. The final reviewer reruns each script behind the scores it verifies.
-- **Verification against the sources.** The final reviewer opens the source behind every score of the top
-  three options, every non-negotiable judgment of every ranked option and the evidence of every ruled-out
-  option. It recomputes every total. It fixes each error it can prove in place and logs the edit. A
+- **A defect hunt in the top options.** The final reviewer first tests what would be built under each of
+  the top three options. It checks that the parts of a combination fit together. It also checks what the
+  last investigator added, since no later investigator read it. Each defect it shows lowers the option's
+  scores or rules the option out, and the review file lists it with the fix it would take. Carry that fix
+  into the plan file of the pick you build. It flags each defect it suspects but cannot show.
+- **Verification against the sources.** The final reviewer then opens the source behind every score of the
+  top three options, every non-negotiable judgment of every ranked option and the evidence of every
+  ruled-out option. It recomputes every total. It fixes each error it can prove in place and logs the edit. A
   score it would judge differently with no proven error comes to you as a flag.
 - **A ranked list.** Rank 1 is the top answer. Each entry says which other entries it combines with and which
-  it excludes, so you can pick one or combine several. The flip check names the smallest change that would
-  swap rank 1 and rank 2.
+  it excludes, so you can pick one or combine several. A "combines with" mark says only that two entries
+  fit together. The investigators may not have built or tested that combination. The flip check names the
+  smallest change that would swap rank 1 and rank 2.
 - **Checks for you.** A question no agent can settle, such as one that needs your hardware, comes to you with
   the result that would change the ranking.
 - **A conclusion, not code.** Nothing is staged or committed. A pick feeds a plan file that
@@ -86,9 +99,9 @@ Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the 
 ## Reviewing the result
 
 `runs/<runId>/` holds each investigator's file (`investigations/i<k>.md`), the decider's ranking and matrix
-(`decision.md`) and the final reviewer's edits and flags (`review.md`). The scripts behind each measurement
-are in `scripts/`. Read the flags first, since each one is a judgment the reviewer could not prove either
-way. Then build a pick from a [`develop-cycle`](../develop/) plan file.
+(`decision.md`) and the final reviewer's defects, edits and flags (`review.md`). The scripts behind each
+measurement are in `scripts/`. Read the flags first, since each one is a judgment the reviewer could not
+prove either way. Then build a pick from a [`develop-cycle`](../develop/) plan file.
 
 ---
 

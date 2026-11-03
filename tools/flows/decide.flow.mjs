@@ -18,7 +18,7 @@ const OPEN      = { wrote_file: true, relayed_request: false };
 const CHALLENGE = { wrote_file: true, contributed: true };
 const RANKING   = [{ rank: 1, title: 'in-process LRU', combines_with: [], excludes: [2] }, { rank: 2, title: 'redis', combines_with: [], excludes: [1] }];
 const DECIDE    = { wrote_file: true, ranking: RANKING, flip: 'robust', user_checks: 0 };
-const REVIEW    = { wrote_file: true, edits: 0, flags: 0, ranking: RANKING, flip: 'robust' };
+const REVIEW    = { wrote_file: true, defects: 0, edits: 0, flags: 0, ranking: RANKING, flip: 'robust' };
 const CLEAN     = { 'investigate i1': OPEN, 'investigate i': CHALLENGE, decide: DECIDE, review: REVIEW };
 
 export default {
@@ -35,9 +35,10 @@ export default {
     },
     {
       name: 'reviewer corrects',
-      when: 'the final reviewer proves errors and corrects them',
+      when: 'the final reviewer shows a defect or proves errors and corrects them',
       args: base,
-      respond: { ...CLEAN, review: { ...REVIEW, edits: 2 } },
+      // A defect's edits count under edits, so a shown defect ends on this terminal too.
+      respond: { ...CLEAN, review: { ...REVIEW, defects: 1, edits: 2 } },
     },
     {
       name: 'reviewer flags',

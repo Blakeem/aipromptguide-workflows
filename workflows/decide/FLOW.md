@@ -70,16 +70,16 @@ flowchart TD
 
 | Phase | What happens |
 |---|---|
-| Investigate | A serial chain of at most maxInvestigators agents. The opening investigator reads the requirements (verbatim), searches the web, and the codebase when target.repo is passed, for every option worth weighing and writes investigations/i1.md: the options with their pros and cons, the assumptions the leader rests on, the standing and the directions searched. Each challenger k reads the requirements and every earlier investigation file in order, tries to replace the leader and to improve any option, and writes investigations/i&lt;k&gt;.md with its contributions. The chain stops at the first challenger that returns contributed false (dry) or after maxInvestigators agents (cap). |
-| Decide | One decider reads the requirements and every investigation file, scores every option, every combination it builds and the do-nothing option in one weighted matrix, every cell citing its source or marked own judgment, and writes decision.md: the ranking, the options, the matrix, the flip check, the options ruled out, the investigation facts its own research changed and the checks for the user. Returns the ranking index, the flip grade and the count of checks for the user. |
-| Review | One final reviewer reads the requirements, every investigation file and decision.md, opens the source behind every cell of the three top-ranked options, every must judgment and every ruled-out entry, reruns each saved script and testbed command they rest on, and recomputes every total. It corrects in decision.md each error a source, a rerun or the arithmetic proves, redoes the flip check when an edit moves rank 1 or rank 2, and writes review.md with its edits and its flags. Returns the counts, the ranking index and the flip grade after its edits. |
+| Investigate | A serial chain of at most maxInvestigators agents. The opening investigator reads the requirements (verbatim), searches the web, and the codebase when target.repo is passed, for every option worth weighing and writes investigations/i1.md: the options with their pros and cons, each defect it finds and does not fix written as a con, the assumptions the leader rests on, the standing and the directions searched. Each challenger k reads the requirements and every earlier investigation file in order, tries to replace the leader and to improve any option, a combination of options included, records each defect it comes across, and writes investigations/i&lt;k&gt;.md with its contributions. The chain stops at the first challenger that returns contributed false (dry) or after maxInvestigators agents (cap). |
+| Decide | One decider reads the requirements and every investigation file, scores the options the files hold and the do-nothing option in one weighted matrix, every cell citing its source or marked own judgment, with each recorded defect no file fixes as a con, and writes decision.md: the ranking, the options, the matrix, the flip check, the options ruled out, the investigation facts its own research changed and the checks for the user, each combination the files do not hold among them as an untested combination. It builds no option and no combination. Returns the ranking index, the flip grade and the count of checks for the user. |
+| Review | One final reviewer reads the requirements, every investigation file and decision.md. It first hunts defects: it tests what would be built under each of the three top-ranked options, checks that the parts of a combination fit together, and checks each contribution of the last investigation file (each option when that file is i1.md), since no later investigator read it. Each defect it shows with a concrete failure becomes a con or a ruled-out entry in decision.md and an entry under ## Defects in review.md, with the fix it would take but never written into the option. Then it opens the source behind every cell of the three top-ranked options, every must judgment and every ruled-out entry, reruns each saved script and testbed command they rest on, and recomputes every total. It corrects in decision.md each error a source, a rerun or the arithmetic proves, redoes the flip check when an edit moves rank 1 or rank 2, and writes review.md with its defects, its edits and its flags. Returns the counts, the ranking index and the flip grade after its edits. |
 
 ## Terminal states
 
 | Terminal | Reached when | Source |
 |---|---|---|
 | decided (the final reviewer made no edit and raised no flag) | every challenger contributes, so the chain runs to maxInvestigators · challenger i2 contributes nothing, so the chain stops dry · maxInvestigators is 1, so the opening investigator is the whole chain | derived |
-| decided with corrections (the final reviewer made N edits) | the final reviewer proves errors and corrects them | derived |
+| decided with corrections (the final reviewer made N edits) | the final reviewer shows a defect or proves errors and corrects them | derived |
 | decided with flags (the final reviewer flags N judgment calls for the user) | the final reviewer flags judgment calls it cannot prove wrong | derived |
 | BLOCKED (an agent did not confirm writing its file) | the opening investigator does not confirm writing i1.md · a challenger does not confirm writing its investigation file · the decider does not confirm writing decision.md · the final reviewer does not confirm writing review.md | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 25) |
@@ -93,11 +93,11 @@ flowchart TD
 | throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside investigate \| decide \| review, or maps one to a blank name | throw (line 97) |
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 115) |
 | throw: args.planPath is required | args carry no planPath | throw (line 137) |
-| throw: Opening investigator returned nothing | the opening investigator dies | throw (line 428) |
-| throw: A user request was relayed into the context of the opening investigator ahead of its task | the opening investigator reports a user request relayed into its context | throw (line 431) |
-| throw: Challenger returned nothing | a challenger dies | throw (line 440) |
-| throw: Decider returned nothing | the decider dies | throw (line 461) |
-| throw: Reviewer returned nothing | the final reviewer dies | throw (line 475) |
+| throw: Opening investigator returned nothing | the opening investigator dies | throw (line 463) |
+| throw: A user request was relayed into the context of the opening investigator ahead of its task | the opening investigator reports a user request relayed into its context | throw (line 466) |
+| throw: Challenger returned nothing | a challenger dies | throw (line 475) |
+| throw: Decider returned nothing | the decider dies | throw (line 496) |
+| throw: Reviewer returned nothing | the final reviewer dies | throw (line 510) |
 
 ## Coverage
 

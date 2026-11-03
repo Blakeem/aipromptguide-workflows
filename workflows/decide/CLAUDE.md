@@ -36,7 +36,8 @@ rubric file (written in plan mode, approved by the user: the one human gate)
        the chain stops at the first challenger that returns contributed false (dry),
          or after maxInvestigators agents (cap)
   -> Decide: one decider reads every investigation file, writes decision.md
-  -> Review: one final reviewer verifies decision.md, corrects it in place, writes review.md
+  -> Review: one final reviewer hunts defects in the top options, verifies decision.md, corrects it in
+       place, writes review.md
   -> return
 ```
 
@@ -112,68 +113,93 @@ judgment scores at most partly met. Each want is scored on what the option achie
 the current state, and a **do-nothing** option is scored on the same rubric whenever not acting is possible.
 The simplest option that meets every requirement is preferred. Each claim cites its original source. A
 measurement cites its exact command and result, and any script it ran is saved under `scripts/` with a file
-name no file there holds yet, never changing a script already there, so a later agent can rerun it. A
-design of software or a process is tested against five hostile inputs: a failure, a concurrent edit, a
-human-set value, state saved before the change, and an edit by another program that no scan has seen yet. A
-defect found that way is a con of the option, or, for a challenger, a contribution when it also fixes it.
+name no file there holds yet, never changing a script already there, so a later agent can rerun it.
+**The defect rule:** a defect is a concrete failure of an option as stated, which names the input or path
+that triggers it, the step that fails and the wrong result, with its source or a trace through the option's
+text. Every agent records each defect it finds in an option it reads, verifies or builds on, at the moment
+it finds it, and an investigator also fixes it when a fix is within its reach. For a design of software or a
+process the defect test is five hostile inputs: a failure, a concurrent edit, a human-set value, state saved
+before the change, and an edit by another program that no scan has seen yet. A recorded defect holds until a
+file fixes it, the file that records it included, so no agent treats the defective part as working or builds
+on it.
 
 - **Opening investigator** (`investigate i1`) searches the web, and the codebase when `target.repo` is
   passed, for the options and writes `investigations/i1.md`: `## Options` (each under a run-wide id O1, O2
   and so on, with what would be built or done, its pros and its cons, each naming the must or criterion it
-  bears on and its source), `## Leader assumptions`, `## Standing` (every option in order, with the criteria
-  that place it there) and `## Searched` (each direction that yielded no option, with why). It returns
-  `wrote_file` and `relayed_request`.
+  bears on and its source, each defect it finds and does not fix written as a con with its failure, and
+  each defect it fixes written into the option's description with the failure the fix removes),
+  `## Leader assumptions`, `## Standing` (every option in order, with the criteria that place it there) and
+  `## Searched` (each direction that yielded no option, with why). It returns `wrote_file` and
+  `relayed_request`.
 - **Challenger k** (`investigate i<k>`) reads the rubric and every earlier investigation file in order. It
   first rejects one assumption under the latest file's `## Leader assumptions` and searches for an option
-  that does better without it, then tries to improve any option under the contribution rule (§6). It writes
+  that does better without it, then tries to improve any option under the contribution rule (§6). It records
+  each defect it comes across while it replaces, improves or verifies as a DEFECT contribution, and builds no
+  contribution on a part a recorded defect names unless that contribution fixes it. It writes
   `investigations/i<k>.md`: `## Contributions` (each under an id C<k>.<n>, with its kind, the option id it
   targets or the next free one, what changes, its pros and cons, and the earlier statement it corrects, or
-  `None.`), `## Leader assumptions`, `## Standing` and `## Searched`. It never repeats an earlier contribution
-  and never edits an earlier file. It returns `wrote_file` and `contributed`.
+  `None.`), `## Leader assumptions`, `## Standing` (with each recorded defect no file fixes yet weighed) and
+  `## Searched`. It never repeats an earlier contribution and never edits an earlier file. It returns
+  `wrote_file` and `contributed`.
 - **Decider** (`decide`) reads the rubric and every investigation file, and may search to fill a gap. It
-  scores every option, every combination it builds and the do-nothing option in one matrix, each cell citing
-  its source or marked own judgment, and writes `decision.md`: `## Ranking` (every option that passes every
-  must, best first, each with its total and its `combines with` and `excludes` ranks), `## Options`,
-  `## Matrix`, `## Flip check` (the smallest change to one cell or weight that swaps rank 1 and rank 2,
-  graded **dominant**, **robust** or **fragile**), `## Ruled out` (each option that fails a must, with the
-  evidence and the one observation that would reverse it, #16), `## Changes to investigation facts` and
-  `## Checks for the user` (each question no agent can settle, with the result that would change the
-  ranking). **The tie rule:** down the list sorted by total, the options whose totals lie at most M below
-  the highest total left, where M is 5% of the sum of every criterion's weight, form a tie group, ranked
-  simplest first. The margin is a share of the weights, since they have no fixed scale. Every option of the
-  investigation files is ranked or ruled out.
-  It returns `wrote_file`, the `ranking` index (`rank`, `title`, `combines_with`, `excludes`), `flip` and
-  `user_checks`.
-- **Final reviewer** (`review`) reads the rubric, every investigation file and `decision.md`. It opens the
-  source behind every cell of the three top-ranked options, every must judgment of every ranked option and
-  the evidence of every `## Ruled out` entry, reruns each saved script and testbed command those cells rest
-  on, and samples the rest. It recomputes every total and checks the order, the tie rule, that every option
-  is ranked or ruled out, and that the `combines with` and `excludes` claims agree. It fixes in `decision.md`
-  each error a source, a rerun or the arithmetic proves, which includes moving a ranked option that fails a
-  must to `## Ruled out` and ranking a ruled-out option whose failing must a source disproves. It changes no
-  judgment it cannot prove wrong. An edit that moves a ranked option updates every `combines with` and
-  `excludes` rank naming it. When an edit changes rank 1 or rank 2, or a cell, weight or total either one
-  rests on, it redoes `## Flip check`. It writes `review.md`: `## Edits` (one line per edit: the
-  section, the text before and after, and the evidence) and `## Flags` (each score or order it would judge
-  differently with no proven error, with its reason). It returns `wrote_file`, `edits`, `flags`, and the
-  `ranking` index and `flip` grade after its edits.
+  builds no option and no combination, since the chain builds them. It scores every option the files hold
+  and the do-nothing option in one matrix, each cell citing its source or marked own judgment, with each
+  defect it finds, or that a file records and no file fixes, as a con of that option. It writes
+  `decision.md`: `## Ranking` (every option that passes every must, best first, each with its total and its
+  `combines with` and `excludes` ranks), `## Options`, `## Matrix`, `## Flip check` (the smallest change to
+  one cell or weight that swaps rank 1 and rank 2, graded **dominant**, **robust** or **fragile**),
+  `## Ruled out` (each option that fails a must, with the evidence and the one observation that would
+  reverse it, #16), `## Changes to investigation facts` and `## Checks for the user` (each question no agent
+  can settle, with the result that would change the ranking, and each combination the files do not hold as
+  an untested combination, with the option ids it would join, never ranked). A `combines with` mark says
+  only that two ranked options compose, and adds no check. **The tie rule:** down the list sorted by total,
+  the options whose totals lie at most M below the highest total left, where M is 5% of the sum of every
+  criterion's weight, form a tie group, ranked simplest first. The margin is a share of the weights, since
+  they have no fixed scale. Every option of the investigation files is ranked or ruled out. It returns
+  `wrote_file`, the `ranking` index (`rank`, `title`, `combines_with`, `excludes`), `flip` and `user_checks`.
+- **Final reviewer** (`review`) reads the rubric, every investigation file and `decision.md`. It first hunts
+  defects under the defect rule: it tests what would be built under each of the three top-ranked options,
+  checks that the parts of a combination fit together, and checks each contribution of the last
+  investigation file, or each option when that file is `i1.md`, since no later investigator read it. A
+  defect it shows with a concrete failure cited to the option's text is an edit: a con under that option in
+  `## Options` with the cells it bears on rescored, or a move to `## Ruled out` when it breaks a must. It
+  never writes the fix into the option, since no agent would check a fix added after the chain, and a defect
+  it suspects and cannot show is a flag. Then it opens the source behind every cell of the three top-ranked
+  options, every must judgment of every ranked option and the evidence of every `## Ruled out` entry, reruns
+  each saved script and testbed command those cells rest on, and samples the rest. It recomputes every total
+  and checks the order, the tie rule, that every option is ranked or ruled out, and that the `combines with`
+  and `excludes` claims agree. It fixes in `decision.md` each error a source, a rerun or the arithmetic
+  proves, which includes moving a ranked option that fails a must to `## Ruled out` and ranking a ruled-out
+  option whose failing must a source disproves. It changes no judgment it cannot prove wrong. An edit that
+  moves a ranked option updates every `combines with` and `excludes` rank naming it. When an edit changes
+  rank 1 or rank 2, or a cell, weight or total either one rests on, it redoes `## Flip check`. It writes
+  `review.md`: `## Defects` (each defect it showed, with the option id, its failure and the fix it would
+  take when one is within reach), `## Edits` (one line per edit: the section, the text before and after,
+  and the evidence) and `## Flags` (each score or order it would judge differently with no proven error, and
+  each defect it suspects and cannot show, each with its reason). It returns `wrote_file`, `defects`,
+  `edits`, `flags`, and the `ranking` index and `flip` grade after its edits.
 
 ## 6. Contribution and stop rules (keep intact)
 
-- **A contribution** is a change, inside the rubric's scope, to what would be built or done: a new option,
-  a feature added to an option, a feature removed for a stated reason (overkill, or an edge case too unlikely
-  to justify its cost), or a correction of an error in an earlier file. It makes the option better on at
-  least one weighted criterion or on a plain measure the rubric does not name, such as simpler, faster or
-  more robust where robustness is needed, and it cites its evidence. No size threshold applies. A feature
-  added, a feature removed or a correction targets one of the three leading options of the latest standing
-  (every option when fewer stand), unless it names the shortcoming that holds a lower option down and gives
-  evidence that the contribution resolves it.
+- **A contribution** is one of five kinds: a new option (a combination of options that genuinely compose
+  included, each part named by its option id), a feature added to an option, a feature removed for a stated
+  reason (overkill, or an edge case too unlikely to justify its cost), a correction of an error in an
+  earlier file, or a defect under the defect rule (§5), with its fix when the challenger has one. Each of
+  the first four is a change, inside the rubric's scope, to what would be built or done. It makes the option
+  better on at least one weighted criterion or on a plain measure the rubric does not name, such as simpler,
+  faster or more robust where robustness is needed, and it cites its evidence. A defect counts with or
+  without a fix, since it records a failure no later agent may build on, so a challenger that finds one
+  earns the next challenger. No size threshold applies. A feature added, a feature removed or a correction
+  targets one of the three leading options of the latest standing (every option when fewer stand), unless it
+  names the shortcoming that holds a lower option down and gives evidence that the contribution resolves it.
+  A defect targets the option it is found in, at any standing.
 - **The early stop.** `contributed` false is valid only with a `## Contributions` section that reads `None.`
-  and a `## Searched` section that holds a replacement attempt against the leader's assumptions and an
-  improvement attempt for each of the three leading options (every option when fewer stand), each with the
-  reason it adds nothing. The engine stops the chain at the first challenger that returns `contributed`
-  false (`dry`), or after `maxInvestigators` agents (`cap`), and the decider runs either way. Only an
-  explicit false stops it.
+  and a `## Searched` section that holds a replacement attempt against the leader's assumptions, and an
+  improvement attempt and a defect check for each of the three leading options (every option when fewer
+  stand), each with the reason it adds nothing. A defect check on a design of software or a process names
+  each of the five hostile inputs with its result. The engine stops the chain at the first challenger that
+  returns `contributed` false (`dry`), or after `maxInvestigators` agents (`cap`), and the decider runs
+  either way. Only an explicit false stops it.
 - **Every agent is on the critical path**, since the next agent reads its file. An agent that returns nothing
   throws. An agent whose `wrote_file` is not true halts the run on
   `BLOCKED (an agent did not confirm writing its file)` before any later agent, with `haltReason` naming the
@@ -234,15 +260,18 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
 - `scripts/`: every script a measurement ran, so a later agent can rerun it.
 - `decision.md`: the decider's ranking, options, matrix, flip check, ruled-out options, changes to
   investigation facts and checks for the user, with the final reviewer's corrections in place.
-- `review.md`: the final reviewer's `## Edits` and `## Flags`.
+- `review.md`: the final reviewer's `## Defects`, `## Edits` and `## Flags`.
 
 The return carries `runId`, `status`, `halted`, `haltReason`, `chosen` (rank 1's title), `ranking` (the
 reviewer's index when it attested its file, else the decider's), `flip` (`dominant`, `robust` or `fragile`,
 from the same agent as `ranking`, or empty when that agent returned none of the three), `investigators`
 (`{ ran, stop }`, where `stop` is `dry`, `cap`, or empty when the run halted inside the chain), `agents`
-(the agents started per phase), `userChecks`, `edits`, `flags`, `stateDir`, `decisionFile`, `reviewFile`,
-`investigationFiles`, `failed` (always an empty array, since no agent is auxiliary) and `nextStep`.
-`decisionFile`, `reviewFile` and `investigationFiles` name only files whose writer attested. `nextStep` says
-to present the ranking with the review's edits and flags, adds the flip check when the grade is fragile and
-the checks for the user when there are any, and says how a pick is built. When no option passes every must,
-it says to present `## Ruled out` and refine the rubric.
+(the agents started per phase), `userChecks`, `defects`, `edits`, `flags`, `stateDir`, `decisionFile`,
+`reviewFile`, `investigationFiles`, `failed` (always an empty array, since no agent is auxiliary) and
+`nextStep`. `defects`, `edits` and `flags` are the final reviewer's counts, and a defect's edits count under
+`edits`, so a defect picks no terminal of its own. `decisionFile`, `reviewFile` and `investigationFiles` name
+only files whose writer attested. `nextStep` says to present the ranking with the review's edits and flags,
+adds the flip check when the grade is fragile and the checks for the user when there are any, and says how a
+pick is built. When `defects` is above zero it also says to carry each defect under `## Defects` in
+`review.md`, with its fix when it names one, into the plan file of any pick it names. When no option passes
+every must, it says to present `## Ruled out` and refine the rubric.

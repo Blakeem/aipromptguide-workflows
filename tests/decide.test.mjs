@@ -17,7 +17,7 @@ const CHALLENGE = { wrote_file: true, contributed: true };
 const DRY       = { ...CHALLENGE, contributed: false };
 const RANKING   = [{ rank: 1, title: 'in-process LRU', combines_with: [], excludes: [2] }, { rank: 2, title: 'redis', combines_with: [], excludes: [1] }];
 const DECIDE    = { wrote_file: true, ranking: RANKING, flip: 'robust', user_checks: 0 };
-const REVIEW    = { wrote_file: true, edits: 0, flags: 0, ranking: RANKING, flip: 'robust' };
+const REVIEW    = { wrote_file: true, defects: 0, edits: 0, flags: 0, ranking: RANKING, flip: 'robust' };
 // The responder matches the longest label prefix, so i1 gets OPEN and every later challenger CHALLENGE.
 const CLEAN     = { 'investigate i1': OPEN, 'investigate i': CHALLENGE, decide: DECIDE, review: REVIEW };
 const flat = (s) => String(s ?? '').replace(/\s+/g, ' ');
@@ -223,14 +223,19 @@ section('the shared rubric text holds the scoring rules and the three rules the 
     'Prefer the SIMPLEST option that meets all requirements.',
     'Cite each factual claim to its original source',
     `Save any script it ran under ${S}/scripts/ (create it if needed) with a file name that no file there holds yet, and never change a script already there, so a later agent can rerun it and get the result its citer got.`,
-    'test it against each of five hostile inputs: a failure, a concurrent edit, a human-set value, state saved before the change',
-    'A defect found that way is a con of the option, or, for a challenger, a contribution when it also fixes it.',
+    'DEFECT RULE: a defect is a concrete failure of an option as stated: the input or path that triggers it, the step that fails and the wrong result, with its source or a trace through the option\'s text.',
+    'Record each defect you find in an option you read, verify or build on at the moment you find it, where your procedure says. An investigator also fixes the defect when a fix is within its reach.',
+    'For an option that is a design of software or a process, the defect test is each of five hostile inputs: a failure, a concurrent edit, a human-set value, state saved before the change',
+    // A fix inside a DEFECT contribution lives in the file that records the defect, so that file's fix must count.
+    'A recorded defect holds until a file fixes it, the file that records it included, so never treat the defective part as working or build on it.',
     'A breach reachable only through operator action is a con, never a must failure.',
   ];
   for (const c of calls) {
     const text = flat(c.prompt);
     const missing = RULES.filter((r) => !text.includes(r));
     eq(missing.join(' | '), '', `${c.label}: the prompt states every rubric rule`);
+    // A defect counts without a fix now, so the old clause would tell a challenger to stop on a known defect.
+    ok(!text.includes('a contribution when it also fixes it'), `${c.label}: the prompt holds no fix-only defect clause`);
   }
   ok(flat(calls.find((c) => c.label === 'review').prompt).includes(`Rerun each script under ${S}/scripts/ and each testbed command such a cell rests on.`),
     'with a testbed the reviewer reruns the testbed commands too');
@@ -240,20 +245,42 @@ section('the shared rubric text holds the scoring rules and the three rules the 
 
 section('the challenger carries the contribution rule and the early-stop proof');
 {
-  const i2 = flat((await run(CLEAN)).prompt('investigate i2'));
+  const i2Raw = String((await run(CLEAN)).prompt('investigate i2'));
+  const i2 = flat(i2Raw);
   for (const piece of [
-    'It is one of four kinds: a NEW OPTION, a FEATURE ADDED to an option, a FEATURE REMOVED from an option for a stated reason',
-    'or a CORRECTION of an error in an earlier file.',
-    'It must make the option better on at least one weighted criterion or on a plain measure the rubric does not name',
+    'CONTRIBUTION: one of five kinds:',
+    '- a NEW OPTION, which includes a COMBINATION of options that genuinely compose (no Frankenstein), naming each part by its option id',
+    '- a FEATURE ADDED to an option',
+    '- a FEATURE REMOVED from an option for a stated reason',
+    '- a CORRECTION of an error in an earlier file',
+    '- a DEFECT in an option under the DEFECT RULE, with its fix when you have one',
+    'A NEW OPTION, FEATURE ADDED, FEATURE REMOVED or CORRECTION is a change, inside the scope the rubric decides, to what would be built or done. It must make the option better on at least one weighted criterion or on a plain measure the rubric does not name',
+    'A DEFECT counts with or without a fix, since it records a failure that no later agent may build on.',
     'No size threshold applies, since several small contributions can lift an option over another.',
-    'unless it names the shortcoming that holds a lower option down and gives evidence that the contribution resolves it.',
+    'unless it names the shortcoming that holds a lower option down and gives evidence that the contribution resolves it. A DEFECT targets the option it is found in, at any standing.',
+    'Record each defect you come across while you replace, improve or verify as a DEFECT contribution. Never build a contribution on a part a recorded defect names unless that contribution fixes it.',
     'Never repeat a contribution an earlier file holds, and never edit an earlier file.',
     '`## Contributions`: each under an id C2.1, C2.2 and so on',
-    'Set contributed=false only when `## Contributions` reads `None.` and `## Searched` holds at least one replacement attempt against the leader\'s assumptions and one improvement attempt for each of the three leading options (every option when fewer stand) under `## Standing`',
+    '`## Standing`: every option of the run in order after your contributions, with each recorded defect no file fixes yet weighed against its option',
+    'Set contributed=false only when `## Contributions` reads `None.` and `## Searched` holds at least one replacement attempt against the leader\'s assumptions, and an improvement attempt and a defect check for each of the three leading options (every option when fewer stand) under `## Standing`',
+    'A defect check on a design of software or a process names each of the five hostile inputs with its result. Each attempt and check gives the reason it adds nothing under the contribution rule.',
   ]) ok(i2.includes(piece), `the challenger prompt holds: ${piece.slice(0, 70)}`);
+  ok(/^3\. /m.test(i2Raw) && !/^4\. /m.test(i2Raw), 'the challenger procedure keeps three numbered steps, the defect record inside them');
   const i1 = flat((await run(CLEAN)).prompt('investigate i1'));
   ok(['## Options', '## Leader assumptions', '## Standing', '## Searched'].every((h) => i1.includes(`\`${h}\``)), 'the opening investigator writes the four sections');
   ok(!i1.includes('CONTRIBUTION:'), 'and carries no contribution rule, since it has nothing to beat');
+  ok(i1.includes('Each defect you find in one of your options and do not fix is a con of that option that states the failure.'), 'and writes each defect it does not fix as a con');
+  ok(i1.includes('A defect you fix goes into that option\'s description, with the failure the fix removes.'), 'and writes each defect it fixes into the option');
+}
+
+section('a challenger whose only contribution is a DEFECT with no fix contributes, so the chain runs on');
+{
+  // The engine sees only the flag, so this pins that contributed true continues the chain and that the schema says a fix-less DEFECT is a contribution.
+  const defectOnly = { wrote_file: true, contributed: true };
+  const { labels, calls } = await run({ ...CLEAN, 'investigate i': (label) => (label === 'investigate i2' ? defectOnly : DRY) });
+  eq(labels.join(','), 'investigate i1,investigate i2,investigate i3,decide,review', 'the next challenger runs after a defect-only challenger');
+  const schema = calls.find((c) => c.label === 'investigate i2').opts.schema;
+  ok(String(schema?.properties?.contributed?.description ?? '').includes('A DEFECT contribution with no fix is a contribution.'), 'the contributed description counts a fix-less DEFECT');
 }
 
 section('the decider ranks under the tie rule and writes every section, and the reviewer proves each edit');
@@ -277,7 +304,48 @@ section('the decider ranks under the tie rule and writes every section, and the 
   ok(rev.includes('An edit that moves an option to another rank or out of the ranking updates every `combines with` and `excludes` rank that names a moved option.'),
     'and renumbers the cross references an edit moves');
   ok(rev.includes('Change no judgment you cannot prove wrong.'), 'and changes no unproven judgment');
-  ok(ascending(positions(rev, ['- `## Edits`', '- `## Flags`'])), 'review.md holds Edits, then Flags');
+  ok(ascending(positions(rev, ['- `## Defects`', '- `## Edits`', '- `## Flags`'])), 'review.md holds Defects, then Edits, then Flags');
+}
+
+section('the decider builds no option and no combination, and the reviewer hunts defects before the source checks');
+{
+  const { prompt } = await run(CLEAN);
+  const dec = flat(prompt('decide'));
+  ok(!/MAY build|every combination you build|under the next free option id/.test(dec), 'the decider holds no instruction to build a combination or a new option');
+  ok(dec.includes('You rank only those options: the investigation chain builds every option and every combination.'), 'and ranks only the options the files hold');
+  ok(dec.includes('A combination the files do not hold goes under `## Checks for the user` as an untested combination, with the option ids it would join and the result that would change the ranking, and is not ranked.'),
+    'a combination the files do not hold is an untested check for the user');
+  ok(dec.includes('A `combines with` mark says only that two ranked options compose, and adds no check.'),
+    'a combines-with mark is no untested combination');
+  ok(dec.includes('Each defect you find, or that an investigation file records and no file fixes, is a con of that option and bears on its cells.'), 'and each open defect is a con');
+  const rev = flat(prompt('review'));
+  const hunt = '1. DEFECT HUNT, before the source checks: test what would be built under each of the three top-ranked options against the DEFECT RULE. For a combination, check that its parts fit together.';
+  ok(ascending(positions(rev, [hunt, '2. Open the source behind every cell'])), 'the defect hunt comes before the source checks');
+  ok(rev.includes(`Check each contribution of ${I(4)}, since no later investigator read it.`), 'and names the last investigation file\'s contributions');
+  ok(rev.includes('Never write the fix into the option, since no agent would check a fix added after the chain.'), 'and forbids writing a fix into an option');
+  ok(rev.includes('A defect you suspect and cannot show is a flag.'), 'and flags a defect it cannot show');
+  ok(rev.includes('`## Flags`: each score or order you would judge differently with no proven error, and each defect you suspect and cannot show, each with your reason, or `None.`'),
+    'and the `## Flags` section admits that defect');
+  ok(rev.includes('as steps 3 to 5 say.') && rev.includes('3. Recompute every total.') && rev.includes('5. When an edit changes rank 1 or rank 2'), 'and points at the renumbered steps');
+  const one = flat((await run(CLEAN, { ...baseArgs, maxInvestigators: 1 })).prompt('review'));
+  ok(one.includes(`Check each option of ${I(1)}, since no later investigator read it.`), 'with only i1.md the reviewer checks each of its options');
+}
+
+section('the reviewer\'s defects count reaches the return, the log line and the hand-back');
+{
+  const found = await run({ ...CLEAN, review: { ...REVIEW, defects: 2, edits: 3 } });
+  eq(found.out.defects, 2, 'defects returns the count');
+  ok(found.logs.some((l) => l.includes('the final reviewer showed 2 defect(s), made 3 edit(s)')), 'the log line names the defects');
+  ok(flat(found.out.nextStep).includes(`Carry each defect under \`## Defects\` in ${S}/review.md, with its fix when it names one, into the plan file of any pick it names.`),
+    `nextStep says to carry each defect into the plan file: ${flat(found.out.nextStep).slice(-140)}`);
+  eq(found.out.status, 'decided with corrections (the final reviewer made 3 edits)', 'a defect\'s edits count under edits, so the terminal is unchanged');
+  const none = await run(CLEAN);
+  eq(none.out.defects, 0, 'no defect returns 0');
+  ok(!String(none.out.nextStep ?? '').includes('## Defects'), 'and the hand-back carries no defects sentence');
+  const odd = await run({ ...CLEAN, review: { ...REVIEW, defects: -1 } });
+  eq(odd.out.defects, 0, 'a negative count reads as none');
+  const { calls } = await run(CLEAN);
+  ok(calls.find((c) => c.label === 'review').opts.schema.required.includes('defects'), 'the review schema requires defects');
 }
 
 section('target.repo adds the codebase to the shared rubric and to the opening and decider search steps');
