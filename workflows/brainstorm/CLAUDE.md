@@ -7,6 +7,70 @@ review, no convergence. Built to `../../principles/WORKFLOW-PRINCIPLES.md` — a
 it honors only the **core** principles (#1–4, #6, #8, #11–20); the build-loop rules (#5/#7/#9) do not
 apply (no code, no staging, no commit).
 
+## 0. Checklist
+
+Work every step in order. Each step cites the section that holds its rule, and a step that opens with a
+condition in parentheses runs only under it.
+
+### Before the run
+
+1. Check that the job is one creative problem worth exploring from at least 2 genuinely different angles
+   (§1). Output: that problem, or the other path §1 names for the job.
+2. Agree with the user the brief (what is designed or ideated, the goal, the audience) and the lenses, one
+   per output, proposing 3 to 5 genuinely distinct lenses when the user has none (§2 step 1). Output: the
+   brief and the lens list.
+3. (for a complex brief) Author the shared requirements in `EnterPlanMode` (§2 step 2). Output: the
+   requirements file.
+4. (when step 3 ran) Get the user's approval of the requirements with `ExitPlanMode` (§2 step 2). Output:
+   the user's approval.
+5. Choose the `runId` and `root` args, with a new `runId` or `stateDir` in each case §3, "Relaunch vs. new
+   run", names (§3, §6). Output: a value for each.
+6. Set `lenses` to the list step 2 agreed, giving near-identical lenses an explicit `{ id, focus }` so the
+   ids stay distinct after slugging (§3). Output: the `lenses` value.
+7. Set `planPath` to the absolute path of step 3's requirements file when step 3 ran, and `brief` to step
+   2's brief otherwise (§2 step 2, §3). Output: the `planPath` or `brief` value.
+8. Choose the optional args the run needs: `outputFormat`, `kind`, `constraints`, `references`,
+   `target.repo`, `target.lang`, `target.framework`, `models`, `efforts`, `agentTypes`, `stateDir` and, when
+   the user wants the agents' feedback, `notes` (§6). Output: a value for each arg chosen.
+9. Run `git -C <target.repo> status --short` (`node --version` when the run has no `target.repo`) with
+   run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification turn"). Output:
+   that tool call is the last one of this turn.
+10. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
+    `brainstorm-cycle.mjs` and the args steps 5 to 8 chose (§2 step 3, root `CLAUDE.md`, "Launch from a
+    notification turn"). Output: the Workflow run id (`wf_...`).
+
+### After the run
+
+11. (when the run threw on a relayed user request) Relaunch through steps 9 and 10 with the same args and
+    `runId`. Stop this pass of the list there, and work it again from step 11 once that run ends (§2, root
+    `CLAUDE.md`, "Launch from a notification turn"). Output: the relaunch's Workflow run id.
+12. (when `count` is 0) Tell the user the batch produced no output, and describe no variation (the return's
+    `nextStep`). Output: the user told.
+13. (when `count` is 0) Check that the brief or the `planPath` file is readable and that each lens focus is
+    sane, then relaunch through steps 2 to 10 with the same `runId`, changing at those steps only each input
+    the check found wrong. Stop this pass of the list there, and work it again from step 11 once that run
+    ends (the return's `nextStep`). Output: the relaunch's Workflow run id.
+14. (when `count` is above 0) Present each variation under `variationsDir`: relay its entry path with its
+    one-line summary, open the entry as needed and walk the user through its distinct take, naming no
+    winner (§2 step 4, §5, the return's `nextStep`). Output: each variation presented.
+15. (when `count` is above 0 and `failed` is not empty) Tell the user that the lenses `failed` names produced
+    nothing, and offer to re-run just those with the same `runId` (the return's `nextStep`). Output: the
+    offer, made to the user.
+16. (when the user accepts step 15's offer) Relaunch through steps 9 and 10 with the same args and `runId`
+    and `lenses` set to each entry of step 6's `lenses` value whose id `failed` names. Stop this pass of the
+    list there, and work it again from step 11 once that run ends (the return's `nextStep`). Output: the
+    relaunch's Workflow run id.
+17. (when the user picks a direction to build) Build it through `../develop/CLAUDE.md` §0 from its step 1
+    through step 43, writing at its step 6 a plan file for that direction (§1, §5, the return's
+    `nextStep`). Output: develop §0 step 37's summary.
+18. (when the user wants the AI to conclude among options with a decision matrix) Run decide through
+    `../decide/CLAUDE.md` §0 from its step 1 through step 23 (§1, §5, the return's `nextStep`). Output:
+    decide §0 step 21's paths, told to the user, and decide §0 step 23's develop summary when decide built
+    a pick.
+19. (when `notes` is set) Run `node <survey's folder>/survey.mjs <notes.dir>` and report the themes, for
+    this run and for each run that steps 17 and 18 launched with `notes` set (§6, `../develop/CLAUDE.md` §0
+    step 44, `../decide/CLAUDE.md` §0 step 24). Output: the themes of each `SURVEY.md` it writes.
+
 ## 1. Scope (check FIRST)
 
 Right size: one creative problem worth exploring from **several genuinely different angles** (≥2 lenses).

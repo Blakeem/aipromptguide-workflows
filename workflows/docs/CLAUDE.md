@@ -15,6 +15,85 @@ leaves no such gap. What remains checkable — coverage, cross-source consistenc
 tests the verbatim promise — needs the whole set at once, so it lives in the curator (#4). Nothing is
 written outside `outDir` (an engine-owned folder), staged, or committed.
 
+## 0. Checklist
+
+Work every step in order. Each step cites the section that holds its rule, and a step that opens with a
+condition in parentheses runs only under it.
+
+### Before the run
+
+1. Check that the job is worth a curated local doc set (§1). Output: that job, or the other path §1 names
+   for it.
+2. Frame with the user the brief (the task, the systems touched, the versions in scope) and the sources,
+   matched to the brief (§2 step 1, §4). Output: the brief and the source list.
+3. (for a complex brief) Author the brief in `EnterPlanMode` (§2 step 1). Output: the brief file.
+4. (when step 3 ran) Get the user's approval of the brief with `ExitPlanMode` (§2 step 1). Output: the
+   user's approval.
+5. Settle `outDir` with the user: a fresh directory dedicated to this one doc set, or none for run-state
+   (§2 step 1, §3). Output: the `outDir` value, or the user's choice of run-state.
+6. Choose the `runId` and `root` args (§3, "Relaunch vs. new run", §7). Output: a value for each.
+7. Set `sources` to the list step 2 framed, giving each source an id that stays distinct after slugging
+   (§3, §4). Output: the `sources` value.
+8. Set `planPath` to the absolute path of step 3's brief file when step 3 ran, and `brief` to step 2's
+   brief otherwise (§2 step 1, §3). Output: the `planPath` or `brief` value.
+9. (when any source has `kind:"repo"`) Set `target.repo` (§3). Output: the `target.repo` value.
+10. (when any source is a web source) Confirm that the session has WebSearch and WebFetch (§3). Output:
+    both tools listed in the session.
+11. (when agents should verify non-official claims empirically) Set up the `testbed`, read-only by
+    construction and with a redaction rule when it carries a credential (§3). Output: the `testbed` value.
+12. (when step 11 set a `testbed`) Pre-allowlist its commands in the project's settings (§3). Output: an
+    allow rule for each testbed command.
+13. Choose the optional args the run needs: `fidelitySample`, `maxRounds`, `models`, `efforts`,
+    `agentTypes`, `stateDir` and, when the user wants the agents' feedback, `notes` (§3, §7). Output: a
+    value for each arg chosen.
+14. Run `git -C <target.repo> status --short` (`node --version` when the run has no `target.repo`) with
+    run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification turn"). Output:
+    that tool call is the last one of this turn.
+15. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
+    `docs-cycle.mjs` and the args steps 5 to 13 chose (§2 step 2, root `CLAUDE.md`, "Launch from a
+    notification turn"). Output: the Workflow run id (`wf_...`).
+
+### After the run
+
+16. (when the run threw on a relayed user request) Relaunch through steps 14 and 15 with the same args and
+    `runId` and no `resumeFromRunId`. Stop this pass of the list there, and work it again from step 16
+    once that run ends (§2, root `CLAUDE.md`, "Launch from a notification turn"). Output: the relaunch's
+    Workflow run id.
+17. (when the run threw because the curator returned nothing) Re-invoke through steps 14 and 15 with the
+    same args and `runId` plus the Workflow tool's `resumeFromRunId`. Stop this pass of the list there, and
+    work it again from step 16 once that run ends (§5). Output: the resumed run's Workflow run id.
+18. (when the run threw because every source reported zero files) Check the sources, the brief and, for a
+    web source, the session's web access, then relaunch through steps 2 to 15, changing at those steps only
+    each input the check found wrong. Stop this pass of the list there, and work it again from step 16 once
+    that run ends (§4). Output: the relaunch's Workflow run id.
+19. (when `failed` holds a `gather` entry) Warn the user first that the coverage of each source those
+    entries name may be partial (§2 step 3, the return's `nextStep`). Output: the warning.
+20. (when `failed` holds a `scrub` entry) Warn the user first that the files of each source those entries
+    name may still hold nav chrome or ads (§2 step 3, the return's `nextStep`). Output: the warning.
+21. (when `indexWritten` is false) Check that the file the return's `index` names exists, and warn the user
+    first that the curator did not confirm writing it (§2 step 3, the return's `nextStep`). Output: the
+    warning, with the check's result.
+22. (when `foreignContent` is true) Warn the user first that `outDir` held each path `foreignPaths` names,
+    left in place, and that a re-run needs that content moved out or another `outDir`. When `foreignPaths`
+    is empty, list that content of `outDir` yourself (§3, §6, the return's `nextStep`). Output: the warning,
+    with each path.
+23. Present the set from the file the return's `index` names, its Coverage notes included: what was
+    gathered, each cross-source inconsistency and each unresolved gap (§2 step 3, §6, the return's
+    `nextStep`). Output: each of them presented.
+24. Present the fidelity spot-check result from `fidelity`, where a low or zero `checked` count means the
+    verbatim promise went untested, not that it held (§6, the return's `nextStep`). Output: the result
+    presented.
+25. (when the run had no `outDir`) Tell the user that the set lives in gitignored run-state, in the folder
+    the return's `outDir` names (§3, the return's `nextStep`). Output: the user told.
+26. (when the run had no `outDir` and the set should persist) Copy that folder into the project, or
+    relaunch through steps 14 and 15 with `outDir` set. A relaunch stops this pass of the list, and the
+    list runs again from step 16 once that run ends (§3, the return's `nextStep`). Output: the copied
+    folder's path, or the relaunch's Workflow run id.
+27. (when a plan file or a working agent builds against the set) Point it at the file the return's `index`
+    names (§1, §6, the return's `nextStep`). Output: that path in the plan file or the agent's prompt.
+28. (when `notes` is set) Run `node <survey's folder>/survey.mjs <notes.dir>` and report the themes (§7).
+    Output: the themes of the `SURVEY.md` it writes.
+
 ## 1. Scope (check FIRST)
 
 Right size: a task worth a **curated local doc set** — an API integration (the official reference), an
