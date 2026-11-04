@@ -15,6 +15,149 @@ it is the `target.repo` every launch of that `runId` gets. Every git state this 
 step 6 is the run worktree's. The user never needs to know the run worktree exists, so name it only
 when step 6 hands the user a decision.
 
+## 0. Checklist
+
+Work every step in order. Each step cites the section that holds its rule, and a step that opens with a
+condition in parentheses runs only under it. A session that only works the backlog runs steps 2 and 3, then
+steps 39 to 44.
+
+### Before the run
+
+1. Confirm develop fits the job (§1). Output: each change is a block of behavior, not a one-liner or a
+   rename to edit by hand.
+2. Choose the `runId` and `root` args (§4, "Relaunch vs. new run", §8, §9). Output: a value for each.
+3. Run the setup check and save each answer it asks for (§4, "The setup check"). Output: its `ready` line.
+4. (for the novel work that §2 step 1 names) Send a research subagent before writing that work's blocks.
+   Output: each block it informs records the repo's pattern, the chosen method and their sources.
+5. (for a fix-mode file from debug's review) Triage it as `workflows/audit/CLAUDE.md`, kind defects, says
+   (§2 step 1). Output: each issue file triaged, with its developer model set.
+6. (for a plan file you write) Author it at `<root>/plans/<runId>/` (§2 step 1, §3). Output: the plan file.
+7. (for a plan file you write) Fit each block inside its round-1 context size, splitting a block by §1's
+   rule (§1). Output: every block inside §1's context size.
+8. (for a plan file you write) Refine the plan once, relaunching only a terminal that is not `converged`
+   (§2 step 2, `workflows/refine/CLAUDE.md` §2 step 3). Output: refine's `converged` terminal.
+9. Open the run worktree with `node <wt.mjs> open`, or reuse the one already on `aipg/<runId>` once it is
+   settled (§2 step 4, §4). Output: the run worktree's path.
+10. Choose the other args by §2 step 3, §4 and §9: `target.repo` (the run worktree), `gates`, `conventions`
+    or `conventionFiles`, `backlogDir`, `models`, `efforts`, `changePolicy`, `commit` and, when the user
+    wants the agents' feedback, `notes`. Output: a value for each arg.
+11. (for a fix-mode plan file you write) Run `node <plan-edit.mjs> args <planPath>`, with the flags §2 step 3
+    names, in the foreground (§2 step 3). Output: the printed args and each `packed` note, which give each
+    pass row's model and effort and each member the pass raises.
+12. (for a plan file you write) Get the user's approval of the plan's final text, shown with the approval
+    summary that §2 step 3, §3 and §4 describe (§2 step 2). Output: the user's approval.
+13. Run `node <plan-edit.mjs> args <planPath>`, with the flags §2 step 3 names, with run_in_background (§2
+    step 4). Output: the started background task.
+14. End the turn (root `CLAUDE.md`, "Launch from a notification turn"). Output: step 13's tool call is the
+    last one of this turn.
+15. (when step 13 ran the `args` command of step 32 or step 42, whether it printed args or exited `nothing to
+    build`, in the turn the notification starts) Apply §10 step 5 to the backlog folder (§2 step 6, §10 step
+    4). When that step asks the user a question and step 13 printed args, go back to step 13 once the user
+    answers, since the answer's turn carries a user message (root `CLAUDE.md`, "Launch from a notification
+    turn"). Output: each entry that step takes settled, the step left for a later check and the user told
+    why, or the user's answer and step 13 run again.
+16. (when step 13's command printed args, in the turn the notification starts) Pre-allowlist the tool
+    commands every agent runs, built from the `blockTool` the printed args name (§4). Output: each allow
+    rule §4 names is in the settings.
+17. (when step 13's command printed args) Call Workflow with `scriptPath` set to this guide's
+    `develop-cycle.mjs`, the printed args and the args steps 2 and 10 chose (§2 step 4, root `CLAUDE.md`,
+    "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
+
+### After the run
+
+18. Derive the next launch's args with `node <plan-edit.mjs> args <planPath>`, with the flags §2 step 3
+    names, which first folds this run's statuses into the plan file (§2 step 3, §2 step 5). Output: the
+    printed args, and plan-file statuses that match the run.
+19. (when the run was killed mid-block and returned no result) Settle the killed block as §7, "Run killed
+    mid-block", says. Output: a run worktree that holds no unstaged work, a grep of the backlog folder that
+    finds no `- pulled: <runId>#<that block id>` line, and in commit mode each commit of that block reverted
+    and none of its work staged.
+20. (when the run halted on a needs-user question, or `nextStep` names blocks that escalated one) Answer each
+    question and record the answer where `nextStep` says (§6, "Research NEEDS-USER before asking", §10).
+    Output: each answer in its block's backlog entry triage or in the block's own text.
+21. (when `nextStep` says the sweep died, did not run, or reported gaps) Check the goal's coverage, from
+    `SWEEP.md` when it exists and against `goal` yourself otherwise (§5, "Sweep", §6). Output: the coverage
+    result, told to the user.
+22. (when `nextStep` names parked blocks) Settle each parked block as its `nextStep` line says (§2 step 5,
+    §5, "Park", §7). Output: each parked block's status and backlog entry as that line names them.
+23. (in commit delivery, when `nextStep` names an unfinished branch that a landed block holds) Delete that
+    branch with `git branch -D` (§5, "Acceptance Verifier", §7). Output: `git branch --list <branch>` prints
+    nothing.
+24. (when `nextStep` names a fix block that closed no issue or could not restore an unfinished branch)
+    Resolve it as that line says, then set its `status:` back to `todo` (§2 step 5, §7). Output: the block's
+    `status: todo`.
+25. (when the run or a block halted) Resolve each halt as its reason says, then set each halted block's
+    `status:` as §2 step 5 and §6 say (§4, §6, §7). Output: a settled run worktree and each halted block's
+    new status.
+26. Grep the integration points of each block the run built (§6). Output: the hits, each one consistent
+    with the block's change.
+27. (when `nextStep` says PLAN AMENDED) Read each `AMENDED-<id>.md` and the pointer lines in `DECISIONS.md`,
+    and fold each amendment you agree with into the plan file (§6). Output: the plan file holds each one.
+28. Name to the user `NEEDS-USER.md`, `DECISIONS.md`, `SWEEP.md`, each file in `backlogFiles` and the path
+    of each `DISMISSED-<id>.md` that `nextStep` names, each one that exists, and report each backlog entry
+    the run added with the fields `nextStep` names (§6). Output: those paths and entries, told to the user.
+29. (when `nextStep` names blocks that ended without a returned park) Remove the `- pulled:` line it names
+    from each entry that the ids of the block's ledger row's `pulled` leave out (§4, "Pulling"). Output: a
+    grep of the backlog folder finds that line only on entries those ids name.
+30. Check that the run worktree holds only accepted work, and settle it when it does not (§2 step 6, §4).
+    Output: each tree check §2 step 6 names passes.
+31. (under `proactive`, once the plan has no `todo` block left) Apply §10 step 1 to the backlog folder (§2
+    step 6). Output: each entry whose fix the run already made is closed.
+32. (once step 31 ran) Build the ready backlog entries once in the run worktree through steps 13 to 17, with
+    `node <plan-edit.mjs> args --backlog <backlogDir> --pack <the run worktree>` at step 13 (§2 step 6).
+    Output: the Workflow run id, or step 13's exit 1 with a message that ends `nothing to build`.
+33. (once step 32's launch ends) Work steps 19 to 30 on its result, running
+    `node <plan-edit.mjs> args --backlog <backlogDir> --fold-only` before any status you set by hand (§10
+    step 1). Output: that launch's result settled.
+34. (once §2 step 6 says the run lands) Land the run with `node <wt.mjs> close` (§2 step 6). Output: close's
+    exit code 0.
+35. (once step 34 landed the run) Run the full gate in the user's checkout (§2 step 6). Output: the gate's
+    result.
+36. (once step 34 landed the run) Confirm that the landed code still holds the change of each
+    `PROACTIVE <id>:` or `FOCUSED <id>:` line in `DECISIONS.md` (§2 step 6, §4). Output: each such line
+    confirmed or left out of the report.
+37. (once step 34 landed the run) Report the run's summary to the user: each landed block, the gate's result
+    step 35 gave, each backlog entry and `DISMISSED-<id>.md` path step 28 named, each `DECISIONS.md` line,
+    with a `PROACTIVE` or `FOCUSED` line only once step 36 confirmed it, each file you resolved at a close
+    exit 20, each file you changed at a close exit 30 with the reason, a skipped backlog build and, in stage
+    delivery, each unfinished branch that `nextStep` says to delete once the user commits the staged work,
+    with its `git branch -D` command (§2 step 6, §7). Output: the summary.
+38. (when a `todo` block is left, step 34 did not land the run and, in an ordered plan, no parked block
+    before it still waits for its entry to build) Relaunch with the same `runId` through steps 13 to 17 (§4,
+    "Relaunch vs. new run", §7). Stop this pass of the list there, and work the After list again from step
+    18 once that run ends. Output: the Workflow run id.
+
+### Backlog session
+
+39. (when the user asks to work the backlog, or, in an ordered plan, when a parked block's entry waits to
+    build before a `todo` block) Apply §10 step 1 to the backlog folder (§10, and §7 for the ordered plan's
+    parked block). Output: each entry with a `**Closed by:**` line closed or held.
+40. (once step 39 ran) List the entries that wait on the user, and research each one that §10 step 2 leaves
+    in §10 step 3's triage, leaving out each entry it lists with a note. When only step 39's ordered-plan
+    condition holds, take only the backlog file that holds the parked block's entry (§10 step 2, §7).
+    Output: each researched entry with its recommendation and its matrix, and each other entry with its note.
+41. (once step 40 ran) Triage the entries step 40 researched with the user, leaving each file whose writer
+    block is not `done`, `skip` or `backlogged` until it is (§10 step 2, §10 step 3, §5, "Acceptance
+    Verifier"). Output: each entry step 40 researched triaged with the user.
+42. (once step 41 ran) Launch each build §10 step 4 names through steps 2 and 9 to 17, with the `args`
+    command §10 step 4 names at step 13. When only step 39's ordered-plan condition holds, launch only the
+    backlog file step 40 took, with `node <plan-edit.mjs> args <that file> --pack <the run worktree>` at step
+    13, which §10 step 4 allows since the parked block is `backlogged`. Step 2 keeps the run's `runId` only
+    for the ordered plan's parked block that step 39 names, and chooses a new one for every other build (§4,
+    "Relaunch vs. new run", §7, §10 step 4). Output: the Workflow run id, or step 13's exit 1 with a message
+    that ends `nothing to build`, which ends this list.
+43. (once step 42's launch ends) Work steps 19 to 30 on its result, running
+    `node <plan-edit.mjs> args --backlog <backlogDir> --fold-only` before any status you set by hand, then
+    steps 34 to 38. Step 38's step 13 runs the `args` command step 42 used for a backlog file's block, and
+    `args <planPath>` for the ordered plan's own blocks. Work this step again once a relaunch of a backlog
+    file's block ends, and go back to step 39 once step 34 lands the run (§4, "Relaunch vs. new run", §10
+    step 1, §10 step 4). Output: each launch's result settled.
+
+### Session end
+
+44. (for each run of this session whose `notes` was set) Run `survey.mjs` on that run's `notes.dir` and
+    report the themes (§9). Output: the themes of each `SURVEY.md` it writes.
+
 ## 1. Scope (check FIRST)
 
 Right-size each block by behavior, never by line count. Join behaviors that edit the same files and
@@ -207,9 +350,10 @@ shows.
    `aipg/<runId>`. Branch on its exit code:
    - `0`: landed. Run the full gate in the user's checkout, since the run worktree held only the tracked
      files and the ignored files that provision copied. Report the result with the run's summary: each
-     landed block, each backlog entry the run added with its decision, each `DECISIONS.md` line,
-     showing a logged fix line only after you confirm the landed code still holds its change, and the
-     path of each `DISMISSED-<id>.md` that `nextStep` names and that exists.
+     landed block, each backlog entry the run added with its severity, or its category when it has no
+     severity line, its title and its decision, each `DECISIONS.md` line, showing a logged fix line only
+     after you confirm the landed code still holds its change, and the path of each `DISMISSED-<id>.md`
+     that `nextStep` names and that exists.
    - `20`: the rebase conflicted with commits the branch gained during the run, or the branch moved
      while close ran. Resolve it yourself in the run worktree: run `git rebase <branch>`, read both
      sides of each conflicted file and keep both intents, `git add` it, run `git rebase --continue`,
@@ -953,9 +1097,9 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   one returned no usable report) · `backlogFiles` (the sorted backlog files the developers, fix
   verifiers and closing acceptances named, null when `backlogEntries` is null) · `nextStep` (when
   the run added entries, it names the folder, the files and the count, and asks you to report each
-  added entry's severity, title and decision to the user. In commit mode it names each committed
-  block with its sha. It says nothing is staged when the run did not halt, and otherwise points at
-  `git diff --cached --stat`).
+  added entry's severity, or its category when it has no severity line, its title and its decision
+  to the user. In commit mode it names each committed block with its sha. It says nothing is staged
+  when the run did not halt, and otherwise points at `git diff --cached --stat`).
 - **Optional:** `conventions` · `conventionFiles` (an array of the project's CLAUDE.md paths, each
   absolute or relative to `target.repo`, which every agent reads in full. A value that is not an array
   of non-empty strings **throws**) · `reference` · `gates.testSetup` ·
