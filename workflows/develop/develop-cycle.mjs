@@ -1528,6 +1528,24 @@ block alone fills that. For each entry you take:
      When its fix breaks the gate and you cannot resolve it within that fix's own scope, revert that
      change surgically and report the entry FAILED.
 ${PULLED_REPORT}`;
+// In round 1 both files can hold only an earlier launch's text, written against code this launch rebuilds. The
+// re-check follows a fix block's restore, since an earlier launch's lines may cite the restored code.
+const ledgerRecheckStep = (p) => `ROUND 1 — LEDGER RE-CHECK, after STEP 0${p.mode === 'fix' ? ' and any restore of an unfinished branch' : ''}, and before you build.
+In round 1, ${dismissedFile(p.id)} and ${amendedFile(p.id)} can hold only an earlier launch's text. Take
+these actions in order:
+  1. When ${dismissedFile(p.id)} exists, re-check each line against the current code, and remove each line
+     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
+     dismissal hides a finding in rebuilt code. Output: the rewritten ${dismissedFile(p.id)}.
+  2. Before you change ${amendedFile(p.id)}, report launch_number as one past the highest n that a
+     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
+     launch_number.
+  3. When ${amendedFile(p.id)} exists, re-check each amendment, each another agent's claim, as action 1
+     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
+     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
+     defect the current code does not reproduce, with its pointer line in ${DECISIONS}, the line that names
+     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
+     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
+     Output: the rewritten ${amendedFile(p.id)} and ${DECISIONS}.`;
 const pulledLaterNote = (p, lastPulled, none) => (none ? `PULLED ENTRIES. Round 1 took no backlog entry beside this block, so ${pulledFile(p.id)} lists none. Take no new entry, and report an empty pulled_results.` : `PULLED ENTRIES. ${pulledFile(p.id)}, when it exists, lists the backlog entries round 1 took beside
 this block. Take no new entry. Close a review gap on a pulled entry like any other gap, or revert that
 entry's change surgically and report it FAILED. ${PULLED_REPORT} Your earlier rounds last reported:
@@ -1554,7 +1572,7 @@ immediately with that count. The run halts for the operator. If it IS 0, `}run \
 and report the tree id it prints as baseline_index_tree. Next, report earlier_files=true when ${dismissedFile(p.id)} or ${amendedFile(p.id)} exists,
 else false, before you write to either file. Then ${p.mode === 'fix'
       ? fixOpening(p)
-      : 'implement this block from\nscratch on top of the accepted baseline.'}${PROACTIVE ? `\n${pullStep(p)}` : ''}`
+      : 'implement this block from\nscratch on top of the accepted baseline.'}\n${ledgerRecheckStep(p)}${PROACTIVE ? `\n${pullStep(p)}` : ''}`
     : `${PROACTIVE ? `${pulledLaterNote(p, lastPulled, pulledNone)}\n` : ''}${closing
       ? `Round ${MAX_ROUNDS} ended without a passed acceptance, so you are this block's CLOSING PASS, and no
 develop round follows you. A blind review follows you when the block's changes since its last blind
@@ -1574,23 +1592,10 @@ tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
    log it. ${REVIEW_CLAIMS} ${RISK_GAP_NOTE}`
     : '';
   const rework = closing ? closingRework(p.id, reviewPath) : reviewRework;
-  // Every round, round 1 included: the ledger persists across resumes.
-  // In round 1 the file can only hold an earlier launch's lines, written against code this launch rebuilds.
+  // Every round, round 1 included: the ledger persists across resumes. Round 1's re-check is its own step in `opening`.
   // Only a later round can know the file is absent, since round 1 reports earlier_files (see fileTracker).
-  const ledgerNote = `${round > 1 && dismissedNone ? `${dismissedFile(p.id)} does not exist, so you have declined nothing in THIS block yet.` : `If ${dismissedFile(p.id)} exists, READ it first: your ledger of declined findings for THIS
-block.`}${round === 1 ? ` In round 1 it holds only an earlier launch's lines. After
-STEP 0 and before you build, re-check each line against the current code, and remove each line whose
-finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
-hides a finding in rebuilt code.
-${amendedFile(p.id)}, when it exists, holds plan amendments, each another agent's claim under a header that
-names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report
-launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does
-not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you
-re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes,
-and remove each amendment whose quoted clause your block's text no longer holds or whose defect the
-current code does not reproduce, with its pointer line in ${DECISIONS}, the line that names its block id,
-round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match
-that pointer by its block id, round and defect file:line alone.` : ''}`;
+  const ledgerNote = round > 1 && dismissedNone ? `${dismissedFile(p.id)} does not exist, so you have declined nothing in THIS block yet.` : `If ${dismissedFile(p.id)} exists, READ it first: your ledger of declined findings for THIS
+block.`;
   const staging = `LEAVE EVERYTHING UNSTAGED — do NOT \`git add\` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run \`git -C ${REPO} add -N <file>\` (intent-to-add, so reviewers' \`git diff\` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
@@ -1809,14 +1814,28 @@ id with no such entry is a gap.`;
 };
 
 // A park entry copies every gap of a parked block, so only a landing writes its gaps as entries of their own.
-const closingPassBullet = (p) => `No blocking gap → APPEND each not blocking gap as ONE backlog entry ${backlogRoute(p, 'whose entry the gap concerns (the first block below when it concerns no single entry)', { indent: '     ' })}
+const closingAppend = (p) => `APPEND each not blocking gap as ONE backlog entry ${backlogRoute(p, 'whose entry the gap concerns (the first block below when it concerns no single entry)', { indent: '     ' })}
      ${backlogDedup('gap')}
      ${backlogEntryTool(p, 'gap', '     ')}
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. ${DECISION_RULE}
      Then \`git -C ${REPO} add <this block's changed AND newly-created files>\`${ADD_NOTE}; return pass=true,
      staged=true, gap_count=0.`;
+// No developer follows the closing acceptance, so it reverts each unconfirmed pulled change itself. The revert
+// runs before any gap is appended, since a revert the gates need turns the pass into a park.
+const closingReverts = (round, pulledNone) => PROACTIVE && !pulledNone && round === CLOSING_ROUND;
+const closingPassBullet = (p, pulledNone) => (closingReverts(CLOSING_ROUND, pulledNone)
+  ? `No blocking gap → take these steps in order:
+     (a) Revert, surgically, the change of each pulled entry whose pulled_check has actually_fixed=false,
+     keeping every other change. When no pulled_check has actually_fixed=false, go to (d).
+     (b) Run the full gates once more.
+     (c) When they fail, the block's own work depends on a reverted change: put that change back, add a
+     blocking gap for it under "## Blocking gaps" in your review file, and take the last bullet.
+     (d) Otherwise ${closingAppend(p)}
+     Return regression=true only for a regression that remains after the reverts of (a).`
+  : `No blocking gap → ${closingAppend(p)}`);
 // The closing acceptance's bar is no blocking gap, so its pass bullet replaces each frame's own.
-const passBullet = (p, round, own) => (round === CLOSING_ROUND ? closingPassBullet(p) : own);
+const passBullet = (p, round, own, pulledNone) => (round === CLOSING_ROUND ? closingPassBullet(p, pulledNone) : own);
+const STEP8_GAP_NOTE = (round, pulledNone) => (closingReverts(round, pulledNone) ? ', which may add a blocking gap to it once' : '');
 const NO_OP_GAPS = (round) => (round === CLOSING_ROUND ? ' Append each not blocking gap to the backlog as the first bullet says.' : '');
 const NO_OP_COMMIT = COMMIT ? ' Make no commit, and return committed=true, commit_sha "", commit_subject "", tree_matches=true and tree_clean as step 9 says.' : '';
 // The title goes through a file, so no shell quoting touches it. A hook or signing that refuses the commit halts
@@ -1837,7 +1856,7 @@ const commitStep = (p, round) => (COMMIT ? `
    only when \`git -C ${REPO} status --porcelain\` then prints nothing.` : '');
 
 // A pulled entry rides beside its block, so its gap fails a round and parks the block only when the block's own
-// work depends on it. No developer follows the closing acceptance, so it reverts each unconfirmed pulled change.
+// work depends on it.
 const pulledAcceptance = (p, round, reported, none = false) => (PROACTIVE && none ? `
 PULLED ENTRIES. ${pulledFile(p.id)} lists no entry, since the block's developer took none. Return an empty pulled_checks.
 ` : PROACTIVE ? `
@@ -1854,15 +1873,11 @@ FAILED, or listed and never reported, gets actually_fixed=false. Write each verd
 A pulled entry whose claim fails, or whose FAILED change the diff still holds, is a gap. A FAILED entry
 whose change the diff no longer holds is no gap, since its entry goes back to the backlog.${round === CLOSING_ROUND ? `
 A pulled entry's gap, a regression its change causes included, is never blocking, and it takes no backlog
-entry of its own, since the pulled entry is already a backlog entry. When your verdict finds no blocking gap,
-then before you stage, revert the change of each listed entry whose check is false, surgically, keeping
-every other change, and run the full gates once more. When they fail, the block's own work depends on a
-reverted change: put that change back, write a blocking gap for it, and return pass=false. Return
-regression=true only for a regression that remains after those reverts. These reverts are the one change
-you make to source code.` : ''}
+entry of its own, since the pulled entry is already a backlog entry. Step 8 reverts the change of each
+listed entry whose pulled_check has actually_fixed=false before it stages.` : ''}
 ` : '');
 
-const PULLED_REVERT_NOTE = (round, none) => (PROACTIVE && !none && round === CLOSING_ROUND ? ', apart from the PULLED ENTRIES reverts' : '');
+const PULLED_REVERT_NOTE = (round, none) => (closingReverts(round, none) ? ", apart from step 8's pulled-entry reverts" : '');
 
 const reviewStatus = (round) => (round === CLOSING_ROUND
   ? `This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
@@ -1957,7 +1972,7 @@ ${unreportedIssues.map((id) => `     - ${id}`).join('\n') || '     (none: it rep
    ${ACC_SUITE_LINE} If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. ${riskAuditStep(p.id, riskRounds, round, riskSnapshots, indexTree)}
-7. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE step 8. ${REPLACE_NOTE} ${WROTE_NOTE} It holds the
+7. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE step 8${STEP8_GAP_NOTE(round, absent.pulled)}. ${REPLACE_NOTE} ${WROTE_NOTE} It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap with ${FIX_DIRECTION} — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -1966,7 +1981,7 @@ ${unreportedIssues.map((id) => `     - ${id}`).join('\n') || '     (none: it rep
    • ${passBullet(p, round, `Every claimed fix complete, every STALE claim confirmed, every ACTIONABLE entry reported, no non-ACTIONABLE entry touched, every
      earlier finding closed or declined, gate green, risk audit clean, no regression →
      \`git -C ${REPO} add <this block's changed AND newly-created files>\`${ADD_NOTE}; return
-     pass=true, staged=true.`)}
+     pass=true, staged=true.`, absent.pulled)}
    • LEGITIMATE NO-OP: if every entry was genuinely STALE or non-ACTIONABLE and the diff is empty, that is
      a valid pass — return pass=true AND staged=true (nothing to add). Say so in your file.${NO_OP_GAPS(round)}${NO_OP_COMMIT}
    • NO FIXED CLAIM, NON-EMPTY DIFF: when the FIXED list in step 1 is empty${PROACTIVE ? ' and no pulled entry is reported FIXED' : ''}, no claimed fix accounts for
@@ -2046,7 +2061,7 @@ PROCEDURE:
 5. ${gateStep}
    ${roundGateRun('acceptance', p.id, round)}
 6. ${riskAuditStep(p.id, riskRounds, round, riskSnapshots, indexTree)}
-7. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE step 8. ${REPLACE_NOTE} ${WROTE_NOTE} It holds the
+7. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE step 8${STEP8_GAP_NOTE(round, absent.pulled)}. ${REPLACE_NOTE} ${WROTE_NOTE} It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + ${FIX_DIRECTION}) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -2054,7 +2069,7 @@ PROCEDURE:
 8. DECIDE. ${indexCheck(indexTree)}
    • ${passBullet(p, round, `All criteria met, reachable, gate satisfied, every earlier finding closed or declined, risk audit
      clean, no regression → \`git -C ${REPO} add <this block's changed AND newly-created files>\`${ADD_NOTE};
-     return pass=true, staged=true.`)}
+     return pass=true, staged=true.`, absent.pulled)}
    • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the accepted baseline
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.${NO_OP_GAPS(round)}${NO_OP_COMMIT}
@@ -2423,10 +2438,17 @@ const deadAgentRecovery = (p) => (parkBuildable(p)
     ? 'work that entry first, as the develop guide\'s "Working the backlog" says, then relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, since they depend on this block.'
     : 'work that entry as the develop guide\'s "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.'}`
   : 'Its work, if any, is parked on a branch that the park\'s backlog entry links, and the block stays blocked.');
+// A hand flip of a plan-file status made before this fold is overwritten by the run's own status edit (develop guide §2 step 5).
+const RUN_FOLDED = "`plan-edit.mjs args` has applied this run's statuses";
+// The clear destroys the dirt, so it waits for a confirmed non-empty patch. The steps before the clear name
+// their output, so a skipped one shows before the clear.
+const SET_ASIDE_STEPS = `SET IT ASIDE without touching ${COMMIT ? 'HEAD, which holds every accepted block as a commit' : 'the staged index, which holds every accepted block'}, in these steps. (1) Note what \`git -C ${REPO} diff --cached --stat\` prints, then remove the untracked build output and caches, since they regenerate. When \`git -C ${REPO} status --porcelain\` then lists no \`??\` file and \`git -C ${REPO} diff\` is empty, the tree is settled and no later step applies. Output: the noted \`--stat\` text. (2) Mark each remaining \`??\` untracked file with \`git -C ${REPO} add -N -- <file>\`, so the patch carries the new files too. Output: \`git -C ${REPO} status --porcelain\` lists no \`??\` line. (3) Create the state dir if needed (\`mkdir -p ${STATE_DIR}\`) and save \`git -C ${REPO} diff --binary > ${STATE_DIR}/set-aside-<n>.patch\` with an n no file there uses. SAVE BEFORE YOU CLEAR: when that patch does not exist or is empty, stop and clear nothing. Output: the patch path, holding a non-empty patch. (4) Restore the modified tracked files with \`git -C ${REPO} checkout -- <files>\`, and drop each intent-to-add file with \`git -C ${REPO} rm -f -q -- <file>\`. (5) Confirm \`git -C ${REPO} status --porcelain\` lists no \`??\` file, \`git -C ${REPO} diff\` is empty and \`git -C ${REPO} diff --cached --stat\` prints what step 1 noted. Output: those three results. (6) When the dirt was a tracked file the provision command rewrote, such as a lockfile, also fix the command and save it again with \`project-settings.mjs set --provision\`. (7) When the dirt was an earlier interrupted develop run's unfinished block, finish the develop guide's section 7 "Run killed mid-block" steps before you relaunch. Restore the patch later with a plain \`git -C ${REPO} apply <patch>\`, never \`--3way\`, which stages what it restores. An unpathed \`git reset\`, \`git rm\` or \`git stash\` touches the index, which holds the accepted baseline.`;
+// These halts record their block blocked, and a status flip made before the first fold is overwritten.
+const RELAUNCH_STEPS = (settled) => `This run recorded the block as \`blocked\`, so once ${settled} is settled, relaunch in these steps. (1) Run \`plan-edit.mjs args\`, which applies that status. (2) Set this block's \`status:\` back to \`todo\`. (3) Run \`plan-edit.mjs args\` again. Output: the launch args. (4) Relaunch with those args.`;
 // A branch that no longer applies holds work only the user can rebuild on the new baseline or drop. The work
 // stays on the branch, since putting it in the baseline would skip both reviews. A skipped entry's origin
 // blocks stay backlogged until their status is set by hand, since that entry never syncs fixed.
-const RESTORE_RECOVERY = 'The user decides how that work continues. Either rebuild the branch on the accepted baseline, by rebasing or re-committing it so that `git diff <branch>^1 <branch>` applies there, keeping the work on the branch and never in the tree, the index or the baseline. Or set the entry\'s `- decision:` to SKIP, delete the branch to drop it, and set each block its `- origin:` line names to `skip`, or to `todo` to rebuild it. Then, once `plan-edit.mjs args` has applied this run\'s statuses, set the block\'s `status:` back to `todo` to build what is left.';
+const RESTORE_RECOVERY = 'The user decides how that work continues. Either rebuild the branch on the accepted baseline, by rebasing or re-committing it so that `git diff <branch>^1 <branch>` applies there, keeping the work on the branch and never in the tree, the index or the baseline. Or set the entry\'s `- decision:` to SKIP, delete the branch to drop it, and set each block its `- origin:` line names to `skip`, or to `todo` to rebuild it. Then, once ' + RUN_FOLDED + ', set the block\'s `status:` back to `todo` to build what is left.';
 
 // Commit mode's HEAD before the current block, so a recovery can tell an unlanded commit from a landed one.
 function priorHeadText() {
@@ -2709,7 +2731,7 @@ function inspectStatus(p, round, landing) {
   const pulledNote = PROACTIVE
     ? ` When you set it \`done\`, also run \`plan-edit.mjs args --backlog ${BACKLOG_DIR} --fold-only\`, which writes this run's statuses into the backlog files and prints nothing, and only then set each pulled entry ${pulledFile(p.id)} lists that ${acceptanceFile(p.id, round)} confirmed closed to \`fixed\` or \`stale\`.`
     : '';
-  return `This run recorded the block as \`blocked\`. Once \`plan-edit.mjs args\` has applied this run's statuses, set its \`status:\` to \`done\` when the accepted baseline holds its reviewed work as you want it, or, once you ${landedRecovery(landing).reject}, to \`todo\` to rebuild it.${issueNote}${pulledNote} Then relaunch with fresh \`plan-edit.mjs args\`.`;
+  return `This run recorded the block as \`blocked\`. Once ${RUN_FOLDED}, set its \`status:\` to \`done\` when the accepted baseline holds its reviewed work as you want it, or, once you ${landedRecovery(landing).reject}, to \`todo\` to rebuild it.${issueNote}${pulledNote} Then relaunch with fresh \`plan-edit.mjs args\`.`;
 }
 
 /**
@@ -2962,7 +2984,7 @@ for (const p of pending) {
       halted = true;
       rec.status = 'BLOCKED (relayed request)';
       haltKind = 'relayed-request';
-      haltReason = `Developer for block ${p.id} held a user request that the harness relayed ahead of its task (${roundName(round)}). The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent, so no agent of this launch can be trusted. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says. The developer may have changed ${REPO} before it returned, and this run did not review or park that work. Inspect \`git -C ${REPO} status --porcelain\` and set any change aside as the develop guide's section 4 steps for a dirty run worktree say, since the relaunch halts on a dirty baseline otherwise. This run recorded the block as \`blocked\`. Once the tree is settled, run \`plan-edit.mjs args\` (it applies that status), set this block's \`status:\` back to \`todo\`, run \`plan-edit.mjs args\` again, and relaunch with those args.`;
+      haltReason = `Developer for block ${p.id} held a user request that the harness relayed ahead of its task (${roundName(round)}). The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent, so no agent of this launch can be trusted. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says. The developer may have changed ${REPO} before it returned, and this run did not review or park that work. Inspect \`git -C ${REPO} status --porcelain\`, since the relaunch halts on a dirty baseline otherwise. When it lists any change, ${SET_ASIDE_STEPS} ${RELAUNCH_STEPS('the tree')}`;
       logLine(`  ✋ ${p.id} r${round}: the developer's context held a relayed user request, so the run was launched inside a user turn → halting before any review agent (relaunch from a notification turn)`);
       break;
     }
@@ -2980,9 +3002,7 @@ for (const p of pending) {
         halted = true;
         rec.status = 'BLOCKED (dirty baseline)';
         haltKind = 'dirty-baseline';
-        haltReason = `Block ${p.id} was not started: ${dirty} file(s) in ${REPO} already held UNSTAGED or untracked work. The unstaged tree IS the reviewers' scope, so this run would review and judge that work as its own. Inspect it (git -C ${REPO} status --porcelain). ${REPO} is the run worktree, and the user's own edits stay in the user's checkout, so this dirt is never the user's work. Never \`git add -A\` it or commit it, since wt close would land it on the user's branch with no reviewer having read it. SET IT ASIDE without touching ${COMMIT
-          ? 'HEAD, which holds every accepted block as a commit'
-          : 'the staged index, which holds every accepted block'}. First remove the untracked build output and caches (they regenerate). If \`git -C ${REPO} status --porcelain\` then lists no \`??\` file and \`git -C ${REPO} diff\` is empty, the tree is settled. Otherwise mark each remaining \`??\` untracked file with \`git -C ${REPO} add -N -- <file>\`, create the state dir if needed (\`mkdir -p ${STATE_DIR}\`), save \`git -C ${REPO} diff --binary > ${STATE_DIR}/set-aside-<n>.patch\` with an n no file there uses (the patch carries the new files too), and confirm that patch exists and is non-empty. SAVE BEFORE YOU CLEAR: if it does not, stop and clear nothing. Then restore the modified tracked files with \`git -C ${REPO} checkout -- <files>\`, drop each intent-to-add file with \`git -C ${REPO} rm -f -q -- <file>\`, then confirm \`git -C ${REPO} status --porcelain\` lists no \`??\` file, \`git -C ${REPO} diff\` is empty and \`git -C ${REPO} diff --cached\` is unchanged. Restore it later with a plain \`git -C ${REPO} apply <patch>\`, never \`--3way\`, which stages what it restores. An unpathed \`git reset\`, \`git rm\` or \`git stash\` touches the index, which holds the accepted baseline. When the dirt is a tracked file the provision command rewrote, such as a lockfile, also fix the command and save it again with \`project-settings.mjs set --provision\`. When the dirt is an earlier interrupted develop run's unfinished block, set it aside, then finish the develop guide's section 7 "Run killed mid-block" steps before you relaunch. Nothing was built, but this run recorded the block as \`blocked\`. Once the tree is settled, run \`plan-edit.mjs args\` (it applies that status), set this block's \`status:\` back to \`todo\`, run \`plan-edit.mjs args\` again, and relaunch with those args.`;
+        haltReason = `Block ${p.id} was not started: ${dirty} file(s) in ${REPO} already held UNSTAGED or untracked work. The unstaged tree IS the reviewers' scope, so this run would review and judge that work as its own. Inspect it (git -C ${REPO} status --porcelain). ${REPO} is the run worktree, and the user's own edits stay in the user's checkout, so this dirt is never the user's work. Never \`git add -A\` it or commit it, since wt close would land it on the user's branch with no reviewer having read it. ${SET_ASIDE_STEPS} Nothing was built. ${RELAUNCH_STEPS('the tree')}`;
         logLine(`  ✋ ${p.id}: ${dirty} pre-existing unstaged/untracked file(s) in ${REPO} → halting before any review agent (run-worktree dirt is never the user's work, so never ${COMMIT ? 'commit' : 'git add -A'} it; set it aside as a git diff --binary patch, never git stash, which takes the index too — steps in the halt reason)`);
         break;
       }
@@ -2996,7 +3016,7 @@ for (const p of pending) {
           halted = true;
           rec.status = 'BLOCKED (staged baseline)';
           haltKind = 'staged-baseline';
-          haltReason = `Block ${p.id} was not started: ${stagedCount} file(s) in ${REPO} were already STAGED. This run commits each accepted block, so the next commit would carry staged work that no reviewer passed. Inspect them (\`git -C ${REPO} diff --cached --stat\`), then commit them when they are your own reviewed work, or unstage them with \`git -C ${REPO} restore --staged -- <files>\`. Nothing was built, but this run recorded the block as \`blocked\`. Once the index is settled, run \`plan-edit.mjs args\` (it applies that status), set this block's \`status:\` back to \`todo\`, run \`plan-edit.mjs args\` again, and relaunch with those args.`;
+          haltReason = `Block ${p.id} was not started: ${stagedCount} file(s) in ${REPO} were already STAGED. This run commits each accepted block, so the next commit would carry staged work that no reviewer passed. Inspect them (\`git -C ${REPO} diff --cached --stat\`), then commit them when they are your own reviewed work, or unstage them with \`git -C ${REPO} restore --staged -- <files>\`. Nothing was built. ${RELAUNCH_STEPS('the index')}`;
           logLine(`  ✋ ${p.id}: ${stagedCount} file(s) already staged in ${REPO} → halting before any review agent (commit or unstage them — git -C ${REPO} diff --cached --stat)`);
           break;
         }
@@ -3149,7 +3169,7 @@ for (const p of pending) {
         if (ORDERED) {
           halted = true;
           haltKind = 'no-changes';
-          haltReason = `Fix block ${p.id} produced no changes in round 1: every entry it reported was SKIPPED (or it reported none), so nothing was fixed and nothing was staged. This is an ORDERED run, so the blocks after it were not attempted. Read the block itself — an entry only gets fixed while its \`- decision:\` line says ACTIONABLE, its \`- status:\` is not fixed or stale and it carries no \`- pulled:\` line and no line that starts with \`**Parked with:**\` — then flip it back to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean.`;
+          haltReason = `Fix block ${p.id} produced no changes in round 1: every entry it reported was SKIPPED (or it reported none), so nothing was fixed and nothing was staged. This is an ORDERED run, so the blocks after it were not attempted. Read the block itself — an entry only gets fixed while its \`- decision:\` line says ACTIONABLE, its \`- status:\` is not fixed or stale and it carries no \`- pulled:\` line and no line that starts with \`**Parked with:**\` — then flip it back to todo once ${RUN_FOLDED}, and relaunch. The tree is clean.`;
         }
         break;
       }
@@ -3333,7 +3353,7 @@ for (const p of pending) {
           const { landed, view, reject } = landedRecovery(landing, acceptedTree);
           halted = true;
           haltKind = 'acceptance-regression';
-          haltReason = `Block ${p.id} was ${landed} by acceptance while the SAME verdict reported regression=true — a self-contradictory return (${acceptanceCite(acc, p.id, round)}). Its work is now the baseline every later block would be judged against, so the run stops here. Inspect \`${view}\`, then keep or reject the work as workflows/develop/CLAUDE.md §6 describes for acceptance-regression. Edit the block's plan-file status only after \`plan-edit.mjs args\` has applied this run's statuses (keep → done, reject → ${reject}, then todo), and relaunch with fresh \`plan-edit.mjs args\`: the plan file selects the todo blocks.${landingText(failedChecks)}`;
+          haltReason = `Block ${p.id} was ${landed} by acceptance while the SAME verdict reported regression=true — a self-contradictory return (${acceptanceCite(acc, p.id, round)}). Its work is now the baseline every later block would be judged against, so the run stops here. Inspect \`${view}\`, then keep or reject the work as workflows/develop/CLAUDE.md §6 describes for acceptance-regression. Edit the block's plan-file status only after ${RUN_FOLDED} (keep → done, reject → ${reject}, then todo), and relaunch with fresh \`plan-edit.mjs args\`: the plan file selects the todo blocks.${landingText(failedChecks)}`;
           logLine(`  ✋ ${p.id}: ${landing?.claimed ? 'committed' : 'staged'} while self-reporting a REGRESSION → halting the run (inspect ${view})`);
         } else if (failedChecks.length) {
           halted = true;
@@ -3650,7 +3670,7 @@ const unlinkedPullingPlans = unlinkedParkPlans.filter((r) => r.branch && (r.pull
 const unlinkedBuildablePlans = unlinkedParkPlans.filter((r) => r.heldPark !== true && parkBuildable(r));
 const backloggedPlans = parkedPlans.filter((r) => r.backlogged === true);
 // One rule for the two routes a held park leaves, so its entry and its block never both continue the same work.
-const HELD_PARK_RULE = `Once a block's halt is resolved, set its status to backlogged when its branch holds all of its work and its backlog file holds an entry that links that branch, so that entry is the one place its work continues from, and never set it back to todo${ORDERED ? '. In this ordered run, work that entry before you relaunch the blocks after it, since they depend on it' : ''}. For a fix block, that route also sets to stale each entry whose branch its round 1 restored and whose work the new branch's tree holds, deletes that branch with \`git -C ${REPO} branch -D <branch>\`, and adds that entry's "- origin:" and "- amended:" values to the new entry's line of the same key, writing an "- amended:" line when it has none. Otherwise set that entry's "- status:" to stale, remove the "- pulled:" line of each entry its "Pulled:" line names, delete the branch with \`git -C ${REPO} branch -D <branch>\` when it exists, and set the block back to todo.`;
+const HELD_PARK_RULE = `Once a block's halt is resolved and ${RUN_FOLDED}, set its status to backlogged when its branch holds all of its work and its backlog file holds an entry that links that branch, so that entry is the one place its work continues from, and never set it back to todo${ORDERED ? '. In this ordered run, work that entry before you relaunch the blocks after it, since they depend on it' : ''}. For a fix block, that route also sets to stale each entry whose branch its round 1 restored and whose work the new branch's tree holds, deletes that branch with \`git -C ${REPO} branch -D <branch>\`, and adds that entry's "- origin:" and "- amended:" values to the new entry's line of the same key, writing an "- amended:" line when it has none. Otherwise set that entry's "- status:" to stale, remove the "- pulled:" line of each entry its "Pulled:" line names, delete the branch with \`git -C ${REPO} branch -D <branch>\` when it exists, and, once ${RUN_FOLDED}, set the block back to todo.`;
 const RESEARCH_FIRST = 'research each question in it first (develop guide §6), then put the rest to the user with a recommendation each';
 const HALT_STATUS = {
   'needs-user':      'BLOCKED (needs user input)',
@@ -3756,12 +3776,12 @@ return {
       ? `Park did NOT confirm a save or a clear for: ${unclearedParkPlans.map((r) => `${r.id} (${unfinishedBranch(r.id)})`).join(', ')}. Their work may still be in the working tree or on that branch: inspect both before discarding anything. `
       : ''}${unlinkedParkPlans.length
       ? `Park did NOT confirm writing its backlog entry for: ${unlinkedParkPlans.map((r) => `${r.id} (${backlogFile(r.id)}, ${handBranchLine(r)})`).join(', ')}, so each stays blocked. When that file holds no "- category: unfinished" entry for this park, add one in the shape the develop guide's "Working the backlog" gives, with the "- branch:" line its block's note in this list gives. ${unlinkedSupersedingPlans.map((r) => `The park of ${r.id} superseded ${r.superseded.join(', ')} and deleted their branches, so end its entry's **What:** with the line "Supersedes: ${r.superseded.join(', ')}, whose branches this entry's branch now holds." and append each "- origin:" value of those entries to its "- origin:" line, and each "- amended:" value to its "- amended:" line, writing that line when it has none. `).join('')}${unlinkedPullingPlans.map((r) => `When the pulled list of ${r.id} is not empty, end its entry's **What:** with the line \`${pulledLine('<the pulled list>')}\` Its pulled list is ${r.pulledOnBranch.length ? r.pulledOnBranch.join(', ') : 'empty'}${r.superseded?.length ? `, plus each id that the "Pulled:" line of ${r.superseded.join(', ')} names, since its branch now holds that work too` : ''}. `).join('')}${unlinkedBuildablePlans.length
-        ? `Once that entry exists, set ${unlinkedBuildablePlans.map((r) => r.id).join(', ')} backlogged, so the entry is the one place its work continues from. `
+        ? `Once that entry exists and ${RUN_FOLDED}, set ${unlinkedBuildablePlans.map((r) => r.id).join(', ')} backlogged, so the entry is the one place its work continues from. `
         : ''}`
       : ''}${heldParkPlans.length
       ? `These parked blocks stay blocked until you resolve their halt: ${heldParkPlans.map((r) => r.id).join(', ')}. ${HELD_PARK_RULE} `
       : ''}${unbuildableParkPlans.length
-      ? `These parked blocks stay blocked, since the fix mode that builds a backlog entry takes only gate green: ${unbuildableParkPlans.map((r) => `${r.id} (${r.gate === 'red-baseline' ? 'its red-baseline tests fail by design' : 'gate build-only, and this run has no test gate'}${r.heldPark === true ? ', and its halt holds the park, so resolve that halt first' : ''})`).join(', ')}. For each, set its park entry's "- status:" to stale and set the block back to todo, which rebuilds it under its own gate. Its branch keeps the earlier work until you delete it with \`git -C ${REPO} branch -D <branch>\`. `
+      ? `These parked blocks stay blocked, since the fix mode that builds a backlog entry takes only gate green: ${unbuildableParkPlans.map((r) => `${r.id} (${r.gate === 'red-baseline' ? 'its red-baseline tests fail by design' : 'gate build-only, and this run has no test gate'}${r.heldPark === true ? ', and its halt holds the park, so resolve that halt first' : ''})`).join(', ')}. For each, set its park entry's "- status:" to stale and, once ${RUN_FOLDED}, set the block back to todo, which rebuilds it under its own gate. Its branch keeps the earlier work until you delete it with \`git -C ${REPO} branch -D <branch>\`. `
       : ''}${unreportedSupersededPlans.map((r) => `The park of ${r.id} deleted the branches of ${r.unreportedSuperseded.join(', ')}, entries its developer never reported, so no status edit reached them: set each one's "- status:" to stale, since ${r.branch} holds their work. `).join('')}${backloggedPlans.length
       ? `Each backlogged block's entry in its backlog file says why it parked and links its branch when it has one: triage and build it like any other entry, as the develop guide's "Working the backlog" says${ORDERED ? ', before you relaunch the blocks after it, since they depend on it' : ''}. Once that entry is fixed and close has landed its fix block on the user's branch and that work is committed there, set the backlogged block done, as that section's step 5 says. `
       : ''}`
@@ -3770,7 +3790,7 @@ return {
       ? `Acceptance landed these blocks but could not delete the unfinished branch whose work they now hold: ${keptBranches.map((k) => `${k.branch} (${k.id})`).join(', ')}. Delete each with \`git -C ${REPO} branch -D <branch>\`. `
       : `These staged blocks hold the work of unfinished branches that stay until the user commits that work, so a landing the user rejects can be rebuilt from them: ${keptBranches.map((k) => `${k.branch} (${k.id})`).join(', ')}. Once the user commits the staged work, delete each with \`git branch -D <branch>\` in any checkout of the repo. `)
     : ''}${noChangePlans.length
-    ? `${noChangePlans.length} block(s) closed NO issue and are NOT done: ${noChangePlans.map((r) => r.id).join(', ')}. statusSync marks each blocked: read its entries' \`- decision:\`, \`- pulled:\` and \`**Parked with:**\` lines (only an ACTIONABLE entry with neither of the last two gets fixed), then flip it back to todo once \`plan-edit.mjs args\` has applied this run's statuses. `
+    ? `${noChangePlans.length} block(s) closed NO issue and are NOT done: ${noChangePlans.map((r) => r.id).join(', ')}. statusSync marks each blocked: read its entries' \`- decision:\`, \`- pulled:\` and \`**Parked with:**\` lines (only an ACTIONABLE entry with neither of the last two gets fixed), then flip it back to todo once ${RUN_FOLDED}. `
     : ''}${restoreFailedPlans.length
     ? `${restoreFailedPlans.length} fix block(s) could not restore an unfinished branch and are NOT done: ${restoreFailedPlans.map((r) => `${r.id} (${r.restoreError})`).join('; ')}. Each developer reversed every restore, so the tree is clean, and each branch still holds its work. ${RESTORE_RECOVERY} `
     : ''}${haltedPlans.length

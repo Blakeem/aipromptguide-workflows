@@ -422,23 +422,28 @@ level other than the run's (§9).
   the run worktree is never the user's work, since the user's edits stay in the user's checkout. So
   never `git add -A` it or commit it, since §2 step 6 would land it unreviewed. Settle a dirty run
   worktree by setting the dirt aside without touching the accepted baseline, which the staged index
-  holds in stage mode and HEAD holds in commit mode. To set it aside, first remove the untracked
-  build output and caches (they regenerate). If `git status --porcelain` then lists no `??` file and
-  `git diff` is empty, the tree is settled. Otherwise mark each remaining `??` untracked file with
-  `git -C <repo> add -N -- <file>`, save `git -C <repo> diff --binary` to a new patch under the
-  run's state dir, creating that dir if needed (the patch carries the new files too), and confirm
-  the patch exists and is non-empty. Save before you clear: if it does not, stop and clear nothing.
-  Then restore the modified tracked files with `git -C <repo> checkout -- <files>`, drop each
-  intent-to-add file with `git -C <repo> rm -f -q -- <file>`, and confirm `git status --porcelain`
-  lists no `??` file, `git diff` is empty and `git diff --cached` is unchanged. Restore it later
-  with a plain `git -C <repo> apply <patch>`, never `--3way`, which stages what it restores. An
-  unpathed `git reset`, `git rm` or `git stash` touches the index, which holds the accepted
-  baseline. When the dirt is a tracked file the provision command rewrote, such as a lockfile, also
-  fix the command and save it again with `project-settings.mjs set --provision` (§2 step 4). When
-  the dirt is an interrupted develop run's unfinished block, set it aside, then finish §7 "Run killed
-  mid-block" before you relaunch. A
-  dirty-baseline halt records its block `blocked`, so after settling the tree run §2 step 3, set
-  that block's `status:` back to `todo`, and run step 3 again for the launch args.
+  holds in stage mode and HEAD holds in commit mode. Set it aside in these steps:
+  1. Note what `git -C <repo> diff --cached --stat` prints, then remove the untracked build output and
+     caches, since they regenerate. When `git status --porcelain` then lists no `??` file and `git diff`
+     is empty, the tree is settled and no later step applies. Output: the noted `--stat` text.
+  2. Mark each remaining `??` untracked file with `git -C <repo> add -N -- <file>`, so the patch carries
+     the new files too. Output: `git status --porcelain` lists no `??` line.
+  3. Save `git -C <repo> diff --binary` to a new patch under the run's state dir, creating that dir if
+     needed. Save before you clear: when the patch does not exist or is empty, stop and clear nothing.
+     Output: the patch path, holding a non-empty patch.
+  4. Restore the modified tracked files with `git -C <repo> checkout -- <files>`, and drop each
+     intent-to-add file with `git -C <repo> rm -f -q -- <file>`.
+  5. Confirm `git status --porcelain` lists no `??` file, `git diff` is empty and
+     `git diff --cached --stat` prints what step 1 noted. Output: those three results.
+  6. (when the dirt was a tracked file the provision command rewrote, such as a lockfile) Fix the
+     command and save it again with `project-settings.mjs set --provision` (§2 step 4).
+  7. (when the dirt was an interrupted develop run's unfinished block) Finish §7 "Run killed
+     mid-block" before you relaunch.
+
+  Restore the patch later with a plain `git -C <repo> apply <patch>`, never `--3way`, which stages what
+  it restores. An unpathed `git reset`, `git rm` or `git stash` touches the index, which holds the
+  accepted baseline. A dirty-baseline halt records its block `blocked`, so after settling the tree run
+  §2 step 3, set that block's `status:` back to `todo`, and run step 3 again for the launch args.
 - **`root` REQUIRED**: the run-state base, outside the target repo. `blockTool`, the
   `plan-block.mjs` every agent reads its block through, is a key of the object `plan-edit.mjs args`
   prints, so the spread args carry it, and the engine throws without it. Never pass it by hand.

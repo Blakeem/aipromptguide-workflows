@@ -6,13 +6,13 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 32533 | every block accepts first time |
+| develop | 1 | 1 | 32869 | every block accepts first time |
 | quality | 1 | 1 | 8404 | every block accepts first time |
 | acceptance | 1 | 1 | 13465 | every block accepts first time |
-| develop | 2 | 1 | 32958 | every block accepts first time |
+| develop | 2 | 1 | 33294 | every block accepts first time |
 | acceptance | 2 | 2 | 13746 | every block accepts first time |
 | final-sweep | 1 | 1 | 4677 | every block accepts first time |
-| develop | 3 | 2 | 35927 | a feature block accepts under the proactive policy |
+| develop | 3 | 2 | 36263 | a feature block accepts under the proactive policy |
 | acceptance | 3 | 3 | 14765 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 4668 | a feature block accepts under the proactive policy |
 | develop | 4 | 3 | 31629 | quality flags the first round |
@@ -40,7 +40,7 @@ this file is stale.
 | acceptance | 15 | 1 | 13627 | a parked block, and the run carries on |
 | develop-closing | 3 | 1 | 33091 | a parked block, and the run carries on |
 | acceptance | 16 | 4 | 21533 | a parked block, and the run carries on |
-| develop | 10 | 1 | 32515 | an ordered run stops at a parked block |
+| develop | 10 | 1 | 32851 | an ordered run stops at a parked block |
 | acceptance | 17 | 1 | 13459 | an ordered run stops at a parked block |
 | develop | 11 | 3 | 31607 | an ordered run stops at a parked block |
 | acceptance | 18 | 1 | 13456 | an ordered run stops at a parked block |
@@ -50,24 +50,24 @@ this file is stale.
 | develop-closing | 4 | 1 | 33073 | an ordered run stops at a parked block |
 | acceptance | 22 | 4 | 21527 | an ordered run stops at a parked block |
 | park | 2 | 1 | 10389 | an ordered run stops at a parked block |
-| develop | 12 | 4 | 41577 | a fix block closes its issues |
+| develop | 12 | 4 | 41953 | a fix block closes its issues |
 | acceptance | 23 | 6 | 21554 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 4668 | a fix block closes its issues |
-| develop | 13 | 5 | 45053 | a fix block closes its issues under the proactive policy |
+| develop | 13 | 5 | 45429 | a fix block closes its issues under the proactive policy |
 | acceptance | 24 | 7 | 23061 | a fix block closes its issues under the proactive policy |
-| develop | 14 | 4 | 35500 | a fix block that continues no park closes its issues |
+| develop | 14 | 4 | 35876 | a fix block that continues no park closes its issues |
 | acceptance | 25 | 6 | 18872 | a fix block that continues no park closes its issues |
-| develop | 15 | 5 | 41716 | a proactive fix block that continues no park closes its issues and a pulled entry |
+| develop | 15 | 5 | 42092 | a proactive fix block that continues no park closes its issues and a pulled entry |
 | acceptance | 26 | 7 | 22136 | a proactive fix block that continues no park closes its issues and a pulled entry |
 | acceptance | 27 | 7 | 19147 | a proactive fix block that continues no park and pulled nothing closes its issues |
 | acceptance | 28 | 7 | 23075 | a proactive fix block starts round 2 from the statuses it last reported |
 | develop | 16 | 6 | 36276 | a proactive fix block starts round 2 from the statuses it last reported |
 | acceptance | 29 | 7 | 22874 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 17 | 4 | 41931 | a pass of two fix blocks closes its issues |
+| develop | 17 | 4 | 42349 | a pass of two fix blocks closes its issues |
 | acceptance | 30 | 6 | 21839 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 4698 | a pass of two fix blocks closes its issues |
 | acceptance | 31 | 6 | 21553 | every issue is already fixed |
-| develop | 18 | 4 | 41559 | an ordered run stops on a fix block that closes nothing |
+| develop | 18 | 4 | 41935 | an ordered run stops on a fix block that closes nothing |
 | park | 3 | 1 | 10692 | passed with a regression, not staged |
 | park | 4 | 1 | 10138 | acceptance stages a rejected block |
 | park | 5 | 1 | 10545 | the quality reviewer fails a block without its file |
@@ -91,13 +91,13 @@ this file is stale.
 | park | 16 | 1 | 10527 | a closing acceptance finds a blocking gap |
 | acceptance | 38 | 5 | 21887 | a closing acceptance finds a blocking gap |
 | park | 17 | 1 | 10527 | a closing acceptance finds a blocking gap |
-| develop | 19 | 7 | 32704 | every block commits first time |
+| develop | 19 | 7 | 33040 | every block commits first time |
 | quality | 4 | 1 | 8357 | every block commits first time |
 | acceptance | 39 | 8 | 15004 | every block commits first time |
-| develop | 20 | 7 | 33129 | every block commits first time |
+| develop | 20 | 7 | 33465 | every block commits first time |
 | acceptance | 40 | 9 | 15285 | every block commits first time |
 | final-sweep | 5 | 1 | 4989 | every block commits first time |
-| develop | 21 | 8 | 41779 | a fix block commits |
+| develop | 21 | 8 | 42155 | a fix block commits |
 | acceptance | 41 | 10 | 23310 | a fix block commits |
 | final-sweep | 6 | 1 | 4896 | a fix block commits |
 | park | 18 | 1 | 10144 | acceptance commits a rejected block |
@@ -138,20 +138,24 @@ immediately with that count. The run halts for the operator. If it IS 0, run `gi
 and report the tree id it prints as baseline_index_tree. Next, report earlier_files=true when E:/flow/runs/flow/gate/DISMISSED-block-a.md or E:/flow/runs/flow/AMENDED-block-a.md exists,
 else false, before you write to either file. Then implement this block from
 scratch on top of the accepted baseline.
+ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-a.md and E:/flow/runs/flow/AMENDED-block-a.md can hold only an earlier launch's text. Take
+these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line against the current code, and remove each line
+     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
+     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-a.md.
+  2. Before you change E:/flow/runs/flow/AMENDED-block-a.md, report launch_number as one past the highest n that a
+     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
+     launch_number.
+  3. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
+     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
+     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
+     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
+     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
+     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
+     Output: the rewritten E:/flow/runs/flow/AMENDED-block-a.md and E:/flow/runs/flow/DECISIONS.md.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
-block. In round 1 it holds only an earlier launch's lines. After
-STEP 0 and before you build, re-check each line against the current code, and remove each line whose
-finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
-hides a finding in rebuilt code.
-E:/flow/runs/flow/AMENDED-block-a.md, when it exists, holds plan amendments, each another agent's claim under a header that
-names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report
-launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does
-not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you
-re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes,
-and remove each amendment whose quoted clause your block's text no longer holds or whose defect the
-current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id,
-round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match
-that pointer by its block id, round and defect file:line alone.
+block.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
@@ -907,20 +911,24 @@ immediately with that count. The run halts for the operator. If it IS 0, run `gi
 and report the tree id it prints as baseline_index_tree. Next, report earlier_files=true when E:/flow/runs/flow/gate/DISMISSED-block-b.md or E:/flow/runs/flow/AMENDED-block-b.md exists,
 else false, before you write to either file. Then implement this block from
 scratch on top of the accepted baseline.
+ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-b.md and E:/flow/runs/flow/AMENDED-block-b.md can hold only an earlier launch's text. Take
+these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, re-check each line against the current code, and remove each line
+     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
+     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-b.md.
+  2. Before you change E:/flow/runs/flow/AMENDED-block-b.md, report launch_number as one past the highest n that a
+     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
+     launch_number.
+  3. When E:/flow/runs/flow/AMENDED-block-b.md exists, re-check each amendment, each another agent's claim, as action 1
+     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
+     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
+     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
+     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
+     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
+     Output: the rewritten E:/flow/runs/flow/AMENDED-block-b.md and E:/flow/runs/flow/DECISIONS.md.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
-block. In round 1 it holds only an earlier launch's lines. After
-STEP 0 and before you build, re-check each line against the current code, and remove each line whose
-finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
-hides a finding in rebuilt code.
-E:/flow/runs/flow/AMENDED-block-b.md, when it exists, holds plan amendments, each another agent's claim under a header that
-names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report
-launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does
-not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you
-re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes,
-and remove each amendment whose quoted clause your block's text no longer holds or whose defect the
-current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id,
-round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match
-that pointer by its block id, round and defect file:line alone.
+block.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
@@ -1623,6 +1631,22 @@ immediately with that count. The run halts for the operator. If it IS 0, run `gi
 and report the tree id it prints as baseline_index_tree. Next, report earlier_files=true when E:/flow/runs/flow/gate/DISMISSED-block-a.md or E:/flow/runs/flow/AMENDED-block-a.md exists,
 else false, before you write to either file. Then implement this block from
 scratch on top of the accepted baseline.
+ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-a.md and E:/flow/runs/flow/AMENDED-block-a.md can hold only an earlier launch's text. Take
+these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line against the current code, and remove each line
+     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
+     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-a.md.
+  2. Before you change E:/flow/runs/flow/AMENDED-block-a.md, report launch_number as one past the highest n that a
+     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
+     launch_number.
+  3. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
+     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
+     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
+     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
+     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
+     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
+     Output: the rewritten E:/flow/runs/flow/AMENDED-block-a.md and E:/flow/runs/flow/DECISIONS.md.
 PULL READY BACKLOG ENTRIES, in round 1 only. Once you have read your block, and before
 you build, list the files your block will change as repo paths relative to E:/repo, with forward
 slashes, and run:
@@ -1651,19 +1675,7 @@ block alone fills that. For each entry you take:
 Report each entry the PULLED file lists in pulled_results: FIXED when your change closes it, STALE
 when its defect no longer exists, FAILED when you reverted its change or could not fix it.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
-block. In round 1 it holds only an earlier launch's lines. After
-STEP 0 and before you build, re-check each line against the current code, and remove each line whose
-finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
-hides a finding in rebuilt code.
-E:/flow/runs/flow/AMENDED-block-a.md, when it exists, holds plan amendments, each another agent's claim under a header that
-names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report
-launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does
-not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you
-re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes,
-and remove each amendment whose quoted clause your block's text no longer holds or whose defect the
-current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id,
-round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match
-that pointer by its block id, round and defect file:line alone.
+block.
 You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below
 allows.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -9265,20 +9277,24 @@ immediately with that count. The run halts for the operator. If it IS 0, run `gi
 and report the tree id it prints as baseline_index_tree. Next, report earlier_files=true when E:/flow/runs/flow/gate/DISMISSED-block-a.md or E:/flow/runs/flow/AMENDED-block-a.md exists,
 else false, before you write to either file. Then implement this block from
 scratch on top of the accepted baseline.
+ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-a.md and E:/flow/runs/flow/AMENDED-block-a.md can hold only an earlier launch's text. Take
+these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line against the current code, and remove each line
+     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
+     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-a.md.
+  2. Before you change E:/flow/runs/flow/AMENDED-block-a.md, report launch_number as one past the highest n that a
+     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
+     launch_number.
+  3. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
+     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
+     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
+     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
+     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
+     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
+     Output: the rewritten E:/flow/runs/flow/AMENDED-block-a.md and E:/flow/runs/flow/DECISIONS.md.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
-block. In round 1 it holds only an earlier launch's lines. After
-STEP 0 and before you build, re-check each line against the current code, and remove each line whose
-finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
-hides a finding in rebuilt code.
-E:/flow/runs/flow/AMENDED-block-a.md, when it exists, holds plan amendments, each another agent's claim under a header that
-names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report
-launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does
-not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you
-re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes,
-and remove each amendment whose quoted clause your block's text no longer holds or whose defect the
-current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id,
-round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match
-that pointer by its block id, round and defect file:line alone.
+block.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
@@ -11961,20 +11977,24 @@ since that is the one ledger the blind reviewer reads. Its "- amended:" line nam
 amendments of the blocks its "- origin:" line names, each another agent's claim. READ each file it names
 and reproduce each amendment's defect against the file:line it cites. Meet an origin criterion under an
 amendment whose defect you reproduce, and as its block's text states it otherwise.
+ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text. Take
+these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
+     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
+     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
+  2. Before you change E:/flow/runs/flow/AMENDED-block-c.md, report launch_number as one past the highest n that a
+     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
+     launch_number.
+  3. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
+     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
+     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
+     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
+     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
+     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
+     Output: the rewritten E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block. In round 1 it holds only an earlier launch's lines. After
-STEP 0 and before you build, re-check each line against the current code, and remove each line whose
-finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
-hides a finding in rebuilt code.
-E:/flow/runs/flow/AMENDED-block-c.md, when it exists, holds plan amendments, each another agent's claim under a header that
-names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report
-launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does
-not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you
-re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes,
-and remove each amendment whose quoted clause your block's text no longer holds or whose defect the
-current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id,
-round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match
-that pointer by its block id, round and defect file:line alone.
+block.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
@@ -12865,6 +12885,22 @@ since that is the one ledger the blind reviewer reads. Its "- amended:" line nam
 amendments of the blocks its "- origin:" line names, each another agent's claim. READ each file it names
 and reproduce each amendment's defect against the file:line it cites. Meet an origin criterion under an
 amendment whose defect you reproduce, and as its block's text states it otherwise.
+ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text. Take
+these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
+     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
+     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
+  2. Before you change E:/flow/runs/flow/AMENDED-block-c.md, report launch_number as one past the highest n that a
+     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
+     launch_number.
+  3. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
+     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
+     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
+     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
+     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
+     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
+     Output: the rewritten E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md.
 PULL READY BACKLOG ENTRIES, in round 1 only. Once you have read your block and restored any unfinished branch, and before
 you build, list the files your block will change as repo paths relative to E:/repo, with forward
 slashes, and run:
@@ -12893,19 +12929,7 @@ block alone fills that. For each entry you take:
 Report each entry the PULLED file lists in pulled_results: FIXED when your change closes it, STALE
 when its defect no longer exists, FAILED when you reverted its change or could not fix it.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block. In round 1 it holds only an earlier launch's lines. After
-STEP 0 and before you build, re-check each line against the current code, and remove each line whose
-finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
-hides a finding in rebuilt code.
-E:/flow/runs/flow/AMENDED-block-c.md, when it exists, holds plan amendments, each another agent's claim under a header that
-names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report
-launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does
-not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you
-re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes,
-and remove each amendment whose quoted clause your block's text no longer holds or whose defect the
-current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id,
-round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match
-that pointer by its block id, round and defect file:line alone.
+block.
 You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below
 allows.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -13739,20 +13763,24 @@ and report the tree id it prints as baseline_index_tree. Next, report earlier_fi
 else false, before you write to either file. Then fix this block's entries on top of the accepted
 baseline. No entry of this block continues a parked block's work, so report restore_failed "" and
 restored_branches 0, and go on to VERIFY-FIRST.
+ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text. Take
+these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
+     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
+     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
+  2. Before you change E:/flow/runs/flow/AMENDED-block-c.md, report launch_number as one past the highest n that a
+     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
+     launch_number.
+  3. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
+     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
+     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
+     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
+     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
+     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
+     Output: the rewritten E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block. In round 1 it holds only an earlier launch's lines. After
-STEP 0 and before you build, re-check each line against the current code, and remove each line whose
-finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
-hides a finding in rebuilt code.
-E:/flow/runs/flow/AMENDED-block-c.md, when it exists, holds plan amendments, each another agent's claim under a header that
-names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report
-launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does
-not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you
-re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes,
-and remove each amendment whose quoted clause your block's text no longer holds or whose defect the
-current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id,
-round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match
-that pointer by its block id, round and defect file:line alone.
+block.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
@@ -14510,6 +14538,22 @@ since that is the one ledger the blind reviewer reads. Its "- amended:" line nam
 amendments of the blocks its "- origin:" line names, each another agent's claim. READ each file it names
 and reproduce each amendment's defect against the file:line it cites. Meet an origin criterion under an
 amendment whose defect you reproduce, and as its block's text states it otherwise.
+ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text. Take
+these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
+     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
+     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
+  2. Before you change E:/flow/runs/flow/AMENDED-block-c.md, report launch_number as one past the highest n that a
+     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
+     launch_number.
+  3. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
+     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
+     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
+     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
+     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
+     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
+     Output: the rewritten E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md.
 PULL READY BACKLOG ENTRIES, in round 1 only. Once you have read your block and restored any unfinished branch, and before
 you build, list the files your block will change as repo paths relative to E:/repo, with forward
 slashes, and run:
@@ -14538,19 +14582,7 @@ block alone fills that. For each entry you take:
 Report each entry the PULLED file lists in pulled_results: FIXED when your change closes it, STALE
 when its defect no longer exists, FAILED when you reverted its change or could not fix it.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block. In round 1 it holds only an earlier launch's lines. After
-STEP 0 and before you build, re-check each line against the current code, and remove each line whose
-finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
-hides a finding in rebuilt code.
-E:/flow/runs/flow/AMENDED-block-c.md, when it exists, holds plan amendments, each another agent's claim under a header that
-names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report
-launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does
-not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you
-re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes,
-and remove each amendment whose quoted clause your block's text no longer holds or whose defect the
-current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id,
-round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match
-that pointer by its block id, round and defect file:line alone.
+block.
 You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below
 allows.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -16862,20 +16894,24 @@ since that is the one ledger the blind reviewer reads. Its "- amended:" line nam
 amendments of the blocks its "- origin:" line names, each another agent's claim. READ each file it names
 and reproduce each amendment's defect against the file:line it cites. Meet an origin criterion under an
 amendment whose defect you reproduce, and as its block's text states it otherwise.
+ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md and E:/flow/runs/flow/AMENDED-block-c-plus-1.md can hold only an earlier launch's text. Take
+these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md exists, re-check each line against the current code, and remove each line
+     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
+     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md.
+  2. Before you change E:/flow/runs/flow/AMENDED-block-c-plus-1.md, report launch_number as one past the highest n that a
+     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
+     launch_number.
+  3. When E:/flow/runs/flow/AMENDED-block-c-plus-1.md exists, re-check each amendment, each another agent's claim, as action 1
+     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
+     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
+     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
+     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
+     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
+     Output: the rewritten E:/flow/runs/flow/AMENDED-block-c-plus-1.md and E:/flow/runs/flow/DECISIONS.md.
 If E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md exists, READ it first: your ledger of declined findings for THIS
-block. In round 1 it holds only an earlier launch's lines. After
-STEP 0 and before you build, re-check each line against the current code, and remove each line whose
-finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
-hides a finding in rebuilt code.
-E:/flow/runs/flow/AMENDED-block-c-plus-1.md, when it exists, holds plan amendments, each another agent's claim under a header that
-names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report
-launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does
-not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you
-re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes,
-and remove each amendment whose quoted clause your block's text no longer holds or whose defect the
-current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id,
-round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match
-that pointer by its block id, round and defect file:line alone.
+block.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
@@ -18070,20 +18106,24 @@ since that is the one ledger the blind reviewer reads. Its "- amended:" line nam
 amendments of the blocks its "- origin:" line names, each another agent's claim. READ each file it names
 and reproduce each amendment's defect against the file:line it cites. Meet an origin criterion under an
 amendment whose defect you reproduce, and as its block's text states it otherwise.
+ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text. Take
+these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
+     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
+     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
+  2. Before you change E:/flow/runs/flow/AMENDED-block-c.md, report launch_number as one past the highest n that a
+     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
+     launch_number.
+  3. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
+     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
+     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
+     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
+     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
+     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
+     Output: the rewritten E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block. In round 1 it holds only an earlier launch's lines. After
-STEP 0 and before you build, re-check each line against the current code, and remove each line whose
-finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
-hides a finding in rebuilt code.
-E:/flow/runs/flow/AMENDED-block-c.md, when it exists, holds plan amendments, each another agent's claim under a header that
-names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report
-launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does
-not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you
-re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes,
-and remove each amendment whose quoted clause your block's text no longer holds or whose defect the
-current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id,
-round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match
-that pointer by its block id, round and defect file:line alone.
+block.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
@@ -22880,20 +22920,24 @@ return immediately with both counts. The run halts for the operator. If both are
 and report the tree id it prints as baseline_index_tree. Next, report earlier_files=true when E:/flow/runs/flow/gate/DISMISSED-block-a.md or E:/flow/runs/flow/AMENDED-block-a.md exists,
 else false, before you write to either file. Then implement this block from
 scratch on top of the accepted baseline.
+ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-a.md and E:/flow/runs/flow/AMENDED-block-a.md can hold only an earlier launch's text. Take
+these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line against the current code, and remove each line
+     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
+     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-a.md.
+  2. Before you change E:/flow/runs/flow/AMENDED-block-a.md, report launch_number as one past the highest n that a
+     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
+     launch_number.
+  3. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
+     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
+     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
+     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
+     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
+     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
+     Output: the rewritten E:/flow/runs/flow/AMENDED-block-a.md and E:/flow/runs/flow/DECISIONS.md.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
-block. In round 1 it holds only an earlier launch's lines. After
-STEP 0 and before you build, re-check each line against the current code, and remove each line whose
-finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
-hides a finding in rebuilt code.
-E:/flow/runs/flow/AMENDED-block-a.md, when it exists, holds plan amendments, each another agent's claim under a header that
-names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report
-launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does
-not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you
-re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes,
-and remove each amendment whose quoted clause your block's text no longer holds or whose defect the
-current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id,
-round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match
-that pointer by its block id, round and defect file:line alone.
+block.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
@@ -23692,20 +23736,24 @@ return immediately with both counts. The run halts for the operator. If both are
 and report the tree id it prints as baseline_index_tree. Next, report earlier_files=true when E:/flow/runs/flow/gate/DISMISSED-block-b.md or E:/flow/runs/flow/AMENDED-block-b.md exists,
 else false, before you write to either file. Then implement this block from
 scratch on top of the accepted baseline.
+ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-b.md and E:/flow/runs/flow/AMENDED-block-b.md can hold only an earlier launch's text. Take
+these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, re-check each line against the current code, and remove each line
+     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
+     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-b.md.
+  2. Before you change E:/flow/runs/flow/AMENDED-block-b.md, report launch_number as one past the highest n that a
+     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
+     launch_number.
+  3. When E:/flow/runs/flow/AMENDED-block-b.md exists, re-check each amendment, each another agent's claim, as action 1
+     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
+     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
+     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
+     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
+     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
+     Output: the rewritten E:/flow/runs/flow/AMENDED-block-b.md and E:/flow/runs/flow/DECISIONS.md.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
-block. In round 1 it holds only an earlier launch's lines. After
-STEP 0 and before you build, re-check each line against the current code, and remove each line whose
-finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
-hides a finding in rebuilt code.
-E:/flow/runs/flow/AMENDED-block-b.md, when it exists, holds plan amendments, each another agent's claim under a header that
-names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report
-launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does
-not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you
-re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes,
-and remove each amendment whose quoted clause your block's text no longer holds or whose defect the
-current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id,
-round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match
-that pointer by its block id, round and defect file:line alone.
+block.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
@@ -24506,20 +24554,24 @@ since that is the one ledger the blind reviewer reads. Its "- amended:" line nam
 amendments of the blocks its "- origin:" line names, each another agent's claim. READ each file it names
 and reproduce each amendment's defect against the file:line it cites. Meet an origin criterion under an
 amendment whose defect you reproduce, and as its block's text states it otherwise.
+ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text. Take
+these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
+     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
+     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
+  2. Before you change E:/flow/runs/flow/AMENDED-block-c.md, report launch_number as one past the highest n that a
+     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
+     launch_number.
+  3. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
+     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
+     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
+     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
+     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
+     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
+     Output: the rewritten E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block. In round 1 it holds only an earlier launch's lines. After
-STEP 0 and before you build, re-check each line against the current code, and remove each line whose
-finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
-hides a finding in rebuilt code.
-E:/flow/runs/flow/AMENDED-block-c.md, when it exists, holds plan amendments, each another agent's claim under a header that
-names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report
-launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does
-not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you
-re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes,
-and remove each amendment whose quoted clause your block's text no longer holds or whose defect the
-current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id,
-round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match
-that pointer by its block id, round and defect file:line alone.
+block.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.

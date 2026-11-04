@@ -144,18 +144,24 @@ section('a dirty baseline halts before any reviewer, and never parks the operato
     && out.haltReason.indexOf('stop and clear nothing') < out.haltReason.indexOf('checkout -- <files>'),
     'the set-aside creates the state dir and gates the clear on a non-empty saved patch');
   ok(/checkout -- <files>/.test(out.haltReason) && /rm -f -q -- <file>/.test(out.haltReason)
-    && /`git -C E:\/repo diff --cached` is unchanged/.test(out.haltReason), 'it clears by path and confirms the index is unchanged');
+    && /`git -C E:\/repo diff --cached --stat` prints what step 1 noted/.test(out.haltReason), 'it clears by path and confirms the index is unchanged');
   // The round-1 clean check counts every `??` file, so untracked build output left behind re-halts the relaunch.
   ok(out.haltReason.indexOf('remove the untracked build output and caches') > -1
     && out.haltReason.indexOf('remove the untracked build output and caches') < out.haltReason.indexOf('add -N -- <file>')
-    && /confirm `git -C E:\/repo status --porcelain` lists no `\?\?` file/.test(out.haltReason),
+    && /\(5\) Confirm `git -C E:\/repo status --porcelain` lists no `\?\?` file/.test(out.haltReason),
     'the set-aside removes untracked build output first and confirms no untracked file is left');
   ok(/plain `git -C E:\/repo apply <patch>`, never `--3way`/.test(out.haltReason), 'its restore never stages');
+  const setAside = ['(1) Note what', '(2) Mark each', '(3) Create the state dir', 'SAVE BEFORE YOU CLEAR', '(4) Restore the modified', '(5) Confirm', '(6) When the dirt', '(7) When the dirt', 'Nothing was built.', '(1) Run `plan-edit.mjs args`']
+    .map((m) => out.haltReason.indexOf(m));
+  ok(setAside.every((at, i) => at > -1 && (i === 0 || at > setAside[i - 1])), 'the set-aside and the relaunch are numbered steps in run order');
+  ok(out.haltReason.includes('then remove the untracked build output and caches, since they regenerate.')
+    && out.haltReason.includes('no later step applies. Output: the noted `--stat` text. (2) Mark'),
+    'step 1 names the --stat text the index check compares against');
   // A resume re-runs a killed round-1 developer live, whose clean-baseline check halts on its own partial work.
   ok(!/resumeFromRunId/.test(out.haltReason), 'and never offers a cached replay');
   // The halt still syncs the block blocked, so a fresh args run would drop it unless it is flipped back.
   ok(/recorded the block as `blocked`/.test(out.haltReason)
-    && /run `plan-edit\.mjs args` \(it applies that status\), set this block's `status:` back to `todo`, run `plan-edit\.mjs args` again/.test(out.haltReason),
+    && out.haltReason.includes("(1) Run `plan-edit.mjs args`, which applies that status. (2) Set this block's `status:` back to `todo`. (3) Run `plan-edit.mjs args` again. Output: the launch args. (4) Relaunch with those args."),
     'and says to flip the block back to todo between two plan-edit.mjs args runs');
   ok(!/re-invoke this run unchanged|Nothing was built or changed/.test(out.haltReason), 'never says to re-invoke the same args');
   // The run worktree never holds the user's edits, so any dirt kept by `git add -A` would land on the
@@ -164,10 +170,16 @@ section('a dirty baseline halts before any reviewer, and never parks the operato
     'the halt never offers to keep run-worktree dirt');
   ok(/rewrote, such as a lockfile, also fix the command and save it again with `project-settings\.mjs set --provision`/.test(out.haltReason),
     'and names the provision fix for a rewritten tracked file');
-  ok(/interrupted develop run's unfinished block, set it aside, then finish the develop guide's section 7 "Run killed mid-block" steps before you relaunch/.test(out.haltReason),
+  ok(/\(7\) When the dirt was an earlier interrupted develop run's unfinished block, finish the develop guide's section 7 "Run killed mid-block" steps before you relaunch/.test(out.haltReason),
     'and an interrupted run\'s block is set aside before the relaunch');
   ok(/run-worktree dirt is never the user's work, so never git add -A it/.test(logs.join('\n')),
     'the log line says the same');
+}
+{
+  // A relayed request may leave developer changes, so its reason carries the same numbered set-aside, not a pointer to the guide.
+  const relayed = String((await run({ develop: { ...DEV_OK, relayed_request: true } })).out.haltReason ?? '');
+  const marks = ['When it lists any change, SET IT ASIDE', '(3) Create the state dir', 'SAVE BEFORE YOU CLEAR', '(4) Restore the modified', 'once the tree is settled, relaunch in these steps. (1) Run'].map((m) => relayed.indexOf(m));
+  ok(marks.every((at, i) => at > -1 && (i === 0 || at > marks[i - 1])) && !relayed.includes('section 4 steps'), 'the relayed-request halt numbers its set-aside and relaunch steps');
 }
 {
   // A developer that stops on a dirty tree never runs its block command, so it honestly reports
@@ -1567,7 +1579,7 @@ section('every park appends one backlog entry that links its branch');
   const unwrittenUnknown = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: { ...PARK_EMPTY, cleared: false, entry_written: false } }, ONE_BLOCK);
   ok(unwrittenUnknown.out.nextStep.includes(`block-a (${backlogFile('block-a')}, "- branch: ${UNFINISHED('block-a')}" only when \`git -C E:/repo log -1 ${UNFINISHED('block-a')}\` shows a commit this park made)`),
     'a park that confirmed neither a save nor a clear links the branch only for a commit it made');
-  ok(unwritten.out.nextStep.includes('Once that entry exists, set block-a backlogged, so the entry is the one place its work continues from.')
+  ok(unwritten.out.nextStep.includes('Once that entry exists and `plan-edit.mjs args` has applied this run\'s statuses, set block-a backlogged, so the entry is the one place its work continues from.')
     && !unwritten.out.nextStep.includes('resolve their halt'), 'and names the missing entry, never a halt the run did not have, as what holds the block');
   eq(unwritten.out.backlogEntries, 0, 'an unwritten entry is not counted');
 }
@@ -1583,7 +1595,7 @@ section('a park that saved no commit writes an entry built from the accepted bas
 section('a park after a halt that may leave work staged or the tree unsafe stays blocked, with one rule for its two routes');
 // The branch's first parent holds committed work, and in stage mode staged work, so its diff omits that part, and the entry may not be the block's whole work.
 {
-  const HELD = 'These parked blocks stay blocked until you resolve their halt: block-a. Once a block\'s halt is resolved, set its status to backlogged when its branch holds all of its work and its backlog file holds an entry that links that branch, so that entry is the one place its work continues from, and never set it back to todo. For a fix block, that route also sets to stale each entry whose branch its round 1 restored and whose work the new branch\'s tree holds, deletes that branch with `git -C E:/repo branch -D <branch>`, and adds that entry\'s "- origin:" and "- amended:" values to the new entry\'s line of the same key, writing an "- amended:" line when it has none. Otherwise set that entry\'s "- status:" to stale, remove the "- pulled:" line of each entry its "Pulled:" line names, delete the branch with `git -C E:/repo branch -D <branch>` when it exists, and set the block back to todo.';
+  const HELD = 'These parked blocks stay blocked until you resolve their halt: block-a. Once a block\'s halt is resolved and `plan-edit.mjs args` has applied this run\'s statuses, set its status to backlogged when its branch holds all of its work and its backlog file holds an entry that links that branch, so that entry is the one place its work continues from, and never set it back to todo. For a fix block, that route also sets to stale each entry whose branch its round 1 restored and whose work the new branch\'s tree holds, deletes that branch with `git -C E:/repo branch -D <branch>`, and adds that entry\'s "- origin:" and "- amended:" values to the new entry\'s line of the same key, writing an "- amended:" line when it has none. Otherwise set that entry\'s "- status:" to stale, remove the "- pulled:" line of each entry its "Pulled:" line names, delete the branch with `git -C E:/repo branch -D <branch>` when it exists, and, once `plan-edit.mjs args` has applied this run\'s statuses, set the block back to todo.';
   for (const [what, respond] of [
     ['staging-unconfirmed', { develop: { ...DEV_OK, unstaged_confirmed: false }, park: PARK_OK }],
     ['rejected-staged', { ...GREEN_RUN, acceptance: { ...ACC_FAIL, staged: true }, park: PARK_OK }],
@@ -1624,7 +1636,7 @@ section('a park whose entry no green fix block can build stays blocked and is re
 // Fix mode takes only gate green, so a red-baseline block, or a build-only block in a run with no test gate,
 // cannot continue from its park entry.
 {
-  const REBUILD = 'For each, set its park entry\'s "- status:" to stale and set the block back to todo, which rebuilds it under its own gate.';
+  const REBUILD = 'For each, set its park entry\'s "- status:" to stale and, once `plan-edit.mjs args` has applied this run\'s statuses, set the block back to todo, which rebuilds it under its own gate.';
   const UNBUILDABLE_FIX = 'and its **Fix:** placeholder with this text: Fix mode cannot build this entry, since the fix mode that builds a backlog entry takes only gate green,';
   const red = await run({ develop: { ...DEV_OK, test_outcome: 'failed-expected' }, quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK },
     { ...baseArgs, maxRounds: 1, plans: [onBus({ id: 'block-a', mode: 'section', gate: 'red-baseline' })] });
@@ -4165,6 +4177,8 @@ section('in commit mode a round-1 developer that finds staged files halts before
   const reason = String(halt.out.haltReason ?? '');
   ok(reason.includes('2 file(s)') && reason.includes('`git -C E:/repo diff --cached --stat`') && /commit them/.test(reason) && /unstage them/.test(reason),
     'the halt reason names the count and the command, and says to commit or unstage them');
+  ok(reason.includes("once the index is settled, relaunch in these steps. (1) Run `plan-edit.mjs args`, which applies that status. (2) Set this block's `status:` back to `todo`."),
+    'the halt reason numbers its relaunch steps');
   eq(`${syncOf(halt.out)} ${halt.out.ledger[0]?.status}`, 'block-a=blocked BLOCKED (staged baseline)', 'statusSync marks the block blocked, and the ledger says why');
   const dev = flat(halt.prompt('develop block-a r1'));
   ok(dev.includes('Then run `git -C E:/repo diff --cached --name-only` and report baseline_staged_files') && dev.includes('If either count is NOT 0, STOP RIGHT THERE'),
@@ -4598,10 +4612,13 @@ section('a dismissal rests on a checked fact, and every reader checks it');
   ok(flat(bus.prompt('quality block-a r1')).includes('Before you skip a listed finding, check its stated reason against the code it cites.'),
     'the blind reviewer checks a reason before it skips the finding');
   // Round 1 can only see an earlier launch's ledger, written against code this launch rebuilds.
-  const RECHECK = "In round 1 it holds only an earlier launch's lines. After STEP 0 and before you build, re-check each line against the current code, and remove each line whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal hides a finding in rebuilt code.";
+  const RECHECK = `ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build. In round 1, ${STATE}/gate/DISMISSED-block-a.md and ${STATE}/AMENDED-block-a.md can hold only an earlier launch's text. Take these actions in order: 1. When ${STATE}/gate/DISMISSED-block-a.md exists, re-check each line against the current code, and remove each line whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal hides a finding in rebuilt code. Output: the rewritten ${STATE}/gate/DISMISSED-block-a.md.`;
   const rounds = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, ONE_BLOCK);
-  ok(flat(rounds.prompt('develop block-a r1')).includes(RECHECK), 'the round-1 developer re-checks a carried ledger before it builds');
-  ok(!flat(rounds.prompt('develop block-a r2')).includes("an earlier launch's lines"), 'a later round keeps the ledger its own launch wrote');
+  const recheckR1 = flat(rounds.prompt('develop block-a r1'));
+  // The re-check is a titled step of the opening, after STEP 0 and the build line, and before the zones and PROCEDURE.
+  ok(recheckR1.includes(RECHECK) && recheckR1.indexOf('implement this block from scratch') < recheckR1.indexOf(RECHECK)
+    && recheckR1.indexOf(RECHECK) < recheckR1.indexOf('PROCEDURE:'), 'the round-1 developer re-checks a carried ledger in a titled step before it builds');
+  ok(!flat(rounds.prompt('develop block-a r2')).includes('LEDGER RE-CHECK'), 'a later round keeps the ledger its own launch wrote');
 }
 
 section('the risk file is tied to the snapshot its developer returned');
@@ -4783,9 +4800,16 @@ section('acceptance judges each pulled entry like a fix entry, and the closing a
 
   const closing = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: { ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, false]]) }, park: PARK_OK }, { ...PRO_ONE_BLOCK, maxRounds: 1 });
   const bar = flat(closing.prompt('acceptance block-a r2'));
-  ok(bar.includes('A pulled entry\'s gap, a regression its change causes included, is never blocking') && bar.includes('revert the change of each listed entry whose check is false, surgically'), 'the closing acceptance never grades a pulled gap blocking and reverts each unconfirmed pulled change before it stages');
-  ok(bar.includes('run the full gates once more. When they fail, the block\'s own work depends on a reverted change: put that change back, write a blocking gap for it, and return pass=false.'), 'a revert the block\'s own work depends on is restored and parks the block');
-  ok(bar.includes('Do NOT modify source code, apart from the PULLED ENTRIES reverts.'), 'those reverts are its one change to source code');
+  ok(bar.includes('A pulled entry\'s gap, a regression its change causes included, is never blocking') && bar.includes('Step 8 reverts the change of each listed entry whose pulled_check has actually_fixed=false before it stages.'), 'the closing acceptance never grades a pulled gap blocking and points at step 8 for the reverts');
+  // The reverts sit in step 8's pass bullet, ahead of its backlog append, so a numbered-step reader runs them in order.
+  const passSteps = ['No blocking gap → take these steps in order: (a) Revert, surgically, the change of each pulled entry whose pulled_check has actually_fixed=false',
+    '(b) Run the full gates once more.',
+    '(c) When they fail, the block\'s own work depends on a reverted change: put that change back, add a blocking gap for it under "## Blocking gaps" in your review file, and take the last bullet.',
+    '(d) Otherwise APPEND each not blocking gap as ONE backlog entry',
+    'Return regression=true only for a regression that remains after the reverts of (a).'].map((s) => bar.indexOf(s));
+  ok(passSteps.every((at, i) => at > bar.indexOf('8. DECIDE.') && (i === 0 || at > passSteps[i - 1])), 'step 8 runs the reverts, the gate rerun and the restore before it appends a gap');
+  ok(bar.includes('BEFORE step 8, which may add a blocking gap to it once.'), 'the WRITE step allows the one blocking gap step 8 adds');
+  ok(bar.includes('Do NOT modify source code, apart from step 8\'s pulled-entry reverts.'), 'those reverts are its one change to source code');
   ok(flat(closing.prompt('develop-closing block-a')).includes('Take no new entry.'), 'the closing pass takes no new entry');
 
   const proFixGap = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'SKIPPED' }], { pulled_results: [{ issue_id: PULL_A, status: 'FIXED' }] }), quality: CLEAN, acceptance: { ...FIX_PASS, fix_checks: [], pulled_checks: pulledChecks([[PULL_A, true]]) } }, PRO_FIX_ONE);
@@ -4931,7 +4955,7 @@ section('an amendment header names its launch, which round 1 counts from the AME
   const r2 = flat(r.prompt('develop block-a r2'));
   ok(r1.includes('`## Plan amendment: block-a r1, launch <the launch_number you report>`'), 'round 1 heads an amendment with the launch number it reports');
   ok(r2.includes('`## Plan amendment: block-a r2, launch 3`'), 'a later round heads it with the number round 1 reported');
-  ok(r1.includes(`${STATE}/AMENDED-block-a.md, when it exists, holds plan amendments, each another agent's claim under a header that names its launch, and in round 1 every one comes from an earlier launch. Before you change it, report launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. After STEP 0 and before you build, re-check each amendment as you re-check a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose defect the current code does not reproduce, with its pointer line in ${STATE}/DECISIONS.md, the line that names its block id, round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match that pointer by its block id, round and defect file:line alone.`),
+  ok(r1.includes(`2. Before you change ${STATE}/AMENDED-block-a.md, report launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output: launch_number. 3. When ${STATE}/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1 re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose defect the current code does not reproduce, with its pointer line in ${STATE}/DECISIONS.md, the line that names its block id, round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match that pointer by its block id, round and defect file:line alone. Output: the rewritten ${STATE}/AMENDED-block-a.md and ${STATE}/DECISIONS.md.`),
     'round 1 counts the launch and re-checks every earlier launch\'s amendment as it re-checks a DISMISSED line, an unnumbered one included');
   ok(r2 !== '' && !r2.includes('report launch_number as one past'), 'a later round counts no launch');
   ok(!r2.includes('Report baseline_dirty_files=-1'), 'a later round is not told to report the round-1 fields');
@@ -5088,7 +5112,7 @@ section('develop hands each later agent what an earlier agent settled');
   const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: firstRound(FIX_GAP, FIX_PASS) }, FIX_ONE);
   const r1 = flat(fix.prompt('develop fix-a r1'));
   const copy = r1.indexOf(`An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it continues. Before you build, READ each file it names, re-check each line there as the ledger rule below re-checks an earlier launch's line, and append each line you keep to ${LEDGER('fix-a')} unless that file already holds it, since that is the one ledger the blind reviewer reads.`);
-  ok(copy > -1 && copy < r1.indexOf("In round 1 it holds only an earlier launch's lines."), 'round 1 re-checks and copies each origin ledger line, before the ledger rule it cites');
+  ok(copy > -1 && copy < r1.indexOf('ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.'), 'round 1 re-checks and copies each origin ledger line, before the ledger rule it cites');
   ok(r1.includes('Its "- amended:" line names the plan amendments of the blocks its "- origin:" line names, each another agent\'s claim. READ each file it names and reproduce each amendment\'s defect against the file:line it cites. Meet an origin criterion under an amendment whose defect you reproduce, and as its block\'s text states it otherwise.'),
     'round 1 meets an origin criterion under an amendment only once it reproduces its defect');
   ok(!flat(fix.prompt('develop fix-a r2')).includes('"- ledger:" line names'), 'a later round copies nothing');
@@ -5293,9 +5317,12 @@ section('a prompt drops the PULLED read when round 1 took no entry');
   const parkTook = await run({ develop: PRO_DEV([{ issue_id: PULL_A, status: 'FIXED' }]), quality: CLEAN, acceptance: ACC_FAIL }, parkArgs);
   ok(!flat(parkNone.prompt('park:block-a')).includes('4. RELEASE') && flat(parkTook.prompt('park:block-a')).includes('4. RELEASE, whatever steps 1 to 3 did.'),
     'a park whose round 1 took no entry drops its release step, and a park whose round 1 took one keeps it');
-  const REVERT_NOTE = 'apart from the PULLED ENTRIES reverts';
-  ok(!flat(parkNone.prompt('acceptance block-a r2')).includes(REVERT_NOTE) && flat(parkTook.prompt('acceptance block-a r2')).includes(REVERT_NOTE),
-    'a closing acceptance names the pulled reverts only when round 1 took an entry');
+  const REVERT_MARKS = ["apart from step 8's pulled-entry reverts", 'which may add a blocking gap to it once', '(a) Revert, surgically'];
+  for (const mark of REVERT_MARKS) {
+    ok(!flat(parkNone.prompt('acceptance block-a r2')).includes(mark) && flat(parkTook.prompt('acceptance block-a r2')).includes(mark),
+      `a closing acceptance carries "${mark}" only when round 1 took an entry`);
+  }
+  ok(flat(parkNone.prompt('acceptance block-a r2')).includes('No blocking gap → APPEND each not blocking gap'), 'a closing acceptance with no pulled entry appends its gaps straight away');
 
   // A round 1 that stopped at its plan never reached its pull step, so its empty list proves nothing about an earlier launch's PULLED file.
   for (const [label, dev] of [['plan_obtained=false', { ...PRO_DEV([]), plan_obtained: false }], ['needs_user=true', { ...PRO_DEV([]), needs_user: true }]]) {
