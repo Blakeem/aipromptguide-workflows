@@ -81,7 +81,7 @@ chosen direction → a plan file built by **`develop-cycle`**. Brainstorm only d
 ## 2. The flow
 
 Launch every run from a notification turn (root `CLAUDE.md`, "Launch from a notification turn").
-The first agent of a run says whether its context holds a relayed user request, and the engine halts
+The first agent of a run says whether its context holds a relayed user request, and the engine throws
 before any later agent when it does.
 Pick a `runId`. Every `Workflow` call loads by path: `scriptPath` = absolute path to
 `brainstorm-cycle.mjs`, plus args. There is **one phase** and **no mid-run questions**, so settle

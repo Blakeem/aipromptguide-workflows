@@ -71,9 +71,9 @@ the one under the list's kind.
 16. Build the triaged issue files through `../develop/CLAUDE.md` §0 steps 2 to 33, with those files as its
     plan files and its step 5 done by steps 11 to 14 of this list. Its steps 4, 6 to 8 and 12, which author,
     refine and approve a plan file, do not run for an issue file, the file this list's step 2 writes
-    included, since "Playbook" step 6 starts at develop §2 step 3. Start with one file, or a `runOnly`
-    that names one block ("Playbook" step 6, "External inventory (skip the review)", `../develop/CLAUDE.md`
-    §2 step 1). Output: the output of each develop §0 step that ran.
+    included, since develop §2 step 1 sends an issue file from its triage to develop §2 step 3. Start with
+    one file, or a `runOnly` that names one block ("Playbook" step 6, "External inventory (skip the review)",
+    `../develop/CLAUDE.md` §2 step 1). Output: the output of each develop §0 step that ran.
 17. Spot-read the riskiest fixes beside `../develop/CLAUDE.md` §6's checks, before the landing ("Playbook"
     step 6). Output: what each spot-read fix showed.
 18. (in stage delivery) Record `git -C <run worktree> diff --cached --stat` before the landing ("Playbook"
@@ -315,7 +315,7 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    `auto` into `focused` or `proactive` for the run, and pass it.
 3. **Run `audit.mjs`** (`scriptPath` = its absolute path) with `kind: defects`, from a notification
    turn (root `CLAUDE.md`, "Launch from a notification turn"). The first reviewer says whether its
-   context holds a relayed user request, and the engine halts before any verifier when it does. It
+   context holds a relayed user request, and the engine throws before any verifier when it does. It
    writes `issues/<unit>.md` per unit and returns counts + the hottest areas + `needsUserFiles`. When the
    return's `failed` lists units to re-review (Args reference), resume them through step 4 (Resume the
    review) before step 5 (triage). Then follow the return's `nextStep`. It leads with any unit to
@@ -357,8 +357,11 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
      either: set its block `status: skip` (or leave it out). Start with one file, or `runOnly` naming
      one block, to sanity-check cost and quality.
    - Before launch, confirm the gates are green in the user's checkout.
-   - Then follow `../develop/CLAUDE.md` from §2 step 3 through step 6, with `commit` as develop §4
-     "Choosing the delivery" settles it. The fixes build in a run worktree and land on the user's branch.
+   - Then follow `../develop/CLAUDE.md` §0 from its step 2, with its step 5 being this Playbook's step 5,
+     and `commit` as develop §4 "Choosing the delivery" settles it. Its steps 4, 6 to 8 and 12, which
+     author, refine and approve a plan file, do not run for an issue file, a hand-authored one included,
+     since develop §2 step 1 sends an issue file from its triage to develop §2 step 3. The fixes build in
+     a run worktree and land on the user's branch.
    - After the run, add a spot-read of the riskiest fixes to develop §6's checks, before the landing. In
      stage delivery, also record `git -C <run worktree> diff --cached --stat` then, since develop §2 step 6
      removes the run worktree and the user's checkout may also hold the user's own staged work.
@@ -491,7 +494,7 @@ for it deliberately because most audits only add.
 ### The flow
 
 Launch every run from a notification turn (root `CLAUDE.md`, "Launch from a notification turn").
-The first agent of a run says whether its context holds a relayed user request, and the engine halts
+The first agent of a run says whether its context holds a relayed user request, and the engine throws
 before any later agent when it does.
 Pick a `runId`. `Workflow` loads by path: `scriptPath` = absolute path to `audit.mjs` + args with
 `kind: enhancements`. One phase, no mid-run questions — settle everything with the user first:
