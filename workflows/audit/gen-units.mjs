@@ -37,7 +37,7 @@
 //   --issues-dir <path> RESUME: a completed review's runs/<runId>/issues/ dir. Each unit is joined
 //                       against <issues-dir>/<fileSafe(id)>.md and tagged state: new|changed|unchanged
 //                       by its frontmatter `hash:`; the manifest then also carries `staleUnits` (the
-//                       new + changed ones) to pass straight into review.mjs's args.units. Without the
+//                       new + changed ones) to pass straight into audit.mjs's args.units. Without the
 //                       flag the output is exactly as before.
 
 import { readdirSync, statSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -250,7 +250,7 @@ function pack(baseUnits) {
   });
 }
 
-// --issues-dir join. CONTRACT with review.mjs — change together: the issue-file name scheme (review.mjs's
+// --issues-dir join. CONTRACT with audit.mjs — change together: the issue-file name scheme (audit.mjs's
 // fileSafe and issueFile) and the `hash:` frontmatter line that the reviewer's clean marker and the
 // verifier's template both stamp are the whole interface. A file with no readable hash counts as
 // CHANGED — the safe direction, since missing a changed unit means its defects are never reviewed.
@@ -310,7 +310,7 @@ writeFileSync(OUT, JSON.stringify(manifest, null, 2) + '\n');
 console.log(`${units.length} units, ${manifest.totalLoc} LOC → ${OUT}\n`);
 if (ISSUES) {
   const n = (s) => units.filter((u) => u.state === s).length;
-  console.log(`vs ${ISSUES}: ${n('new')} new, ${n('changed')} changed, ${n('unchanged')} unchanged — pass manifest.staleUnits (${stale.length}) as review.mjs args.units`);
+  console.log(`vs ${ISSUES}: ${n('new')} new, ${n('changed')} changed, ${n('unchanged')} unchanged — pass manifest.staleUnits (${stale.length}) as audit.mjs args.units`);
   if (PACK) console.log(`  approximate after a tree change: packing re-derives merged "<dir>#p<n>" ids, so files added or removed can shift ids and report units as new that were in fact reviewed`);
   console.log('');
 }

@@ -44,7 +44,7 @@ shows.
 
 1. **Author the plan file** in the plan-bus format (§3), at `<root>/plans/<runId>/` — never inside
    `target.repo`, never under `runs/<runId>/`. Plan mode or direct authoring. A fix-mode file from
-   debug's review skips to its triage (debug guide), then step 3.
+   debug's review skips to its triage (`../audit/CLAUDE.md`, defects kind), then step 3.
 
    **Research novel work first.** Before writing the blocks for work that adds a dependency, calls an
    external API, uses a technique the repo does not use yet, or touches security or data integrity,
@@ -240,8 +240,8 @@ mode: `feature` takes `green | build-only`; `section` takes `green | red-baselin
 line, and `--list` fails without one. A fix block IS an issue inventory: its `### [<id>]` entries
 are what the fix worker verifies and fixes (ACTIONABLE decisions only, verify-first, vanished issues
 marked stale). It works no entry whose `- status:` is `fixed` or `stale` and returns no result for one.
-`--list` fails on a `todo` fix block with no `### [<id>]` entry. debug's review.mjs writes these files,
-and hand-authored external inventories use the same shape.
+`--list` fails on a `todo` fix block with no `### [<id>]` entry. audit.mjs's defects kind writes these
+files, and hand-authored external inventories use the same shape.
 
 **Choosing a block's developer model.** Set `model:` on each block while writing the plan. The user
 may override it. Read the repo's saved `models.develop` first (`project-settings.mjs roles`, §2 step

@@ -8,10 +8,10 @@ import { join } from 'node:path';
 import { runEngine, runTrace, section, ok, eq } from './harness.mjs';
 import { listObject, parseBlocks, parseFileKeys, validate } from '../tools/plan-block.mjs';
 import { envelopeFaults, findRunRecords, run as planEdit } from '../tools/plan-edit.mjs';
-import reviewFlow from '../tools/flows/review.flow.mjs';
+import reviewFlow from '../tools/flows/audit-defects.flow.mjs';
 
 const DEVELOP = 'workflows/develop/develop-cycle.mjs';
-const REVIEW = 'workflows/debug/review.mjs';
+const REVIEW = 'workflows/audit/audit.mjs';
 
 const dirs = [];
 const tmpDir = () => { const d = mkdtempSync(join(tmpdir(), 'aipg-plan-bus-')); dirs.push(d); return d; };

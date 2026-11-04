@@ -1,18 +1,18 @@
-// debug's review.mjs, refine-cycle.mjs, develop-cycle.mjs and enhance-cycle.mjs each hold a copy of
+// audit.mjs, refine-cycle.mjs and develop-cycle.mjs each hold a copy of
 // conventionFilesOf, since an engine cannot import. A copy that drifts would accept or resolve a conventionFiles
 // path that another engine rejects.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { REPO_ROOT, section, ok } from './harness.mjs';
 
-const REFERENCE = 'workflows/debug/review.mjs';
-const COPIES = ['workflows/refine/refine-cycle.mjs', 'workflows/develop/develop-cycle.mjs', 'workflows/enhance/enhance-cycle.mjs'];
+const REFERENCE = 'workflows/audit/audit.mjs';
+const COPIES = ['workflows/refine/refine-cycle.mjs', 'workflows/develop/develop-cycle.mjs'];
 
 /** The conventionFilesOf function of one engine's source, or null when it lacks one. */
 const helperOf = (src) => src.match(/^const conventionFilesOf = [\s\S]*?\n\};\n/m)?.[0] ?? null;
 const sourceOf = (rel) => readFileSync(join(REPO_ROOT, rel), 'utf8');
 
-section('every copy of conventionFilesOf matches debug\'s, byte for byte');
+section('every copy of conventionFilesOf matches audit\'s, byte for byte');
 {
   const reference = helperOf(sourceOf(REFERENCE));
   ok(reference !== null, `${REFERENCE} holds conventionFilesOf`);

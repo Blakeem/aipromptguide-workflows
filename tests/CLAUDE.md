@@ -20,9 +20,11 @@ triage.
 - **Build loop:** `develop-cycle` alone. Its `feature`, `section` and `fix` modes share one loop
   (develop → blind quality → acceptance, park, staging, `DISMISSED-<id>.md`, `NEEDS-USER.md`). A defect in one
   mode's frame can still recur in the other two modes' frames in the same file.
-- **Read-only fan-outs:** `debug/review` · `enhance-cycle`
-  (finder → verifier, one output file per unit/lens, clean-marker written by the finder)
-- **Lensed generative:** `brainstorm` · `docs` · `enhance`
+- **Read-only fan-outs:** `audit`'s two kinds, defects and enhancements, in one engine
+  (finder → verifier, one output file per unit/lens, clean-marker written by the finder). The code both
+  kinds run is one copy, and each kind's prompts, schemas and flow are their own, so a defect in one kind's
+  code may recur in the other kind's parallel code in the same file.
+- **Lensed generative:** `brainstorm` · `docs` · `audit` enhancements
   (an id-keyed array fanned out to one file each)
 - **Rubric review loops:** `investigate` · `refine`
   (producer ⇄ adversarial critic against a fixed rubric, bounded by `maxRounds`, solo critical agents
@@ -177,8 +179,9 @@ against (halt); an unreachable feature does not (flag).
   reach the issue files, and the blind prompt's only run-state paths point into its own
   `runs/<runId>/gate/` (its review files + DISMISSED ledgers). Never hand it a path into
   `runs/<runId>/` outside `gate/` — NEEDS-USER, AMENDED, critiques and issue files all live there.
-- **debug hunts defects only.** Its inventory feeds an autonomous fixer, and an improvement list never
-  converges. Improvements are `enhance`, which deliberately has no fix-mode output.
+- **audit's defects kind hunts defects only.** Its inventory feeds an autonomous fixer, and an
+  improvement list never converges. Improvements are audit's enhancements kind, which deliberately has no
+  fix-mode output.
 - **The workflows serve any project and any user.** No rule, check or prompt sentence exists only to
   serve the maintainer's own setup, such as a personal writing style, user-level CLAUDE.md rules, skills
   or local paths. A user's own rules reach agents through that user's CLAUDE.md.
@@ -194,12 +197,12 @@ against (halt); an unreachable feature does not (flag).
 - **Duplication between sibling engines.** Deliberate: each is standalone and copyable. Never extract a
   shared module or import across workflows. (#11 governs *facts*, not code across independent tools.)
   `role-map-copies.test.mjs` fails when an engine's `roleMap`, its `agentTypeMap` or its two value sets differ
-  from develop's, so change all eight together. `convention-files-copies.test.mjs` fails when refine's,
-  develop's or enhance's `conventionFilesOf` differs from debug's, so change all four together.
+  from develop's, so change all seven together. `convention-files-copies.test.mjs` fails when refine's
+  or develop's `conventionFilesOf` differs from audit's, so change all three together.
   `notes.test.mjs` fails when an engine's exit-survey instruction differs from the test's copy, or when an
   engine calls `agent(` anywhere but inside its `callAgent`, so route every new call site through
-  `callAgent` and change all eight instructions together. `relay-guard.test.mjs` fails when an engine's
-  `RELAYED_REQUEST` line differs from develop's, so change all eight together.
+  `callAgent` and change all seven instructions together. `relay-guard.test.mjs` fails when an engine's
+  `RELAYED_REQUEST` line differs from develop's, so change all seven together.
 - **WHY comments.** A one or two line comment stating a constraint the code cannot show is the house
   style. A long one, a history note or a restated guide is a #13 finding, not a defect: it belongs to an
   enhance conciseness pass, never to debug.
@@ -275,10 +278,13 @@ node tools/gen-flows.mjs --check    # what the gate runs; exit 1 lists the stale
 `agent()` role, every `throw new Error(` site and every `HALT_STATUS` value is reached by some scenario,
 that the committed map is fresh, and that **`meta.phases` matches the phases agents really run under**.
 
-- **Phases are read from each call's `opts.phase`, never from fired `phase()` calls.** `review.mjs` and
-  `enhance-cycle` never call `phase()` at all, and `docs-cycle` calls it once against three declared
-  phases — measuring the calls would report three engines as drifted and the "fix" would be deleting
-  correct launch documentation.
+- **Phases are read from each call's `opts.phase`, never from fired `phase()` calls.** `audit.mjs`
+  never calls `phase()` at all, and `docs-cycle` calls it once against three declared phases — measuring
+  the calls would report both engines as drifted and the "fix" would be deleting correct launch
+  documentation.
+- **One engine may have several specs.** audit's two kinds each have one, so each map lists only the
+  phases its own agents run under, and role, throw and `meta.phases` coverage are judged over the union
+  of every spec that names the engine.
 - **Coverage cannot see a branch that adds no role, no throw and no new terminal.** A dead-agent path, a
   skipped stage, or a second route into an existing terminal is invisible to every assertion. The
   scenario tables carry comments saying which branches are load-bearing for exactly this reason — read

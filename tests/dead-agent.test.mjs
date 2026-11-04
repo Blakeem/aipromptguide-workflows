@@ -90,11 +90,11 @@ const EXPECTED = {
   'brainstorm x generate':          { signal: 'log', expect: /no output from/ },
   'docs x gather':                  { signal: 'log', expect: /gatherer\(s\) died before returning/ },
   'docs x scrub':                   { signal: 'log', expect: /scrub:\S+ returned nothing/ },
-  'enhance x find':                 { signal: 'log', expect: /the finder DIED/ },
-  'enhance x verify':               { signal: 'log', expect: /the verifier DIED/ },
+  'audit-enhancements x find':      { signal: 'log', expect: /the finder DIED/ },
+  'audit-enhancements x verify':    { signal: 'log', expect: /the verifier DIED/ },
   'develop x final-sweep':          { signal: 'log', expect: /completeness check DIED/ },
-  'review x review':                { signal: 'log', expect: /reviewer returned nothing/ },
-  'review x verify':                { signal: 'log', expect: /agent returned nothing/ },
+  'audit-defects x review':         { signal: 'log', expect: /reviewer returned nothing/ },
+  'audit-defects x verify':         { signal: 'log', expect: /agent returned nothing/ },
 };
 
 /** Sites whose kill is knowingly invisible. `{ engine, role, reason }`. Expected: EMPTY. */
@@ -142,17 +142,11 @@ const termText = (t) => t.status || t.message;
 const specs = await loadSpecs();
 const results = [];
 
+// Walk each scenario table in order, tracing each one ONCE, until every role has its first spawning
+// scenario. Order is the spec's own, so the pick is deterministic and re-reading the spec explains it.
+const picks = new Map();
 for (const spec of specs) {
-  const src = readFileSync(join(REPO_ROOT, spec.engine), 'utf8');
-  const roles = readRoles(src);
-  // EVERY unsafe terminal, not just the `park-unsafe` key: an engine may carry several, and a scenario that
-  // can reach only one of them would print a PASS from a single-key lookup for a case it could not see.
-  const unsafeStatuses = new Set(Object.entries(readHaltStatus(src))
-    .filter(([k]) => /unsafe/.test(k))
-    .map(([, v]) => v));
-
-  // Walk the scenario table in order, tracing each one ONCE, until every role has its first spawning
-  // scenario. Order is the spec's own, so the pick is deterministic and re-reading the spec explains it.
+  const roles = readRoles(readFileSync(join(REPO_ROOT, spec.engine), 'utf8'));
   const pick = new Map();
   for (const sc of spec.scenarios) {
     if (pick.size === roles.length) break;
@@ -162,10 +156,26 @@ for (const spec of specs) {
       if (r && !pick.has(r)) pick.set(r, { sc, baseline: trace });
     }
   }
+  picks.set(spec, pick);
+}
+// audit.mjs has one spec per kind, and each kind spawns only its own roles, so a role another spec of the
+// same engine kills is that spec's check.
+const killedElsewhere = (spec, role) => specs.some((s) => s !== spec && s.engine === spec.engine && picks.get(s).has(role));
+
+for (const spec of specs) {
+  const src = readFileSync(join(REPO_ROOT, spec.engine), 'utf8');
+  const roles = readRoles(src);
+  // EVERY unsafe terminal, not just the `park-unsafe` key: an engine may carry several, and a scenario that
+  // can reach only one of them would print a PASS from a single-key lookup for a case it could not see.
+  const unsafeStatuses = new Set(Object.entries(readHaltStatus(src))
+    .filter(([k]) => /unsafe/.test(k))
+    .map(([, v]) => v));
+  const pick = picks.get(spec);
 
   for (const role of roles) {
     const key = `${spec.name} x ${role}`;
     const hit = pick.get(role);
+    if (!hit && killedElsewhere(spec, role)) continue;
     if (!hit) { results.push({ key, spec, role, unspawned: true }); continue; }
     const { sc, baseline } = hit;
 

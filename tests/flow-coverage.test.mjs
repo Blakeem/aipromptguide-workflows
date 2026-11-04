@@ -96,7 +96,6 @@ for (const spec of specs) {
     halt: readHaltStatus(src),
     meta: readMeta(src) ?? {},
     fired: phaseCalls(src),
-    units: throwUnits(sites, sites.filter((s) => !uncoveredLines.has(s.line)).map((s) => s.line)),
     // An uncovered site is EXEMPT only where allowUncovered gave a reason — resolved by buildGraph, so
     // the exemption the diagram prints and the one the gate honors are the same computation.
     exemptLines: new Set(graph.coverage.throws.uncovered.filter((t) => t.reason).map((t) => t.line)),
@@ -121,32 +120,53 @@ section('every engine in ENGINES has a flow spec');
     : `all ${ENGINES.length} engine(s) in ENGINES are mapped by a spec`);
 }
 
+// Coverage is a property of the ENGINE, so it is judged over every spec that names it. audit.mjs runs two
+// kinds, one spec each, and neither spec alone can reach the other kind's roles and throw sites.
+const byEngine = new Map();
+for (const o of observed) byEngine.set(o.spec.engine, [...(byEngine.get(o.spec.engine) ?? []), o]);
+const specNames = (group) => group.map((o) => o.spec.name).join(' + ');
+
+/** The roles of one engine that no spec of it spawned. */
+const unspawnedRoles = (group) => group[0].roles.filter((r) => group.every((o) => o.graph.coverage.roles.uncovered.includes(r)));
+/** A site is reached when any spec reached it, and exempt only when every spec that left it unreached gave a reason. */
+const siteCoverage = (group) => {
+  const lines = group[0].sites.map((s) => s.line);
+  return {
+    reached: lines.filter((l) => group.some((o) => !o.uncoveredLines.has(l))),
+    exemptLines: new Set(lines.filter((l) => group.every((o) => !o.uncoveredLines.has(l) || o.exemptLines.has(l)))),
+  };
+};
+
 section('every role the engine can spawn is spawned by some scenario');
-for (const { spec, graph, roles } of observed) {
-  const missing = graph.coverage.roles.uncovered;
+for (const [engine, group] of byEngine) {
+  const { roles } = group[0];
+  const missing = unspawnedRoles(group);
   ok(missing.length === 0, missing.length
-    ? `${spec.name}: add a scenario that spawns ${missing.join(', ')} of ${spec.engine}`
-    : `${spec.name}: all ${roles.length} role(s) spawned — ${roles.join(', ')}`);
+    ? `${specNames(group)}: add a scenario that spawns ${missing.join(', ')} of ${engine}`
+    : `${specNames(group)}: all ${roles.length} role(s) spawned — ${roles.join(', ')}`);
 }
 
 section('every throw site is reached by some scenario');
-for (const { spec, sites, units, exemptLines } of observed) {
+for (const [engine, group] of byEngine) {
+  const { sites } = group[0];
+  const { reached, exemptLines } = siteCoverage(group);
+  const units = throwUnits(sites, reached);
   // Reported even when covered: a scenario reaching one of two identical messages says nothing about
   // the other, and burying that in a green count is how a dead branch keeps its checkmark.
   for (const u of units.filter((x) => x.ambiguous)) {
-    console.log(`      note: ${spec.engine} lines ${u.lines.join(', ')} share one message — counted as ONE unit`);
+    console.log(`      note: ${engine} lines ${u.lines.join(', ')} share one message — counted as ONE unit`);
   }
   const exempt = (u) => u.lines.every((l) => exemptLines.has(l));
   const missing = units.filter((u) => u.unmatchable || (!u.covered && !exempt(u)));
   const excused = units.filter((u) => !u.covered && !u.unmatchable && exempt(u)).length;
   ok(missing.length === 0, missing.length
-    ? `${spec.name}: ${missing.map((u) => fixFor(spec.engine, u)).join('; ')}`
-    : `${spec.name}: all ${units.length} throw unit(s) accounted for across ${sites.length} site(s)${excused ? `, ${excused} allowed uncovered` : ''}`);
+    ? `${specNames(group)}: ${missing.map((u) => fixFor(engine, u)).join('; ')}`
+    : `${specNames(group)}: all ${units.length} throw unit(s) accounted for across ${sites.length} site(s)${excused ? `, ${excused} allowed uncovered` : ''}`);
 }
 
 section('every HALT_STATUS value is produced by some scenario');
 for (const { spec, graph, halt } of observed) {
-  // 6 of 9 engines carry no HALT_STATUS map, so a SILENT skip here would be indistinguishable from a
+  // 3 of 7 engines (audit, brainstorm, docs) carry no HALT_STATUS map, so a SILENT skip here would be indistinguishable from a
   // pass for the common case. Name the engine instead.
   if (!Object.keys(halt).length) {
     console.log(`      note: ${spec.engine} has no HALT_STATUS map — terminal coverage not checked`);
@@ -160,12 +180,13 @@ for (const { spec, graph, halt } of observed) {
 
 section('meta.phases agrees with the phases agents really run under');
 // Measured against `opts.phase` — the runtime's per-agent assignment — NOT against fired phase() calls.
-// review.mjs and enhance-cycle never call phase() and docs-cycle calls it once against three declared
-// phases; measuring the calls would report three engines as drifted and the "fix" would be deleting
-// correct, user-facing launch documentation.
-for (const { spec, graph, meta } of observed) {
+// audit.mjs never calls phase() and docs-cycle calls it once against three declared phases; measuring
+// the calls would report both engines as drifted and the "fix" would be deleting correct, user-facing
+// launch documentation. An engine with several specs is judged over the phases all of them run under.
+for (const [, group] of byEngine) {
+  const { meta } = group[0];
   const authored = (Array.isArray(meta.phases) ? meta.phases : []).map((p) => String(p.title ?? ''));
-  const running = [...new Set(graph.nodes.filter((n) => n.kind === 'agent').map((n) => n.phase).filter(Boolean))];
+  const running = [...new Set(group.flatMap((o) => o.graph.nodes.filter((n) => n.kind === 'agent').map((n) => n.phase)).filter(Boolean))];
   const undeclared = running.filter((p) => !authored.includes(p));
   const unreached = authored.filter((p) => !running.includes(p));
   const drift = [
@@ -173,8 +194,8 @@ for (const { spec, graph, meta } of observed) {
     ...unreached.map((p) => `meta.phases declares "${p}" but no agent runs under it`),
   ];
   ok(drift.length === 0, drift.length
-    ? `${spec.name}: ${drift.join('; ')} — fix meta.phases or the agents' opts.phase`
-    : `${spec.name}: ${authored.length} declared phase(s) match what runs — ${authored.join(', ')}`);
+    ? `${specNames(group)}: ${drift.join('; ')} — fix meta.phases or the agents' opts.phase`
+    : `${specNames(group)}: ${authored.length} declared phase(s) match what runs — ${authored.join(', ')}`);
 }
 
 section('every phase() title an engine fires is declared in meta.phases');
@@ -323,6 +344,26 @@ section('the throw matcher folds duplicate messages and refuses an empty prefix'
   ok(!blind.covered, 'and NOT covered even though the graph credited it — an empty prefix matches everything');
   ok(!units.find((u) => u.lines.includes(40)).covered, 'an unreached site with a static prefix is simply uncovered');
   ok(/give e.mjs:30 a static message prefix/.test(fixFor('e.mjs', blind)), 'and its fix says so, rather than "add a scenario"');
+}
+
+section('an engine with two specs is covered by their union, never by either one alone');
+// Only audit.mjs has two specs today, and both cover everything, so the failing branches need a synthetic group.
+{
+  const spec = (uncoveredRoles, uncovered, exempt = []) => ({
+    roles: ['review', 'verify', 'find'],
+    sites: [{ line: 10 }, { line: 20 }, { line: 30 }],
+    graph: { coverage: { roles: { uncovered: uncoveredRoles } } },
+    uncoveredLines: new Set(uncovered),
+    exemptLines: new Set(exempt),
+  });
+  const defects = spec(['find'], [20, 30], [30]);
+  const enhancements = spec(['review'], [10, 30]);
+  eq(unspawnedRoles([defects, enhancements]).join(), '', 'a role either spec spawns is covered');
+  eq(unspawnedRoles([defects, spec(['find'], [])]).join(), 'find', 'a role neither spec spawns is not');
+  const both = siteCoverage([defects, enhancements]);
+  eq(both.reached.join(), '10,20', 'a site either spec reaches is reached');
+  ok(!both.exemptLines.has(30), 'a site one spec exempts and the other leaves unexplained is not exempt');
+  ok(siteCoverage([defects, spec(['review'], [10, 30], [30])]).exemptLines.has(30), 'a site every unreaching spec exempts is exempt');
 }
 
 section('the gen-flows CLI agrees with the assertions above');

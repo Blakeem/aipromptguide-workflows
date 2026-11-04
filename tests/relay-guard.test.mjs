@@ -15,10 +15,10 @@ const EXPECT = {
   'brainstorm': { how: 'throw', laterRoles: [] },
   'decide': { how: 'throw', laterRoles: ['decide', 'review'] },
   'docs': { how: 'throw', laterRoles: ['scrub', 'curate'], noLater: ['a user request is relayed to the gap-fill gatherer'] },
-  'enhance': { how: 'throw', laterRoles: ['verify'] },
+  'audit-enhancements': { how: 'throw', laterRoles: ['verify'] },
   'investigate': { how: 'throw', laterRoles: ['critique'], noLater: ['a user request is relayed to the criteria critic'] },
   'refine': { how: 'return', laterRoles: ['plan-editor'] },
-  'review': { how: 'throw', laterRoles: ['verify'] },
+  'audit-defects': { how: 'throw', laterRoles: ['verify'] },
   'develop': { how: 'return', laterRoles: ['quality', 'acceptance', 'park', 'final-sweep'] },
 };
 

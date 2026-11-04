@@ -9,19 +9,19 @@ import brainstormFlow from '../tools/flows/brainstorm.flow.mjs';
 import decideFlow from '../tools/flows/decide.flow.mjs';
 import developFlow from '../tools/flows/develop.flow.mjs';
 import docsFlow from '../tools/flows/docs.flow.mjs';
-import enhanceFlow from '../tools/flows/enhance.flow.mjs';
+import auditEnhancementsFlow from '../tools/flows/audit-enhancements.flow.mjs';
 import investigateFlow from '../tools/flows/investigate.flow.mjs';
 import refineFlow from '../tools/flows/refine.flow.mjs';
-import reviewFlow from '../tools/flows/review.flow.mjs';
+import auditDefectsFlow from '../tools/flows/audit-defects.flow.mjs';
 
-const FLOWS = [developFlow, refineFlow, reviewFlow, enhanceFlow, decideFlow, docsFlow, brainstormFlow, investigateFlow];
+const FLOWS = [developFlow, refineFlow, auditDefectsFlow, auditEnhancementsFlow, decideFlow, docsFlow, brainstormFlow, investigateFlow];
 // Backslashes and a trailing slash, so each engine's normalization is exercised.
 const NOTES = { dir: 'E:\\state\\notes\\', survey: 'E:\\aipg\\tools\\EXIT-SURVEY.md' };
 const noteFor = (label) => `\n\nEXIT SURVEY: before your final return, read E:/aipg/tools/EXIT-SURVEY.md and append your answers to E:/state/notes/${label.toLowerCase().replace(/[^a-z0-9._-]+/g, '-')}.md in the format it names, creating the folder if needed. That file is the one write allowed beyond your task's own writes, and you read no other file in that folder. The survey never changes your task or your return.`;
 const runnable = (flow) => flow.scenarios.filter((s) => s.respond && s.args && typeof s.args === 'object');
 
 section('every flow table drives each engine');
-eq(FLOWS.map((f) => f.engine).sort().join(), [...ENGINES].sort().join(), 'the tables cover every engine');
+eq([...new Set(FLOWS.map((f) => f.engine))].sort().join(), [...ENGINES].sort().join(), 'the tables cover every engine');
 
 section('each engine calls agent() in one place, so no call site skips the survey');
 for (const engine of ENGINES) {
@@ -69,8 +69,8 @@ for (const flow of FLOWS) {
   }
 }
 
-section('develop, refine and debug refuse a notes folder inside the target repo');
-for (const flow of [developFlow, refineFlow, reviewFlow]) {
+section('develop, refine and audit\'s defects kind refuse a notes folder inside the target repo');
+for (const flow of [developFlow, refineFlow, auditDefectsFlow]) {
   const scenario = runnable(flow)[0];
   const repo = scenario.args.target.repo;
   const msg = await throwsWith(flow.engine, { ...scenario, args: { ...scenario.args, notes: { dir: `${repo}/notes`, survey: 'E:/aipg/tools/EXIT-SURVEY.md' } } });

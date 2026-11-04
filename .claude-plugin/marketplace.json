@@ -6,7 +6,7 @@
     {
       "name": "aipg",
       "source": "./",
-      "description": "Multi-agent dynamic workflows for Claude Code: develop, refine, debug, enhance, brainstorm, decide, investigate, docs."
+      "description": "Multi-agent dynamic workflows for Claude Code: develop, refine, audit (debug and enhance), brainstorm, decide, investigate, docs."
     }
   ]
 }

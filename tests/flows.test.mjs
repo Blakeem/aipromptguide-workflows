@@ -23,10 +23,10 @@ const edgeBetween = (g, from, to) => {
 const errorFrom = async (fn) => { try { await fn(); return ''; } catch (e) { return e.message; } };
 
 const unit = (id, extra = {}) => ({ id, hash: 'h', files: [{ path: `${id}.js`, loc: 10 }], ...extra });
-// review.mjs returns no `status`, so every scenario over it needs a declared terminal.
+// audit.mjs returns no `status`, so every scenario over it needs a declared terminal.
 const reviewSpec = (units) => ({
-  engine: 'workflows/debug/review.mjs',
-  out: 'workflows/debug/NEVER-WRITTEN.md',      // buildGraph only — review's own spec lands in a later plan
+  engine: 'workflows/audit/audit.mjs',
+  out: 'workflows/audit/NEVER-WRITTEN.md',      // buildGraph only, never generated
   title: 'review (in-memory)',
   scenarios: [{
     name: 'units with findings',
@@ -278,12 +278,24 @@ section('terminals differing only in a number fold into one N-form node');
 }
 
 section('a join from one fan-out into the next is a stage edge, not a boundary');
-// enhance's finders fan out by lens and its verifiers by packed unit, so their item ids always differ.
+// The enhancements kind's finders fan out by lens and its verifiers by packed unit, so their item ids always differ.
 {
-  const [enhance] = await loadSpecs(['enhance']);
+  const [enhance] = await loadSpecs(['audit-enhancements']);
   const e = edgeBetween(await buildGraph(enhance), 'find', 'verify');
   ok(!!e, 'find → verify');
   ok(e && !e.boundary && !e.back, 'as a plain stage edge, never a next-item advance');
+}
+
+section('a map lists only the phases its own spec runs, when two specs share one engine');
+// audit.mjs's meta.phases names Review, Find and Verify, and each kind runs two of them.
+{
+  const phaseRows = async (name) => {
+    const [spec] = await loadSpecs([name]);
+    const table = generate(spec, await buildGraph(spec)).split('## Phases')[1].split('\n## ')[0];
+    return table.split('\n').filter((l) => l.startsWith('| ') && !l.startsWith('| Phase')).map((l) => l.split('|')[1].trim());
+  };
+  eq((await phaseRows('audit-defects')).join(), 'Review,Verify', 'the defects map lists Review and Verify');
+  eq((await phaseRows('audit-enhancements')).join(), 'Find,Verify', 'the enhancements map lists Find and Verify');
 }
 
 section('advancing to the NEXT item is a boundary edge, not a loop');
@@ -411,7 +423,7 @@ section('the round count is per LANE — fan-out width and roadmap length never 
 // is wrong. Both inflations below shipped in the first cut: the count was visits to the target node
 // across the whole trace, so a wider fan-out or a longer roadmap silently raised it.
 {
-  const [review] = await loadSpecs(['review']);
+  const [review] = await loadSpecs(['audit-defects']);
 
   const rg = await buildGraph(review);
   const lens = edgeBetween(rg, 'review', 'review');
@@ -464,6 +476,12 @@ section('spec validation rejects what would produce a silently wrong map');
   ok(/at least one scenario/.test(await errorFrom(() => buildGraph({ ...base, scenarios: [] }))), 'an empty scenario table');
   ok(/non-empty when/.test(await errorFrom(() => buildGraph({ ...base, scenarios: [{ ...sc, when: '' }] }))),
     'a scenario with no `when` — it would emit a blank edge label');
+  ok(/coverageNote must be a non-empty string/.test(await errorFrom(() => buildGraph({ ...base, coverageNote: ' ', scenarios: [sc] }))),
+    'a blank coverageNote, which would print an empty line under Coverage');
+  const noted = { ...base, coverageNote: 'Another spec of this engine covers its other roles.', scenarios: [sc] };
+  const coverage = generate(noted, await buildGraph(noted)).split('## Coverage')[1] ?? '';
+  ok(coverage.includes('\n\nAnother spec of this engine covers its other roles.\n'), 'a coverageNote prints under Coverage');
+  ok(!generate({ ...base, scenarios: [sc] }, await buildGraph({ ...base, scenarios: [sc] })).includes('Another spec'), 'and a spec without one prints none');
 
   // The two terminal-identity errors. Both are silent corruption otherwise: one blank end node, or a
   // hand-written label overriding what the engine actually returned.

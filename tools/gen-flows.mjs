@@ -23,7 +23,12 @@
 //     out:    'workflows/investigate/FLOW.md',                 // repo-relative, the generated file
 //     title:  'investigate-cycle',                             // the FLOW.md heading
 //     scenarios: [{ name, when, args, respond, budget?, terminal? }],
-//     allowUncovered: { throws: [{ prefix, reason }] } }        // optional; coverage bookkeeping only
+//     allowUncovered: { throws: [{ prefix, reason }] },         // optional; coverage bookkeeping only
+//     coverageNote: '...' }                                    // optional; printed under Coverage
+//
+// Several specs may share one engine, as audit's two kinds do. Each map then lists the roles and throw
+// sites only another spec reaches as uncovered, `coverageNote` says so, and tests/flow-coverage.test.mjs
+// checks role and throw coverage over the union of every spec that names the engine.
 //
 // `name` identifies the scenario in the coverage table; `when` is the human-readable condition and is
 // what edge labels are built from. Loading validates: the engine file exists, there is at least one
@@ -39,8 +44,8 @@
 //
 // TERMINAL IDENTITY — three sources, in priority order:
 //   1. DERIVED   `out.status`, whenever it is non-empty (develop, refine, investigate, decide).
-//   2. DECLARED  the scenario's `terminal`, used when `out.status` is empty, and REQUIRED there. Four
-//      engines return no `status` at all (brainstorm, review, enhance, docs); without a
+//   2. DECLARED  the scenario's `terminal`, used when `out.status` is empty, and REQUIRED there. Three
+//      engines return no `status` at all (brainstorm, audit, docs); without a
 //      declared label every non-throwing scenario of theirs collapses into one blank end node. A
 //      declared `terminal` that CONTRADICTS a non-empty `out.status` is an error — authored text never
 //      overrides derived truth.
@@ -61,7 +66,7 @@
 //       - different `group.item` -> CONCURRENT siblings: collapsed into one node annotated with the
 //         observed multiplicity, and NO edge between them;
 //       - same `group.item`, repeated -> SEQUENTIAL repeat: a self-loop labelled from the scenario's
-//         `when`. review.mjs runs its lenses in a `for` loop inside a single pipeline stage, so both
+//         `when`. audit.mjs's defects kind runs its lenses in a `for` loop inside one pipeline stage, so both
 //         shapes occur at once (2 units x 2 lenses = 4 calls at stage 0). `group.item` is the only
 //         correct discriminator; treating every repeat as a back-edge draws a loop that does not exist.
 //   • STAGES: calls in one group at stage `s` edge to stage `s+1`, matched by `group.item` so one
@@ -79,7 +84,7 @@
 //     nothing parses a label's internals for meaning. INSIDE one fan-out lane the boundary rule is off:
 //     `group.item` is authoritative there, so review's `review:u1/x -> review:u1/y` is the sequential
 //     repeat it really is, not an advance to a new unit. The rule is off on a join from one fan-out
-//     into the next too, since each names its lanes on its own axis: enhance's `find:<lens> ->
+//     into the next too, since each names its lanes on its own axis: audit enhancements' `find:<lens> ->
 //     verify:<lens>+<lens>` is a stage edge. A boundary edge is a SEPARATE edge from a
 //     same-item one between the same pair — develop-cycle observes both `acceptance -> develop` shapes
 //     (retry this block / advance to the next), and merging them on the node pair alone would re-fold the
@@ -92,6 +97,8 @@
 //     loop body's forward edges as loop-backs — every multi-node loop would come out dotted end to end.
 //   • PHASES come from each call's `opts.phase` (the runtime's per-agent assignment), NOT from fired
 //     `phase()` calls (tests/CLAUDE.md §7). The phases TABLE comes from `meta.phases`, which is authored prose.
+//     The table lists only the phases that hold a node of the spec's graph, since one engine may serve
+//     several specs, as audit's two kinds do, and each kind's map would otherwise list the other's phases.
 //     A phase is drawn as a `subgraph` ONLY when it holds 2+ agents. No engine does that today, so none
 //     is emitted — deliberately. A box around a single node labels it twice (`Investigate` wrapping
 //     `investigate`) and forces Mermaid to route every crossing edge AROUND the boundary, which is what
@@ -215,6 +222,7 @@ function validateSpec(spec) {
   if (!str(spec.engine)) throw new Error(`${where}: spec.engine must be a repo-relative engine path`);
   if (!str(spec.out)) throw new Error(`${where}: spec.out must be a repo-relative FLOW.md path`);
   if (!str(spec.title)) throw new Error(`${where}: spec.title must be a non-empty string`);
+  if (spec.coverageNote !== undefined && !str(spec.coverageNote)) throw new Error(`${where}: spec.coverageNote must be a non-empty string when set`);
   try {
     if (!statSync(join(REPO_ROOT, spec.engine)).isFile()) throw new Error('not a file');
   } catch {
@@ -699,7 +707,7 @@ export function generate(spec, graph) {
 
   out.push('## Phases', '');
   out.push('| Phase | What happens |', '|---|---|');
-  for (const p of graph.phases) out.push(`| ${cell(p.title)} | ${cell(p.detail)} |`);
+  for (const p of graph.phases.filter((x) => x.nodes.length)) out.push(`| ${cell(p.title)} | ${cell(p.detail)} |`);
   out.push('');
 
   // ONE marker map, PARTITIONED by prefix. Partitioning stops either table absorbing the other's rows,
@@ -741,6 +749,7 @@ export function generate(spec, graph) {
 
   out.push('## Coverage', '');
   out.push(`${cov.scenarios} scenarios · ${cov.roles.covered}/${cov.roles.total} roles · ${cov.throws.covered}/${cov.throws.total} throw sites · ${cov.statuses.covered}/${cov.statuses.total} halt statuses · ${cov.terminals} terminal states.`);
+  if (spec.coverageNote) out.push('', cell(spec.coverageNote));
   if (cov.roles.uncovered.length) out.push('', `Uncovered roles: ${cov.roles.uncovered.map(cell).join(', ')}.`);
   if (cov.throws.uncovered.length) {
     out.push('');

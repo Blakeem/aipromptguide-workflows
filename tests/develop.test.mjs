@@ -3661,7 +3661,7 @@ section('develop\'s SEVERITY_SCALE opens with debug\'s six lines');
     return at < 0 ? [] : src.slice(at + open.length, src.indexOf('`', at + open.length)).split('\n');
   };
   const develop = scaleOf(ENGINE);
-  const debug = scaleOf('workflows/debug/review.mjs');
+  const debug = scaleOf('workflows/audit/audit.mjs');
   eq(debug.length, 6, 'debug\'s scale is six lines');
   eq(develop.slice(0, 6).join('\n'), debug.join('\n'), 'develop\'s first six lines match debug\'s byte for byte');
   ok(develop[6]?.startsWith('  nit      - '), 'then the nit line');

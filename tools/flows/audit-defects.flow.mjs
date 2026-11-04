@@ -1,9 +1,10 @@
-// Flow-map scenarios for debug/review — the READ-ONLY FAN-OUT shape (finder → CONDITIONAL verifier).
+// Flow-map scenarios for audit's defects kind, the READ-ONLY FAN-OUT shape (finder → CONDITIONAL verifier).
 // Contract + every derivation rule: the header of ../gen-flows.mjs. Regenerate with
-// `node tools/gen-flows.mjs review`; `--check` fails the gate while FLOW-review.md is stale.
+// `node tools/gen-flows.mjs audit-defects`; `--check` fails the gate while FLOW-defects.md is stale.
 //
-// FLOW-review.md, not FLOW.md: debug's fix loop is develop's fix mode, drawn in workflows/develop/FLOW.md.
-// This map covers the review pass alone, and the debug docs link to it by this name.
+// The defects kind's fix loop is develop's fix mode, drawn in workflows/develop/FLOW.md, so this map covers
+// the review pass alone. The enhancements kind has its own map, FLOW-enhancements.md, from
+// audit-enhancements.flow.mjs. Role and throw coverage of audit.mjs is the union of both specs.
 //
 // The shape this table exists to draw: a CLEAN unit NEVER reaches the verifier — its reviewer writes the
 // marker itself and stage 1 returns without spawning anything. So "clean unit" and "unit with findings"
@@ -30,7 +31,7 @@ const LENSES = [
 const FOUND = { finding_count: 1, wrote_file: true, wrote_clean_marker: false };
 const CLEAN = { finding_count: 0, wrote_file: false, wrote_clean_marker: true };
 
-// Verdicts are keyed back to the ids the ENGINE minted (`<slug(unit)>-<suffix>`), derived from the label
+// Verdicts are keyed back to the ids the ENGINE minted (`<unitSlug(unit)>-<suffix>`), derived from the label
 // rather than hard-coded: an unknown id is dropped by the engine's own guard, so hard-coding one would
 // quietly stop exercising the return-building code the trace runs through. A multi-lens unit's suffixes
 // carry each lens's letter tag.
@@ -47,9 +48,10 @@ const verifier = (suffixes) => (label) => ({
 });
 
 export default {
-  engine: 'workflows/debug/review.mjs',
-  out: 'workflows/debug/FLOW-review.md',
-  title: 'debug/review',
+  engine: 'workflows/audit/audit.mjs',
+  out: 'workflows/audit/FLOW-defects.md',
+  title: 'audit (kind defects)',
+  coverageNote: 'audit.mjs also runs the enhancements kind, drawn in FLOW-enhancements.md, so the roles and throw sites only that kind reaches are listed uncovered here. The suite checks coverage over both maps.',
   scenarios: [
     {
       // THE conditional-second-stage proof, and why both units live in one scenario: u1 is clean (its
@@ -82,8 +84,8 @@ export default {
       terminal: 'no inventory (the findings are on no confirmed file: unit reported in failed, re-review it)',
     },
     {
-      // 2 units x 2 lenses = 4 calls in ONE pipeline stage (review.mjs runs the lens loop INSIDE the per-unit
-      // stage): two CONCURRENT lanes, each running its lenses SEQUENTIALLY. Expected rendering is one
+      // 2 units x 2 lenses = 4 calls in ONE pipeline stage (the defects kind runs the lens loop INSIDE the
+      // per-unit stage): two CONCURRENT lanes, each running its lenses SEQUENTIALLY. Expected rendering is one
       // `review` node annotated concurrent, plus a SELF-LOOP for the next lens — and no review → review
       // edge attributable to the differing unit id, which `group.item` is what rules out.
       name: 'two lenses per unit',
@@ -93,10 +95,13 @@ export default {
       terminal: 'inventory written (both lenses merged behind one verifier)',
     },
 
-    // ---- the sixteen throw sites, in the order the engine checks them ------------------------------
+    // ---- the defects kind's throw sites and the kind guard, in the order the engine checks them ------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
+    { name: 'unknown kind', when: 'args.kind is outside defects | enhancements', args: { ...base, kind: 'other', units: [unit('u1')] } },
+    // A kind-less payload runs the defects kind, so an arg only the enhancements kind reads names a payload built for it.
+    { name: 'an enhancements arg with no kind', when: 'a payload with no kind holds an arg only the enhancements kind reads', args: { ...base, scope: ['src/'], units: [unit('u1')] } },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'no target repo', when: 'args.target.repo is missing', args: { runId: 'flow', root: 'E:/flow' } },

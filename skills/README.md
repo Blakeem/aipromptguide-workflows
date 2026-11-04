@@ -10,8 +10,8 @@ together.
 |---------------------|--------------------------------------|---------|
 | `/aipg:develop`     | `workflows/develop/CLAUDE.md`        | Build the todo blocks of one approved plan file. Each block's mode is `feature`, `section` or `fix`. Also work the project's backlog with `/aipg:develop work the backlog`. |
 | `/aipg:refine`      | `workflows/refine/CLAUDE.md`         | Converge a plan file before develop builds it: a read-only critic and a minimal-fold editor. |
-| `/aipg:debug`       | `workflows/debug/CLAUDE.md`          | Find production defects. Its triaged issue files are fix-mode plan files develop builds. |
-| `/aipg:enhance`     | `workflows/enhance/CLAUDE.md`        | Audit a working system for enhancements (read-only). You triage its proposals, and nothing is applied. |
+| `/aipg:debug`       | `workflows/audit/CLAUDE.md`          | Find production defects with audit's defects kind. Its triaged issue files are fix-mode plan files develop builds. |
+| `/aipg:enhance`     | `workflows/audit/CLAUDE.md`          | Audit a working system for enhancements (read-only) with audit's enhancements kind. You triage its proposals, and nothing is applied. |
 | `/aipg:brainstorm`  | `workflows/brainstorm/CLAUDE.md`     | Diverge: one fully-committed variation per lens for a human to pick/combine. |
 | `/aipg:decide`      | `workflows/decide/CLAUDE.md`         | Converge: a bounded investigator chain → one weighted matrix → a ranked list a final reviewer verifies. |
 | `/aipg:investigate` | `workflows/investigate/CLAUDE.md`    | Search: find an answer that already exists and qualify it against fixed pass/fail criteria. |

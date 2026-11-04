@@ -24,7 +24,7 @@ for (const rel of ENGINES) {
 }
 
 section('the ordinary-Node scripts pass node --check (the harness contract does not apply to them)');
-// gen-units.mjs is run by hand as part of debug; plan-block.mjs is run BY AGENTS during develop and
+// gen-units.mjs is run by hand as part of an audit's defects kind; plan-block.mjs is run BY AGENTS during develop and
 // refine runs, so its syntax is a run-time dependency of two engines, not just dev machinery. plan-pull.mjs
 // is run by agents during a proactive develop run, plan-entry.mjs by every develop backlog writer, and
 // risk-check.mjs by every develop developer and acceptance, so
@@ -32,7 +32,7 @@ section('the ordinary-Node scripts pass node --check (the harness contract does 
 // is run by the operator around a batch of runs, and a syntax error there strands live worktrees.
 // plan-edit.mjs is the operator's only write path into an approved plan file. trash.mjs is the removal
 // path that never hard-deletes, so a syntax error there leaves a caller no safe way to remove a folder.
-for (const rel of ['workflows/debug/gen-units.mjs', 'tools/plan-block.mjs', 'tools/plan-pull.mjs', 'tools/plan-entry.mjs', 'tools/risk-check.mjs', 'tools/plan-edit.mjs', 'tools/gen-flows.mjs', 'tools/wt.mjs', 'tools/trash.mjs']) {
+for (const rel of ['workflows/audit/gen-units.mjs', 'tools/plan-block.mjs', 'tools/plan-pull.mjs', 'tools/plan-entry.mjs', 'tools/risk-check.mjs', 'tools/plan-edit.mjs', 'tools/gen-flows.mjs', 'tools/wt.mjs', 'tools/trash.mjs']) {
   let err = '';
   try {
     execFileSync(process.execPath, ['--check', join(REPO_ROOT, rel)], { stdio: 'pipe' });
@@ -154,10 +154,10 @@ for (const rel of ENGINES) {
 section('every TOP-LEVEL schema field an engine declares is CONSUMED by that same engine');
 // ATTESTATION THEATER — a schema property the prompt demands and the harness never reads. It has shipped
 // twice: `unstaged_confirmed` was `required`, instructed in bold, and read nowhere for months; `wrote_file`
-// sat unread in review.mjs until 2026-08-01. Both look like enforcement and enforce nothing.
+// sat unread in debug's review engine until 2026-08-01. Both look like enforcement and enforce nothing.
 //
 // TOP-LEVEL ONLY, and that scoping is load-bearing rather than a convenience. A nested item field is
-// legitimately left unread — review.mjs's VERIFY_SCHEMA `matrix` fields are the verifier's routing
+// legitimately left unread — audit.mjs's REVIEW_VERIFY_SCHEMA `matrix` fields are the verifier's routing
 // scaffold, the source of each issue entry's `- size:` line, and no harness line reads them. Measured
 // 2026-08-01: an all-depth rule flags 36 fields of which 33 are false positives; the top-level rule flags
 // exactly 3, and all 3 were real.
@@ -288,7 +288,7 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
   };
 
   // A name is a usable receiver only if it means ONE thing in the file. `r` was bound five times in
-  // review.mjs — the agent return plus four callback parameters — and a scoped scan against a name that
+  // debug's review engine — the agent return plus four callback parameters — and a scoped scan against a name that
   // means five things proves nothing, so ambiguity is an ERROR a local rename fixes, never a quiet pass.
   // `function`-declaration parameters are deliberately NOT counted: develop routes its develop return
   // straight into `gateOk(gate, dev)`, whose parameter is also named `dev`, so the reads
@@ -520,14 +520,14 @@ section('no guide tells the operator to clear run-state');
   }
 }
 
-section('debug guide advises one unit with a lens array for a small codebase');
+section('audit guide advises one unit with a lens array for a small codebase');
 // The advice replaced per-lens units, which spawn a verifier and an issue file per lens with no fold across lenses.
 {
-  const guide = readFileSync(join(REPO_ROOT, 'workflows', 'debug', 'CLAUDE.md'), 'utf8').replace(/\s+/g, ' ');
-  const engine = readFileSync(join(REPO_ROOT, 'workflows', 'debug', 'review.mjs'), 'utf8').replace(/\s+/g, ' ');
-  ok(guide.includes('**For a small codebase, pass its files as ONE unit with a lens array**'), 'debug guide advises ONE unit with a lens array for a small codebase');
-  ok(!guide.includes('Fan out by lens instead of file-slice'), 'debug guide no longer advises fanning out by lens instead of file-slice');
-  ok(!engine.includes('pass the same files as N units'), 'review.mjs no longer advises passing the same files as N units');
+  const guide = readFileSync(join(REPO_ROOT, 'workflows', 'audit', 'CLAUDE.md'), 'utf8').replace(/\s+/g, ' ');
+  const engine = readFileSync(join(REPO_ROOT, 'workflows', 'audit', 'audit.mjs'), 'utf8').replace(/\s+/g, ' ');
+  ok(guide.includes('**For a small codebase, pass its files as ONE unit with a lens array**'), 'audit guide advises ONE unit with a lens array for a small codebase');
+  ok(!guide.includes('Fan out by lens instead of file-slice'), 'audit guide no longer advises fanning out by lens instead of file-slice');
+  ok(!engine.includes('pass the same files as N units'), 'audit.mjs no longer advises passing the same files as N units');
 }
 
 section('every README that counts the principles states the count WORKFLOW-PRINCIPLES.md holds');
@@ -568,7 +568,8 @@ section('every guide that lists the core principles lists the set the Scope sect
   const scopeList = doc.match(/^Principles (#[^.]*?) are core/m)?.[1];
   ok(!!scopeList, 'the Scope section of WORKFLOW-PRINCIPLES.md names the core principles as "Principles ... are core"');
   const expected = expandPrincipleList(scopeList ?? '');
-  const CORE_LIST_SITES = ['brainstorm', 'decide', 'docs', 'enhance', 'investigate'].map((w) => `workflows/${w}/CLAUDE.md`);
+  // audit's guide lists them in its enhancements section, the generative kind.
+  const CORE_LIST_SITES = ['audit', 'brainstorm', 'decide', 'docs', 'investigate'].map((w) => `workflows/${w}/CLAUDE.md`);
   for (const rel of CORE_LIST_SITES) {
     const stated = readFileSync(join(REPO_ROOT, rel), 'utf8').match(/\((#1\b[^)]*)\)/)?.[1];
     ok(!!stated && expandPrincipleList(stated) === expected,

@@ -177,7 +177,7 @@ const slug        = (s) => {
 const REFERENCE_P = REFERENCE ? abs(REFERENCE) : '';
 const REPO        = abs(TARGET.repo);                      // absolute path to the target git repo (required)
 // `conventions` is a distilled index, so each agent also reads the project's own instruction files in full.
-// Copy of debug review.mjs's conventionFilesOf, since an engine cannot import: a test pins the copies equal.
+// Copy of audit.mjs's conventionFilesOf, since an engine cannot import: a test pins the copies equal.
 // Static lead clause: gen-flows labels the throw node from it.
 const conventionFilesOf = (value) => {
   if (value === undefined) return [];
@@ -1057,7 +1057,7 @@ Make THIS block correct, testable and production-safe, make the
 fixes the ZONE ROUTING allows, and touch nothing else.`;
 };
 
-// The first six lines copy debug/review.mjs's SEVERITY_SCALE, so a grade means the same in both engines.
+// The first six lines copy audit.mjs's SEVERITY_SCALE, so a grade means the same in both engines.
 const SEVERITY_SCALE = `SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.

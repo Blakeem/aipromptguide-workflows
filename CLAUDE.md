@@ -9,36 +9,38 @@ no workflow instructions. Pick the match, then read that workflow's `CLAUDE.md` 
 | **Build** from an approved plan file: one bounded feature, an ordered roadmap of them, a migration across many call sites, or a triaged issue inventory. Each `## Plan:` block's `mode` (`feature`, `section`, `fix`) picks the frame | `workflows/develop/CLAUDE.md` |
 | Work the project's **backlog**: the defects, cleanups, features and decisions develop left for later. Develop builds the ready entries and the user triages the rest, then fix mode builds them | `workflows/develop/CLAUDE.md`, "Working the backlog" |
 | **Refine** a plan file before develop builds it: a read-only critic under a fixed defect bar and a minimal-fold editor, until one clean round | `workflows/refine/CLAUDE.md` |
-| **Debug**: find production defects in a repo or change. Its triaged issue files are fix-mode plan files develop builds. Bring your own inventory from manual testing the same way | `workflows/debug/CLAUDE.md` |
-| **Enhance** a system that already works — lensed audit → verified, impact-scored proposals you triage (nothing auto-applied) | `workflows/enhance/CLAUDE.md` |
+| **Audit** a repo or change, read-only, in one of two kinds. `kind: defects` (skill `/aipg:debug`) finds production defects, and its triaged issue files are fix-mode plan files develop builds. Bring your own inventory from manual testing the same way. `kind: enhancements` (skill `/aipg:enhance`) audits a system that already works through lenses → verified, impact-scored proposals you triage (nothing auto-applied) | `workflows/audit/CLAUDE.md` |
 | **Brainstorm** several fully-committed variations (one per lens) for a human to pick/combine — creative, no AI verdict | `workflows/brainstorm/CLAUDE.md` |
 | **Decide** among approaches — a bounded investigator chain → one weighted matrix → a ranked conclusion a final reviewer verifies | `workflows/decide/CLAUDE.md` |
 | **Investigate** — find an answer that already exists and qualify it against fixed pass/fail criteria, until nothing qualifying is left unsearched | `workflows/investigate/CLAUDE.md` |
 | Gather the **docs** a project needs — verbatim capture (web/repo/files) → curate + index into a working folder | `workflows/docs/CLAUDE.md` |
-| Audit a workflow engine against the design rules | `principles/WORKFLOW-PRINCIPLES.md` — e.g. as a lens in a debug run |
+| Audit a workflow engine against the design rules | `principles/WORKFLOW-PRINCIPLES.md` — e.g. as a lens in an audit defects run |
 | Run several engine runs **in parallel** — one batch, one worktree per chain, landed into an integration branch | `docs/worktree-batches.md` (`tools/wt.mjs`) |
 
 Right-size first: trivial one-liner/rename → just edit, no workflow. Then by intent. **Build** → author a
 plan file (one `feature` block per bounded change, `section` blocks for one goal spanning many files),
-refine it, approve it, develop it. Find production defects → debug, then develop its fix-mode files.
-**Audit** (what a working system could do better; human triages) → enhance; **diverge** (creative options,
+refine it, approve it, develop it. Find production defects → audit's defects kind, then develop its
+fix-mode files. **Audit for enhancements** (what a working system could do better; human triages) →
+audit's enhancements kind; **diverge** (creative options,
 human judges) → brainstorm; **converge** (AI concludes among options it generates) → decide; **search**
 (the answer already exists; find it and prove it meets fixed criteria) → investigate; **provision** (copy +
 curate the docs to build against) → docs. The last five are generative/read-only: no code, no staging, no
 commit (they honor only the core principles — see WORKFLOW-PRINCIPLES.md "Scope").
 
-**Defect vs. enhancement is the sharpest split here.** Keep debug and enhance apart, since an improvement
-list would not converge the way debug's closed inventory does.
+**Defect vs. enhancement is the sharpest split here.** audit's two kinds share one engine and keep their
+products apart: a defects run ends in a closed issue inventory that develop's fix mode builds, an
+enhancements run ends in proposals the user triages, and an improvement list never enters the fix
+inventory, since it would not converge the way the closed inventory does.
 
 **Decide vs. investigate is the other one.** If you want to trade requirement A off against requirement B,
 that is decide's weighted matrix. If missing A is simply disqualifying, that is investigate's pass/fail gate.
 
 **Into the plan bus.** The generative workflows feed develop through plan files you author from their
-outputs. enhance's approved proposals map by class: ADOPT → a feature-mode block, a ROADMAP proposal
-spanning many call sites → a section-mode block, a proposal the verifier flagged `is_defect` → a
-hand-authored fix-mode block in debug's verifier format. brainstorm's picked variation, decide's
+outputs. An enhancements audit's approved proposals map by class: ADOPT → a feature-mode block, a ROADMAP
+proposal spanning many call sites → a section-mode block, a proposal the verifier flagged `is_defect` → a
+hand-authored fix-mode block in the defects verifier's format. brainstorm's picked variation, decide's
 conclusion, and investigate's determination feed a plan's design section — convention, not tooling.
-Authored blocks then flow refine → your approval → develop, and debug's review writes fix-mode blocks
+Authored blocks then flow refine → your approval → develop, and a defects audit writes fix-mode blocks
 develop consumes directly.
 
 Each engine loads **by path** (no global registry): pass `scriptPath` = the absolute path to the
@@ -71,13 +73,14 @@ skill first runs `tools/plugin-access.mjs`, which adds one Read rule for the plu
 user agrees. The develop and debug skills run `tools/onboard.mjs` in its place, which asks for that
 access together with every other setup answer the repo is missing. Rename an engine, guide,
 `tools/plan-block.mjs`, `tools/plan-edit.mjs`, `tools/plugin-access.mjs`, `tools/onboard.mjs`,
-`tools/project-settings.mjs`, `tools/wt.mjs` or `workflows/debug/gen-units.mjs` and the matching
-`skills/<x>/SKILL.md` paths must move with it.
+`tools/project-settings.mjs`, `tools/wt.mjs` or `workflows/audit/gen-units.mjs` and the matching
+`skills/<x>/SKILL.md` paths must move with it. The debug and enhance skills both launch
+`workflows/audit/audit.mjs`, each with its kind.
 
 **Want to see what a run actually does?** Each workflow ships a generated `FLOW.md` beside its engine
-(`workflows/<x>/FLOW.md`; debug's is `FLOW-review.md`) — every agent, gate, loop and
-terminal state, drawn from real traced runs. Read one before driving a workflow you have not run before.
-Edit an engine and you must re-run `node tools/gen-flows.mjs`, or the suite goes red.
+(`workflows/<x>/FLOW.md`; audit's are `FLOW-defects.md` and `FLOW-enhancements.md`) — every agent, gate,
+loop and terminal state, drawn from real traced runs. Read one before driving a workflow you have not run
+before. Edit an engine and you must re-run `node tools/gen-flows.mjs`, or the suite goes red.
 The generator and the rest of the repo's own machinery are catalogued in [`tools/CLAUDE.md`](tools/CLAUDE.md).
 
 **Want each agent's view of a run?** Pass the `notes` arg, which each workflow guide's args reference

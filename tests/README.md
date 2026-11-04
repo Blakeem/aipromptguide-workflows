@@ -83,17 +83,17 @@ including one that dies halfway. On top of `runEngine`'s shape:
 
 - `calls[i].seq` is the 0-based call index.
 - `calls[i].group` is `null` outside a fan-out, else `{ id, kind: 'parallel'|'pipeline', item, stage }`.
-  Several calls may share one `(id, item, stage)` triple: `review.mjs` loops its lenses sequentially
+  Several calls may share one `(id, item, stage)` triple: `audit.mjs` loops its lenses sequentially
   inside one stage. Compare `item` to tell a sequential repeat from concurrency.
 - `phases` is `[{ title, beforeCall }]` from `phase()`. `beforeCall` is the `seq` the next call will take.
-  **`[]` is a correct result** for `debug/review.mjs` and `enhance-cycle.mjs`: they carry the phase on
-  each agent's `opts.phase` and never call `phase()`.
+  **`[]` is a correct result** for `audit.mjs`: it carries the phase on
+  each agent's `opts.phase` and never calls `phase()`.
 - `groups` holds one entry per fan-out, `{ id, kind, items, stages }`.
 - `terminal` is `{ kind: 'return'|'throw', status, message }`. On a throw `out` is `undefined` and
   `status` is `''`, but every call made **before** the throw is still in `calls`.
 
 Four readers answer questions about an engine from its **source text**, no run needed, alongside
-`ENGINES` (the eight engine paths):
+`ENGINES` (the seven engine paths):
 
 - `readMeta(src)` returns the evaluated `meta` object.
 - `readRoles(src)` returns the static label prefixes (an engine's roles) in source order, deduped.

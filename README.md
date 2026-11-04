@@ -16,26 +16,26 @@ chose at setup. The **generative** ones leave cited files for you to use and nev
 |----------|---------|------|------------|
 | **[develop](workflows/develop/)** | `/aipg:develop` | [map](workflows/develop/FLOW.md) | **Build** the blocks of an approved plan file. Each block is one bounded feature, one slice of a migration across many call sites, or one triaged issue inventory. The accepted work lands on your branch, staged or committed. |
 | **[refine](workflows/refine/)** | `/aipg:refine` | [map](workflows/refine/FLOW.md) | **Review** a plan file before develop builds it. A critic checks each block against the code for defects only, and an editor folds each gap into the plan. It stops after one clean round. |
-| **[debug](workflows/debug/)** | `/aipg:debug` | [map](workflows/debug/FLOW-review.md) | **Find production defects** in a repo or change. Each unit's issues are written as a fix-mode plan file that develop builds once you triage it. An inventory from manual testing or bug reports works the same way. |
-| **[enhance](workflows/enhance/)** | `/aipg:enhance` | [map](workflows/enhance/FLOW.md) | **Audit**: what a working system could do *better*. One lens per angle → verified, impact-scored proposals you triage. Nothing auto-applied. |
+| **[audit](workflows/audit/)** | `/aipg:debug`, `/aipg:enhance` | [defects](workflows/audit/FLOW-defects.md), [enhancements](workflows/audit/FLOW-enhancements.md) | **Audit** a repo or change in one of two kinds. `/aipg:debug` runs the defects kind, which **finds production defects**. Each unit's issues are written as a fix-mode plan file that develop builds once you triage it. An inventory from manual testing or bug reports works the same way. `/aipg:enhance` runs the enhancements kind, which finds what a working system could do *better*. One lens per angle → verified, impact-scored proposals you triage. Nothing auto-applied. |
 | **[brainstorm](workflows/brainstorm/)** | `/aipg:brainstorm` | [map](workflows/brainstorm/FLOW.md) | **Diverge**: one fully-committed variation per lens (designs, ideas) for you to pick or combine. No AI verdict. |
 | **[decide](workflows/decide/)** | `/aipg:decide` | [map](workflows/decide/FLOW.md) | **Converge**: a bounded investigator chain → one weighted decision matrix → a ranked answer that a final reviewer verifies against its sources. |
 | **[investigate](workflows/investigate/)** | `/aipg:investigate` | [map](workflows/investigate/FLOW.md) | **Search**: find an answer that already exists and qualify it against fixed **pass/fail** criteria, until nothing qualifying is left unsearched. |
 | **[docs](workflows/docs/)** | `/aipg:docs` | [map](workflows/docs/FLOW.md) | **Provision**: copy the docs a project needs **verbatim** (web/repo/files) → curate + index into a folder the LLM builds against. |
 
 develop is the one **build** workflow. It writes the code, reviews it, and lands it on your branch,
-staged or committed. refine and debug produce the plan files develop builds. The last five are **generative**
-and read only. They produce proposals, creative options, a decision, a determination, or a curated doc
-set, with no code and nothing staged or committed.
+staged or committed. refine and audit's defects kind produce the plan files develop builds. audit's
+enhancements kind and the last four are **generative** and read only. They produce proposals, creative
+options, a decision, a determination, or a curated doc set, with no code and nothing staged or committed.
 
-Two pairs are worth keeping straight. For `debug` and `enhance`, something the system gets **wrong** is
-a defect, which debug fixes. Something it could do **better** is an enhancement, which enhance proposes
-and you decide on. For `decide` and `investigate`, decide fits when no established answer exists and the
-work is **weighing trade-offs**. Investigate fits when the answer is already out there and the work is
-**finding it and proving it fits**. The tell is whether missing a requirement is a trade-off or
-disqualifying.
+Two pairs are worth keeping straight. For audit's two kinds, something the system gets **wrong** is a
+defect, which the defects kind finds and develop fixes. Something it could do **better** is an
+enhancement, which the enhancements kind proposes and you decide on. The two kinds share one engine and
+keep their products apart, so an enhancement never enters the fix inventory. For `decide` and
+`investigate`, decide fits when no established answer exists and the work is **weighing trade-offs**.
+Investigate fits when the answer is already out there and the work is **finding it and proving it
+fits**. The tell is whether missing a requirement is a trade-off or disqualifying.
 
-All eight share the design rules in **[principles/](principles/)**, the nineteen
+All seven share the design rules in **[principles/](principles/)**, the nineteen
 [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file bus, no busy work).
 
 **The Flow column is a diagram of what a run does.** It shows every agent, gate, loop and terminal
@@ -123,8 +123,8 @@ E:/aipg/               ← root          run-state lands at E:/aipg/runs/<runId>
 
 Keeping them apart is what makes the blind review work. The issue files live outside the repo under
 review, so a reviewer that is supposed to judge a diff on its own merits **cannot** wander into them.
-The develop, refine and debug engines warn if you point run-state inside the target repo. develop and refine
-also warn when a plan file resolves inside it.
+develop, refine and audit's defects kind warn if you point run-state inside the target repo. develop and
+refine also warn when a plan file resolves inside it.
 
 It also means **one checkout can drive any number of projects**. Point `target.repo` at each in turn and
 give each its own `runId`. The run-state stacks up under `root`, so you can queue work across several

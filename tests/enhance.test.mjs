@@ -1,4 +1,4 @@
-// enhance/enhance-cycle.mjs — the read-only lensed fan-out.
+// audit/audit.mjs's enhancements kind — the read-only lensed fan-out.
 // Focus: the dead-agent paths. Both roles run inside a fan-out, so a dead one resolves to null rather
 // than throwing, and the only thing standing between that and a lens reported as cleanly audited is an
 // explicit guard per stage (tests/CLAUDE.md §3). `failed` is the operator's one signal that a lens
@@ -6,9 +6,9 @@
 import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
 import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs';
 
-const ENGINE = 'workflows/enhance/enhance-cycle.mjs';
+const ENGINE = 'workflows/audit/audit.mjs';
 const baseArgs = {
-  runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
+  kind: 'enhancements', runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   scope: ['workflows/'], lenses: ['efficiency', 'simplification'],
 };
 // The engine's verify-unit cap: a lens holding this many candidates gets a verifier of its own.
@@ -127,7 +127,8 @@ section('a kept candidate whose defect half was split off counts as a defect');
   eq(out.summary.defects, 1, 'the summary counts the split defect');
   eq(out.lenses[0]?.counts.defects, 1, 'and so does the lens');
   eq(out.lenses[0]?.kept.length, 2, 'and the candidate stays kept');
-  ok(logs.some((l) => /1 candidate\(s\) held defects \(debug workflow\)/.test(l)), 'the run log names the defect');
+  ok(logs.some((l) => /1 candidate\(s\) held defects \(the defects kind, \/aipg:debug\)/.test(l)), 'the run log names the defect');
+  ok(out.nextStep.includes('`## Defects to route` goes to the defects kind (`/aipg:debug`)'), 'the next step routes the defect to the defects kind');
   ok(prompt('verify').includes('put the defect half under `## Defects to route` and set defect_split=true.'), 'the verifier is told to set defect_split');
 }
 
@@ -147,7 +148,7 @@ section('conventionFiles reach the finder and the verifier, and a bad or unresol
     ok(msg.startsWith('Invalid args.conventionFiles: it must be an array of file paths') && msg.includes(JSON.stringify(bad)),
       `conventionFiles ${JSON.stringify(bad)} throws naming the value: ${msg.slice(0, 120)}`);
   }
-  const noRepo = { runId: 't', root: 'E:/r', scope: ['E:/repo/workflows/'], lenses: ['efficiency'] };
+  const noRepo = { kind: 'enhancements', runId: 't', root: 'E:/r', scope: ['E:/repo/workflows/'], lenses: ['efficiency'] };
   const msg = await throwsWith(ENGINE, { args: { ...noRepo, conventionFiles: ['E:/repo/CLAUDE.md', 'docs/RULES.md'] } });
   ok(msg.startsWith('args.target.repo is required when any args.conventionFiles entry is relative (docs/RULES.md)'), `a relative entry with no target.repo throws naming it: ${msg.slice(0, 120)}`);
   const absOnly = await runEngine(ENGINE, { args: { ...noRepo, conventionFiles: ['E:/repo/CLAUDE.md'] }, respond });

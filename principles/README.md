@@ -21,15 +21,15 @@ Read [`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md) for the full set.
 
 1. Read `WORKFLOW-PRINCIPLES.md` before you build a new workflow.
 2. After building or modifying a workflow engine, audit it against the principles to catch violations
-   and over-engineering. For example, run the debug workflow with `WORKFLOW-PRINCIPLES.md` as a lens.
+   and over-engineering. For example, run an audit's defects kind with `WORKFLOW-PRINCIPLES.md` as a lens.
 
 ## Built with these
 
 **Build loops** (code, reviewed and staged): [develop-cycle](../workflows/develop/) (feature, section and
-fix modes) · [debug](../workflows/debug/) (review, feeding develop's fix mode)
+fix modes) · [audit](../workflows/audit/)'s defects kind (review, feeding develop's fix mode)
 
 **Generative / read-only** (no code, nothing staged or committed):
-[enhance-cycle](../workflows/enhance/) · [brainstorm-cycle](../workflows/brainstorm/) ·
+[audit](../workflows/audit/)'s enhancements kind · [brainstorm-cycle](../workflows/brainstorm/) ·
 [docs-cycle](../workflows/docs/)
 
 **Convergence** (reach a conclusion, nothing staged or committed):

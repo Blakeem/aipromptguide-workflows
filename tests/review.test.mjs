@@ -1,4 +1,4 @@
-// debug/review.mjs — the read-only fan-out that builds the inventory.
+// audit/audit.mjs's defects kind — the read-only fan-out that builds the inventory.
 // Focus: the lens ARRAY (several angles over the same files, one issue file, one verifier), the review
 // files that carry each reviewer's findings to the verifier, and the issue file the verifier writes, the
 // triaged inventory a develop fix-mode block is built from.
@@ -6,7 +6,7 @@ import { runEngine, runTrace, throwsWith, section, ok, eq } from './harness.mjs'
 import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs';
 import { emitList, parseBlocks, parseFileKeys, validate } from '../tools/plan-block.mjs';
 
-const ENGINE = 'workflows/debug/review.mjs';
+const ENGINE = 'workflows/audit/audit.mjs';
 
 const UNIT = { id: 'u1', hash: 'h', files: [{ path: 'a.js', loc: 10 }] };
 const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c' };
@@ -313,7 +313,7 @@ section('a dead SOLE reviewer is not reported as a clean unit');
 }
 
 section('the verifier\'s required wrote_file attestation is actually read');
-// It is `required` in VERIFY_SCHEMA and instructed in the prompt; unread, a verifier that wrote nothing
+// It is `required` in REVIEW_VERIFY_SCHEMA and instructed in the prompt; unread, a verifier that wrote nothing
 // still logs a ✓ pointing at a file that does not exist.
 {
   const { logs } = await run({}, {
@@ -481,25 +481,25 @@ section('each entry records the lens that found it, and only when the lenses are
 section('the verifier writes a fix-mode PLAN block, and its own template parses as one');
 // The issue file IS the plan file develop consumes through tools/plan-block.mjs, so the `## Plan:`
 // header, its mode/gate/status preamble and every entry's `- status: open` are contract. The unit id is
-// PATH-SHAPED on purpose: gen-units mints `workflows/debug#p1`, which plan-block rejects as a block id —
-// only slug(unit.id) is legal there, and an already-kebab unit id would sidestep the whole question.
+// PATH-SHAPED on purpose: gen-units mints `workflows/audit#p1`, which plan-block rejects as a block id —
+// only unitSlug(unit.id) is legal there, and an already-kebab unit id would sidestep the entire question.
 {
-  const PATH_UNIT = { id: 'workflows/debug#p1', hash: 'h', files: [{ path: 'a.js', loc: 10 }] };
+  const PATH_UNIT = { id: 'workflows/audit#p1', hash: 'h', files: [{ path: 'a.js', loc: 10 }] };
   const { prompt } = await run({ units: [PATH_UNIT] }, {
     'review': found(1),
-    'verify': { wrote_file: true, verdicts: [keep('workflows-debug-p1-1')] },
+    'verify': { wrote_file: true, verdicts: [keep('workflows-audit-p1-1')] },
   });
   const v = prompt('verify');
-  ok(v.includes('## Plan: workflows-debug-p1 - review findings'), 'the block id is slug(unit.id), not the path-shaped unit id');
+  ok(v.includes('## Plan: workflows-audit-p1 - review findings'), 'the block id is unitSlug(unit.id), not the path-shaped unit id');
   ok(v.includes('\nmode: fix\ngate: green\nstatus: todo\n'), 'the preamble declares the fix mode, its only legal gate, and todo');
   ok(v.includes('\n- status: open\n'), 'every entry carries the status the fix bus reads');
   ok(v.includes(`unit: ${PATH_UNIT.id}\nhash: h\nreviewed: true`), 'the frontmatter stamp gen-units resumes on is unchanged');
-  ok(prompt('review').includes(`WRITE E:/r/runs/t/reviews/workflows_debug_p1-lens1.md (`), 'the review file name is fileSafe(unit.id) and the lens id');
+  ok(prompt('review').includes(`WRITE E:/r/runs/t/reviews/workflows_audit_p1-lens1.md (`), 'the review file name is fileSafe(unit.id) and the lens id');
 
   // A fixture assembled from the prompt's OWN template: the parenthetical instruction dropped, every
   // <placeholder> filled. Asserting the template's lines proves the words; parsing it proves the format.
   const FILL = {
-    id: 'workflows-debug-p1-1', status: 'open', file: 'a.js:1', loc: '10',
+    id: 'workflows-audit-p1-1', status: 'open', file: 'a.js:1', loc: '10',
     severity: 'high', category: 'correctness', size: 'small', decision: 'ACTIONABLE',
   };
   const fixture = v.split('\n-----\n')[1].split('\n')
@@ -507,7 +507,7 @@ section('the verifier writes a fix-mode PLAN block, and its own template parses 
     .map((l) => {
       const hit = l.match(/^- ([a-z_]+): /);
       if (hit) return `- ${hit[1]}: ${FILL[hit[1]]}`;
-      return l.replace('### [<finding_id>] <title>', '### [workflows-debug-p1-1] T');
+      return l.replace('### [<finding_id>] <title>', '### [workflows-audit-p1-1] T');
     })
     .join('\n');
   const unfilled = fixture.split('\n').filter((l) => l.includes('undefined'));
@@ -516,7 +516,7 @@ section('the verifier writes a fix-mode PLAN block, and its own template parses 
   const blocks = validate(parseBlocks(fixture), 'verifier template');
   const list = JSON.parse(emitList(blocks, 'verifier template', parseFileKeys(fixture)));
   eq(list.blocks.length, 1, 'one block — the frontmatter above it is skipped, not read as file keys');
-  eq(list.blocks[0].id, 'workflows-debug-p1', 'listed under the slug id');
+  eq(list.blocks[0].id, 'workflows-audit-p1', 'listed under the slug id');
   eq(list.blocks[0].mode, 'fix', 'mode fix');
   eq(list.blocks[0].gate, 'green', 'gate green, read from the preamble');
   eq(list.blocks[0].status, 'todo', 'status todo');
@@ -525,7 +525,7 @@ section('the verifier writes a fix-mode PLAN block, and its own template parses 
   eq(blocks[0].issues[0].values.file, 'a.js:1', 'the file:line value survives its own colon');
 
   // The verifier closes the file with its rejections, which the fix bus must read as body, not entries.
-  const REJECTED = '\n\n## Rejected\n\nworkflows-debug-p1-2 [a.js:3] A title: a.js:5\nworkflows-debug-p1-3 [a.js:1] T again: workflows-debug-p1-1\n';
+  const REJECTED = '\n\n## Rejected\n\nworkflows-audit-p1-2 [a.js:3] A title: a.js:5\nworkflows-audit-p1-3 [a.js:1] T again: workflows-audit-p1-1\n';
   const rejectedBlocks = validate(parseBlocks(fixture + REJECTED), 'verifier template + rejected');
   const lastRun = (bs) => JSON.stringify(bs[0].issues.at(-1).keys);
   eq(rejectedBlocks[0].issues.map((i) => i.id).join(), blocks[0].issues.map((i) => i.id).join(), 'a trailing ## Rejected section adds no entry');

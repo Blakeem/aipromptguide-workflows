@@ -29,11 +29,11 @@ operator-invoked.
 | `EXIT-SURVEY.md`, `survey.mjs` | The exit survey of a **live test of the workflow itself**, and the only copy of its questions. When an engine's `notes` arg is set, every agent prompt ends with an instruction to read `EXIT-SURVEY.md` and append the answers to `<notes.dir>/<label>.md`. The suite cannot test agents, so this is how prompt changes get tested. Agents read the survey at run time, so its answer format is a contract with `survey.mjs`. A question stays only while its answers prove useful: the maintainer reads each run's `SURVEY.md`, prunes a question whose answers stopped helping and replaces it with one about what the runs need now. `survey.mjs <dir>` reads every answer file in the folder and writes `<dir>/SURVEY.md`, the answers grouped by question and labelled by agent, with the "none" answers counted and left out. **Operator-invoked** after a notes run, as each workflow guide's args reference says. |
 | `gen-prompts.mjs` | Snapshots every distinct prompt variant each engine sends to `tests/snapshots/<name>.prompts.md`, from the same scenario tables. A prompt edit then shows in the git diff under every role, mode and round it reaches. It exits 1 and writes nothing for a spec whose engine throws a SyntaxError before its first agent call or whose scenarios make no agent call. `--dump <file>` writes every distinct call as JSON, to prove a refactor left the prompts byte-identical. |
 | `render-flows.mjs` | Lays every generated map out in **real Mermaid** (headless Chrome) and reports labels that overlap. Answers "is the picture legible", which `gen-flows.mjs` cannot. |
-| `flows/<name>.flow.mjs` | One scenario table per engine: the args + scripted agent replies that drive each distinct path. The only hand-written part of a flow map. |
+| `flows/<name>.flow.mjs` | One scenario table per engine, or per kind of audit.mjs (`audit-defects`, `audit-enhancements`): the args + scripted agent replies that drive each distinct path. The only hand-written part of a flow map. |
 | `.cache/` | Gitignored. Downloaded Mermaid + rendered PNGs. Safe to delete. |
 
-`workflows/debug/gen-units.mjs` is the same *kind* of thing but lives with debug, because you run it as
-part of that workflow rather than to maintain this repo.
+`workflows/audit/gen-units.mjs` is the same *kind* of thing but lives with audit, because you run it as
+part of that workflow's defects kind rather than to maintain this repo.
 
 ## plan-block.mjs
 

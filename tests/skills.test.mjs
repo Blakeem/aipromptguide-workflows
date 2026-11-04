@@ -12,10 +12,13 @@ const SKILLS = readdirSync(SKILLS_DIR, { withFileTypes: true })
   .filter((d) => d.isDirectory()).map((d) => d.name).sort();
 // The two workflows that build code, which ask every setup answer through the onboarding tool.
 const POLICY_SKILLS = ['debug', 'develop'];
+// The debug and enhance skills launch audit's two kinds, so both hand over to audit's guide.
+const GUIDE_OF = { debug: 'audit', enhance: 'audit' };
+const guideOf = (name) => GUIDE_OF[name] ?? name;
 
 section('every workflow ships a skill, and every skill is a known workflow');
 ok(SKILLS.join(',') === 'brainstorm,debug,decide,develop,docs,enhance,investigate,refine',
-  `skills/ holds exactly the eight workflows — got: ${SKILLS.join(',')}`);
+  `skills/ holds exactly the eight skills of the seven workflows — got: ${SKILLS.join(',')}`);
 
 // All eight skills stay model-invocable, so naming a workflow in prose ("use the aipg develop
 // workflow on X") is enough — no slash command required. The Workflow tool's opt-in rule is carried
@@ -45,13 +48,13 @@ for (const name of SKILLS) {
     'skill stays model-invocable (the opt-in gate lives in the description prose)');
   ok(body.includes('${CLAUDE_PLUGIN_ROOT}'), 'body resolves the plugin root');
   ok(body.includes('${CLAUDE_PLUGIN_DATA}'), 'body resolves the data dir (run-state root)');
-  ok(body.includes(`/workflows/${name}/CLAUDE.md`), 'body points at this workflow\'s guide');
+  ok(body.includes(`/workflows/${guideOf(name)}/CLAUDE.md`), 'body points at this workflow\'s guide');
   ok(!src.includes('—'), 'skill text holds no em dash');
   // The Workflow tool refuses a scriptPath the session cannot already read, and a plugin cannot grant
   // itself its own folder. The onboarding check asks for that access along with the build settings.
   const accessCheck = body.indexOf('node "${CLAUDE_PLUGIN_ROOT}/tools/plugin-access.mjs" check');
   const onboardCheck = body.indexOf('node "${CLAUDE_PLUGIN_ROOT}/tools/onboard.mjs" check --root "${CLAUDE_PLUGIN_DATA}" --repo <target.repo>`');
-  const handover = body.indexOf(`Read \`\${CLAUDE_PLUGIN_ROOT}/workflows/${name}/CLAUDE.md\` and follow it exactly`);
+  const handover = body.indexOf(`Read \`\${CLAUDE_PLUGIN_ROOT}/workflows/${guideOf(name)}/CLAUDE.md\` and follow it exactly`);
   ok(handover >= 0, 'body hands over to this workflow\'s guide');
   if (POLICY_SKILLS.includes(name)) {
     ok(onboardCheck >= 0 && onboardCheck < handover,

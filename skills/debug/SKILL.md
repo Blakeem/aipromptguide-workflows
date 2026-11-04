@@ -3,7 +3,8 @@ description: "Run the AIPG debug workflow, which reviews a repo or change for pr
 argument-hint: "[repo/change to review, or inventory to fix]"
 ---
 
-The user wants to run the **debug** dynamic workflow (review, then fix) on the task below.
+The user wants to run the **debug** dynamic workflow (review, then fix) on the task below. It is the
+audit workflow's defects kind.
 
 First, before any step of the guide, run the setup check
 `node "${CLAUDE_PLUGIN_ROOT}/tools/onboard.mjs" check --root "${CLAUDE_PLUGIN_DATA}" --repo <target.repo>`,
@@ -16,10 +17,12 @@ session can read, which is what the access question settles. When the user decli
 the `/add-dir` command that question names for this session, and you pass `--access session` to the save and to each
 later check in this session. A user who declines both gets no run, since the Workflow tool cannot read the engine.
 
-Read `${CLAUDE_PLUGIN_ROOT}/workflows/debug/CLAUDE.md` and follow it exactly.
+Read `${CLAUDE_PLUGIN_ROOT}/workflows/audit/CLAUDE.md` and follow it exactly, through its scope section
+and its defects kind section.
 Use these paths wherever the guide says "this checkout" or "the tool's own directory":
 
-- Review engine `scriptPath`: `${CLAUDE_PLUGIN_ROOT}/workflows/debug/review.mjs`
+- Review engine `scriptPath`: `${CLAUDE_PLUGIN_ROOT}/workflows/audit/audit.mjs`, launched with
+  `kind: defects`
 - Fix engine `scriptPath` (develop in fix mode, guide `${CLAUDE_PLUGIN_ROOT}/workflows/develop/CLAUDE.md`):
   `${CLAUDE_PLUGIN_ROOT}/workflows/develop/develop-cycle.mjs`
 - develop's `blockTool` arg: the args tool below prints it, so the spread args carry it, and develop
@@ -28,7 +31,7 @@ Use these paths wherever the guide says "this checkout" or "the tool's own direc
 - Onboarding tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/onboard.mjs`
 - Project-settings tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs`
 - Worktree tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/wt.mjs`
-- Unit slicer (plain Node, run directly): `${CLAUDE_PLUGIN_ROOT}/workflows/debug/gen-units.mjs`
+- Unit slicer (plain Node, run directly): `${CLAUDE_PLUGIN_ROOT}/workflows/audit/gen-units.mjs`
 - `root` arg: `${CLAUDE_PLUGIN_DATA}`. Runs land in its `runs/<runId>/`. Never the plugin install dir,
   which is version-swapped on update.
 

@@ -376,20 +376,20 @@ run does not repeat it.
 Principles #1 to #4, #6, #8, and #11 to #19 are core, and every workflow honors them. The rest are build-loop
 rules and apply only where they fit.
 
-- **Build loops** produce code (develop, plus debug's review that feeds it). They honor every principle,
+- **Build loops** produce code (develop, plus audit's defects kind that feeds it). They honor every principle,
   including the staged escalating review (#5), developer-owned escalation (#7), and one staging at the
   end (#9). In develop, the developer's risk judgment decides which rounds get a blind review (#5), and
   each blind review reports every finding at every tier.
 - **Generative and read-only workflows** do creative divergence, information provisioning, or read-only
-  auditing (brainstorm, docs, enhance). They write no code, stage nothing, and never commit, so #7 and
-  #9 don't apply. The user is the judge, and there is no AI review gate unless the workflow needs one.
-  An audit that produces an inventory still gates it (enhance verifies every proposal against the real
-  code). That gate keeps the list honest and approves no change.
-- **An open-ended inventory never drives an autonomous fixer.** A closed inventory, such as debug's,
-  which is fixed at triage, is what makes a fix loop converge. A proposal list has no such property,
-  since there is always another enhancement. So a workflow that generates one stops at the inventory
-  and hands it to a human. For this reason enhance has no fix-mode output and writes to `proposals/`,
-  never `issues/`.
+  auditing (brainstorm, docs, audit's enhancements kind). They write no code, stage nothing, and never
+  commit, so #7 and #9 don't apply. The user is the judge, and there is no AI review gate unless the
+  workflow needs one. An audit that produces an inventory still gates it (the enhancements kind verifies
+  every proposal against the real code). That gate keeps the list honest and approves no change.
+- **An open-ended inventory never drives an autonomous fixer.** A closed inventory, such as the defects
+  kind's, which is fixed at triage, is what makes a fix loop converge. A proposal list has no such
+  property, since there is always another enhancement. So a workflow that generates one stops at the
+  inventory and hands it to a human. For this reason the enhancements kind has no fix-mode output and
+  writes to `proposals/`, never `issues/`.
 - **Convergence workflows** reach a conclusion (decide, investigate, refine). investigate and refine run
   a review loop in the spirit of #5, non-blind by design: the reviewer must see the conclusion and the
   requirements it is judged against. decide runs a bounded chain with no review loop. Each of the three

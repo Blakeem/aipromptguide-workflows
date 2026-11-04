@@ -1,4 +1,4 @@
-// workflows/debug/gen-units.mjs — ordinary Node, run as a child process (it is NOT a Workflow engine).
+// workflows/audit/gen-units.mjs — ordinary Node, run as a child process (it is NOT a Workflow engine).
 // Focus: the numeric CLI bounds. A coerced one does not error, it silently DISABLES the limit it sets.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { readFileSync, rmSync, mkdirSync, mkdtempSync, writeFileSync, symlinkSync } from 'node:fs';
@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
 
-const SCRIPT = join(REPO_ROOT, 'workflows/debug/gen-units.mjs');
+const SCRIPT = join(REPO_ROOT, 'workflows/audit/gen-units.mjs');
 
 // Returns { code, stderr, stdout } — never throws, so a non-zero exit is an assertable value.
 const runCli = (argv) => {

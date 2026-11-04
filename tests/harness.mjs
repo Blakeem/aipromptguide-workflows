@@ -30,8 +30,7 @@ export const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url)).replace(/
 export const ENGINES = [
   'workflows/develop/develop-cycle.mjs',
   'workflows/refine/refine-cycle.mjs',
-  'workflows/debug/review.mjs',
-  'workflows/enhance/enhance-cycle.mjs',
+  'workflows/audit/audit.mjs',
   'workflows/decide/decide-cycle.mjs',
   'workflows/docs/docs-cycle.mjs',
   'workflows/brainstorm/brainstorm-cycle.mjs',
@@ -118,7 +117,7 @@ async function execute(enginePath, { args, respond = {}, budget } = {}) {
   // Real contracts: parallel() is a barrier and turns a thrown thunk into null; pipeline() runs each
   // item through every stage independently, and a stage that throws drops that item to null.
   // Each fan-out opens ONE group and stamps every agent call underneath with its (id, item, stage).
-  // Several calls may legitimately share one triple — review.mjs loops its lenses sequentially inside a
+  // Several calls may legitimately share one triple — audit.mjs loops its lenses sequentially inside a
   // single stage — so nothing here collapses or renumbers them.
   const parallel = async (thunks) => {
     const id = nextGroupId++;
@@ -200,11 +199,11 @@ export async function runEngine(enginePath, opts = {}) {
  * Same args as runEngine, and everything runEngine returns, plus:
  *   calls[i].seq    0-based call index
  *   calls[i].group  null outside a fan-out, else { id, kind: 'parallel'|'pipeline', item, stage }.
- *                   Several calls may share one (id, item, stage) triple — review.mjs loops its lenses
+ *                   Several calls may share one (id, item, stage) triple — audit.mjs loops its lenses
  *                   sequentially inside one stage. Tell sequential repeats from concurrency by `item`.
  *   phases          [{ title, beforeCall }], beforeCall = the seq the NEXT agent call will take.
  *                   An EMPTY list is CORRECT for an engine that carries its phase on opts.phase and
- *                   never calls phase() (debug/review.mjs, enhance-cycle.mjs) — not a tracing failure.
+ *                   never calls phase() (audit.mjs) — not a tracing failure.
  *   groups          one entry per fan-out: { id, kind, items, stages }
  *   terminal        { kind: 'return'|'throw', status, message }. On a throw `out` is undefined and
  *                   `status` is '', but every call made BEFORE the throw is still in `calls`.
@@ -223,8 +222,8 @@ export async function throwsWith(enginePath, opts) {
 
 /**
  * Read the string literal at/after `fromIndex`, stopping at the first `${` or at the closing quote,
- * whichever comes first. Stopping at the interpolation is what makes NESTED templates safe: review.mjs's
- * label nests a template inside a ternary inside a template, and a reader hunting for the closing
+ * whichever comes first. Stopping at the interpolation is what makes NESTED templates safe: audit.mjs's
+ * review label nests a template inside a ternary inside a template, and a reader hunting for the closing
  * backtick would run straight past it.
  * @returns {{text:string, interpolated:boolean}}  text is '' when there is no literal there at all.
  */

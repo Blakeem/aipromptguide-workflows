@@ -140,7 +140,7 @@ const callAgent = (prompt, opts) => agent(NOTES
 
 const REPO        = abs(TARGET.repo);
 // `conventions` is a distilled index, so both roles also read the target's own instruction files in full.
-// Copy of debug review.mjs's conventionFilesOf, since an engine cannot import: a test pins the copies equal.
+// Copy of audit.mjs's conventionFilesOf, since an engine cannot import: a test pins the copies equal.
 // Static lead clause: gen-flows labels the throw node from it.
 const conventionFilesOf = (value) => {
   if (value === undefined) return [];

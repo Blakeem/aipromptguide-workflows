@@ -14,7 +14,7 @@ import {
 
 const INVESTIGATE = 'workflows/investigate/investigate-cycle.mjs';
 const BRAINSTORM  = 'workflows/brainstorm/brainstorm-cycle.mjs';
-const REVIEW      = 'workflows/debug/review.mjs';
+const REVIEW      = 'workflows/audit/audit.mjs';
 
 const srcOf = (rel) => readFileSync(`${REPO_ROOT}/${rel}`, 'utf8');
 const invArgs = { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/criteria.md', priorRounds: 0 };
@@ -132,14 +132,14 @@ section('phases records every phase() call and where it falls in the call sequen
 }
 
 section('an EMPTY phases list is a CORRECT result, not a tracing failure');
-// review.mjs and enhance-cycle never call phase() — they carry it on each agent's opts.phase. A consumer
+// audit.mjs never calls phase() — it carries it on each agent's opts.phase. A consumer
 // that reads [] as a bug would be reading those two engines wrong.
 {
   const t = await runTrace(REVIEW, {
     args: reviewArgs([unit('u1')]),
     respond: { 'review': { finding_count: 0, wrote_file: false, wrote_clean_marker: true } },
   });
-  eq(t.phases.length, 0, 'review.mjs calls phase() zero times');
+  eq(t.phases.length, 0, 'audit.mjs calls phase() zero times');
   eq(t.calls[0].opts.phase, 'Review', 'the phase is on the agent call instead');
 }
 
@@ -150,7 +150,7 @@ section('readRoles reads the static label prefixes in source order');
   // The normalization edge cases, each taken from the engine that actually has it.
   eq(readRoles(srcOf('workflows/docs/docs-cycle.mjs')).join(), 'gather,scrub,curate',
     '`curate:r${rounds}` loses the trailing :r');
-  eq(readRoles(srcOf(REVIEW)).join(), 'review,verify',
+  eq(readRoles(srcOf(REVIEW)).join(), 'review,verify,find',
     'a label nesting a template inside a ternary inside a template still yields review');
   ok(readRoles(srcOf(INVESTIGATE)).join() === 'criteria-critic,investigate,critique',
     'hyphenated ids survive whole, and `investigate r${round}` loses the bare r');

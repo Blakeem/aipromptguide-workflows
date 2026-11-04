@@ -59,7 +59,7 @@ const DEVELOP_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, ga
 // critic against nothing and report a clean round for a plan it never saw.
 const REFINE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, planPath: 'plans/bus.md', blockTool: 'E:/r/tools/plan-block.mjs' };
 const REVIEW_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units: [UNIT] };
-const ENHANCE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
+const ENHANCE_ARGS = { kind: 'enhancements', runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   scope: ['workflows/'], lenses: ['efficiency', 'simplification'] };
 // docs does NOT reach a terminal on empty returns (measured 2026-08-01: it throws "Every source reported
 // zero doc files"), so its row scripts the returns its per-engine table already uses.
@@ -96,19 +96,22 @@ const SWEEP = [
     required: ['runId', 'root', 'planPath', 'target.repo', 'blockTool'],
   },
   {
-    engine: 'workflows/debug/review.mjs',
+    // audit.mjs runs two kinds. The defects kind is the default, so its row carries no kind.
+    engine: 'workflows/audit/audit.mjs',
     baseArgs: REVIEW_ARGS,
     respond: {},
     required: ['runId', 'root', 'target.repo', 'units'],
   },
   {
-    engine: 'workflows/enhance/enhance-cycle.mjs',
+    // Dropping kind from an enhancements payload runs the defects kind, whose guard refuses scope.
+    engine: 'workflows/audit/audit.mjs',
     baseArgs: ENHANCE_ARGS,
     respond: {},
-    required: ['runId', 'root', 'scope', 'lenses',
-      // §9 lists target.repo under Optional and §3 states the condition: it is what a RELATIVE scope path
-      // resolves against, and the baseline scope ('workflows/') is relative. An all-absolute scope needs
-      // no repo at all — the one engine here where the requirement is a property of another arg's value.
+    required: ['kind', 'runId', 'root', 'scope', 'lenses',
+      // The audit guide's enhancements Args reference lists target.repo under Optional, and its Pre-run
+      // setup states the condition: it is what a RELATIVE scope path resolves against, and the baseline
+      // scope ('workflows/') is relative. An all-absolute scope needs no repo at all — the one engine here
+      // where the requirement is a property of another arg's value.
       { path: 'target.repo', when: 'any scope path is relative' }],
   },
   {
@@ -143,7 +146,7 @@ const SWEEP = [
 // The sweep
 // ---------------------------------------------------------------------------------------------
 for (const { engine, baseArgs, respond, required } of SWEEP) {
-  section(`${engine.split('/').pop()} — every documented-required arg throws when missing`);
+  section(`${engine.split('/').pop()}${baseArgs.kind ? ` kind ${baseArgs.kind}` : ''} — every documented-required arg throws when missing`);
 
   // The guard on this row's own validity: a baseline that already threw would make every deletion below
   // pass for the wrong reason.
@@ -204,8 +207,8 @@ for (const { engine, baseArgs, respond, required } of SWEEP) {
 // An inherited object name such as `constructor` must throw like any other illegal name.
 // ---------------------------------------------------------------------------------------------
 {
-  const engine = 'workflows/debug/review.mjs';
-  section('review.mjs — an illegal severity floor or change policy throws instead of coercing');
+  const engine = 'workflows/audit/audit.mjs';
+  section('audit.mjs kind defects — an illegal severity floor or change policy throws instead of coercing');
   const VALUES = [
     ['reviewSeverity', 'reviewSeverity:"constructor", an inherited object name', { ...REVIEW_ARGS, reviewSeverity: 'constructor' }],
     ['changePolicy', 'changePolicy:"lenient"', { ...REVIEW_ARGS, changePolicy: 'lenient' }],
@@ -221,8 +224,8 @@ for (const { engine, baseArgs, respond, required } of SWEEP) {
 // An inherited object name such as `constructor` must throw like any other illegal name.
 // ---------------------------------------------------------------------------------------------
 {
-  const engine = 'workflows/enhance/enhance-cycle.mjs';
-  section('enhance-cycle.mjs — an illegal impact floor throws instead of coercing');
+  const engine = 'workflows/audit/audit.mjs';
+  section('audit.mjs kind enhancements — an illegal impact floor throws instead of coercing');
   for (const minImpact of ['constructor', 'nit']) {
     const msg = await throwsWith(engine, { args: { ...ENHANCE_ARGS, minImpact }, respond: {} });
     ok(msg !== '', `minImpact = "${minImpact}" throws: ${msg.slice(0, 50)}`);
