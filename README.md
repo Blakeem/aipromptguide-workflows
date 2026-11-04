@@ -177,6 +177,21 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   backlog steps.
 - **The guides say a relayed user request throws.** The audit, brainstorm, docs and investigate guides said
   the run halts. The engines throw, so no halted return arrives.
+- **Agent prompts list their required actions as numbered steps.** The audit reviewers, verifiers and
+  finders, the refine critic, the docs curator and the investigate investigator each work a numbered
+  procedure. Each step names the output that shows it was done.
+- **Develop's engine moves three rules into steps.** The closing acceptance's revert of a pulled entry, the
+  status flips of a parked block and the re-check of earlier ledger lines are now numbered steps.
+- **Every relaunch line names the launch path.** Each engine's relaunch, resume and replay instructions say
+  to start the pre-launch command in the background, end the turn and launch from the notification turn.
+- **The audit hand-back is a list of ordered steps.** Its commands name `plan-edit.mjs` in the aipg checkout
+  or the installed plugin, so they also work from a user's project.
+- **The test guide's change checklist is one numbered list.** A develop run's agent skips the steps that
+  open a worktree, write the changelog and commit.
+- **Each pre-launch step checks the memory index.** The step says to remove any line on the run's plan or
+  goal before the launch.
+- **The guides name each agent that reports a relayed user request.** They said only the first agent of a
+  run reports one.
 
 ### 2026-11-03
 
