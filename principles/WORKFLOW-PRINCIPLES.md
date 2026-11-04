@@ -31,9 +31,9 @@ An agent that must not see a document is never given its path, and the document 
 directory the agent reads. Do not rely on an instruction such as "don't read X." For example, the plan
 from plan mode lives at `~/.claude/plans/<random-name>.md`. The blind reviewer is given no path to it and
 works only inside the repo and its own review directory, so the plan cannot enter its context. Every
-other rule a prompt carries also prefers enforcement to an instruction. A prompt states the step the agent
-takes. A prohibition stays only where no placement, tool, schema field or engine check enforces the rule and
-no step the agent takes prevents the act.
+other rule a prompt carries follows the enforcement order #20 states. A prompt states the step the agent
+takes. A prohibition stays only where no placement, tool, schema field or engine check enforces the rule
+and no step the agent takes prevents the act.
 
 Every agent, the blind reviewer included, receives three files at startup: the user `CLAUDE.md`, the
 project `CLAUDE.md` and the launching session's auto-memory index (`MEMORY.md`). The index is the copy
@@ -369,11 +369,31 @@ When a run shows a loss, such as a re-raised finding, a fix that breaks text it 
 that re-derives what an earlier agent knew, the fix goes into the workflow's files and prompts so the next
 run does not repeat it.
 
+### 20. Required steps are an ordered list, and every choice is labeled
+An agent follows prose only part of the time. A required action written as a sentence inside a paragraph is
+skipped in some share of runs, and nothing shows it was skipped. So every text an agent or the operator acts
+on, such as a prompt, a guide, a returned `nextStep` or a plan's Fix line, sorts its text into one of three
+kinds:
+- **Required steps.** Every action that must happen is a numbered step in one ordered list, placed where the
+  reader starts. A step names one action and the output that shows it was done, such as a file, a line or a
+  command's result. A step that runs only in some cases states its condition inside the step. A step whose
+  rule needs explaining cites the section that states the rule, in a file the reader is handed (#11, #13).
+- **Choices.** A point where the agent decides is labeled as its choice. It names the questions to judge by,
+  the evidence to cite (#14, #17) and the safer default for a doubtful case. When they direct the agent, the
+  words may, can and consider mark a choice, never a required step.
+- **Background.** Text that explains a step or a choice holds no required action.
+
+Enforcement runs cheapest first. A rule that a placement or a schema field enforces costs the agent nothing
+and needs no instruction (#3). Every other required action is a numbered step, which costs no tool call and
+little context. A step that is still missed, or whose miss costs a run, moves into the engine or a tool that
+checks it (#3), and leaves the list once that check enforces it. Anything carried between runs follows #4
+instead. It rides a step the operator runs anyway and never becomes a numbered step of its own.
+
 ---
 
 ## Scope
 
-Principles #1 to #4, #6, #8, and #11 to #19 are core, and every workflow honors them. The rest are build-loop
+Principles #1 to #4, #6, #8, and #11 to #20 are core, and every workflow honors them. The rest are build-loop
 rules and apply only where they fit.
 
 - **Build loops** produce code (develop, plus audit's defects kind that feeds it). They honor every principle,
@@ -537,3 +557,7 @@ Use these as yes/no checks when reviewing any workflow.
       one trusted input and a gap in it reported, never built around? (#18)
 - [ ] Does every handoff carry the evidence, constraint and reason the receiver needs, and can every reader
       tell a current file from one an earlier launch or round left? (#19)
+- [ ] Is every required action that no placement, schema field, engine or tool check enforces a numbered
+      step in one ordered list, with the output that shows it was done? Is every choice labeled with its
+      questions, the evidence to cite and its default, and does no background paragraph hold a required
+      action? (#20)

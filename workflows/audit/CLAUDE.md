@@ -351,7 +351,7 @@ the WHOLE scope (breadth, not file slices — cross-cutting enhancements are the
 candidates to `candidates/<lens>.md`, then **verifiers bin-packed across lenses** that kill anything the
 system already does, score impact × size, route each survivor, and write one verbatim
 `proposals/<lens>.md` per lens. Then it **STOPS**. This kind is a *generative* workflow honoring the core
-(#1–4, #6, #8, #11–19); it writes no code, stages nothing, and never commits.
+(#1–4, #6, #8, #11–20); it writes no code, stages nothing, and never commits.
 
 **There is deliberately NO fix-mode output.** Nothing here is ever applied automatically. That is not an
 omission — see Contracts below.

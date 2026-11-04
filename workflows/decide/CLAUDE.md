@@ -6,7 +6,7 @@ every earlier file and must beat or improve it. One **decider** then ranks every
 matrix, and one **final reviewer** verifies the ranking against the sources and corrects each error it can
 prove. No stage loops back, so the run starts at most `maxInvestigators + 2` agents. Built to
 `../../principles/WORKFLOW-PRINCIPLES.md`. A *convergence* workflow: it honors the core (#1–4, #6, #8,
-#11–19). It produces a conclusion, **not code**: nothing is staged or committed.
+#11–20). It produces a conclusion, **not code**: nothing is staged or committed.
 
 ## 1. Scope (check FIRST)
 
