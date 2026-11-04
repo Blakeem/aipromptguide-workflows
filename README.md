@@ -189,6 +189,20 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   investigator's contributions, since no later investigator read them. A defect it can show lowers that
   option's score, or rules the option out when it breaks a non-negotiable. Each defect goes under
   `## Defects` in `review.md`, with the fix it would take when it has one. The run returns a `defects` count.
+- **A decide rubric can name options you already have.** The run weighs each entry under `## Given options`
+  as its own option, such as a variation a brainstorm run wrote.
+- **A decide contribution can fit several options.** An investigator names each other option it fits under
+  `also fits`, and the contribution counts in each. A defect in a contribution holds against every option
+  that carries it. When the defect breaks a non-negotiable, that option is ruled out as stated, and the
+  final reviewer flags the option without the contribution.
+- **Decide defines the simplest option.** In a tie group, the option with the fewest parts to run and
+  maintain ranks first. Parts are components, steps and rules. The smaller build breaks a tie that remains.
+- **Decide's investigators skip the hostile inputs on the do-nothing option.** Each defect they come across
+  in today's design is still recorded.
+- **Enhance reads the project's instruction files.** The `conventionFiles` arg lists them, and each finder
+  and verifier reads every listed file in full. A relative path needs `target.repo`.
+- **Enhance counts split defects.** A kept proposal whose defect half went under `## Defects to route`
+  counts in `summary.defects`.
 
 ### 2026-11-02
 
