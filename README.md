@@ -163,6 +163,21 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-11-04
+
+- **Principle #20 sorts what an agent reads into three kinds.** Every required action is a numbered step
+  that names the output showing it was done. Every choice names the questions to judge by, the evidence to
+  cite and the safer default. Background text holds no required action.
+- **Every workflow guide opens with a checklist.** `## 0. Checklist` lists the steps before and after a run
+  in order, and each step cites the section that holds its rule. Audit has one pair of lists per kind.
+  Develop names the steps for a session that only works the backlog.
+- **A static test checks every checklist.** It fails when a guide's first section is not the checklist,
+  when the numbering skips or repeats, or when a cited section is missing.
+- **Each skill points to its checklist.** The develop skill sends a backlog session to the checklist's
+  backlog steps.
+- **The guides say a relayed user request throws.** The audit, brainstorm, docs and investigate guides said
+  the run halts. The engines throw, so no halted return arrives.
+
 ### 2026-11-03
 
 - **Decide runs a chain of investigators.** The investigators run one at a time, up to `maxInvestigators`
