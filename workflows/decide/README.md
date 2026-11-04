@@ -27,13 +27,15 @@ A **bounded chain** built on the shared [Workflow Principles](../../principles/)
   fewer stand). Expect most runs to use every investigator, since a defect found in any option counts as
   progress.
 - **One matrix under one rubric.** The decider scores every option the investigators built and the
-  do-nothing option against the same requirements. It builds no option and no combination of its own. A
-  combination no investigator built comes to you as a check. Non-negotiables are pass/fail, and an option
-  that fails one is ruled out with its evidence. Each weighted criterion scores met, partly met or missed,
-  and the total counts met as full weight, partly met as half and missed as zero. A criterion scores met
-  only on a cited source or a measurement. Options whose totals lie at most M below the highest remaining
-  total, where M is 5% of the sum of every criterion's weight, form a tie group, and the group ranks
-  simplest first.
+  do-nothing option against the same requirements. A rubric can name options you already have, and the run
+  weighs each one. The decider builds no option and no combination of its own. A combination no
+  investigator built, or a named option no investigator weighed, comes to you as a check. Non-negotiables
+  are pass/fail, and an option that fails one is ruled out with its evidence. Each weighted criterion scores
+  met, partly met or missed, and the total counts met as full weight, partly met as half and missed as zero.
+  A criterion scores met only on a cited source or a measurement. Options whose totals lie at most M below
+  the highest remaining total, where M is 5% of the sum of every criterion's weight, form a tie group, and
+  the group ranks simplest first. The simplest option has the fewest parts to run and maintain once it is
+  in place, such as components, steps and rules. The smaller build breaks a tie that remains.
 - **Measured claims can be rerun.** A measurement cites its exact command and result, and any script it ran
   is saved in the run folder. The final reviewer reruns each script behind the scores it verifies.
 - **A defect hunt in the top options.** The final reviewer first tests what would be built under each of
@@ -49,8 +51,8 @@ A **bounded chain** built on the shared [Workflow Principles](../../principles/)
   it excludes, so you can pick one or combine several. A "combines with" mark says only that two entries
   fit together. The investigators may not have built or tested that combination. The flip check names the
   smallest change that would swap rank 1 and rank 2.
-- **Checks for you.** A question no agent can settle, such as one that needs your hardware, comes to you with
-  the result that would change the ranking.
+- **Checks for you.** A question no agent can settle, such as one that needs your hardware, also comes to you
+  as a check. Each check names what to run and what its result would change.
 - **A conclusion, not code.** Nothing is staged or committed. A pick feeds a plan file that
   [`develop-cycle`](../develop/) builds next.
 

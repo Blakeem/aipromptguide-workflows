@@ -214,12 +214,16 @@ const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, w
 const CITE = 'Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.';
 const NO_AGENT_CHECK = "such as one that needs a testbed the run lacks, a source no agent can open or the user's own hardware";
 const HOSTILE_INPUTS = 'a failure, a concurrent edit, a human-set value, state saved before the change (a legacy row, a migration, a value an older version stored), and an edit by another program that no scan has seen yet';
+// Simplicity counts the parts left to run, since a rubric that cares about build effort weights it as a criterion.
+const SIMPLEST = 'The simplest option has the fewest parts to run and maintain once it is in place (components, steps and rules), and the smaller build breaks a tie that remains.';
+// The decider and the reviewer both score options that share a defective contribution, so the rule is stated once.
+const CONTRIBUTION_DEFECT = 'A defect in a contribution is a con of every option that carries it and bears on the cells of each. A defect that breaks a non-negotiable in a contribution an option carries rules out the option as stated.';
 // The decider and the reviewer apply the same tie rule and flip rule, so each is stated once.
 // The weights have no fixed scale, so the margin is a share of their sum. A pairwise margin has no order
 // for a chain of near totals (12, 11.4, 10.8 with a margin of 1), so the rule forms groups down one list.
 const TIE_RULE = `sort the ranked options by total, best first. The options whose totals lie at most M below
    the highest total, where M is 5% of the sum of every criterion's weight, form a tie group, ranked
-   simplest first. Form each next group the same way from the options left.`;
+   simplest first. ${SIMPLEST} Form each next group the same way from the options left.`;
 const FLIP_RULE = `the smallest single change to one cell or one weight that swaps rank 1 and rank 2. Grade
    it DOMINANT when rank 1 is at least as good as rank 2 on every criterion, ROBUST when the smallest swap
    is larger than the uncertainty of the input it moves, FRAGILE when it is not. When one option ranks
@@ -244,7 +248,7 @@ The weighted total counts met as the criterion's full weight, partly met as half
 zero. A want scores met only on a cited source or a measurement, and own judgment scores at most partly met.
 Score each weighted criterion on what the option achieves against it, never on its change from the current
 state. When not acting is possible, a DO-NOTHING option is scored on the same rubric.
-Prefer the SIMPLEST option that meets all requirements. If a more complex option ranks above it, the
+Prefer the SIMPLEST option that meets all requirements. ${SIMPLEST} If a more complex option ranks above it, the
 evidence must show why the simpler one is inadequate.
 ${CITE}
 A MEASUREMENT cites its exact command and its result. Save any script it ran under ${SCRIPTS_DIR}/ (create it
@@ -276,7 +280,10 @@ robustness is needed, and it cites its evidence. A DEFECT counts with or without
 failure that no later agent may build on. No size threshold applies, since several small contributions can
 lift an option over another. A FEATURE ADDED, FEATURE REMOVED or CORRECTION contribution targets one of the
 three leading options (every option when fewer stand) under \`## Standing\` in ${latest}, unless it names the shortcoming that holds a lower option down and gives evidence that the
-contribution resolves it. A DEFECT targets the option it is found in, at any standing.`;
+contribution resolves it. A contribution that other options can carry unchanged names each of them under
+\`also fits\`, by option id, and counts in each option it names. A DEFECT targets the option it is found in,
+at any standing. A DEFECT in a contribution names that contribution's id and holds against every option
+that carries it.`;
 
 // =============================================================================
 // Role prompts
@@ -288,7 +295,9 @@ ${ENV}
 
 PROCEDURE:
 1. Search the web${REPO ? ' and the codebase above' : ''} with the tools you have for the options that address the decision, including
-   a simple baseline. Read the sources, search, and measure where you can.
+   a simple baseline. Read the sources, search, and measure where you can. When the rubric holds
+   \`## Given options\`, each entry there is an option of ${invFile(1)} under its own id, ahead of the
+   options you find, and is judged like the rest.
 2. Judge each option against every non-negotiable and weighted criterion of the rubric.
 WRITE ${invFile(1)} (create ${INV_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE}
 It holds these sections, in this order:
@@ -323,9 +332,10 @@ PROCEDURE:
 WRITE ${invFile(k)}. ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE}
 It holds these sections, in this order:
 - \`## Contributions\`: each under an id C${k}.1, C${k}.2 and so on, with its kind, the option id it targets
-  or, for a new option, the next free option id, what changes in what would be built or done, its pros and
-  its cons (each naming the non-negotiable or criterion it bears on and its source), and the earlier
-  statement it corrects, if any. With no contribution the section reads \`None.\`
+  or, for a new option, the next free option id, the option ids under \`also fits\`, if any, what changes
+  in what would be built or done, its pros and its cons (each naming the non-negotiable or criterion it
+  bears on and its source), and the earlier statement it corrects, if any. With no contribution the
+  section reads \`None.\`
 - \`## Leader assumptions\`: the assumptions the leading option now rests on.
 - \`## Standing\`: every option of the run in order after your contributions, with each recorded defect no
   file fixes yet weighed against its option, best first, one line each saying which criteria place it
@@ -335,7 +345,9 @@ It holds these sections, in this order:
 Set contributed=false only when \`## Contributions\` reads \`None.\` and \`## Searched\` holds at least one
 replacement attempt against the leader's assumptions, and an improvement attempt and a defect check for
 each of the three leading options (every option when fewer stand) under \`## Standing\` in ${invFile(k - 1)}. A defect check on a design of software or a process names each of the five hostile inputs with its
-result. Each attempt and check gives the reason it adds nothing under the contribution rule.
+result. A defect check on the do-nothing option names no hostile inputs, and reports each defect in
+today's design that you come across as a DEFECT contribution. Each attempt and check gives the reason it adds nothing under the
+contribution rule.
 contributed=false ends the chain, and the decider runs next.
 Do NOT modify any repo, stage, or commit.
 Return via the schema.`;
@@ -349,12 +361,14 @@ ${list(files)}
 You MAY search the web${REPO ? ' and the codebase' : ''} to fill a gap the files leave.
 
 PROCEDURE:
-1. Collect every option of the investigation files under its id, with the contributions it carries. Each
+1. Collect every option of the investigation files under its id, with the contributions it carries. A
+   contribution counts in the option it targets and in each option under its \`also fits\`. Each
    defect you find, or that an investigation file records and no file fixes, is a con of that option and
-   bears on its cells. A combination the files do not hold goes under \`## Checks for the user\` as an
-   untested combination, with the option ids it would join and the result that would change the ranking,
-   and is not ranked. A \`combines with\` mark says only that two ranked options compose, and adds no
-   check.
+   bears on its cells. ${CONTRIBUTION_DEFECT} The option without that contribution goes under
+   \`## Checks for the user\`, with the check that would rank it. A combination the files do not hold goes
+   under \`## Checks for the user\` as an untested combination, with the option ids it would join, the
+   check that would test it and the result that would change the ranking, and is not ranked. A
+   \`combines with\` mark says only that two ranked options compose, and adds no check.
 2. Build ONE decision matrix under the rubric: every option and, when not acting is possible, the
    do-nothing option, judged pass or fail on every non-negotiable and scored on every weighted criterion,
    with its weighted total. Each cell cites its source (the investigation file and the
@@ -378,9 +392,14 @@ It holds these sections, in this order:
 - \`## Changes to investigation facts\`: each fact of an investigation file your own research changed,
   with the old fact, the new fact and the source, or \`None.\`
 - \`## Checks for the user\`: each question no agent can settle, ${NO_AGENT_CHECK}, with
-  the check and the result that would change the ranking, and each untested combination of step 1, or
-  \`None.\` When the decision is about what to test, these checks are part of the deliverable.
-Every option an investigation file holds appears under \`## Ranking\` or \`## Ruled out\`.
+  the check and the result that would change the ranking, each option step 1 sends here and each untested
+  combination of step 1, or \`None.\` When the decision is about what to test, these checks are part of
+  the deliverable.
+Every option an investigation file gives an option id, under \`## Options\`, \`## Contributions\` or
+\`## Searched\`, appears under \`## Ranking\` or \`## Ruled out\`. A candidate named without an option id is
+not an option. Each entry under the rubric's \`## Given options\` that no investigation file gives an
+option id goes under \`## Checks for the user\` as a given option no agent weighed, with the check that
+would weigh it.
 Do NOT modify any repo, stage, or commit.
 Return via the schema.`;
 
@@ -400,13 +419,14 @@ PROCEDURE:
    add it as a con under that option in \`## Options\` and rescore the cells it bears on, or move the
    option to \`## Ruled out\` when the defect breaks a non-negotiable. Then update the totals, the order,
    the \`combines with\` and \`excludes\` ranks and \`## Flip check\` as steps 3 to 5 say. Never write the
-   fix into the option, since no agent would check a fix added after the chain. A defect you suspect and
-   cannot show is a flag.
+   fix into the option, since no agent would check a fix added after the chain. ${CONTRIBUTION_DEFECT}
+   Flag the option without that contribution. A defect you suspect and cannot show is a flag.
 2. Open the source behind every cell of the three top-ranked options, behind every non-negotiable
    judgment of every ranked option and behind the evidence of every \`## Ruled out\` entry. Rerun each script under ${SCRIPTS_DIR}/${TESTBED ? ' and each testbed command' : ''} such a cell rests on.
    Sample the sources behind the other cells.
 3. Recompute every total. Check that the order follows the TIE RULE: ${TIE_RULE}
-   Check that every option of the investigation files is ranked or ruled out, and that each
+   Check that every option an investigation file gives an option id is ranked or ruled out, that each
+   entry under the rubric's \`## Given options\` is such an option or a check for the user, and that each
    \`combines with\` and \`excludes\` claim agrees with the entry it names.
 4. Fix in ${DECISION_FILE}, with the Edit tool, each error a source, a rerun or the arithmetic proves,
    such as a wrong citation, a fact the source contradicts, a wrong total, an order that does not follow
@@ -423,8 +443,9 @@ It holds these sections, in this order:
   when one is within reach, or \`None.\`
 - \`## Edits\`: one line per edit you made to the decision file: the section, the text before, the text
   after and the evidence, or \`None.\`
-- \`## Flags\`: each score or order you would judge differently with no proven error, and each defect you
-  suspect and cannot show, each with your reason, or \`None.\`
+- \`## Flags\`: each score or order you would judge differently with no proven error, each option without
+  a ruling-out contribution that step 1 flags, and each defect you suspect and cannot show, each with your
+  reason, or \`None.\`
 Do NOT modify any repo, stage, or commit.
 Return via the schema.`;
 
@@ -535,7 +556,7 @@ const flipNote = flip === 'fragile'
   ? `The flip check is graded FRAGILE. Present \`## Flip check\` in ${DECISION_FILE}, since rank 1 turns on the input it names, and let the user settle it. `
   : '';
 const checksNote = userChecks
-  ? `Present the ${userChecks} check(s) under \`## Checks for the user\` in ${DECISION_FILE}: each names the result that would change the ranking. `
+  ? `Present the ${userChecks} check(s) under \`## Checks for the user\` in ${DECISION_FILE}: each names the check to run and what its result would change. `
   : '';
 // The reviewer never writes a defect's fix into decision.md, so the fix reaches a build only through the plan file.
 const defectsNote = defects

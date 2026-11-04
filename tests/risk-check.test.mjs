@@ -208,7 +208,10 @@ if (process.platform !== 'win32' && UID === 0) {
     const noHits = check(repo, tree, fileOf(tree, ['search: a phrase no file holds', 'scope: src']));
     ok(noHits.code === 2 && noHits.lines[0].startsWith('risk-check: git grep failed for the search on line '),
       `a search with no other hit exits 2 instead of reading as no hit: ${noHits.lines.join(' | ')}`);
-  } finally { setLocked(false); }
+  } finally {
+    // A failed unlock must not replace the try block's error.
+    try { setLocked(false); } catch { /* best effort */ }
+  }
 }
 
 section('with --base, each changed name a line outside the hunks holds and no search covers prints as uncovered');

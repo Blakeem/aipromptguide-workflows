@@ -49,6 +49,16 @@ if (!A.root) {
 const RUN_ID      = A.runId;
 const TARGET      = A.target ?? {};                        // { repo, lang, framework }
 const CONVENTIONS = A.conventions ?? '(none supplied — infer from the code)';
+// `conventions` is a distilled index, so both roles also read the target's own instruction files in full.
+// Copy of debug review.mjs's conventionFilesOf, since an engine cannot import: a test pins the copies equal.
+// Static lead clause: gen-flows labels the throw node from it.
+const conventionFilesOf = (value) => {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || !value.every((p) => typeof p === 'string' && p.trim())) {
+    throw new Error(`Invalid args.conventionFiles: it must be an array of file paths, each absolute or relative to target.repo; got ${JSON.stringify(value)}.`);
+  }
+  return value.map((p) => { const n = norm(p.trim()); return /^([a-zA-Z]:)?\//.test(n) ? n : `${REPO}/${n}`; });
+};
 const GOALS       = A.goals ?? '';                         // what "better" MEANS for this system (the north star every lens serves)
 const CONTEXT     = A.context ?? '';                       // domain facts the agents will not infer
 
@@ -163,10 +173,18 @@ if (!SCOPE.length) {
 }
 // A relative scope path is meaningless without a repo to resolve it against — and guessing would send
 // every finder to read the wrong tree and return a confidently wrong proposal list.
-const RELATIVE_SCOPE = SCOPE.filter((p) => !/^([a-zA-Z]:)?\//.test(norm(p)));
+const isAbsPath = (p) => /^([a-zA-Z]:)?\//.test(norm(p));
+const RELATIVE_SCOPE = SCOPE.filter((p) => !isAbsPath(p));
 if (RELATIVE_SCOPE.length && !REPO) {
   throw new Error(`args.target.repo is required when any args.scope path is relative (${RELATIVE_SCOPE.join(', ')}): pass the ABSOLUTE path to the system under audit — the directory holding its .git — since relative scope paths resolve against it. There is no default: args.root is THIS tool's directory, so defaulting would audit the tool. Give every scope path as an absolute path instead if the audit target is not one repo.`);
 }
+// With no repo, conventionFilesOf would resolve a relative entry to a root-level path such as /CLAUDE.md.
+const RELATIVE_CONVENTION_FILES = (Array.isArray(A.conventionFiles) ? A.conventionFiles : [])
+  .filter((p) => typeof p === 'string' && p.trim() && !isAbsPath(p.trim()));
+if (RELATIVE_CONVENTION_FILES.length && !REPO) {
+  throw new Error(`args.target.repo is required when any args.conventionFiles entry is relative (${RELATIVE_CONVENTION_FILES.join(', ')}): pass each entry as an absolute path, or set target.repo so a relative entry resolves against it.`);
+}
+const CONVENTION_FILES = conventionFilesOf(A.conventionFiles);
 
 // Lenses — the axes of enhancement. Each becomes ONE finder (+ verifier) → ONE proposal file.
 const LENSES = (Array.isArray(A.lenses) ? A.lenses : []).map((l, i) => {
@@ -215,6 +233,7 @@ const VERIFY_SCHEMA = {
           size:         { type: 'string', enum: ['trivial', 'small', 'medium', 'large'] },
           decision:     { type: 'string', enum: ['ADOPT', 'ROADMAP', 'NEEDS_USER', 'REJECT'] },
           is_defect:    { type: 'boolean', description: 'true if this is really a BUG in current behavior, not an enhancement. Always REJECT these, and say so.' },
+          defect_split: { type: 'boolean', description: 'true if you kept this candidate and wrote its defect half under `## Defects to route`.' },
           too_risky:    { type: 'boolean', description: 'true if the risk you verified outweighs the cost removed. Always REJECT these, and name the risk.' },
           theme:        { type: 'string', description: 'short grouping keyword so related proposals can be planned together' },
         },
@@ -240,7 +259,9 @@ Files outside the scope may be read and cited as evidence. A proposal may also n
 scope that its change must touch.
 CONVENTIONS / house rules (an enhancement must fit these, or argue explicitly for changing them):
 ${CONVENTIONS}
-${GOALS ? `WHAT "BETTER" MEANS HERE (the north star every lens serves):\n${GOALS}\n` : ''}${CONTEXT ? `CONTEXT: ${CONTEXT}\n` : ''}
+${CONVENTION_FILES.length ? `CONVENTION FILES (the project's own rules, which the CONVENTIONS text above indexes. Read each one in full):
+${CONVENTION_FILES.map((p) => `  - ${p}`).join('\n')}
+` : ''}${GOALS ? `WHAT "BETTER" MEANS HERE (the north star every lens serves):\n${GOALS}\n` : ''}${CONTEXT ? `CONTEXT: ${CONTEXT}\n` : ''}
 THIS IS AN ENHANCEMENT AUDIT:
   • An ENHANCEMENT makes a system that already WORKS work better: faster, cheaper, simpler, smaller,
     more robust, less work to operate, or newly capable.
@@ -359,7 +380,7 @@ REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1�
      \`## Rejected\`, so the user can route it to the defect workflow. Do NOT smuggle it through as an
      enhancement. A candidate that mixes a defect with a separable enhancement keeps its enhancement
      half: score and route that half with is_defect=false, narrow its Today and Instead lines to it,
-     and put the defect half under \`## Defects to route\`.
+     put the defect half under \`## Defects to route\` and set defect_split=true.
   5. ITS RISK OUTWEIGHS IT. Check the stated risk against the code, and look for one the finder missed.
      A change that would break or weaken something the system needs, or leave ambiguous an instruction
      or contract that must be exact, is rejected unless the cost removed clearly outweighs it. Set
@@ -554,11 +575,12 @@ const verifyUnit = async (unit) => {
       roadmap: by('ROADMAP'),
       needs_user: by('NEEDS_USER'),
       rejected: by('REJECT'),
-      defects: mine.filter((x) => x.is_defect === true).length,
+      // A kept candidate whose defect half went under `## Defects to route` counts too, or the file holds a defect no count names.
+      defects: mine.filter((x) => x.is_defect === true || x.defect_split === true).length,
       tooRisky: mine.filter((x) => x.too_risky === true).length,
       unjudged: unjudged.length,
     };
-    log(`  ✓ ${lens.id}: ${counts.found} candidate(s) → ${counts.adopt} adopt, ${counts.roadmap} roadmap, ${counts.needs_user} needs-user, ${counts.rejected} rejected${counts.defects ? ` (${counts.defects} were DEFECTS → debug workflow)` : ''}${counts.tooRisky ? ` (${counts.tooRisky} too risky)` : ''}`);
+    log(`  ✓ ${lens.id}: ${counts.found} candidate(s) → ${counts.adopt} adopt, ${counts.roadmap} roadmap, ${counts.needs_user} needs-user, ${counts.rejected} rejected${counts.defects ? ` (${counts.defects} held DEFECTS → debug workflow)` : ''}${counts.tooRisky ? ` (${counts.tooRisky} too risky)` : ''}`);
     lensResult[lens.id] = {
       lens: lens.id, focus: lens.focus, file: proposalFile(lens.id), counts,
       kept: mine.filter((x) => x.decision !== 'REJECT')
@@ -578,7 +600,7 @@ const adopt = total('adopt'), roadmap = total('roadmap'), needsUser = total('nee
 const unjudgedTotal = total('unjudged');
 const unjudgedFiles = live.filter((r) => r.counts.unjudged > 0).map((r) => r.file);
 const defects = total('defects');
-log(`enhance: ${adopt} adopt, ${roadmap} roadmap, ${needsUser} needs-user across ${live.length} lens(es)${defects ? `; ${defects} candidate(s) were defects (debug workflow)` : ''}`);
+log(`enhance: ${adopt} adopt, ${roadmap} roadmap, ${needsUser} needs-user across ${live.length} lens(es)${defects ? `; ${defects} candidate(s) held defects (debug workflow)` : ''}`);
 
 return {
   runId: RUN_ID,

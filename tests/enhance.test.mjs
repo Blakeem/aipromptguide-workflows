@@ -3,7 +3,7 @@
 // than throwing, and the only thing standing between that and a lens reported as cleanly audited is an
 // explicit guard per stage (tests/CLAUDE.md §3). `failed` is the operator's one signal that a lens
 // produced nothing because nobody looked — assert it for BOTH stages, or the guards drift apart.
-import { runEngine, section, ok, eq } from './harness.mjs';
+import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
 import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/enhance/enhance-cycle.mjs';
@@ -109,6 +109,49 @@ section('a candidate the verifier judges too risky is rejected, counted, and kep
   ok(!out.lenses[0]?.kept.some((k) => k.id.endsWith('-1')), 'the risky one is not among them');
   ok(out.nextStep.includes('ROADMAP items a section-mode block when they span many call sites'), 'nextStep routes ROADMAP to a section-mode block only across many call sites');
   ok(!out.nextStep.includes('returned no verdict'), 'and holds no unjudged line when every candidate has a verdict');
+}
+
+section('a kept candidate whose defect half was split off counts as a defect');
+// The proposal file holds that half under `## Defects to route`, so a count of is_defect verdicts alone reads 0.
+{
+  const { out, logs, prompt } = await runEngine(ENGINE, {
+    args: { ...baseArgs, lenses: ['efficiency'] },
+    respond: {
+      find: foundN(2),
+      verify: verifiedWith(() => [
+        verdict('efficiency-1', { is_defect: false, defect_split: true }),
+        verdict('efficiency-2'),
+      ]),
+    },
+  });
+  eq(out.summary.defects, 1, 'the summary counts the split defect');
+  eq(out.lenses[0]?.counts.defects, 1, 'and so does the lens');
+  eq(out.lenses[0]?.kept.length, 2, 'and the candidate stays kept');
+  ok(logs.some((l) => /1 candidate\(s\) held defects \(debug workflow\)/.test(l)), 'the run log names the defect');
+  ok(prompt('verify').includes('put the defect half under `## Defects to route` and set defect_split=true.'), 'the verifier is told to set defect_split');
+}
+
+section('conventionFiles reach the finder and the verifier, and a bad or unresolvable value throws');
+// The distilled conventions text is an index, so both roles read the project's own instruction files in full.
+{
+  const HEAD = "CONVENTION FILES (the project's own rules, which the CONVENTIONS text above indexes. Read each one in full):";
+  const respond = { find: FOUND, verify: VERIFIED };
+  const none = await runEngine(ENGINE, { args: { ...baseArgs, lenses: ['efficiency'] }, respond });
+  ok(!none.prompt('find').includes('CONVENTION FILES') && !none.prompt('verify').includes('CONVENTION FILES'), 'without the arg, no prompt carries the section');
+  const set = await runEngine(ENGINE, { args: { ...baseArgs, lenses: ['efficiency'], conventionFiles: [' CLAUDE.md', ' E:/home/.claude/CLAUDE.md '] }, respond });
+  for (const role of ['find', 'verify']) {
+    ok(set.prompt(role).includes(`${HEAD}\n  - E:/repo/CLAUDE.md\n  - E:/home/.claude/CLAUDE.md\n`), `the ${role} prompt lists each file trimmed, a relative one resolved against target.repo`);
+  }
+  for (const bad of ['CLAUDE.md', [' '], [null]]) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, conventionFiles: bad } });
+    ok(msg.startsWith('Invalid args.conventionFiles: it must be an array of file paths') && msg.includes(JSON.stringify(bad)),
+      `conventionFiles ${JSON.stringify(bad)} throws naming the value: ${msg.slice(0, 120)}`);
+  }
+  const noRepo = { runId: 't', root: 'E:/r', scope: ['E:/repo/workflows/'], lenses: ['efficiency'] };
+  const msg = await throwsWith(ENGINE, { args: { ...noRepo, conventionFiles: ['E:/repo/CLAUDE.md', 'docs/RULES.md'] } });
+  ok(msg.startsWith('args.target.repo is required when any args.conventionFiles entry is relative (docs/RULES.md)'), `a relative entry with no target.repo throws naming it: ${msg.slice(0, 120)}`);
+  const absOnly = await runEngine(ENGINE, { args: { ...noRepo, conventionFiles: ['E:/repo/CLAUDE.md'] }, respond });
+  ok(absOnly.prompt('find').includes(`${HEAD}\n  - E:/repo/CLAUDE.md\n`), 'an absolute entry needs no target.repo');
 }
 
 section('a verifier that does not attest a lens\'s proposal file lands that lens in failed');

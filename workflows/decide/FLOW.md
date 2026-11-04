@@ -93,11 +93,11 @@ flowchart TD
 | throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside investigate \| decide \| review, or maps one to a blank name | throw (line 97) |
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 115) |
 | throw: args.planPath is required | args carry no planPath | throw (line 137) |
-| throw: Opening investigator returned nothing | the opening investigator dies | throw (line 463) |
-| throw: A user request was relayed into the context of the opening investigator ahead of its task | the opening investigator reports a user request relayed into its context | throw (line 466) |
-| throw: Challenger returned nothing | a challenger dies | throw (line 475) |
-| throw: Decider returned nothing | the decider dies | throw (line 496) |
-| throw: Reviewer returned nothing | the final reviewer dies | throw (line 510) |
+| throw: Opening investigator returned nothing | the opening investigator dies | throw (line 484) |
+| throw: A user request was relayed into the context of the opening investigator ahead of its task | the opening investigator reports a user request relayed into its context | throw (line 487) |
+| throw: Challenger returned nothing | a challenger dies | throw (line 496) |
+| throw: Decider returned nothing | the decider dies | throw (line 517) |
+| throw: Reviewer returned nothing | the final reviewer dies | throw (line 531) |
 
 ## Coverage
 

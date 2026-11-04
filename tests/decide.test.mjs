@@ -257,13 +257,15 @@ section('the challenger carries the contribution rule and the early-stop proof')
     'A NEW OPTION, FEATURE ADDED, FEATURE REMOVED or CORRECTION is a change, inside the scope the rubric decides, to what would be built or done. It must make the option better on at least one weighted criterion or on a plain measure the rubric does not name',
     'A DEFECT counts with or without a fix, since it records a failure that no later agent may build on.',
     'No size threshold applies, since several small contributions can lift an option over another.',
-    'unless it names the shortcoming that holds a lower option down and gives evidence that the contribution resolves it. A DEFECT targets the option it is found in, at any standing.',
+    'unless it names the shortcoming that holds a lower option down and gives evidence that the contribution resolves it. A contribution that other options can carry unchanged names each of them under `also fits`, by option id, and counts in each option it names. A DEFECT targets the option it is found in, at any standing.',
+    'A DEFECT in a contribution names that contribution\'s id and holds against every option that carries it.',
     'Record each defect you come across while you replace, improve or verify as a DEFECT contribution. Never build a contribution on a part a recorded defect names unless that contribution fixes it.',
     'Never repeat a contribution an earlier file holds, and never edit an earlier file.',
     '`## Contributions`: each under an id C2.1, C2.2 and so on',
+    'or, for a new option, the next free option id, the option ids under `also fits`, if any, what changes',
     '`## Standing`: every option of the run in order after your contributions, with each recorded defect no file fixes yet weighed against its option',
     'Set contributed=false only when `## Contributions` reads `None.` and `## Searched` holds at least one replacement attempt against the leader\'s assumptions, and an improvement attempt and a defect check for each of the three leading options (every option when fewer stand) under `## Standing`',
-    'A defect check on a design of software or a process names each of the five hostile inputs with its result. Each attempt and check gives the reason it adds nothing under the contribution rule.',
+    'A defect check on a design of software or a process names each of the five hostile inputs with its result. A defect check on the do-nothing option names no hostile inputs, and reports each defect in today\'s design that you come across as a DEFECT contribution. Each attempt and check gives the reason it adds nothing under the contribution rule.',
   ]) ok(i2.includes(piece), `the challenger prompt holds: ${piece.slice(0, 70)}`);
   ok(/^3\. /m.test(i2Raw) && !/^4\. /m.test(i2Raw), 'the challenger procedure keeps three numbered steps, the defect record inside them');
   const i1 = flat((await run(CLEAN)).prompt('investigate i1'));
@@ -290,9 +292,18 @@ section('the decider ranks under the tie rule and writes every section, and the 
   const order = ['## Ranking', '## Options', '## Matrix', '## Flip check', '## Ruled out', '## Changes to investigation facts', '## Checks for the user'];
   ok(ascending(positions(dec, order.map((h) => `- \`${h}\``))), 'the decision file\'s sections are listed in order');
   // Groups formed down one sorted list give every chain of near totals an order, which a pairwise margin cannot.
-  const tieRule = 'sort the ranked options by total, best first. The options whose totals lie at most M below the highest total, where M is 5% of the sum of every criterion\'s weight, form a tie group, ranked simplest first. Form each next group the same way from the options left.';
+  const simplest = 'The simplest option has the fewest parts to run and maintain once it is in place (components, steps and rules), and the smaller build breaks a tie that remains.';
+  const tieRule = `sort the ranked options by total, best first. The options whose totals lie at most M below the highest total, where M is 5% of the sum of every criterion's weight, form a tie group, ranked simplest first. ${simplest} Form each next group the same way from the options left.`;
   ok(dec.includes(`under the TIE RULE: ${tieRule} The file says where a tie group puts a simpler option above a higher total.`), 'the tie rule, scaled to the weights and grouped down one list');
-  ok(dec.includes('Every option an investigation file holds appears under `## Ranking` or `## Ruled out`.'), 'every option is ranked or ruled out');
+  ok(dec.includes(`Prefer the SIMPLEST option that meets all requirements. ${simplest} If a more complex option ranks above it`), 'the rubric rules define simplest as the tie rule does');
+  ok(dec.includes('Every option an investigation file gives an option id, under `## Options`, `## Contributions` or `## Searched`, appears under `## Ranking` or `## Ruled out`. A candidate named without an option id is not an option.'), 'every option with an id is ranked or ruled out');
+  ok(dec.includes('A contribution counts in the option it targets and in each option under its `also fits`.'), 'a contribution counts in each option it fits');
+  const brokenContribution = 'A defect in a contribution is a con of every option that carries it and bears on the cells of each. A defect that breaks a non-negotiable in a contribution an option carries rules out the option as stated.';
+  ok(dec.includes(`${brokenContribution} The option without that contribution goes under \`## Checks for the user\`, with the check that would rank it.`),
+    'the decider weighs a defective contribution in every option that carries it, and sends an option without its must-breaking contribution to the checks for the user');
+  ok(dec.includes('each option step 1 sends here and each untested combination of step 1'), 'and the checks section lists those options');
+  ok(dec.includes('Each entry under the rubric\'s `## Given options` that no investigation file gives an option id goes under `## Checks for the user` as a given option no agent weighed, with the check that would weigh it.'),
+    'a given option no file names is a check for the user');
   ok(dec.includes('the one observation that would reverse that.'), 'a ruled-out option names what would reverse it');
   const rev = flat(prompt('review'));
   ok(rev.includes('Open the source behind every cell of the three top-ranked options, behind every non-negotiable judgment of every ranked option and behind the evidence of every `## Ruled out` entry.'), 'the reviewer opens the sources, the ruled-out evidence included');
@@ -313,7 +324,7 @@ section('the decider builds no option and no combination, and the reviewer hunts
   const dec = flat(prompt('decide'));
   ok(!/MAY build|every combination you build|under the next free option id/.test(dec), 'the decider holds no instruction to build a combination or a new option');
   ok(dec.includes('You rank only those options: the investigation chain builds every option and every combination.'), 'and ranks only the options the files hold');
-  ok(dec.includes('A combination the files do not hold goes under `## Checks for the user` as an untested combination, with the option ids it would join and the result that would change the ranking, and is not ranked.'),
+  ok(dec.includes('A combination the files do not hold goes under `## Checks for the user` as an untested combination, with the option ids it would join, the check that would test it and the result that would change the ranking, and is not ranked.'),
     'a combination the files do not hold is an untested check for the user');
   ok(dec.includes('A `combines with` mark says only that two ranked options compose, and adds no check.'),
     'a combines-with mark is no untested combination');
@@ -323,9 +334,13 @@ section('the decider builds no option and no combination, and the reviewer hunts
   ok(ascending(positions(rev, [hunt, '2. Open the source behind every cell'])), 'the defect hunt comes before the source checks');
   ok(rev.includes(`Check each contribution of ${I(4)}, since no later investigator read it.`), 'and names the last investigation file\'s contributions');
   ok(rev.includes('Never write the fix into the option, since no agent would check a fix added after the chain.'), 'and forbids writing a fix into an option');
+  ok(rev.includes('A defect in a contribution is a con of every option that carries it and bears on the cells of each. A defect that breaks a non-negotiable in a contribution an option carries rules out the option as stated. Flag the option without that contribution. A defect you suspect and cannot show is a flag.'),
+    'and weighs a defective contribution in every option that carries it, ruling out each one it breaks a must of and flagging the option without it');
+  ok(rev.includes('Check that every option an investigation file gives an option id is ranked or ruled out, that each entry under the rubric\'s `## Given options` is such an option or a check for the user'),
+    'and checks every option with an id is ranked or ruled out, and every given option is placed');
   ok(rev.includes('A defect you suspect and cannot show is a flag.'), 'and flags a defect it cannot show');
-  ok(rev.includes('`## Flags`: each score or order you would judge differently with no proven error, and each defect you suspect and cannot show, each with your reason, or `None.`'),
-    'and the `## Flags` section admits that defect');
+  ok(rev.includes('`## Flags`: each score or order you would judge differently with no proven error, each option without a ruling-out contribution that step 1 flags, and each defect you suspect and cannot show, each with your reason, or `None.`'),
+    'and the `## Flags` section admits that defect and the option without a ruling-out contribution');
   ok(rev.includes('as steps 3 to 5 say.') && rev.includes('3. Recompute every total.') && rev.includes('5. When an edit changes rank 1 or rank 2'), 'and points at the renumbered steps');
   const one = flat((await run(CLEAN, { ...baseArgs, maxInvestigators: 1 })).prompt('review'));
   ok(one.includes(`Check each option of ${I(1)}, since no later investigator read it.`), 'with only i1.md the reviewer checks each of its options');
@@ -363,6 +378,15 @@ section('target.repo adds the codebase to the shared rubric and to the opening a
   ok(flat(without.prompt('decide')).includes('You MAY search the web to fill a gap the files leave.'), 'and only the web without it');
 }
 
+section('the opening investigator makes each given option of the rubric an option of i1.md');
+// The engine does not parse the rubric, so a given option reaches the chain only through this sentence.
+{
+  const i1 = flat((await run(CLEAN)).prompt('investigate i1'));
+  ok(i1.includes(`Read the sources, search, and measure where you can. When the rubric holds \`## Given options\`, each entry there is an option of ${I(1)} under its own id, ahead of the options you find, and is judged like the rest.`),
+    'each given option is an option of i1.md, ahead of the ones the investigator finds');
+  ok(i1.includes('including a simple baseline.'), 'and the search keeps the simple baseline');
+}
+
 section('the hand-back presents the ranking, a fragile flip check and the checks for the user');
 {
   const { out } = await run(CLEAN);
@@ -375,6 +399,7 @@ section('the hand-back presents the ranking, a fragile flip check and the checks
   const fragile = await run({ ...CLEAN, decide: { ...DECIDE, user_checks: 2 }, review: { ...REVIEW, flip: 'fragile' } });
   ok(flat(fragile.out.nextStep).includes(`The flip check is graded FRAGILE. Present \`## Flip check\` in ${S}/decision.md`), 'a fragile grade adds the flip note');
   ok(flat(fragile.out.nextStep).includes('Present the 2 check(s) under `## Checks for the user`'), 'and checks for the user add their note');
+  ok(flat(fragile.out.nextStep).includes('each names the check to run and what its result would change.'), 'and the note covers every kind of check');
   eq(fragile.out.userChecks, 2, 'userChecks returns the count');
   const odd = await run({ ...CLEAN, decide: { ...DECIDE, user_checks: -1 }, review: { ...REVIEW, flip: 'shaky' } });
   ok(odd.out.flip === '' && odd.out.userChecks === 0, 'a grade off the enum and a negative count read as none');

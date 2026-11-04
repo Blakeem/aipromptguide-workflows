@@ -186,7 +186,7 @@ const STATE_DIR = abs(A.stateDir ?? `runs/${RUN_ID}`);
 const ISSUES_DIR = `${STATE_DIR}/issues`;
 const REVIEWS_DIR = `${STATE_DIR}/reviews`;
 // `conventions` is a distilled index, so each agent also reads the project's own instruction files in full.
-// refine-cycle.mjs holds a copy, since an engine cannot import: a test pins the copies equal.
+// refine-cycle.mjs, develop-cycle.mjs and enhance-cycle.mjs hold copies, since an engine cannot import: a test pins the copies equal.
 // Static lead clause: gen-flows labels the throw node from it.
 const conventionFilesOf = (value) => {
   if (value === undefined) return [];

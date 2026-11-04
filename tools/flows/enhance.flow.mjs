@@ -90,7 +90,7 @@ export default {
       terminal: 'lens NOT audited (no marker attested, lens in failed at stage find)',
     },
 
-    // ---- the thirteen throw sites, in the order the engine checks them ------------------------------
+    // ---- the sixteen throw sites, in the order the engine checks them ------------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
@@ -112,6 +112,12 @@ export default {
       when: 'a scope path is relative and target.repo is missing',
       args: { runId: 'flow', root: 'E:/flow', scope: ['workflows/'] },
     },
+    {
+      name: 'relative conventionFiles, no repo',
+      when: 'a conventionFiles entry is relative and target.repo is missing',
+      args: { runId: 'flow', root: 'E:/flow', scope: ['E:/repo/workflows/'], conventionFiles: ['CLAUDE.md'] },
+    },
+    { name: 'conventionFiles is not a path list', when: 'args.conventionFiles is not an array of non-empty paths', args: { ...base, conventionFiles: 'CLAUDE.md' } },
     { name: 'no lenses', when: 'args.lenses is empty', args: { ...base } },
     { name: 'colliding lens ids', when: 'two lenses slug to one id', args: { ...base, lenses: ['Fast path', 'fast-path'] } },
     // A run launched inside a user turn relays that message to every agent, and the first agent says so.

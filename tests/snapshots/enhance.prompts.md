@@ -8,7 +8,7 @@ this file is stale.
 |---|---|---|---|---|
 | find | 1 | 1 | 5746 | two lenses propose |
 | find | 2 | 1 | 5782 | two lenses propose |
-| verify | 1 | 1 | 8778 | two lenses propose |
+| verify | 1 | 1 | 8800 | two lenses propose |
 
 ## find · variant 1 · schema 1
 
@@ -336,7 +336,7 @@ REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1�
      `## Rejected`, so the user can route it to the defect workflow. Do NOT smuggle it through as an
      enhancement. A candidate that mixes a defect with a separable enhancement keeps its enhancement
      half: score and route that half with is_defect=false, narrow its Today and Instead lines to it,
-     and put the defect half under `## Defects to route`.
+     put the defect half under `## Defects to route` and set defect_split=true.
   5. ITS RISK OUTWEIGHS IT. Check the stated risk against the code, and look for one the finder missed.
      A change that would break or weaken something the system needs, or leave ambiguous an instruction
      or contract that must be exact, is rejected unless the cost removed clearly outweighs it. Set
@@ -476,6 +476,10 @@ List in wrote_lenses the id of each lens whose proposal file you wrote, and retu
           "is_defect": {
             "type": "boolean",
             "description": "true if this is really a BUG in current behavior, not an enhancement. Always REJECT these, and say so."
+          },
+          "defect_split": {
+            "type": "boolean",
+            "description": "true if you kept this candidate and wrote its defect half under `## Defects to route`."
           },
           "too_risky": {
             "type": "boolean",

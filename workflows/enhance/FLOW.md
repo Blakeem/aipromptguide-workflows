@@ -20,17 +20,19 @@ flowchart TD
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args must include at least { runId, root, target, scope, lenses }"/]
   x3[/"throw: args.root is required"/]
-  x4[/"throw: args.minImpact must be one of ..."/]
-  x5[/"throw: Invalid role map"/]
-  x6[/"throw: Unknown role key in a role map"/]
-  x7[/"throw: Illegal role value in a role map"/]
-  x8[/"throw: Invalid agentTypes arg"/]
-  x9[/"throw: Invalid notes arg"/]
-  x10[/"throw: args.scope is required"/]
-  x11[/"throw: args.target.repo is required when any args.scope path is relative"/]
-  x12[/"throw: args.lenses is required"/]
-  x13[/"throw: lens ids collide after slugging"/]
-  x14[/"throw: A user request was relayed into the context of the finder for ... ahead of its task"/]
+  x4[/"throw: Invalid args.conventionFiles"/]
+  x5[/"throw: args.minImpact must be one of ..."/]
+  x6[/"throw: Invalid role map"/]
+  x7[/"throw: Unknown role key in a role map"/]
+  x8[/"throw: Illegal role value in a role map"/]
+  x9[/"throw: Invalid agentTypes arg"/]
+  x10[/"throw: Invalid notes arg"/]
+  x11[/"throw: args.scope is required"/]
+  x12[/"throw: args.target.repo is required when any args.scope path is relative"/]
+  x13[/"throw: args.target.repo is required when any args.conventionFiles entry is relative"/]
+  x14[/"throw: args.lenses is required"/]
+  x15[/"throw: lens ids collide after slugging"/]
+  x16[/"throw: A user request was relayed into the context of the finder for ... ahead of its task"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -45,13 +47,15 @@ flowchart TD
   S0 --> x11
   S0 --> x12
   S0 --> x13
+  S0 --> x14
+  S0 --> x15
   a1 --> a2
   a1 --> t2
   a1 --> t3
   a1 --> t4
   a1 --> t5
   a1 --> t6
-  a1 --> x14
+  a1 --> x16
   a2 --> t1
 ```
 
@@ -75,18 +79,20 @@ flowchart TD
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 39) |
 | throw: args must include at least { runId, root, target, scope, lenses } | args carry no runId | throw (line 42) |
 | throw: args.root is required | args.root is missing | throw (line 46) |
-| throw: args.minImpact must be one of ... | args.minImpact names no rank | throw (line 60) |
-| throw: Invalid role map | models is an array in place of an object | throw (line 87) |
-| throw: Unknown role key in a role map | models carries a key outside find \| verify | throw (line 92) |
-| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 95) |
-| throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside find \| verify, or maps one to a blank name | throw (line 109) |
-| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 126) |
-| throw: args.scope is required | args.scope is empty | throw (line 162) |
-| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 168) |
-| throw: args.lenses is required | args.lenses is empty | throw (line 178) |
-| throw: lens ids collide after slugging | two lenses slug to one id | throw (line 182) |
-| throw: A user request was relayed into the context of the finder for ... ahead of its task | a finder reports a user request relayed into its context, so no verifier runs | throw (line 499) |
+| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 58) |
+| throw: args.minImpact must be one of ... | args.minImpact names no rank | throw (line 70) |
+| throw: Invalid role map | models is an array in place of an object | throw (line 97) |
+| throw: Unknown role key in a role map | models carries a key outside find \| verify | throw (line 102) |
+| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 105) |
+| throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside find \| verify, or maps one to a blank name | throw (line 119) |
+| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 136) |
+| throw: args.scope is required | args.scope is empty | throw (line 172) |
+| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 179) |
+| throw: args.target.repo is required when any args.conventionFiles entry is relative | a conventionFiles entry is relative and target.repo is missing | throw (line 185) |
+| throw: args.lenses is required | args.lenses is empty | throw (line 196) |
+| throw: lens ids collide after slugging | two lenses slug to one id | throw (line 200) |
+| throw: A user request was relayed into the context of the finder for ... ahead of its task | a finder reports a user request relayed into its context, so no verifier runs | throw (line 520) |
 
 ## Coverage
 
-21 scenarios · 2/2 roles · 14/14 throw sites · 0/0 halt statuses · 20 terminal states.
+23 scenarios · 2/2 roles · 16/16 throw sites · 0/0 halt statuses · 22 terminal states.

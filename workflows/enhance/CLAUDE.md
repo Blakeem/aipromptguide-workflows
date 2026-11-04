@@ -65,6 +65,9 @@ One phase, no mid-run questions — settle everything with the user first:
   checkout, or the plugin data dir). Give every `scope` path as an absolute path and you can omit it.
 - **`goals` (strongly recommended):** what "better" means for this system.
 - **`conventions`:** house rules an enhancement must fit — or argue explicitly for changing.
+- **`conventionFiles`:** the paths of the project's own instruction files, such as its CLAUDE.md files,
+  which both roles read in full. Each is absolute or relative to `target.repo`, and a relative entry with no
+  `target.repo` throws.
 - **`minImpact`** (default `moderate`): the floor. `marginal` is below it on purpose. Lower it only if
   you genuinely want the long tail; that is the noise spiral. The verifier rejects a candidate it scores
   below the floor and names it in that lens file's `## Rejected` section. That section is where a thin
@@ -131,7 +134,8 @@ noise.
   every defect, including one split from a kept candidate, under `## Defects to route` so you can route
   it, each as a block that reuses debug's issue-entry `- file:` and `**What:**` lines: `- file:` holds
   where, and `**What:**` what is broken and its harm. An `**Evidence:**` line holds the trigger and what
-  the verifier confirmed. Do not relax this — the
+  the verifier confirmed. A kept candidate whose defect half was split off carries `defect_split`, so the
+  return's `defects` counts include it beside each `is_defect` candidate. Do not relax this — the
   two workflows stay clean by staying separate.
 - **Read-only.** The only files written are the per-lens candidates and proposal files. Source is never
   modified, nothing is staged, nothing is committed.
@@ -187,7 +191,8 @@ inline.
 - **Required:** `runId` · `root` (§3) · `scope` (array of paths every finder reads) · `lenses` (array of
   axes — strings or `{ id, focus, criteria }`).
 - **Optional:** `target.repo` (absolute) · `goals` (what "better" means — strongly recommended) ·
-  `conventions` (house rules) · `context` (domain facts the agents won't infer) · `minImpact`
+  `conventions` (house rules) · `conventionFiles` (an array of instruction file paths, §3) · `context`
+  (domain facts the agents won't infer) · `minImpact`
   (`transformative`|`high`|`moderate`|`marginal`; default `moderate`) · `categories` (override the
   finder's category list — default `efficiency`, `simplification`, `removal`, `robustness`, `capability`,
   `operator-effort`, `consistency`, `observability`, `cost`) · `target.lang`/`target.framework` (hints) ·
