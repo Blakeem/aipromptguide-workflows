@@ -23,8 +23,11 @@ condition in parentheses runs only under it.
    `stateDir` and `notes` (§1, §5). Output: a value for each arg.
 4. Pre-allowlist `Bash(node '<blockTool>':*)`, with `<blockTool>` the absolute path of the `plan-block.mjs`
    that step 5 runs (§5). Output: that allow rule in the settings.
-5. Run `node <plan-block.mjs> <planPath> --list` with run_in_background, then end the turn (§2 step 2, root
-   `CLAUDE.md`, "Launch from a notification turn"). Output: that tool call is the last one of this turn.
+5. Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to,
+   holds no line on this run's plan or goal, and when one does, remove the line and launch from a new
+   session. Then run `node <plan-block.mjs> <planPath> --list` with run_in_background, then end the turn
+   (§2 step 2, root `CLAUDE.md`, "Launch from a notification turn"). Output: the index checked, and that
+   tool call is the last one of this turn.
 6. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
    `refine-cycle.mjs`, the args steps 1 and 3 chose and `blockTool` set to step 4's path (§2 step 2, §5,
    root `CLAUDE.md`, "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).

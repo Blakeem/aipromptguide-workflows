@@ -4,7 +4,7 @@
 `workflows/<x>/CLAUDE.md` are for *running* them inside someone's project. Development lore goes here, not
 there.
 
-Read it before you change an engine.
+Read it before you change an engine, and work §8's steps in order.
 
 ---
 
@@ -228,6 +228,9 @@ against (halt); an unreachable feature does not (flag).
   steps with a gap or a repeat, or cites in §0 a `§N` its own headings lack. A `§N` cites another guide
   only right after that guide's `CLAUDE.md` path in backticks or its bare workflow name, such as
   `develop §2`. A possessive such as `develop's §2` reads as the guide's own §2.
+- **Each pre-launch step carries the same memory check.** `static.test.mjs` fails when a §0 step of a
+  `workflows/*/CLAUDE.md` that names `run_in_background` lacks the `MEMORY.md` index sentence, or when a copy
+  of that sentence differs from the one the test pins. Change every copy and the test together.
 - **Test failure paths.** The happy path is exercised constantly by real runs. Halts, parks, dead agents,
   contradictory returns and bad args are what rot silently — and are where every real defect has been.
 - **`respond: { 'label': null }` simulates a dead agent** — one character, and it covers §3's number-one
@@ -381,23 +384,36 @@ and scores "clean" by dangling the label in whitespace at the tip of a long tear
 The markers are verified clean on both 11.4.1 (what GitHub was last observed serving) and 11.16.0 (the
 strictest layout measured).
 
-## 8. Before you call a change done
+## 8. Change steps
 
-- [ ] Grepped the sibling engines for the same defect shape (§1) and fixed each in its own file
-- [ ] `node tests/run.mjs` green, **and** a new case covering what you changed
-- [ ] Any new agent return is guarded for `null` (§3)
-- [ ] Any new exit path parks or changed nothing (§4)
-- [ ] The workflow's `CLAUDE.md` updated — a new required arg, return field, written file, or halt
-      condition is a documented behavior change; its `README.md` too if a human-visible behavior changed
-- [ ] `meta` still a pure literal, still LF-only (the suite checks both)
-- [ ] Prompt text changed? `node tools/gen-prompts.mjs` re-run, and its snapshot diff read for variants
-      the change was not meant to reach. Read `tests/snapshots/<engine>.prompts.md` for every prompt that
-      changed, as the agent that receives it reads it, since a constant's new sentence sits beside text
-      the edit did not show
-- [ ] Engine edited? `node tools/gen-flows.mjs` re-run and the updated `FLOW.md` committed (§7);
-      a new agent, guard or terminal state needs a scenario in `tools/flows/<name>.flow.mjs` too
-- [ ] Root `README.md` changelog updated as §10 step 1 says
-- [ ] Merged into `main`, the suite run here, and the worktree and its branch removed (§9)
+Work these steps in order. A step that opens with a condition in parentheses runs only under it. A develop
+run's agent works in the `target.repo` its prompt names, which stands in for the worktree, and skips steps
+1, 10, 11 and 12.
+
+1. Open a worktree off `main` with `node tools/wt.mjs open` (§9). Output: the path it prints.
+2. Run `node tests/run.mjs` in that worktree as a baseline. Output: its result.
+3. Grep the sibling engines for the same defect shape and fix each in its own file (§1). Output: the files
+   changed.
+4. Add a case covering the change (`tests/README.md`). When it asserts new or changed behavior, watch it
+   fail against the old code with the red-run recipe (§6). Output: the new case, and the red run's failing
+   assertion when one ran.
+5. Guard each new agent return for `null` (§3), and make each new exit path park or change nothing (§4).
+   Output: the case that exercises each.
+6. (when prompt text changed) Run `node tools/gen-prompts.mjs` and read its snapshot diff for variants the
+   change was not meant to reach. Then read each changed prompt in `tests/snapshots/<engine>.prompts.md` as
+   the agent that receives it reads it, since a constant's new sentence sits beside text the edit did not
+   show. Output: the variants the change reached.
+7. (when an engine changed) Run `node tools/gen-flows.mjs`, adding a scenario in
+   `tools/flows/<name>.flow.mjs` for a new agent, guard or terminal state (§7). Output: the updated
+   `FLOW.md`.
+8. (when the change affects a map's layout) Run `node tools/render-flows.mjs` (§7). Output: its report with
+   no overlap.
+9. Update the workflow's `CLAUDE.md` for a new required arg, return field, written file or halt condition,
+   and its `README.md` for a human-visible change. Output: the guide diff.
+10. Add the root `README.md` changelog bullet as §10 step 1 says. Output: the bullet.
+11. Run `node tests/run.mjs` green in the worktree and commit. Output: the commit.
+12. Close with `node tools/wt.mjs close ... --into main --gate "node tests/run.mjs"` as §9 shows, then run
+    `node tests/run.mjs` in the checkout. Output: both results.
 
 ## 9. Build in a worktree, and remove it when it merges
 
@@ -433,5 +449,14 @@ is done:
    opening today's section when it is missing.
 2. Run `node tests/run.mjs static`.
 3. Commit the changelog on its own.
-4. (when the run set `notes`) Check each survey theme against the code, and add each one that holds to the
-   backlog with `tools/plan-entry.mjs new` (`tools/CLAUDE.md`).
+4. (when the run set `notes`) Choice: for each theme in each `SURVEY.md`, decide whether it holds. Ask
+   whether the instruction text or code the theme cites shows the gap it names in the current tree, and cite
+   that file and line. A doubtful theme holds, with `--decision NEEDS_USER` in step 5. Output: one line per
+   theme, holds or not, with its file and line.
+5. (when the run set `notes`) For each theme that holds, run `node tools/plan-entry.mjs new --file
+   <dir>/survey-<runId>.md --block survey --run <runId> --file-ref <path:line> --category <c> --size <s>
+   --decision <d>`, where `<dir>` is what `node tools/project-settings.mjs backlog --root <root> --repo <this
+   checkout>` prints and `<d>` follows the decision rule of `workflows/develop/CLAUDE.md` §10
+   (`tools/CLAUDE.md`, "plan-entry.mjs"). Output: the entry id `new` prints.
+6. (when the run set `notes`) Fill each new entry's title, `**What:**` and `**Fix:**` with the Edit tool,
+   then run `node tools/plan-entry.mjs check <file>`. Output: `ok: <file>`.

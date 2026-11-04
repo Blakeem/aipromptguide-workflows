@@ -29,10 +29,11 @@ the one under the list's kind.
 1. Pick the kind ("Scope (pick the kind FIRST)"). Output: `kind: defects`, or the other workflow that
    section names for the job.
 2. (when the findings come from outside the code review, such as live testing, a bug bash, user reports or
-   a symptom you diagnosed) Hand-author the inventory in the verifier format ("External inventory (skip
-   the review)"). Output: the issue file.
+   a symptom you diagnosed) Hand-author the inventory in the verifier format under `<root>/plans/<runId>/`,
+   outside `target.repo` ("External inventory (skip the review)", "Playbook" step 2). Output: the issue file
+   at that path.
 3. (for step 2's issue file) Check that it parses with `node <plan-block.mjs> <file> --list`, then go to
-   step 14 ("External inventory (skip the review)"). Output: the block list it prints.
+   step 15 ("External inventory (skip the review)"). Output: the block list it prints.
 4. Choose the `runId` and `root` args ("Playbook" step 2, "State files (`runs/<runId>/`, outside every
    repo)"). Output: a value for each.
 5. Slice the repo into units with `node <gen-units.mjs> --repo <abs> --src src --out
@@ -42,106 +43,117 @@ the one under the list's kind.
    `conventionFiles`, `changePolicy` and, when wanted, `reviewSeverity`, `lens`, `models`, `efforts`,
    `agentTypes` and `notes` ("Playbook" step 2, "Lenses (optional)", "Args reference"). Output: a value
    for each arg.
-7. Run `git -C <target.repo> status --short` (`node --version` when the run has no `target.repo`) with
-   run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification turn"). Output:
-   that tool call is the last one of this turn.
+7. Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to,
+   holds no line on this run's plan or goal, and when one does, remove the line and launch from a new
+   session. Then run `git -C <target.repo> status --short` (`node --version` when the run has no
+   `target.repo`) with run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification
+   turn"). Output: the index checked, and that tool call is the last one of this turn.
 8. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
    `audit.mjs`, `kind: defects` and the args steps 4 and 6 chose ("Playbook" step 3, root `CLAUDE.md`,
    "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
 
 ### After a defects run
 
-9. (when the return's `failed` lists units to re-review, which `nextStep` names first) Resume the review
-   through steps 7 and 8, with `args.units` built as "Playbook" step 4 says, under the same `runId`, then
-   work this list again from step 9 on that run's return ("Playbook" step 4, "Args reference"). Output: a
-   return whose `failed` lists no unit to re-review.
-10. (when `nextStep` names units whose verifier verdicts did not match every finding id) Count those units'
+9. (when the run threw on a relayed user request) Relaunch through steps 7 and 8 with the same args, its
+   full `units` included, and the same `runId`, never a resume through "Playbook" step 4. Stop this pass of
+   the list there, and work it again from step 9 once that run ends ("Playbook" step 3, root `CLAUDE.md`,
+   "Launch from a notification turn"). Output: the relaunch's Workflow run id.
+10. (when the return's `failed` lists units to re-review, which `nextStep` names first) Resume the review
+    through steps 7 and 8, with `args.units` built as "Playbook" step 4 says, under the same `runId`, then
+    work this list again from step 9 on that run's return ("Playbook" step 4, "Args reference"). Output: a
+    return whose `failed` lists no unit to re-review.
+11. (when `nextStep` names units whose verifier verdicts did not match every finding id) Count those units'
     findings from their issue files ("Args reference"). Output: totals that include those findings.
-11. Read the issue files `nextStep` names and present the inventory from those files: totals by severity
+12. Read the issue files `nextStep` names and present the inventory from those files: totals by severity
     and decision, the hottest areas and each NEEDS_USER item with its options and recommendation, since
     after a resume the returned `inventory`, `hottest` and `needsUserFiles` cover only the re-reviewed units
     ("Playbook" step 3, "Args reference"). Output: the inventory presented to the user.
-12. Triage the inventory with the user by editing the issue files ("Playbook" step 5). Output: each entry's
+13. Triage the inventory with the user by editing the issue files ("Playbook" step 5). Output: each entry's
     `- decision:` line as the user chose it, and each approved NEEDS_USER item's rewritten `**Fix:**` line.
-13. Set each issue file's developer model with `node <plan-edit.mjs> set <file> <block-id> model=<model>`
+14. Set each issue file's developer model with `node <plan-edit.mjs> set <file> <block-id> model=<model>`
     ("Playbook" step 5). Output: a `model:` line in each issue file with findings.
-14. (for an issue file with no `- decision: ACTIONABLE` entry) Set its block `status: skip`, or leave the
-    file out of step 16 ("Playbook" step 6). Output: each such file at `status: skip` or left out.
-15. Confirm the gates are green in the user's checkout ("Playbook" step 6). Output: the gates' green result.
-16. Build the triaged issue files through `../develop/CLAUDE.md` §0 steps 2 to 33, with those files as its
-    plan files and its step 5 done by steps 11 to 14 of this list. Its steps 4, 6 to 8 and 12, which author,
+15. (for an issue file with no `- decision: ACTIONABLE` entry) Set its block `status: skip`, or leave the
+    file out of step 17 ("Playbook" step 6). Output: each such file at `status: skip` or left out.
+16. Confirm the gates are green in the user's checkout ("Playbook" step 6). Output: the gates' green result.
+17. Build the triaged issue files through `../develop/CLAUDE.md` §0 steps 2 to 33, with those files as its
+    plan files and its step 5 done by steps 12 to 15 of this list. Its steps 4, 6 to 8 and 12, which author,
     refine and approve a plan file, do not run for an issue file, the file this list's step 2 writes
     included, since develop §2 step 1 sends an issue file from its triage to develop §2 step 3. Start with
     one file, or a `runOnly` that names one block ("Playbook" step 6, "External inventory (skip the review)",
     `../develop/CLAUDE.md` §2 step 1). Output: the output of each develop §0 step that ran.
-17. Spot-read the riskiest fixes beside `../develop/CLAUDE.md` §6's checks, before the landing ("Playbook"
+18. Spot-read the riskiest fixes beside `../develop/CLAUDE.md` §6's checks, before the landing ("Playbook"
     step 6). Output: what each spot-read fix showed.
-18. (in stage delivery) Record `git -C <run worktree> diff --cached --stat` before the landing ("Playbook"
+19. (in stage delivery) Record `git -C <run worktree> diff --cached --stat` before the landing ("Playbook"
     step 6). Output: the recorded stat.
-19. Work `../develop/CLAUDE.md` §0 from its step 34 through step 43, with its step 37's summary also
+20. Work `../develop/CLAUDE.md` §0 from its step 34 through step 43, with its step 37's summary also
     holding each item that the last bullet of "Playbook" step 6 names. When its step 38 relaunches, work its
-    steps 18 to 33 on that run's result, then this list again from step 17 ("Playbook" step 6). Output:
+    steps 18 to 33 on that run's result, then this list again from step 18 ("Playbook" step 6). Output:
     develop §0 step 37's summary, holding those items.
-20. (when issue files that step 14 kept are still unbuilt, such as after step 16 started with one file)
-    Work this list again from step 15, with those files as step 16's plan files, under the same `runId`
+21. (when issue files that step 15 kept are still unbuilt, such as after step 17 started with one file)
+    Work this list again from step 16, with those files as step 17's plan files, under the same `runId`
     ("Playbook" step 6, `../develop/CLAUDE.md` §4, "Relaunch vs. new run"). Output: develop §0 step 37's
     summary for those files.
-21. (when `notes` is set) Run `node <survey's folder>/survey.mjs <notes.dir>` and report the themes, for
-    this run and for each develop run that steps 16 to 20 launched with `notes` set ("Args reference",
+22. (when `notes` is set) Run `node <survey's folder>/survey.mjs <notes.dir>` and report the themes, for
+    this run and for each develop run that steps 17 to 21 launched with `notes` set ("Args reference",
     `../develop/CLAUDE.md` §0 step 44). Output: the themes of each `SURVEY.md` it writes.
 
 ### Before an enhancements run
 
-22. Pick the kind ("Scope (pick the kind FIRST)"). Output: `kind: enhancements`, or the other workflow that
+23. Pick the kind ("Scope (pick the kind FIRST)"). Output: `kind: enhancements`, or the other workflow that
     section names for the job.
-23. Settle the scope and the lenses with the user ("The flow" step 1, "Pre-run setup (your job — no setup
+24. Settle the scope and the lenses with the user ("The flow" step 1, "Pre-run setup (your job — no setup
     agent, #4)", "Lenses — the fan-out axis"). Output: the `scope` and `lenses` values.
-24. Agree with the user what better means for this system ("The flow" step 2, "Pre-run setup (your job — no
+25. Agree with the user what better means for this system ("The flow" step 2, "Pre-run setup (your job — no
     setup agent, #4)"). Output: the `goals` value.
-25. Choose the other args: `runId`, `root`, `target.repo` (when a `scope` or `conventionFiles` path is
+26. Choose the other args: `runId`, `root`, `target.repo` (when a `scope` or `conventionFiles` path is
     relative) and, when wanted, `conventions`, `conventionFiles`, `context`, `minImpact`, `categories`,
     `target.lang`, `target.framework`, `models`, `efforts`, `agentTypes`, `stateDir` and `notes` ("The
     flow", "Pre-run setup (your job — no setup agent, #4)", "Args reference"). Output: a value for each arg.
-26. Run `git -C <target.repo> status --short` (`node --version` when the run has no `target.repo`) with
-    run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification turn"). Output:
-    that tool call is the last one of this turn.
-27. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
-    `audit.mjs`, `kind: enhancements` and the args steps 23 to 25 chose ("The flow" step 3, root
+27. Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to,
+    holds no line on this run's plan or goal, and when one does, remove the line and launch from a new
+    session. Then run `git -C <target.repo> status --short` (`node --version` when the run has no
+    `target.repo`) with run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification
+    turn"). Output: the index checked, and that tool call is the last one of this turn.
+28. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
+    `audit.mjs`, `kind: enhancements` and the args steps 24 to 26 chose ("The flow" step 3, root
     `CLAUDE.md`, "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
 
 ### After an enhancements run
 
-28. (when `nextStep` says NOTHING was audited) Tell the user no lens was audited, re-run the failed lenses
-    with the same `runId` through steps 26 and 27, and work this list again from step 28 on that run's
+29. (when the run threw on a relayed user request) Relaunch through steps 27 and 28 with the same args and
+    `runId`. Stop this pass of the list there, and work it again from step 29 once that run ends ("The
+    flow", root `CLAUDE.md`, "Launch from a notification turn"). Output: the relaunch's Workflow run id.
+30. (when `nextStep` says NOTHING was audited) Tell the user no lens was audited, re-run the failed lenses
+    with the same `runId` through steps 27 and 28, and work this list again from step 29 on that run's
     return ("Presenting the result (the deliverable is a triage conversation)", "State files
     (`runs/<runId>/`, outside every repo)"). Output: the re-run's Workflow run id.
-29. Read the proposal files `nextStep` lists, and only those, and present them in its order: the ADOPT
+31. Read the proposal files `nextStep` lists, and only those, and present them in its order: the ADOPT
     items, then ROADMAP, then each NEEDS_USER item with its options and recommendation ("Presenting the
     result (the deliverable is a triage conversation)", "Pre-run setup (your job — no setup agent, #4)").
     Output: every listed file presented to the user.
-30. Name each change that two or more lenses landed on independently ("Lenses — the fan-out axis",
+32. Name each change that two or more lenses landed on independently ("Lenses — the fan-out axis",
     "Presenting the result (the deliverable is a triage conversation)"). Output: each convergence named to
     the user.
-31. (when `summary.unjudged` is above 0) Check the unjudged candidates in the files `nextStep` names before
+33. (when `summary.unjudged` is above 0) Check the unjudged candidates in the files `nextStep` names before
     triage ("Presenting the result (the deliverable is a triage conversation)"). Output: each unjudged
     candidate read in its file.
-32. (when `nextStep` names failed lenses) Tell the user those lenses were not audited and offer to re-run
-    them through steps 26 and 27. When the user accepts, run that re-run once step 35 is done, then work
-    this list again from step 28 on its return ("Presenting the result (the deliverable is a triage
+34. (when `nextStep` names failed lenses) Tell the user those lenses were not audited and offer to re-run
+    them through steps 27 and 28. When the user accepts, run that re-run once step 37 is done, then work
+    this list again from step 29 on its return ("Presenting the result (the deliverable is a triage
     conversation)", "State files (`runs/<runId>/`, outside every repo)"). Output: the user's answer.
-33. Triage the proposals with the user ("Presenting the result (the deliverable is a triage
+35. Triage the proposals with the user ("Presenting the result (the deliverable is a triage
     conversation)"). Output: the user's decision on each item.
-34. Build the items the user adopts through `../develop/CLAUDE.md` §0 from its step 1 through step 43,
+36. Build the items the user adopts through `../develop/CLAUDE.md` §0 from its step 1 through step 43,
     writing at its step 6 an ADOPT item, or a NEEDS_USER item with the option the user chose, as a
     feature-mode block, and a ROADMAP item as a section-mode block when it spans many call sites and as a
     feature-mode plan of its own otherwise ("Scope (pick the kind FIRST)", root `CLAUDE.md`, "Into the plan
     bus", the return's `nextStep`). Output: develop §0 step 37's summary.
-35. (when a proposal file holds `## Defects to route`) Route each block under it to the defects kind as a
+37. (when a proposal file holds `## Defects to route`) Route each block under it to the defects kind as a
     fix-mode block you write in the defects verifier's format, and build it through `../develop/CLAUDE.md`
     §0 from its step 1 through step 43 ("Contracts (keep intact)", root `CLAUDE.md`, "Into the plan bus").
     Output: develop §0 step 37's summary for those blocks.
-36. (when `notes` is set) Run `node <survey's folder>/survey.mjs <notes.dir>` and report the themes, for
-    this run and for each develop run that steps 34 and 35 launched with `notes` set ("Args reference",
+38. (when `notes` is set) Run `node <survey's folder>/survey.mjs <notes.dir>` and report the themes, for
+    this run and for each develop run that steps 36 and 37 launched with `notes` set ("Args reference",
     `../develop/CLAUDE.md` §0 step 44). Output: the themes of each `SURVEY.md` it writes.
 
 ## Scope (pick the kind FIRST)
@@ -314,12 +326,16 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    Choose `changePolicy` as `../develop/CLAUDE.md` §4 "Choosing the change policy" says, which settles
    `auto` into `focused` or `proactive` for the run, and pass it.
 3. **Run `audit.mjs`** (`scriptPath` = its absolute path) with `kind: defects`, from a notification
-   turn (root `CLAUDE.md`, "Launch from a notification turn"). The first reviewer says whether its
-   context holds a relayed user request, and the engine throws before any verifier when it does. It
-   writes `issues/<unit>.md` per unit and returns counts + the hottest areas + `needsUserFiles`. When the
-   return's `failed` lists units to re-review (Args reference), resume them through step 4 (Resume the
-   review) before step 5 (triage). Then follow the return's `nextStep`. It leads with any unit to
-   re-review, then names the files to present and the triage and develop steps after it.
+   turn (root `CLAUDE.md`, "Launch from a notification turn"). Each reviewer says whether its context
+   holds a relayed user request. When one does, the engine stops every later lens pass and every verifier
+   that has not started, then throws. A relaunch after that throw passes the full `units`, never a
+   gen-units resume, since reviewers and verifiers of other units run concurrently, so they may have
+   written issue files with the real unit hash before the throw, and gen-units would read those units
+   `unchanged`. It writes `issues/<unit>.md` per unit and returns counts + the hottest areas +
+   `needsUserFiles`. When the return's `failed` lists units to re-review (Args reference), resume them
+   through step 4 (Resume the review) before step 5 (triage). Then follow the return's `nextStep`. It
+   leads with any unit to re-review, then names the files to present and the triage and develop steps
+   after it.
 4. **Resume the review.** Re-run `gen-units.mjs` with `--issues-dir <root>/runs/<runId>/issues`, under
    the same runId. gen-units resolves the flag against your cwd, and run-state hangs off `root`. It
    joins each unit against its issue file's `hash:` frontmatter, tags them `new`/`changed`/`unchanged`,
@@ -383,8 +399,9 @@ hand-author the inventory in the exact verifier format — the `## Plan: <id>` f
 its preamble, then `### [<id>]` blocks with the `- ` header lines (including `- status: open`), an
 `**Evidence:**` line with what confirmed the finding, and a precise `**Fix:**` — anchoring each behavior-level
 finding to `file:line` yourself, and record skipped findings with `- decision: SKIP` so the triage is on file.
-Check it parses: `node <plan-block.mjs> <file> --list`. Then playbook step 6 (Build the triaged files with
-develop).
+Write it under `<root>/plans/<runId>/` ("Playbook" step 2 defines `root`), the place `../develop/CLAUDE.md`
+§2 step 1 gives a plan file, never inside `target.repo` and never under `runs/<runId>/`. Check it parses:
+`node <plan-block.mjs> <file> --list`. Then playbook step 6 (Build the triaged files with develop).
 
 `--list` rejects a todo fix block with no `### [<id>]` entry, so a file that uses another heading fails
 the parse check above.
@@ -494,8 +511,8 @@ for it deliberately because most audits only add.
 ### The flow
 
 Launch every run from a notification turn (root `CLAUDE.md`, "Launch from a notification turn").
-The first agent of a run says whether its context holds a relayed user request, and the engine throws
-before any later agent when it does.
+Each finder says whether its context holds a relayed user request. When one does, the engine throws
+before any verifier.
 Pick a `runId`. `Workflow` loads by path: `scriptPath` = absolute path to `audit.mjs` + args with
 `kind: enhancements`. One phase, no mid-run questions — settle everything with the user first:
 

@@ -34,9 +34,11 @@ condition in parentheses runs only under it.
 9. Choose the optional args the run needs: `sources`, `maxRounds`, `minRoundBudget`, `context`,
    `target.lang`, `target.framework`, `stateDir`, `models`, `efforts`, `agentTypes` and, when the user
    wants the agents' feedback, `notes` (§3, §9). Output: a value for each arg chosen.
-10. Run `git -C <target.repo> status --short` (`node --version` when the run has no `target.repo`) with
-    run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification turn"). Output:
-    that tool call is the last one of this turn.
+10. Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to,
+    holds no line on this run's plan or goal, and when one does, remove the line and launch from a new
+    session. Then run `git -C <target.repo> status --short` (`node --version` when the run has no
+    `target.repo`) with run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification
+    turn"). Output: the index checked, and that tool call is the last one of this turn.
 11. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
     `investigate-cycle.mjs`, `phase: "refine"` and the args steps 4 to 9 chose (§2 step 3, root
     `CLAUDE.md`, "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
@@ -57,8 +59,11 @@ condition in parentheses runs only under it.
     answers and the confirmed gap fixes into the criteria file, treating each gap's suggestion as a hint,
     and replace each unfalsifiable criterion with one that evidence can settle (§2 step 4, the return's
     `nextStep`). Output: the edited criteria file.
-17. Run step 10's pre-launch command with run_in_background, then end the turn (§2, root `CLAUDE.md`,
-    "Launch from a notification turn"). Output: that tool call is the last one of this turn.
+17. Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to,
+    holds no line on this run's plan or goal, and when one does, remove the line and launch from a new
+    session. Then run step 10's pre-launch command with run_in_background, then end the turn (§2, root
+    `CLAUDE.md`, "Launch from a notification turn"). Output: the index checked, and that tool call is the
+    last one of this turn.
 18. In the turn the notification starts, call Workflow with `phase: "run"`, the same args and `runId` as
     step 11, and `priorRounds: 0` (§2 step 5, §9, root `CLAUDE.md`, "Launch from a notification turn").
     Output: the Workflow run id (`wf_...`).

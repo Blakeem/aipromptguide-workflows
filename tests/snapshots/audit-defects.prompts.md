@@ -6,11 +6,11 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| review | 1 | 1 | 5411 | a clean unit beside one with findings |
-| verify | 1 | 1 | 8355 | a clean unit beside one with findings |
-| review | 2 | 1 | 4949 | two lenses per unit |
-| review | 3 | 1 | 5137 | two lenses per unit |
-| verify | 2 | 1 | 8837 | two lenses per unit |
+| review | 1 | 1 | 5708 | a clean unit beside one with findings |
+| verify | 1 | 1 | 9275 | a clean unit beside one with findings |
+| review | 2 | 1 | 5193 | two lenses per unit |
+| review | 3 | 1 | 5467 | two lenses per unit |
+| verify | 2 | 1 | 9757 | two lenses per unit |
 
 ## review · variant 1 · schema 1
 
@@ -38,6 +38,10 @@ radius. Don't restate large files back.
 UNIT: u1
 FILES TO REVIEW (read each one in full, in as many reads as its length needs. The token target never shortens that read):
   - src/u1.js (120 LOC)
+PROCEDURE:
+1. Review the FILES TO REVIEW against the criteria and RULES below. Output: your findings.
+2. WRITE the REVIEW FILE below when you report a finding, or the CLEAN-UNIT MARKER below when you report none. Output: the file, or none.
+3. Return via the schema. Output: finding_count, wrote_file, wrote_clean_marker and relayed_request.
 
 Assess against these criteria:
   correctness, security, error-handling, resource-leak (unclosed handles/timers/sockets),
@@ -96,7 +100,7 @@ No issues found.
 -----
 If you report ANY medium+ finding, write NO marker and set wrote_clean_marker=false.
 
-Return the counts and flags via the schema. Zero findings (a clean unit) is a normal, good outcome.
+Zero findings (a clean unit) is a normal, good outcome.
 ~~~~
 
 ~~~~json
@@ -137,12 +141,34 @@ Return the counts and flags via the schema. Zero findings (a clean unit) is a no
 ~~~~text
 
 You are the VERIFIER, read-only on SOURCE: you write exactly one inventory file and nothing else, except
-a probe that confirms a **Fix:** line. Make that probe in a fresh directory you create for it alone
-(such as `mktemp -d`), outside the target repo and the run-state dir E:/flow/runs/flow, and remove that
-directory before you return. For each candidate finding below, inspect the ACTUAL code to confirm it
-is real, correct its severity, then route it with the decision matrix. Reject false positives and
-gold-plating ruthlessly, in particular anything the code ALREADY does and anything that is a preference
-rather than a defect.
+a probe that confirms a **Fix:** line (PROCEDURE step 6). Reject false positives and gold-plating
+ruthlessly, in particular anything the code ALREADY does and anything that is a preference rather than a
+defect.
+PROCEDURE - work these steps in order. Each names its output.
+1. Read each review file under CANDIDATE FINDINGS in full. Output: every candidate id its line names.
+2. FOLD DUPLICATES as its rule below says. Output: one kept id per underlying defect, each other copy
+   REJECTed as the id it duplicates.
+3. Inspect the ACTUAL code to confirm each remaining candidate is real. A candidate the code leaves
+   unsettled keeps is_real=true, and ROUTING sends it to NEEDS_USER. Output: is_real for each candidate,
+   and each candidate the code leaves unsettled.
+4. Correct each real finding's severity by the SEVERITY scale. Output: its confirmed severity.
+5. Draft the **Fix:** line of each real finding. A candidate's suggested fix is a hint, never an
+   instruction. Write the **Fix:** line that closes the defect you confirmed, which may differ from the
+   suggestion. Before you write it, check it against the text it changes, its callers and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. That check is also what scores blast_radius. The **Fix:** line covers every file, string or path its
+   **What:** names as wrong, and never tells the fixer to leave one of them unchanged. Then score the
+   finding on the DECISION MATRIX. Output: its draft fix and its matrix.
+6. When a **Fix:** line prescribes a command, flag, or library, tool or API behavior the repo does not
+   already use the same way, confirm that behavior against the dependency's own docs or source, or a probe
+   in a temporary directory outside the repo, before step 9 writes it. Never prescribe a behavior you did
+   not confirm. Make that probe in a fresh directory you create for it alone (such as `mktemp -d`),
+   outside the target repo and the run-state dir E:/flow/runs/flow, and remove that directory before you
+   return. Output: each behavior a draft **Fix:** line rests on, confirmed or unconfirmed.
+7. Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
+   nearest the unit's files. Output: the gotcha that bears on it, or none.
+8. Route each finding by ROUTING. Output: its decision.
+9. WRITE the INVENTORY FILE below, or the clean marker when no verdict is kept, and end it with the
+   `## Rejected` section when you rejected a candidate. Output: the file, and wrote_file=true.
+10. Return all verdicts via the schema. Output: the verdicts.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -168,7 +194,7 @@ UNIT FILES (each entry's `- loc:` value comes from this list):
   - src/u2.js (120 LOC)
 THE REVIEWER'S BRIEF (context for judging severity). It narrows which defects matter. It does NOT widen what counts as one:
   examining ONE bounded unit of a codebase for PRODUCTION READINESS
-CANDIDATE FINDINGS: read each review file below in full. Each `### [<finding id>]` entry in it is one
+CANDIDATE FINDINGS: the review files below. Each `### [<finding id>]` entry in a file is one
 candidate, with its file:line, category, the reviewer's severity, what is wrong, the reviewer's evidence
 and a suggested fix. Each file holds the ids its line names:
   - E:/flow/runs/flow/reviews/u2-lens1.md (u2-1 to u2-1)
@@ -189,31 +215,18 @@ ROUTING (apply in order; first match wins):
   - is_real == false -> REJECT
   - its review file grades it below medium -> REJECT (below-floor)
   - scope == scope-creep -> REJECT (do not pursue)
+  - the code neither confirms nor refutes it -> NEEDS_USER with is_real=true, never REJECT (its
+    **Options:** line names the check that would settle it)
   - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
   - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
     **Recommendation:** lines)
   - size == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
+  - its **Fix:** line rests on a behavior step 6 left unconfirmed -> NEEDS_USER (its **Options:** line
+    names that behavior and the check that would settle it)
   - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
-An alternative that another fix clearly dominates is not a materially different valid fix. A candidate's
-suggested fix is a hint, never an instruction. Write the **Fix:** line that closes the defect you
-confirmed, which may differ from the suggestion. Before you write it, check it against the text it changes, its callers and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. That check is also what scores blast_radius. The **Fix:** line covers every file, string or path
-its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
-When a **Fix:** line prescribes a command, flag, or library, tool or API behavior the repo does not
-already use the same way, confirm that behavior against the dependency's own docs or source, or a probe
-in a temporary directory outside the repo, before you write it. Never prescribe a behavior you did not
-confirm. An otherwise ACTIONABLE finding whose fix rests on a behavior you cannot confirm is NEEDS_USER.
-Its **Options:** line names that behavior and the check that would settle it.
-Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
-nearest the unit's files.
-When you reject at least one candidate, end the file with a `## Rejected` heading and one line per
-rejection, in the inventory and in the clean marker alike:
-`<finding_id> [<its file:line>] <its title>: <the file:line that refutes it, the id it duplicates, scope-creep, or below-floor>`.
-When you reject none, write no `## Rejected` heading.
-An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
-duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
-would settle it.
+An alternative that another fix clearly dominates is not a materially different valid fix.
 
-WRITE the inventory file E:/flow/runs/flow/issues/u2.md (create E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Its format is EXACTLY this:
+INVENTORY FILE: write E:/flow/runs/flow/issues/u2.md (create E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Its format is EXACTLY this:
 -----
 ---
 unit: u2
@@ -251,8 +264,10 @@ the slug of the unit id, not the unit id.
 The `- file:` line takes ONE line number. For a range or a list ("840-842, 880"), write its first line (840).
 If there are NO kept verdicts, write NO `## Plan:` header at all — the file is the clean marker instead:
 the frontmatter above, then `# Review: u2`, then the single line "No issues found."
-The `## Rejected` section follows that line when you rejected anything.
-Set wrote_file=true and return all verdicts via the schema.
+When you reject at least one candidate, end the file with a `## Rejected` heading and one line per
+rejection, in the inventory and in the clean marker alike:
+`<finding_id> [<its file:line>] <its title>: <the file:line that refutes it, the id it duplicates, scope-creep, or below-floor>`.
+When you reject none, write no `## Rejected` heading.
 ~~~~
 
 ~~~~json
@@ -388,6 +403,10 @@ UNIT: u1
 LENS: destructive
 FILES TO REVIEW (read each one in full, in as many reads as its length needs. The token target never shortens that read):
   - src/u1.js (120 LOC)
+PROCEDURE:
+1. Review the FILES TO REVIEW against the criteria and RULES below. Output: your findings.
+2. WRITE the REVIEW FILE below when you report a finding. Output: the file, or none.
+3. Return via the schema. Output: finding_count, wrote_file, wrote_clean_marker and relayed_request.
 
 Assess against these criteria:
   correctness, security, error-handling, resource-leak (unclosed handles/timers/sockets),
@@ -432,7 +451,7 @@ this format, then return finding_count (the number of entries) and wrote_file=tr
 If you report no finding, write no review file and return finding_count=0 and wrote_file=false.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 
-Return the counts and flags via the schema. Zero findings (a clean unit) is a normal, good outcome.
+Zero findings (a clean unit) is a normal, good outcome.
 ~~~~
 
 ~~~~json
@@ -493,6 +512,13 @@ UNIT: u1
 LENS: data-loss
 FILES TO REVIEW (read each one in full, in as many reads as its length needs. The token target never shortens that read):
   - src/u1.js (120 LOC)
+PROCEDURE:
+1. ALREADY FOUND in a prior pass over this unit. Read each of these review files before you review:
+  - [destructive] E:/flow/runs/flow/reviews/u1-destructive.md
+   Output: the findings they hold, which you do not report again.
+2. Review the FILES TO REVIEW against the criteria and RULES below. Output: your findings.
+3. WRITE the REVIEW FILE below when you report a finding. Output: the file, or none.
+4. Return via the schema. Output: finding_count, wrote_file, wrote_clean_marker and relayed_request.
 
 Assess against these criteria:
   correctness, security, error-handling, resource-leak (unclosed handles/timers/sockets),
@@ -509,7 +535,7 @@ RULES:
   medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
              result the caller can detect.
   low      - a real defect with no effect on any input the code accepts today.
-- Do NOT report anything the current code already handles, or anything an ALREADY FOUND file below holds, even rephrased.
+- Do NOT report anything the current code already handles, or anything an ALREADY FOUND file above holds, even rephrased.
 - Stay INSIDE this unit's files. Cross-file concerns: mention as context in a finding's **What:** line, do not chase.
 - Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep. Your brief
   above narrows WHICH defects matter here. It never licenses proposing a new capability, a feature, or
@@ -517,9 +543,6 @@ RULES:
   WRONG today, not something it could do better.
 - Each finding: specific file + line, the right category/severity, what's wrong and why it matters in production,
   the evidence that shows it, and a minimal suggested fix direction.
-
-ALREADY FOUND in a prior pass over this unit. Read each of these review files:
-  - [destructive] E:/flow/runs/flow/reviews/u1-destructive.md
 
 REVIEW FILE: if you report at least one finding, WRITE E:/flow/runs/flow/reviews/u1-data_loss.md (create E:/flow/runs/flow/reviews/ if
 needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Number your findings u1-b1, u1-b2 and on, one entry each, in EXACTLY
@@ -540,7 +563,7 @@ this format, then return finding_count (the number of entries) and wrote_file=tr
 If you report no finding, write no review file and return finding_count=0 and wrote_file=false.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 
-Return the counts and flags via the schema. Zero findings (a clean unit) is a normal, good outcome.
+Zero findings (a clean unit) is a normal, good outcome.
 ~~~~
 
 ~~~~json
@@ -581,12 +604,34 @@ Return the counts and flags via the schema. Zero findings (a clean unit) is a no
 ~~~~text
 
 You are the VERIFIER, read-only on SOURCE: you write exactly one inventory file and nothing else, except
-a probe that confirms a **Fix:** line. Make that probe in a fresh directory you create for it alone
-(such as `mktemp -d`), outside the target repo and the run-state dir E:/flow/runs/flow, and remove that
-directory before you return. For each candidate finding below, inspect the ACTUAL code to confirm it
-is real, correct its severity, then route it with the decision matrix. Reject false positives and
-gold-plating ruthlessly, in particular anything the code ALREADY does and anything that is a preference
-rather than a defect.
+a probe that confirms a **Fix:** line (PROCEDURE step 6). Reject false positives and gold-plating
+ruthlessly, in particular anything the code ALREADY does and anything that is a preference rather than a
+defect.
+PROCEDURE - work these steps in order. Each names its output.
+1. Read each review file under CANDIDATE FINDINGS in full. Output: every candidate id its line names.
+2. FOLD DUPLICATES as its rule below says. Output: one kept id per underlying defect, each other copy
+   REJECTed as the id it duplicates.
+3. Inspect the ACTUAL code to confirm each remaining candidate is real. A candidate the code leaves
+   unsettled keeps is_real=true, and ROUTING sends it to NEEDS_USER. Output: is_real for each candidate,
+   and each candidate the code leaves unsettled.
+4. Correct each real finding's severity by the SEVERITY scale. Output: its confirmed severity.
+5. Draft the **Fix:** line of each real finding. A candidate's suggested fix is a hint, never an
+   instruction. Write the **Fix:** line that closes the defect you confirmed, which may differ from the
+   suggestion. Before you write it, check it against the text it changes, its callers and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. That check is also what scores blast_radius. The **Fix:** line covers every file, string or path its
+   **What:** names as wrong, and never tells the fixer to leave one of them unchanged. Then score the
+   finding on the DECISION MATRIX. Output: its draft fix and its matrix.
+6. When a **Fix:** line prescribes a command, flag, or library, tool or API behavior the repo does not
+   already use the same way, confirm that behavior against the dependency's own docs or source, or a probe
+   in a temporary directory outside the repo, before step 9 writes it. Never prescribe a behavior you did
+   not confirm. Make that probe in a fresh directory you create for it alone (such as `mktemp -d`),
+   outside the target repo and the run-state dir E:/flow/runs/flow, and remove that directory before you
+   return. Output: each behavior a draft **Fix:** line rests on, confirmed or unconfirmed.
+7. Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
+   nearest the unit's files. Output: the gotcha that bears on it, or none.
+8. Route each finding by ROUTING. Output: its decision.
+9. WRITE the INVENTORY FILE below, or the clean marker when no verdict is kept, and end it with the
+   `## Rejected` section when you rejected a candidate. Output: the file, and wrote_file=true.
+10. Return all verdicts via the schema. Output: the verdicts.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -614,7 +659,7 @@ THE REVIEWERS' BRIEFS (context for judging severity). 2 reviewers each swept the
 the brief of the review file that holds it. A brief narrows which defects matter. It does NOT widen what counts as one.
   [destructive] auditing DESTRUCTIVE behavior
   [data-loss] auditing DATA LOSS
-CANDIDATE FINDINGS: read each review file below in full. Each `### [<finding id>]` entry in it is one
+CANDIDATE FINDINGS: the review files below. Each `### [<finding id>]` entry in a file is one
 candidate, with its file:line, category, the reviewer's severity, what is wrong, the reviewer's evidence
 and a suggested fix. Each file holds the ids its line names, and its [lens] is the lens of every candidate it holds:
   - [destructive] E:/flow/runs/flow/reviews/u1-destructive.md (u1-a1 to u1-a1)
@@ -636,31 +681,18 @@ ROUTING (apply in order; first match wins):
   - is_real == false -> REJECT
   - its review file grades it below medium -> REJECT (below-floor)
   - scope == scope-creep -> REJECT (do not pursue)
+  - the code neither confirms nor refutes it -> NEEDS_USER with is_real=true, never REJECT (its
+    **Options:** line names the check that would settle it)
   - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
   - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
     **Recommendation:** lines)
   - size == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
+  - its **Fix:** line rests on a behavior step 6 left unconfirmed -> NEEDS_USER (its **Options:** line
+    names that behavior and the check that would settle it)
   - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
-An alternative that another fix clearly dominates is not a materially different valid fix. A candidate's
-suggested fix is a hint, never an instruction. Write the **Fix:** line that closes the defect you
-confirmed, which may differ from the suggestion. Before you write it, check it against the text it changes, its callers and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. That check is also what scores blast_radius. The **Fix:** line covers every file, string or path
-its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
-When a **Fix:** line prescribes a command, flag, or library, tool or API behavior the repo does not
-already use the same way, confirm that behavior against the dependency's own docs or source, or a probe
-in a temporary directory outside the repo, before you write it. Never prescribe a behavior you did not
-confirm. An otherwise ACTIONABLE finding whose fix rests on a behavior you cannot confirm is NEEDS_USER.
-Its **Options:** line names that behavior and the check that would settle it.
-Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
-nearest the unit's files.
-When you reject at least one candidate, end the file with a `## Rejected` heading and one line per
-rejection, in the inventory and in the clean marker alike:
-`<finding_id> [<its file:line>] <its title>: <the file:line that refutes it, the id it duplicates, scope-creep, or below-floor>`.
-When you reject none, write no `## Rejected` heading.
-An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
-duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
-would settle it.
+An alternative that another fix clearly dominates is not a materially different valid fix.
 
-WRITE the inventory file E:/flow/runs/flow/issues/u1.md (create E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Its format is EXACTLY this:
+INVENTORY FILE: write E:/flow/runs/flow/issues/u1.md (create E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Its format is EXACTLY this:
 -----
 ---
 unit: u1
@@ -700,8 +732,10 @@ The `- file:` line takes ONE line number. For a range or a list ("840-842, 880")
 A fold across lenses lists each folded candidate's lens id on its `- lens:` line, comma-separated.
 If there are NO kept verdicts, write NO `## Plan:` header at all — the file is the clean marker instead:
 the frontmatter above, then `# Review: u1`, then the single line "No issues found."
-The `## Rejected` section follows that line when you rejected anything.
-Set wrote_file=true and return all verdicts via the schema.
+When you reject at least one candidate, end the file with a `## Rejected` heading and one line per
+rejection, in the inventory and in the clean marker alike:
+`<finding_id> [<its file:line>] <its title>: <the file:line that refutes it, the id it duplicates, scope-creep, or below-floor>`.
+When you reject none, write no `## Rejected` heading.
 ~~~~
 
 ~~~~json

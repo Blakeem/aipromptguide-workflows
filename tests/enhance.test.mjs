@@ -7,6 +7,7 @@ import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
 import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/audit/audit.mjs';
+const ENHANCE_GUIDE_POINTER = '\nworkflows/audit/CLAUDE.md §0 "After an enhancements run" holds each of these steps with its output, and the steps after the triage.';
 const baseArgs = {
   kind: 'enhancements', runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   scope: ['workflows/'], lenses: ['efficiency', 'simplification'],
@@ -54,6 +55,13 @@ section('a dead verifier lands its lens in failed, never in the audited count');
   // A re-run with the same runId leaves a failed lens's earlier file on disk, so "present the directory" would present it.
   ok(/PRESENT them to the user: E:\/r\/runs\/t\/proposals\/simplification\.md\./.test(out.nextStep), 'nextStep names the live lens\'s file');
   ok(/Present only the listed files/.test(out.nextStep), 'and says to present only the listed files');
+  const lines = out.nextStep.split('\n');
+  const order = ['Read these proposal files', 'Call out any change TWO OR MORE lenses', 'TELL THE USER these lenses were NOT audited',
+    'Triage with the user.', 'Route the triaged items:'];
+  const where = order.map((s) => lines.findIndex((l, n) => l.startsWith(`${n + 1}. ${s}`)));
+  ok(where.every((n, i) => n >= 0 && (i === 0 || where[i - 1] < n)),
+    `nextStep numbers present, convergence, failed lenses, triage and routing in that order: ${JSON.stringify(lines.map((l) => l.slice(0, 40)))}`);
+  ok(out.nextStep.endsWith(ENHANCE_GUIDE_POINTER), 'and ends on the guide checklist by its heading');
 }
 
 section('a dead verifier of a packed unit fails every lens it carried');
@@ -385,6 +393,8 @@ section('a submitted candidate with no verdict is counted and named, never silen
   ok(out.nextStep.includes('They hold 1 ADOPT, 0 ROADMAP and 0 NEEDS_USER item(s) across 1 lens(es).'), 'nextStep states the counts');
   ok(out.nextStep.includes('The verifier returned no verdict for 1 candidate(s) (summary.unjudged), so they are in no count: check them in E:/r/runs/t/proposals/efficiency.md before triage.'),
     'and names the unjudged count and the lens file that holds it');
+  ok(out.nextStep.includes('\n3. The verifier returned no verdict for 1 candidate(s)') && out.nextStep.includes('\n4. Triage with the user.'),
+    'the unjudged check is the step before triage');
 }
 
 section('a real candidate below the impact floor keeps is_real=true, and its impact score rejects it');
@@ -422,8 +432,10 @@ section('a run where every lens failed says NOTHING was audited, never presents 
   const { out } = await runEngine(ENGINE, { args: baseArgs, respond: { find: null } });
   eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'efficiency', stage: 'find' }, { id: 'simplification', stage: 'find' }]),
     'every lens failed at the find stage');
-  ok(/^NOTHING was audited: every lens failed: efficiency \(find\), simplification \(find\)\./.test(out.nextStep),
+  ok(/^1\. NOTHING was audited: every lens failed: efficiency \(find\), simplification \(find\)\./.test(out.nextStep),
     'nextStep says nothing was audited and names each lens with its stage');
+  ok(out.nextStep.endsWith(`\n2. Re-run those lenses with the same runId.${ENHANCE_GUIDE_POINTER}`),
+    'and numbers the re-run as its second step, then ends on the guide checklist by its heading');
   ok(!/PRESENT them/.test(out.nextStep), 'and never says to present proposals');
 }
 

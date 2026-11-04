@@ -717,3 +717,38 @@ section('every workflow guide opens with its checklist');
     ok(failures.length === 0, `workflows/${name}/CLAUDE.md opens with a well-formed checklist${failures.length ? ` — ${failures.join('; ')}` : ''}`);
   }
 }
+
+section('every workflow guide step that runs the pre-launch command carries the same memory check');
+// The rule is copied into each pre-launch step so an operator who works only §0 meets it, and copies drift.
+{
+  const MEMORY_CHECK = 'Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to, '
+    + 'holds no line on this run\'s plan or goal, and when one does, remove the line and launch from a new session.';
+  const checklistSteps = (text) => {
+    const checklist = (text.split('\n## 0. Checklist\n')[1] ?? '').split('\n## ')[0];
+    return checklist.split(/\n(?=\d+\. )/).filter((step) => /^\d+\. /.test(step)).map((step) => step.replace(/\s+/g, ' '));
+  };
+  const memoryCheckFailures = (text) => {
+    const steps = checklistSteps(text);
+    const preLaunch = steps.filter((step) => step.includes('run_in_background'));
+    const copies = steps.flatMap((step) => step.match(/Check that the `MEMORY\.md` index(?:[^.]|\.md)*\./g) ?? []);
+    return [
+      ...(preLaunch.length ? [] : ['no §0 step runs the pre-launch command with run_in_background']),
+      ...preLaunch.filter((step) => !step.includes(MEMORY_CHECK)).map((step) => `step ${step.match(/^\d+/)[0]} lacks the memory check`),
+      ...copies.filter((copy) => copy !== MEMORY_CHECK).map((copy) => `a copy reads "${copy}"`),
+    ];
+  };
+
+  const fixture = (step) => `# Guide\n\n## 0. Checklist\n\n### Before the run\n\n1. Read it.\n${step}\n\n## 1. Scope\n\nText.\n`;
+  ok(memoryCheckFailures(fixture(`2. ${MEMORY_CHECK} Then run it with\n   run_in_background.`)).length === 0, 'a fixture step with the memory check passes');
+  ok(memoryCheckFailures(fixture('2. Run it with run_in_background.')).length === 1, 'a fixture pre-launch step with no memory check fails');
+  ok(memoryCheckFailures(fixture(`2. ${MEMORY_CHECK.replace('new session', 'fresh session')} Run it with run_in_background.`)).length === 2,
+    'a fixture step with a drifted copy fails');
+
+  const workflowsDir = join(REPO_ROOT, 'workflows');
+  const guides = readdirSync(workflowsDir).filter((name) => statSync(join(workflowsDir, name, 'CLAUDE.md'), { throwIfNoEntry: false }));
+  ok(guides.length > 0, `the scan reads the workflow guides (${guides.length})`);
+  for (const name of guides) {
+    const failures = memoryCheckFailures(readFileSync(join(workflowsDir, name, 'CLAUDE.md'), 'utf8'));
+    ok(failures.length === 0, `workflows/${name}/CLAUDE.md carries the memory check in each pre-launch step${failures.length ? ` — ${failures.join('; ')}` : ''}`);
+  }
+}

@@ -81,7 +81,7 @@ section('each reviewer writes its findings with evidence to its own review file 
   ok(r.includes('If you report no finding, write no review file and return finding_count=0 and wrote_file=false.'), 'a clean lens writes no review file');
   ok(prompt('verify').includes(`${REVIEWS}/u1-destructive.md (u1-a1 to u1-a2)`) && prompt('verify').includes(`${REVIEWS}/u1-control_flow.md (u1-b1 to u1-b1)`),
     'the verifier reads each file by path with its id range');
-  ok(prompt('verify').includes('read each review file below in full'), 'and is told to read each one');
+  ok(prompt('verify').includes('1. Read each review file under CANDIDATE FINDINGS in full.'), 'and is told to read each one');
 }
 
 section('a lens whose count is below its entries cannot mint a later lens\'s ids');
@@ -181,12 +181,19 @@ section('ALREADY FOUND names the earlier lenses\' review files, and a set lens i
     'verify': { wrote_file: true, verdicts: [keep('u1-a1')] },
   });
   ok(!calls[0].prompt.includes('ALREADY FOUND'), 'the first lens has nothing already found');
-  ok(calls[1].prompt.includes(`ALREADY FOUND in a prior pass over this unit. Read each of these review files:\n  - [destructive] ${REVIEWS}/u1-destructive.md`), 'the second reads the first lens\'s file');
-  ok(calls[1].prompt.includes('or anything an ALREADY FOUND file below holds, even rephrased'), 'and may not re-report what it holds');
+  ok(calls[1].prompt.includes(`\nPROCEDURE:\n1. ALREADY FOUND in a prior pass over this unit. Read each of these review files before you review:\n  - [destructive] ${REVIEWS}/u1-destructive.md\n`), 'the second reads the first lens\'s file in a numbered step');
+  ok(calls[1].prompt.indexOf('1. ALREADY FOUND') < calls[1].prompt.indexOf('Assess against these criteria:'), 'and that step comes before the review work');
+  ok(calls[0].prompt.includes('\nPROCEDURE:\n1. Review the FILES TO REVIEW against the criteria and RULES below. Output: your findings.\n2. WRITE the REVIEW FILE below when you report a finding. Output: the file, or none.\n3. Return via the schema. Output: finding_count, wrote_file, wrote_clean_marker and relayed_request.\n'),
+    'the first lens, which may not write the marker, numbers its review, write and return with no ALREADY FOUND step');
+  ok(calls[2].prompt.includes('\n2. Review the FILES TO REVIEW against the criteria and RULES below. Output: your findings.\n3. WRITE the REVIEW FILE below when you report a finding. Output: the file, or none.\n4. Return via the schema.'),
+    'a later lens reads first, then reviews, writes its file and returns');
+  ok(calls[1].prompt.includes('or anything an ALREADY FOUND file above holds, even rephrased'), 'and may not re-report what it holds');
   ok(!calls[2].prompt.includes('u1-control_flow.md'), 'a lens that found nothing hands on no file');
   ok(calls[0].prompt.includes('\nLENS: destructive\n') && calls[1].prompt.includes('\nLENS: control-flow\n'), 'each reviewer is told its lens id');
   const { prompt } = await run({}, { 'review': NO_FINDINGS });
   ok(!prompt('review').includes('\nLENS: '), 'an unset lens names no placeholder id');
+  ok(prompt('review').includes('\n2. WRITE the REVIEW FILE below when you report a finding, or the CLEAN-UNIT MARKER below when you report none. Output: the file, or none.\n3. Return via the schema.'),
+    'a reviewer that may write the marker has a step that writes its file or the marker');
 }
 
 section('the verifier gets each unit file\'s LOC for the entry loc line');
@@ -267,7 +274,7 @@ section('a reviewer whose count and review file disagree counts as a lens with n
     eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'u1', stage: 'review', lens: 'destructive', ...returned }]), `${name}: it is in failed with the values the reviewer returned`);
     ok(!calls[1].prompt.includes('ALREADY FOUND'), `${name}: the next lens is handed no unconfirmed file`);
     ok(calls[2].prompt.includes('\nhash: incomplete\n'), `${name}: the inventory is stamped incomplete`);
-    ok(out.nextStep.startsWith('First re-review u1:'), `${name}: nextStep leads with the re-review`);
+    ok(out.nextStep.startsWith('1. First re-review u1:'), `${name}: nextStep leads with the re-review`);
   }
   // The marker it claims carries the real hash, so resume would skip the unit unless the operator names it.
   const { logs: claimed } = await run({}, { 'review': { finding_count: 1, wrote_file: false, wrote_clean_marker: true } });
@@ -430,13 +437,15 @@ section('the verifier confirms a behavior a **Fix:** line prescribes, and its on
     'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
   });
   const v = prompt('verify').replace(/\s+/g, ' ');
-  ok(v.includes("When a **Fix:** line prescribes a command, flag, or library, tool or API behavior the repo does not already use the same way, confirm that behavior against the dependency's own docs or source, or a probe in a temporary directory outside the repo, before you write it. Never prescribe a behavior you did not confirm."),
-    'the prescription check follows the **Fix:** coverage rule');
-  ok(v.includes('An otherwise ACTIONABLE finding whose fix rests on a behavior you cannot confirm is NEEDS_USER. Its **Options:** line names that behavior and the check that would settle it.'),
-    'a fix that rests on an unconfirmable behavior routes to NEEDS_USER');
+  ok(/\n6\. When a \*\*Fix:\*\* line prescribes a command, flag, or library, tool or API behavior/.test(prompt('verify')) && v.includes("When a **Fix:** line prescribes a command, flag, or library, tool or API behavior the repo does not already use the same way, confirm that behavior against the dependency's own docs or source, or a probe in a temporary directory outside the repo, before step 9 writes it. Never prescribe a behavior you did not confirm."),
+    'step 6 holds the prescription check');
+  ok(v.includes('- its **Fix:** line rests on a behavior step 6 left unconfirmed -> NEEDS_USER (its **Options:** line names that behavior and the check that would settle it) - otherwise -> ACTIONABLE'),
+    'a fix that rests on an unconfirmable behavior routes to NEEDS_USER, in the ROUTING row ahead of ACTIONABLE');
   // Verifiers run concurrently, so two probes in one shared directory would overwrite each other.
-  ok(v.includes('you write exactly one inventory file and nothing else, except a probe that confirms a **Fix:** line. Make that probe in a fresh directory you create for it alone (such as `mktemp -d`), outside the target repo and the run-state dir E:/r/runs/t, and remove that directory before you return.'),
-    'the write sentence names the probe, its fresh temporary directory and its removal');
+  ok(v.includes('you write exactly one inventory file and nothing else, except a probe that confirms a **Fix:** line (PROCEDURE step 6).'),
+    'the write sentence names the probe and the step that makes it');
+  ok(v.includes('Make that probe in a fresh directory you create for it alone (such as `mktemp -d`), outside the target repo and the run-state dir E:/r/runs/t, and remove that directory before you return. Output: each behavior a draft **Fix:** line rests on, confirmed or unconfirmed.'),
+    'step 6 names the probe, its fresh temporary directory and its removal');
 }
 
 section('each issue entry carries the evidence the verifier confirmed');
@@ -556,15 +565,18 @@ section('the verifier writes each rejection with the finding and what refutes it
     'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
   });
   const v = prompt('verify').replace(/\s+/g, ' ');
-  ok(v.includes("nearest the unit's files. When you reject at least one candidate, end the file with a `## Rejected` heading and one line per rejection, in the inventory and in the clean marker alike: `<finding_id> [<its file:line>] <its title>: <the file:line that refutes it, the id it duplicates, scope-creep, or below-floor>`. When you reject none, write no `## Rejected` heading."), 'every rejection names the finding\'s id, file:line and title and what refutes it, after the design-choice check');
+  ok(v.includes("When you reject at least one candidate, end the file with a `## Rejected` heading and one line per rejection, in the inventory and in the clean marker alike: `<finding_id> [<its file:line>] <its title>: <the file:line that refutes it, the id it duplicates, scope-creep, or below-floor>`. When you reject none, write no `## Rejected` heading."), 'every rejection names the finding\'s id, file:line and title and what refutes it, in the file format');
+  ok(v.includes("7. Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md nearest the unit's files. Output: the gotcha that bears on it, or none. 8. Route each finding by ROUTING."), 'the design-choice check is the step before routing');
   const r = prompt('review').replace(/\s+/g, ' ');
   ok(r.includes('FILES TO REVIEW (read each one in full, in as many reads as its length needs. The token target never shortens that read):'), 'the reviewer reads each listed file in full, whatever the token target');
   for (const [role, text] of [['review', r], ['verify', v]]) {
     ok(text.includes('BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your task names. The target limits your reads of files beyond those: read them only by targeted search or short reads, and only to confirm or reject a candidate in your task\'s files'),
       `the ${role} token line covers the entire turn and limits only the reads beyond the task's files`);
   }
-  ok(v.includes('An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that would settle it.'), 'an unsettled finding goes to the user, never to REJECT');
-  ok(v.includes('then the single line "No issues found." The `## Rejected` section follows that line when you rejected anything.'), 'the clean marker allows the rejections after its line');
+  ok(v.includes('A candidate the code leaves unsettled keeps is_real=true, and ROUTING sends it to NEEDS_USER.')
+    && v.includes('- scope == scope-creep -> REJECT (do not pursue) - the code neither confirms nor refutes it -> NEEDS_USER with is_real=true, never REJECT (its **Options:** line names the check that would settle it) - architectural == true'),
+  'an unsettled finding goes to the user, never to REJECT, in the ROUTING row after scope-creep');
+  ok(v.includes('then the single line "No issues found." When you reject at least one candidate, end the file with a `## Rejected` heading and one line per rejection, in the inventory and in the clean marker alike:'), 'the clean marker allows the rejections after its line');
 }
 
 section('the clean-marker rule is relative to the severity floor');
@@ -818,19 +830,19 @@ section('nextStep leads with the re-review when a failed unit has no trustworthy
     'review:u1/control-flow': found(1),
     'verify': { wrote_file: true, verdicts: [keep('u1-b1')] },
   });
-  ok(deadLens.nextStep.startsWith('First re-review u1:'), `a dead lens reviewer leads with the re-review: ${deadLens.nextStep.slice(0, 80)}`);
+  ok(deadLens.nextStep.startsWith('1. First re-review u1:'), `a dead lens reviewer leads with the re-review: ${deadLens.nextStep.slice(0, 80)}`);
   ok(deadLens.nextStep.includes('playbook step "Resume the review"'), 'and names the playbook step by its title');
 
   const { out: unattested } = await run({}, { 'review': NO_FINDINGS });
-  ok(unattested.nextStep.startsWith('First re-review u1:'), `an unattested clean marker leads with the re-review: ${unattested.nextStep.slice(0, 80)}`);
+  ok(unattested.nextStep.startsWith('1. First re-review u1:'), `an unattested clean marker leads with the re-review: ${unattested.nextStep.slice(0, 80)}`);
 
   const { out: unmatchedOnly } = await run({}, {
     'review': found(1),
     'verify': { wrote_file: true, verdicts: [keep('u-1')] },
   });
   eq(unmatchedOnly.failed.length, 1, 'the only failed entry is the unmatched one');
-  ok(unmatchedOnly.nextStep.startsWith('Present the inventory'), 'an unmatched-only failure is triaged from its issue file, not re-reviewed');
-  ok(unmatchedOnly.nextStep.includes('The returned totals also leave out findings of u1, whose verifier verdicts did not match every finding id, so triage each from its issue file.'),
+  ok(unmatchedOnly.nextStep.startsWith('1. Count the findings of u1'), 'an unmatched-only failure is triaged from its issue file, not re-reviewed');
+  ok(unmatchedOnly.nextStep.includes('1. Count the findings of u1 from their issue files, since those units\' verifier verdicts did not match every finding id and the returned totals leave those findings out.\n2. Present the inventory'),
     `nextStep names the unmatched unit and sends it to its issue file: ${unmatchedOnly.nextStep.slice(0, 400)}`);
 
   // An unwritten issue file is re-reviewed, so the same unit's unmatched entry must not send it to triage.
@@ -838,12 +850,12 @@ section('nextStep leads with the re-review when a failed unit has no trustworthy
     'review': found(1),
     'verify': { wrote_file: false, verdicts: [keep('u-1')] },
   });
-  ok(unwrittenUnmatched.nextStep.startsWith('First re-review u1:'), 'an unwritten issue file leads with the re-review');
-  ok(!unwrittenUnmatched.nextStep.includes('leave out findings of u1'), 'and is not sent to triage from that file');
+  ok(unwrittenUnmatched.nextStep.startsWith('1. First re-review u1:'), 'an unwritten issue file leads with the re-review');
+  ok(!unwrittenUnmatched.nextStep.includes('Count the findings of'), 'and is not sent to triage from that file');
 
   const { out: clean } = await run({}, { 'review': CLEAN });
-  ok(clean.nextStep.startsWith('Present the inventory'), 'a clean run with an attested marker opens on the inventory');
-  ok(!clean.nextStep.includes('leave out findings of'), 'a clean run names no unit to triage from its issue file');
+  ok(clean.nextStep.startsWith('1. Present the inventory'), 'a clean run with an attested marker opens on the inventory');
+  ok(!clean.nextStep.includes('Count the findings of'), 'a clean run names no unit to triage from its issue file');
   ok(!('phase' in clean), 'the return carries no constant phase');
 }
 
@@ -851,12 +863,47 @@ section('nextStep carries the presentation rules the guide held');
 // The playbook defers its presentation step to nextStep, so a rule missing here reaches no operator.
 {
   const { out: clean } = await run({}, { 'review': CLEAN });
-  ok(clean.nextStep.startsWith('Present the inventory'), 'a clean run opens on the inventory');
+  ok(clean.nextStep.startsWith('1. Present the inventory'), 'a clean run opens on the inventory');
   ok(clean.nextStep.includes('totals by severity and decision'), 'the totals are broken down by severity and decision');
   ok(clean.nextStep.includes('This is a scoping conversation.'), 'the presentation is framed as a scoping conversation');
 
   const { out: two } = await run({ units: [UNIT, { ...UNIT, id: 'u2' }] }, { 'review': CLEAN });
   ok(two.nextStep.includes('cover only the 2 unit(s) this run reviewed'), `the counts are scoped to this run's units: ${two.nextStep.slice(0, 200)}`);
+}
+
+section('the defects nextStep numbers its steps, and sets the model, skip and gates before the build');
+// A file whose entries were all triaged to SKIP still matched the build command, and a block with no model line built on the run default.
+{
+  const { out: clean } = await run({}, { 'review': CLEAN });
+  const next = String(clean.nextStep ?? '');
+  const at = (text) => next.indexOf(text);
+  const steps = ['\n2. Triage by EDITING those files', '\n3. Set each issue file\'s developer model with `node <plan-edit.mjs> set <file> <block-id> model=<model>`, where `<plan-edit.mjs>` is `tools/plan-edit.mjs` of the aipg checkout or installed plugin, never of your cwd.',
+    '\n4. Set `status: skip` on each issue file with no `- decision: ACTIONABLE` entry, or leave that file out of the build.',
+    '\n5. Confirm the gates are green in the user\'s checkout.',
+    '\n6. Build the triaged files with develop-cycle.mjs in fix mode, launched with the args `node <plan-edit.mjs> args <the issue files that keep an ACTIONABLE entry> --pack <target.repo>` prints'];
+  for (const s of steps) ok(at(s) > 0, `nextStep holds the step: ${s.trim().slice(0, 60)}`);
+  ok(steps.every((s, i) => i === 0 || at(steps[i - 1]) < at(s)), 'in that order');
+  ok(next.endsWith('\nworkflows/audit/CLAUDE.md §0 "After a defects run" holds each of these steps with its output, and the steps after the build.'), 'and ends on the guide checklist by its heading');
+  ok(!next.includes('<issue files with findings>'), 'the build names only the files that keep an ACTIONABLE entry');
+}
+
+section('the verifier prompt opens with its numbered procedure in run order');
+// A rule left in a paragraph between the blocks is skipped as often as it is read, such as the gotcha check before a design reversal.
+{
+  const { prompt } = await run({}, {
+    'review': found(1),
+    'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
+  });
+  const v = prompt('verify');
+  const heads = ['\nPROCEDURE - work these steps in order.', '\n1. Read each review file', '\n2. FOLD DUPLICATES', '\n3. Inspect the ACTUAL code',
+    '\n4. Correct each real finding\'s severity', '\n5. Draft the **Fix:** line', '\n6. When a **Fix:** line prescribes', '\n7. Before routing', '\n8. Route each finding',
+    '\n9. WRITE the INVENTORY FILE', '\n10. Return all verdicts', '\nSEVERITY - grade by impact'];
+  for (const h of heads) ok(v.includes(h), `the verifier prompt holds: ${h.trim().slice(0, 50)}`);
+  ok(heads.every((h, i) => i === 0 || v.indexOf(heads[i - 1]) < v.indexOf(h)), 'in run order, ahead of the blocks the steps cite');
+  const flat = v.replace(/\s+/g, ' ');
+  ok(flat.split('reverses a documented design choice').length === 2, 'the design-choice check appears once');
+  ok(flat.split('neither confirms nor refutes').length === 2, 'the unsettled-finding rule appears once');
+  ok(flat.split('end the file with a `## Rejected` heading').length === 2, 'the Rejected format appears once');
 }
 
 await pinRoleMaps({

@@ -46,8 +46,10 @@ steps 39 to 44.
     pass row's model and effort and each member the pass raises.
 12. (for a plan file you write) Get the user's approval of the plan's final text, shown with the approval
     summary that §2 step 3, §3 and §4 describe (§2 step 2). Output: the user's approval.
-13. Run `node <plan-edit.mjs> args <planPath>`, with the flags §2 step 3 names, with run_in_background (§2
-    step 4). Output: the started background task.
+13. Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to,
+    holds no line on this run's plan or goal, and when one does, remove the line and launch from a new
+    session. Then run `node <plan-edit.mjs> args <planPath>`, with the flags §2 step 3 names, with
+    run_in_background (§2 step 4). Output: the index checked, and the started background task.
 14. End the turn (root `CLAUDE.md`, "Launch from a notification turn"). Output: step 13's tool call is the
     last one of this turn.
 15. (when step 13 ran the `args` command of step 32 or step 42, whether it printed args or exited `nothing to
@@ -109,8 +111,12 @@ steps 39 to 44.
 33. (once step 32's launch ends) Work steps 19 to 30 on its result, running
     `node <plan-edit.mjs> args --backlog <backlogDir> --fold-only` before any status you set by hand (§10
     step 1). Output: that launch's result settled.
-34. (once §2 step 6 says the run lands) Land the run with `node <wt.mjs> close` (§2 step 6). Output: close's
-    exit code 0.
+34. (once §2 step 6 says the run lands) Compare `git -C <the user's checkout> branch --show-current` with
+    `git -C <the user's checkout> config branch.aipg/<runId>.aipgbase`. When they differ, ask the user which
+    branch takes the run, and in stage delivery, when no worktree has that branch checked out, take the
+    user's choice between commit delivery and the user checking that branch out themselves, as §2 step 6
+    says. Then land the run with `node <wt.mjs> close`, passing `--into <that branch>` when they differed
+    (§2 step 6). Output: both branch names, the `--into` value or `none`, and close's exit code 0.
 35. (once step 34 landed the run) Run the full gate in the user's checkout (§2 step 6). Output: the gate's
     result.
 36. (once step 34 landed the run) Confirm that the landed code still holds the change of each

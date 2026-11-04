@@ -298,6 +298,10 @@ const oneLens = (L, i) => ({
   matters:     L.matters ?? ' in production',   // "…why it matters<matters>"
 });
 const asList = (v) => (Array.isArray(v) ? v : (v ? [v] : [{}]));
+// Text an operator or agent acts on, a nextStep or a prompt's PROCEDURE, lists each action as a numbered
+// line (principles #20).
+// A falsy entry is a step whose condition is false.
+const numberedSteps = (steps) => steps.filter(Boolean).map((s, i) => `${i + 1}. ${s}`).join('\n');
 // A unit's own lens list REPLACES the run default (it does not merge into it) — with arrays in play,
 // element-wise merging would be unpredictable, and per-field defaults already cover the common case.
 // An EMPTY array reads as unset, for `unit.lens` and `A.lens` alike: `[]` is truthy, so without this it
@@ -466,6 +470,15 @@ ${REVIEW_ENV}
 UNIT: ${unit.id}${L.isSet ? `\nLENS: ${L.id}` : ''}
 FILES TO REVIEW (read each one in full, in as many reads as its length needs. The token target never shortens that read):
 ${(unit.files || []).map((f) => `  - ${f.path} (${f.loc} LOC)`).join('\n')}
+PROCEDURE:
+${numberedSteps([
+  prior.length && `ALREADY FOUND in a prior pass over this unit. Read each of these review files before you review:
+${prior.map((f) => `  - [${f.lens}] ${f.path}`).join('\n')}
+   Output: the findings they hold, which you do not report again.`,
+  'Review the FILES TO REVIEW against the criteria and RULES below. Output: your findings.',
+  `WRITE the REVIEW FILE below when you report a finding${cleanEligible ? ', or the CLEAN-UNIT MARKER below when you report none' : ''}. Output: the file, or none.`,
+  'Return via the schema. Output: finding_count, wrote_file, wrote_clean_marker and relayed_request.',
+])}
 
 Assess against these criteria:
   ${L.criteria}.${L.categories.includes('convention') ? "\n  File deviations from CONVENTIONS as 'convention' findings." : ''}
@@ -474,14 +487,14 @@ RULES:
 - SEVERITY FLOOR: report ONLY ${REVIEW_SEV_NAME}+ ${L.findingNoun}. Do NOT report below-floor,
   stylistic, or speculative "could be more defensive" suggestions. If in doubt it's below the floor, omit it.
 - ${SEVERITY_SCALE}
-- Do NOT report anything the current code already handles${prior.length ? ', or anything an ALREADY FOUND file below holds, even rephrased' : ''}.
+- Do NOT report anything the current code already handles${prior.length ? ', or anything an ALREADY FOUND file above holds, even rephrased' : ''}.
 - Stay INSIDE this unit's files. Cross-file concerns: mention as context in a finding's **What:** line, do not chase.
 - Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep. Your brief
   above narrows WHICH defects matter here. It never licenses proposing a new capability, a feature, or
   an efficiency idea, and those are rejected downstream. Every finding must be something the code gets
   WRONG today, not something it could do better.
 - Each finding: specific file + line, the right category/severity, what's wrong and why it matters${L.matters},
-  the evidence that shows it, and ${FIX_DIRECTION}.${prior.length ? `\n\nALREADY FOUND in a prior pass over this unit. Read each of these review files:\n${prior.map((f) => `  - [${f.lens}] ${f.path}`).join('\n')}` : ''}
+  the evidence that shows it, and ${FIX_DIRECTION}.
 
 REVIEW FILE: if you report at least one finding, WRITE ${reviewFile} (create ${REVIEWS_DIR}/ if
 needed). ${REPLACE_NOTE} Number your findings ${findingId(unit, 1, tag)}, ${findingId(unit, 2, tag)} and on, one entry each, in EXACTLY
@@ -516,7 +529,7 @@ No issues found.
 -----
 If you report ANY ${REVIEW_SEV_NAME}+ finding, write NO marker and set wrote_clean_marker=false.
 ` : ''}
-Return the counts and flags via the schema. Zero findings (a clean unit) is a normal, good outcome.`;
+Zero findings (a clean unit) is a normal, good outcome.`;
 
 // CONTRACT with develop's fix mode — change both together. The issue-file BLOCK FORMAT the verifier writes
 // below (frontmatter unit/hash/reviewed; a `## Plan: <unitSlug(unit.id)>` header with its mode/gate/status
@@ -531,12 +544,34 @@ const reviewVerifyPrompt = (unit, sources, lensDied) => {
   const lensLine = !lenses[0].isSet ? '' : `- lens: ${multi ? '<the lens id, without brackets, of the review file that holds the kept candidate>' : lenses[0].id}\n`;
   return `
 You are the VERIFIER, read-only on SOURCE: you write exactly one inventory file and nothing else, except
-a probe that confirms a **Fix:** line. Make that probe in a fresh directory you create for it alone
-(such as \`mktemp -d\`), outside the target repo and the run-state dir ${STATE_DIR}, and remove that
-directory before you return. For each candidate finding below, inspect the ACTUAL code to confirm it
-is real, correct its severity, then route it with the decision matrix. Reject false positives and
-gold-plating ruthlessly, in particular anything the code ALREADY does and anything that is a preference
-rather than a defect.
+a probe that confirms a **Fix:** line (PROCEDURE step 6). Reject false positives and gold-plating
+ruthlessly, in particular anything the code ALREADY does and anything that is a preference rather than a
+defect.
+PROCEDURE - work these steps in order. Each names its output.
+1. Read each review file under CANDIDATE FINDINGS in full. Output: every candidate id its line names.
+2. FOLD DUPLICATES as its rule below says. Output: one kept id per underlying defect, each other copy
+   REJECTed as the id it duplicates.
+3. Inspect the ACTUAL code to confirm each remaining candidate is real. A candidate the code leaves
+   unsettled keeps is_real=true, and ROUTING sends it to NEEDS_USER. Output: is_real for each candidate,
+   and each candidate the code leaves unsettled.
+4. Correct each real finding's severity by the SEVERITY scale. Output: its confirmed severity.
+5. Draft the **Fix:** line of each real finding. A candidate's suggested fix is a hint, never an
+   instruction. Write the **Fix:** line that closes the defect you confirmed, which may differ from the
+   suggestion. Before you write it, ${FIX_CHECK} The **Fix:** line covers every file, string or path its
+   **What:** names as wrong, and never tells the fixer to leave one of them unchanged. Then score the
+   finding on the DECISION MATRIX. Output: its draft fix and its matrix.
+6. When a **Fix:** line prescribes a command, flag, or library, tool or API behavior the repo does not
+   already use the same way, confirm that behavior against the dependency's own docs or source, or a probe
+   in a temporary directory outside the repo, before step 9 writes it. Never prescribe a behavior you did
+   not confirm. Make that probe in a fresh directory you create for it alone (such as \`mktemp -d\`),
+   outside the target repo and the run-state dir ${STATE_DIR}, and remove that directory before you
+   return. Output: each behavior a draft **Fix:** line rests on, confirmed or unconfirmed.
+7. Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
+   nearest the unit's files. Output: the gotcha that bears on it, or none.
+8. Route each finding by ROUTING. Output: its decision.
+9. WRITE the INVENTORY FILE below, or the clean marker when no verdict is kept, and end it with the
+   \`## Rejected\` section when you rejected a candidate. Output: the file, and wrote_file=true.
+10. Return all verdicts via the schema. Output: the verdicts.
 ${SEVERITY_SCALE}
 ${POLICY_LINE}
 ${REVIEW_ENV}
@@ -549,7 +584,7 @@ the brief of the review file that holds it. A brief narrows which defects matter
 ${lenses.map((l) => `  [${l.id}] ${l.mandate}`).join('\n')}`
     : `It narrows which defects matter. It does NOT widen what counts as one:
   ${lenses[0].mandate}`}
-CANDIDATE FINDINGS: read each review file below in full. Each \`### [<finding id>]\` entry in it is one
+CANDIDATE FINDINGS: the review files below. Each \`### [<finding id>]\` entry in a file is one
 candidate, with its file:line, category, the reviewer's severity, what is wrong, the reviewer's evidence
 and a suggested fix. Each file holds the ids its line names${multi ? ', and its [lens] is the lens of every candidate it holds' : ''}:
 ${sources.map((s) => `  - ${multi ? `[${s.lens.id}] ` : ''}${s.path} (${findingId(unit, 1, s.tag)} to ${findingId(unit, s.count, s.tag)})`).join('\n')}
@@ -570,31 +605,18 @@ ROUTING (apply in order; first match wins):
   - is_real == false -> REJECT
   - its review file grades it below ${REVIEW_SEV_NAME} -> REJECT (below-floor)
   - scope == scope-creep -> REJECT (do not pursue)
+  - the code neither confirms nor refutes it -> NEEDS_USER with is_real=true, never REJECT (its
+    **Options:** line names the check that would settle it)
   - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
   - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
     **Recommendation:** lines)
   - size == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
+  - its **Fix:** line rests on a behavior step 6 left unconfirmed -> NEEDS_USER (its **Options:** line
+    names that behavior and the check that would settle it)
   - otherwise -> ACTIONABLE (write ${ROUTED_FIX_LINE})
-An alternative that another fix clearly dominates is not a materially different valid fix. A candidate's
-suggested fix is a hint, never an instruction. Write the **Fix:** line that closes the defect you
-confirmed, which may differ from the suggestion. Before you write it, ${FIX_CHECK} The **Fix:** line covers every file, string or path
-its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
-When a **Fix:** line prescribes a command, flag, or library, tool or API behavior the repo does not
-already use the same way, confirm that behavior against the dependency's own docs or source, or a probe
-in a temporary directory outside the repo, before you write it. Never prescribe a behavior you did not
-confirm. An otherwise ACTIONABLE finding whose fix rests on a behavior you cannot confirm is NEEDS_USER.
-Its **Options:** line names that behavior and the check that would settle it.
-Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
-nearest the unit's files.
-When you reject at least one candidate, end the file with a \`## Rejected\` heading and one line per
-rejection, in the inventory and in the clean marker alike:
-\`<finding_id> [<its file:line>] <its title>: <the file:line that refutes it, the id it duplicates, scope-creep, or below-floor>\`.
-When you reject none, write no \`## Rejected\` heading.
-An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
-duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
-would settle it.
+An alternative that another fix clearly dominates is not a materially different valid fix.
 
-WRITE the inventory file ${issueFile(unit.id)} (create ${ISSUES_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Its format is EXACTLY this:
+INVENTORY FILE: write ${issueFile(unit.id)} (create ${ISSUES_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Its format is EXACTLY this:
 -----
 ---
 unit: ${unit.id}
@@ -632,8 +654,10 @@ the slug of the unit id, not the unit id.
 The \`- file:\` line takes ONE line number. For a range or a list ("840-842, 880"), write its first line (840).
 ${multi ? "A fold across lenses lists each folded candidate's lens id on its `- lens:` line, comma-separated.\n" : ''}If there are NO kept verdicts, write NO \`## Plan:\` header at all — the file is the clean marker instead:
 the frontmatter above, then \`# Review: ${unit.id}\`, then the single line "No issues found."
-The \`## Rejected\` section follows that line when you rejected anything.
-Set wrote_file=true and return all verdicts via the schema.`; };
+When you reject at least one candidate, end the file with a \`## Rejected\` heading and one line per
+rejection, in the inventory and in the clean marker alike:
+\`<finding_id> [<its file:line>] <its title>: <the file:line that refutes it, the id it duplicates, scope-creep, or below-floor>\`.
+When you reject none, write no \`## Rejected\` heading.`; };
 
 // =============================================================================
 // kind enhancements: structured-output schemas — DECISIONS ONLY (control plane). All prose lives in the
@@ -1046,13 +1070,17 @@ const auditDefects = async () => {
   // A unit whose only entries carry `unmatched` is triaged from its issue file. Every other failed unit needs
   // a re-review, which rewrites its issue file, so the re-review comes before any triage edit.
   const reReviewIds = [...new Set(failed.filter((f) => !('unmatched' in f)).map((f) => f.id))];
-  const reReviewStep = reReviewIds.length
-    ? `First re-review ${reReviewIds.join(', ')}: re-run gen-units.mjs with --issues-dir ${ISSUES_DIR}, then pass as args.units, under this runId, manifest.staleUnits plus each of these units it lacks (workflows/audit/CLAUDE.md, defects playbook step "Resume the review"). Do it before any triage edit, because a re-review rewrites each re-reviewed unit's issue file. `
-    : '';
   const triageIds = [...new Set(failed.filter((f) => 'unmatched' in f && !reReviewIds.includes(f.id)).map((f) => f.id))];
-  const triageStep = triageIds.length
-    ? `The returned totals also leave out findings of ${triageIds.join(', ')}, whose verifier verdicts did not match every finding id, so triage each from its issue file. `
-    : '';
+  const nextSteps = [
+    reReviewIds.length && `First re-review ${reReviewIds.join(', ')}: re-run gen-units.mjs with --issues-dir ${ISSUES_DIR}, then pass as args.units, under this runId, manifest.staleUnits plus each of these units it lacks (workflows/audit/CLAUDE.md, defects playbook step "Resume the review"). Do it before any triage edit, because a re-review rewrites each re-reviewed unit's issue file.`,
+    triageIds.length && `Count the findings of ${triageIds.join(', ')} from their issue files, since those units' verifier verdicts did not match every finding id and the returned totals leave those findings out.`,
+    `Present the inventory: read ${ISSUES_DIR}/*.md. The returned inventory, hottest and needsUserFiles cover only the ${processed.length} unit(s) this run reviewed, so after a resume the other issue files hold findings they leave out. Walk the user through totals by severity and decision, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). This is a scoping conversation.`,
+    'Triage by EDITING those files: set a NEEDS_USER item\'s decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP.',
+    'Set each issue file\'s developer model with `node <plan-edit.mjs> set <file> <block-id> model=<model>`, where `<plan-edit.mjs>` is `tools/plan-edit.mjs` of the aipg checkout or installed plugin, never of your cwd.',
+    'Set `status: skip` on each issue file with no `- decision: ACTIONABLE` entry, or leave that file out of the build.',
+    'Confirm the gates are green in the user\'s checkout.',
+    'Build the triaged files with develop-cycle.mjs in fix mode, launched with the args `node <plan-edit.mjs> args <the issue files that keep an ACTIONABLE entry> --pack <target.repo>` prints (start with one file to sanity-check cost and quality). Each later `args` call folds the finished runs\' statuses back first.',
+  ];
 
   return {
     runId: RUN_ID,
@@ -1069,7 +1097,7 @@ const auditDefects = async () => {
     hottest,
     // Which files hold items that need a triage decision (open these to present options).
     needsUserFiles: processed.filter((r) => r.counts.needs_user > 0 && r.file !== null).map((r) => r.file),
-    nextStep: `${reReviewStep}Present the inventory: read ${ISSUES_DIR}/*.md. The returned inventory, hottest and needsUserFiles cover only the ${processed.length} unit(s) this run reviewed, so after a resume the other issue files hold findings they leave out. ${triageStep}Walk the user through totals by severity and decision, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). This is a scoping conversation. Triage by EDITING those files: set a NEEDS_USER item's decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP. Then build the triaged files with develop-cycle.mjs in fix mode, launched with the args \`node tools/plan-edit.mjs args <issue files with findings> --pack <target.repo>\` prints (start with one file to sanity-check cost and quality). Each later \`args\` call folds the finished runs' statuses back first. See develop's CLAUDE.md.`,
+    nextStep: `${numberedSteps(nextSteps)}\nworkflows/audit/CLAUDE.md §0 "After a defects run" holds each of these steps with its output, and the steps after the build.`,
   };
 };
 
@@ -1231,9 +1259,19 @@ const auditEnhancements = async () => {
     // the convergence (matching how brainstorm treats its lenses) — no merge agent (#4/#6).
     lenses: live.map((r) => ({ lens: r.lens, focus: r.focus, file: r.file, counts: r.counts, kept: r.kept })),
     failed,
-    nextStep: live.length === 0
-      ? `NOTHING was audited: every lens failed: ${failedLabels}. There are no proposals to present — do NOT report a clean audit. Tell the user, then re-run those lenses with the same runId.`
-      : `Read these proposal files and PRESENT them to the user: ${live.map((r) => r.file).join(', ')}. They hold ${adopt} ADOPT, ${roadmap} ROADMAP and ${needsUser} NEEDS_USER item(s) across ${live.length} lens(es). Present only the listed files: any other file in ${PROPOSALS_DIR}/ is from an earlier run or an agent that did not finish. Present the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block when they span many call sites (otherwise a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and every block under a file's \`## Defects to route\` goes to the defects kind (\`/aipg:debug\`). NOTHING here is applied automatically and there is no fix step — the user decides what gets built.${unjudgedTotal > 0 ? ` The verifier returned no verdict for ${unjudgedTotal} candidate(s) (summary.unjudged), so they are in no count: check them in ${unjudgedFiles.join(', ')} before triage.` : ''}${failed.length ? ` TELL THE USER these lenses were NOT audited and produced no verified proposal file: ${failedLabels} — offer to re-run just those. Any proposal file on disk for them is not presented until the lens is re-run.` : ''}`,
+    nextStep: `${numberedSteps(live.length === 0
+      ? [
+        `NOTHING was audited: every lens failed: ${failedLabels}. There are no proposals to present — do NOT report a clean audit. Tell the user.`,
+        'Re-run those lenses with the same runId.',
+      ]
+      : [
+        `Read these proposal files and PRESENT them to the user: ${live.map((r) => r.file).join(', ')}. They hold ${adopt} ADOPT, ${roadmap} ROADMAP and ${needsUser} NEEDS_USER item(s) across ${live.length} lens(es). Present only the listed files: any other file in ${PROPOSALS_DIR}/ is from an earlier run or an agent that did not finish. Present the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation.`,
+        'Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run.',
+        unjudgedTotal > 0 && `The verifier returned no verdict for ${unjudgedTotal} candidate(s) (summary.unjudged), so they are in no count: check them in ${unjudgedFiles.join(', ')} before triage.`,
+        failed.length && `TELL THE USER these lenses were NOT audited and produced no verified proposal file: ${failedLabels} — offer to re-run just those. Any proposal file on disk for them is not presented until the lens is re-run.`,
+        'Triage with the user. NOTHING here is applied automatically and there is no fix step — the user decides what gets built.',
+        'Route the triaged items: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block when they span many call sites (otherwise a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and every block under a file\'s `## Defects to route` goes to the defects kind (`/aipg:debug`).',
+      ])}\nworkflows/audit/CLAUDE.md §0 "After an enhancements run" holds each of these steps with its output, and the steps after the triage.`,
   };
 };
 

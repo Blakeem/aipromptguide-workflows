@@ -54,11 +54,11 @@ So run the workflow's pre-launch command with `run_in_background`, and call the 
 its notification starts. A notification that arrives inside a tool result does not start a new turn, so end
 the turn after starting the pre-launch command. The pre-launch command is `plan-edit.mjs args` for develop,
 `plan-block.mjs <planPath> --list` for refine, and `git -C <target.repo> status --short` for the rest
-(`node --version` when the run has no `target.repo`). Keep the plan out of auto-memory from before the
-session starts. Agents receive the index the session loaded at its start, so a line already loaded stays
-in every run of that session. A `MEMORY.md` index line holds settled facts and pointers, and neither it
-nor a topic file it points to holds the plan or goal of work a run is building, since every agent of the
-run reads that index (`principles/WORKFLOW-PRINCIPLES.md` #3).
+(`node --version` when the run has no `target.repo`). Agents receive the auto-memory index the session
+loaded at its start, so a line already loaded stays in every run of that session. A `MEMORY.md` index
+line holds settled facts and pointers, and neither it nor a topic file it points to holds the plan or goal
+of work a run is building, since every agent of the run reads that index
+(`principles/WORKFLOW-PRINCIPLES.md` #3).
 
 **Two paths, never the same directory:** `target.repo` = the project being worked on (the folder holding
 its `.git`); `root` = where run-state lands (`<root>/runs/<runId>/`), normally this checkout. Keeping
@@ -89,9 +89,8 @@ describes. Every agent then answers `tools/EXIT-SURVEY.md`, and `tools/survey.mj
 
 **Changing anything here?** Read [`tests/CLAUDE.md`](tests/CLAUDE.md) first — the development gotchas. Above
 all: a defect found in one engine is usually in its siblings too — grep before you call it fixed.
-`node tests/run.mjs` is the gate; run it before and after, add a case for what you changed
-([`tests/README.md`](tests/README.md)), and point a workflow's `gates.build`/`gates.test` at it when working
-on this repo.
+Work the §8 steps of `tests/CLAUDE.md` in order. `node tests/run.mjs` is the gate, so point a workflow's
+`gates.build`/`gates.test` at it when working on this repo.
 
 ## House style
 

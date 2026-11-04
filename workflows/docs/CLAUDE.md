@@ -46,9 +46,11 @@ condition in parentheses runs only under it.
 13. Choose the optional args the run needs: `fidelitySample`, `maxRounds`, `models`, `efforts`,
     `agentTypes`, `stateDir` and, when the user wants the agents' feedback, `notes` (§3, §7). Output: a
     value for each arg chosen.
-14. Run `git -C <target.repo> status --short` (`node --version` when the run has no `target.repo`) with
-    run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification turn"). Output:
-    that tool call is the last one of this turn.
+14. Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to,
+    holds no line on this run's plan or goal, and when one does, remove the line and launch from a new
+    session. Then run `git -C <target.repo> status --short` (`node --version` when the run has no
+    `target.repo`) with run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification
+    turn"). Output: the index checked, and that tool call is the last one of this turn.
 15. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
     `docs-cycle.mjs` and the args steps 5 to 13 chose (§2 step 2, root `CLAUDE.md`, "Launch from a
     notification turn"). Output: the Workflow run id (`wf_...`).
