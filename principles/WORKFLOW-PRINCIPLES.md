@@ -376,8 +376,10 @@ on, such as a prompt, a guide, a returned `nextStep` or a plan's Fix line, sorts
 kinds:
 - **Required steps.** Every action that must happen is a numbered step in one ordered list, placed where the
   reader starts. A step names one action and the output that shows it was done, such as a file, a line or a
-  command's result. A step that runs only in some cases states its condition inside the step. A step whose
-  rule needs explaining cites the section that states the rule, in a file the reader is handed (#11, #13).
+  command's result. A step that runs only in some cases states its condition inside the step. A prohibition
+  that #3 keeps sits inside the step it limits, or stands as a step of its own when it limits every step, and
+  names no output. A step whose rule needs explaining cites the section that states the rule, in a file the
+  reader is handed (#11, #13).
 - **Choices.** A point where the agent decides is labeled as its choice. It names the questions to judge by,
   the evidence to cite (#14, #17) and the safer default for a doubtful case. When they direct the agent, the
   words may, can and consider mark a choice, never a required step.
@@ -558,6 +560,7 @@ Use these as yes/no checks when reviewing any workflow.
 - [ ] Does every handoff carry the evidence, constraint and reason the receiver needs, and can every reader
       tell a current file from one an earlier launch or round left? (#19)
 - [ ] Is every required action that no placement, schema field, engine or tool check enforces a numbered
-      step in one ordered list, with the output that shows it was done? Is every choice labeled with its
-      questions, the evidence to cite and its default, and does no background paragraph hold a required
-      action? (#20)
+      step in one ordered list, with the output that shows it was done? Does each prohibition #3 keeps sit
+      inside the step it limits, or stand as a step of its own when it limits every step? Is every choice
+      labeled with its questions, the evidence to cite and its default, and does no background paragraph
+      hold a required action? (#20)
