@@ -7,6 +7,73 @@ clean round. It replaces feature-cycle `phase:"refine"`, which does not converge
 one plan it keeps adding detail and never stops). Nothing here builds, stages, or commits. Built to
 `../../principles/WORKFLOW-PRINCIPLES.md`.
 
+## 0. Checklist
+
+Work every step in order. Each step cites the section that holds its rule, and a step that opens with a
+condition in parentheses runs only under it.
+
+### Before the run
+
+1. Choose the `runId` and `root` args, keeping the plan's earlier `runId` on a relaunch (§2 step 1, §4,
+   §5). Output: a value for each.
+2. Author the plan file in the plan-bus format at `<root>/plans/<runId>/`, outside every repo (§2 step 1).
+   Output: the plan file.
+3. Choose the other args: `planPath` (that file), `target.repo` and, when wanted, `critiqueSeverity`,
+   `maxRounds`, `conventions`, `conventionFiles`, `reference`, `models`, `efforts`, `agentTypes`,
+   `stateDir` and `notes` (§1, §5). Output: a value for each arg.
+4. Pre-allowlist `Bash(node '<blockTool>':*)`, with `<blockTool>` the absolute path of the `plan-block.mjs`
+   that step 5 runs (§5). Output: that allow rule in the settings.
+5. Run `node <plan-block.mjs> <planPath> --list` with run_in_background, then end the turn (§2 step 2, root
+   `CLAUDE.md`, "Launch from a notification turn"). Output: that tool call is the last one of this turn.
+6. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
+   `refine-cycle.mjs`, the args steps 1 and 3 chose and `blockTool` set to step 4's path (§2 step 2, §5,
+   root `CLAUDE.md`, "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
+
+### After the run
+
+7. (when the run threw because the plan critic returned nothing) Replay through steps 5 and 6 with the same
+   args and `runId` plus the Workflow tool's `resumeFromRunId`. Stop this pass of the list there, and work
+   it again from step 7 once that run ends (§3, the thrown error's message). Output: the replay's Workflow
+   run id.
+8. (when `status` names the plan editor returning nothing) Run `node '<blockTool>' '<planPath>' --list`,
+   since the editor may have partly edited the plan (§3, the return's `nextStep`). Output: the block list
+   it prints.
+9. (after step 8) Replay through steps 5 and 6 with the same args and `runId` plus the Workflow tool's
+   `resumeFromRunId`, so only the fold runs again. Stop this pass of the list there, and work it again from
+   step 7 once that run ends (§3, the return's `nextStep`). Output: the replay's Workflow run id.
+10. (when `status` is `rounds-exhausted`) Read `lastCritique` and decide its gaps with the user (§2 step 2,
+    the return's `nextStep`). Output: the user's decision on each gap.
+11. (when `status` is `needs-answers`) Read the QUESTIONS section of `lastCritique` and the new entries at
+    the end of `NEEDS-USER.md` under the heading `nextStep` names, and settle them with the user (§2 step
+    2, §4, the return's `nextStep`). Output: the user's answers.
+12. (after step 11) Restructure the plan file by the user's answers, giving each new block a fresh kebab id
+    (§2 step 2, the return's `nextStep`). Output: the restructured plan file.
+13. (when `status` is `dismissal-contested`) Read the new entries at the end of `NEEDS-USER.md` under the
+    heading `nextStep` names, and record the user's ruling by folding the gap into the plan file or by
+    appending `<block id> - <gap gist> - USER-RULED: <reason>` to `DISMISSED-PLAN.md` (§1, §2 step 2, §4,
+    the return's `nextStep`). Output: each ruling recorded.
+14. (when `status` names a fold the editor did not confirm writing) Inspect the plan file (the return's
+    `nextStep`). Output: the plan file's state, checked.
+15. (when `status` names a plan file that no longer parses) Repair the plan file by hand until
+    `node '<blockTool>' '<planPath>' --list` exits 0 (§3, the return's `nextStep`). Output: that exit 0.
+16. (when `status` is not `converged`) Relaunch through steps 5 and 6 with the same args and `runId` and no
+    `resumeFromRunId`, raising `maxRounds` after `rounds-exhausted` when needed. Stop this pass of the list
+    there, and work it again from step 7 once that run ends (§2 step 2, §2 step 3, §4, the return's
+    `nextStep`). Output: the relaunch's Workflow run id.
+17. (when the plan converged) Audit `DISMISSED-PLAN.md`, since each declined gap is a judgment call (§1,
+    the return's `nextStep`). Output: each declined gap checked.
+18. (when the plan converged and `belowFloor` is above 0) Show the user the FYI section of `lastCritique`
+    with the plan, since no editor folded its items (§1, §3, the return's `nextStep`). Output: the FYI
+    section shown.
+19. (when the plan converged) Take the plan to the user for approval, then build it with develop, never back
+    into refine (§2 step 3). `../develop/CLAUDE.md` §0 step 12 is that approval, and its summary needs
+    the values develop §0 steps 10 and 11 give, so ask for it at develop §0 step 12 and not before.
+    Continue at develop §0 step 9 when develop §0 step 8 started this refine run, or else work develop §0
+    from its step 1 through step 43. Output: develop §0 step 37's summary.
+20. (when `notes` is set) Run `node <survey's folder>/survey.mjs <notes.dir>` and report the themes, for
+    this run and for each develop run that step 19 launched with `notes` set (§5, `../develop/CLAUDE.md` §0
+    step 44). Output: the themes of each `SURVEY.md` it writes.
+
 ## 1. What converges it (do not weaken these)
 
 Four things together — remove any one and the plan grows every round instead of settling:

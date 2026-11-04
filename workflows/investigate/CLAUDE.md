@@ -11,6 +11,117 @@ the critic agrees, not when the first answer works. Built to `../../principles/W
 loop in the **spirit of #5 but non-blind by design** — a critic that cannot see the option or the criteria
 cannot verify either. It produces a determination, **not code**: nothing is staged or committed.
 
+## 0. Checklist
+
+Work every step in order. Each step cites the section that holds its rule, and a step that opens with a
+condition in parentheses runs only under it.
+
+### Before the run
+
+1. Check that the answer likely already exists and must pass every one of several pass/fail criteria (§1).
+   Output: that question, or the other workflow §1 names for the job.
+2. Author the criteria file in `EnterPlanMode` in the shape of §4, asking the user with `AskUserQuestion`
+   about anything ambiguous (§2 step 1, §4). Output: the criteria file.
+3. Get the user's approval of the criteria with `ExitPlanMode` (§2 step 2). Output: the user's approval.
+4. Choose the `runId` and `root` args, one `runId` for both phases (§2, §3, §9). Output: a value for each.
+5. Set `planPath` to the criteria file's absolute path (§3). Output: the `planPath` value.
+6. (when the answer must fit existing code) Set `target.repo` to that repo's absolute path (§3). Output:
+   the `target.repo` value.
+7. (when a candidate can be checked empirically) Set up the `testbed`, read-only by construction (§3).
+   Output: the `testbed` value.
+8. (when step 7 set a `testbed`) Pre-allowlist its commands (§3). Output: an allow rule for each testbed
+   command.
+9. Choose the optional args the run needs: `sources`, `maxRounds`, `minRoundBudget`, `context`,
+   `target.lang`, `target.framework`, `stateDir`, `models`, `efforts`, `agentTypes` and, when the user
+   wants the agents' feedback, `notes` (§3, §9). Output: a value for each arg chosen.
+10. Run `git -C <target.repo> status --short` (`node --version` when the run has no `target.repo`) with
+    run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification turn"). Output:
+    that tool call is the last one of this turn.
+11. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
+    `investigate-cycle.mjs`, `phase: "refine"` and the args steps 4 to 9 chose (§2 step 3, root
+    `CLAUDE.md`, "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
+12. (when the refine phase threw because the criteria critic returned nothing) Re-invoke through steps 10
+    and 11 with the same args plus the Workflow tool's `resumeFromRunId`. Stop this pass of the list
+    there, and work it again from step 12 once that run ends (§8). Output: the resumed run's Workflow run
+    id.
+13. (when the refine phase threw on a relayed user request) Relaunch through steps 10 and 11 with the same
+    args and no `resumeFromRunId`. Stop this pass of the list there, and work it again from step 12 once
+    that run ends (§2, root `CLAUDE.md`, "Launch from a notification turn"). Output: the relaunch's Workflow
+    run id.
+14. (when the refine return's `questions` is not empty) Relay the questions to the user with
+    `AskUserQuestion` (§2 step 4, the return's `nextStep`). Output: the user's answers.
+15. (when the refine return's `gaps` is not empty) Check each gap against the criteria file: its quoted
+    evidence line is there and says what the gap claims, or, for an `absent:` gap, the section is missing
+    (§5, the return's `nextStep`). Output: each gap confirmed or rejected.
+16. (when step 14 or 15 gave an answer or a confirmed gap, or `unfalsifiable` is not empty) Fold the
+    answers and the confirmed gap fixes into the criteria file, treating each gap's suggestion as a hint,
+    and replace each unfalsifiable criterion with one that evidence can settle (§2 step 4, the return's
+    `nextStep`). Output: the edited criteria file.
+17. Run step 10's pre-launch command with run_in_background, then end the turn (§2, root `CLAUDE.md`,
+    "Launch from a notification turn"). Output: that tool call is the last one of this turn.
+18. In the turn the notification starts, call Workflow with `phase: "run"`, the same args and `runId` as
+    step 11, and `priorRounds: 0` (§2 step 5, §9, root `CLAUDE.md`, "Launch from a notification turn").
+    Output: the Workflow run id (`wf_...`).
+
+### After the run
+
+19. (when the run threw because an agent returned nothing) Re-invoke through steps 17 and 18 with the args
+    of the run that threw, its `priorRounds` included, plus the Workflow tool's `resumeFromRunId`. Stop
+    this pass of the list there, and work it again from step 19 once that run ends (§8). Output: the
+    resumed run's Workflow run id.
+20. (when the run threw on a relayed user request) Relaunch through steps 17 and 18 with the args of the run
+    that threw, its `priorRounds` included, and no `resumeFromRunId`. Stop this pass of the list there, and
+    work it again from step 19 once that run ends (§2, root `CLAUDE.md`, "Launch from a notification turn").
+    Output: the relaunch's Workflow run id.
+21. (when `status` is `BLOCKED (needs user input)`) Read the new entries at the end of `NEEDS-USER.md`
+    under the headings `nextStep` names, and resolve them with the user, usually by editing the criteria
+    file (§8, §10). Output: each new entry resolved.
+22. (when `status` is `BLOCKED (an agent did not confirm writing its files)`) Check the files `haltReason`
+    names (§8). Output: each file's state, checked.
+23. (when `halted` is true) Re-invoke through steps 17 and 18 with the same args and `runId`, no
+    `resumeFromRunId` and, in place of `priorRounds: 0`, the `priorRounds` value `nextStep` names. Stop this
+    pass of the list there, and work it again from step 19 once that run ends (§3, §8). Output: the
+    relaunch's Workflow run id.
+24. Lead with the terminal state `status` names, and present no state but `exhaustive` as a finished search
+    (§6, §7). Output: the terminal state, told to the user first.
+25. (when `options` is null) Read the verdict line atop each file in `options/` (§6, the return's
+    `nextStep`). Output: the verified set.
+26. (when the return names a `determination` and `determinationDefects` is not 0) Read the review file
+    `nextStep` names, and correct in `DETERMINATION.md` each defect it records (§7, the return's
+    `nextStep`). Output: the corrected determination.
+27. (when `nextStep` says `DETERMINATION.md` asserts a claim the critic did not accept) Label it a PARTIAL
+    result and add the open avenue of the review `nextStep` names (§6, the return's `nextStep`). Output:
+    the determination labelled partial, with that avenue.
+28. (when the return names a `determination`) Relay `DETERMINATION.md` with the sections and caveats
+    `nextStep` names, such as WHERE NEXT on saturation and NEAR MISSES when it lists any (§6, §7). Output:
+    the determination relayed.
+29. (when `options` lists an option) Offer each file in `optionFiles` for its per-criterion evidence, and
+    `DISQUALIFIED.md` for what was ruled out (§10, the return's `nextStep`). Output: those paths, told to
+    the user.
+30. (when `options` lists an option) Let the user choose among the options by their trade-offs, since they
+    are unranked, and run decide-cycle over this option set when the user wants them ranked (§6, the
+    return's `nextStep`). Output: the user's choice.
+31. (when the run stalled) Read the `r<N> NEXT:` lines in `SEARCHED.md` and `DISQUALIFIED.md`, and tell the
+    user the search found nothing new this invocation (§6, §10, the return's `nextStep`). Output: the
+    unswept avenues and that sentence, told to the user.
+32. (when no qualifying option exists) Take the criterion the determination names to the user, since
+    relaxing one criterion is the only change that alters the answer (§10, the return's `nextStep`).
+    Output: the user's answer.
+33. (when the search stopped on saturation, stalled or ran out of rounds) Settle with the user whether to
+    continue the search, edit the criteria file, or, after a round budget, accept the partial result (§6,
+    §8, the return's `nextStep`). Output: the user's choice.
+34. (when step 32 relaxed a criterion, or step 33 chose to continue or to edit the criteria file) Re-invoke
+    as step 23 says, once the criteria file holds each edit. After step 32, pass the return's `rounds` as
+    `priorRounds`, since that return's `nextStep` names no value and its last round's critic wrote that
+    round's review, so the round numbers continue (§8, the return's `nextStep`). Output: the relaunch's
+    Workflow run id.
+35. (when the user picks an answer to build) Build it through `../develop/CLAUDE.md` §0 from its step 1
+    through step 43, writing it at its step 6 as a plan file (§1, the return's `nextStep`). Output: develop
+    §0 step 37's summary.
+36. (when `notes` is set) Run `node <survey's folder>/survey.mjs <notes.dir>` and report the themes, for
+    this run and for each develop run that step 35 launched with `notes` set (§9, `../develop/CLAUDE.md` §0
+    step 44). Output: the themes of each `SURVEY.md` it writes.
+
 ## 1. Scope (check FIRST)
 
 Right size: a question whose answer **likely already exists** and must satisfy **every** one of several

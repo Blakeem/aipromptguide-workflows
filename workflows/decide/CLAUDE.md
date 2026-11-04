@@ -8,6 +8,73 @@ prove. No stage loops back, so the run starts at most `maxInvestigators + 2` age
 `../../principles/WORKFLOW-PRINCIPLES.md`. A *convergence* workflow: it honors the core (#1–4, #6, #8,
 #11–20). It produces a conclusion, **not code**: nothing is staged or committed.
 
+## 0. Checklist
+
+Work every step in order. Each step cites the section that holds its rule, and a step that opens with a
+condition in parentheses runs only under it.
+
+### Before the run
+
+1. Check that the job is one decision with genuine trade-offs (§1). Output: that decision, or the other
+   workflow §1 names for the job.
+2. Author the rubric in `EnterPlanMode` in the shape of §4, asking the user with `AskUserQuestion` about
+   anything ambiguous (§2 step 1, §4). Output: the rubric file.
+3. Get the user's approval of the rubric with `ExitPlanMode` (§2 step 2). Output: the user's approval.
+4. Choose the `runId` and `root` args (§3, §7, §8). Output: a value for each.
+5. Set `planPath` to the rubric file's absolute path (§3). Output: the `planPath` value.
+6. (for a decision about existing code) Set `target.repo` to that repo's absolute path (§3). Output: the
+   `target.repo` value.
+7. (when agents can test claims empirically) Set up the `testbed`, read-only by construction (§3). Output:
+   the `testbed` value.
+8. (when step 7 set a `testbed`) Pre-allowlist its commands in the target project's settings (§3). Output:
+   an allow rule for each testbed command.
+9. Choose the optional args the run needs: `maxInvestigators`, `context`, `target.lang`,
+   `target.framework`, `stateDir`, `models`, `efforts`, `agentTypes` and, when the user wants the agents'
+   feedback, `notes` (§8). Output: a value for each arg chosen.
+10. Run `git -C <target.repo> status --short` (`node --version` when the run has no `target.repo`) with
+    run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification turn"). Output:
+    that tool call is the last one of this turn.
+11. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
+    `decide-cycle.mjs` and the args steps 4 to 9 chose (§2 step 3, root `CLAUDE.md`, "Launch from a
+    notification turn"). Output: the Workflow run id (`wf_...`).
+
+### After the run
+
+12. (when the run threw because an agent returned nothing) Relaunch through steps 10 and 11 with the same
+    args and `runId` plus the Workflow tool's `resumeFromRunId`. Stop this pass of the list there, and work
+    it again from step 12 once that run ends (§6, §7). Output: the resumed run's Workflow run id.
+13. (when the run threw on a relayed user request) Relaunch through steps 10 and 11 with the same args and
+    `runId` and no `resumeFromRunId`. Stop this pass of the list there, and work it again from step 12 once
+    that run ends (§2 step 3, root `CLAUDE.md`, "Launch from a notification turn"). Output: the relaunch's
+    Workflow run id.
+14. (when `halted` is true) Check the file `haltReason` names (§6, §7). Output: that file's state, checked.
+15. (when `halted` is true) Relaunch through steps 10 and 11 with the same args and no `resumeFromRunId`.
+    Stop this pass of the list there, and work it again from step 12 once that run ends (§7). Output: the
+    relaunch's Workflow run id.
+16. (when `ranking` is empty, since no option passes every must) Present `## Ruled out` in `decision.md`
+    (§5, the return's `nextStep`). Output: each ruled-out option presented with its evidence.
+17. (when `ranking` is not empty) Present the ranking under `## Ranking` in `decision.md`. Rank 1 is the top
+    answer, the user may combine the entries marked combinable, and a do-nothing rank 1 means not to act
+    (§1, §2 step 4, the return's `nextStep`). Output: the ranking presented.
+18. Present each edit under `## Edits` and every flag under `## Flags` in `review.md` (§5, the return's
+    `nextStep`). Output: each edit and flag presented.
+19. (when `flip` is `fragile`) Present `## Flip check` in `decision.md` and let the user settle the input
+    rank 1 turns on (§5, the return's `nextStep`). Output: the user's answer.
+20. (when `userChecks` is above 0) Present each check under `## Checks for the user` in `decision.md`, with
+    what its result would change (§5, §7, the return's `nextStep`). Output: each check presented.
+21. Name the return's `decisionFile` and `investigationFiles`, never a listing of the folder (§7). Output:
+    those paths, told to the user.
+22. (when `ranking` is empty) Refine the rubric with the user and relaunch through steps 2 to 11, editing
+    the existing rubric file at step 2. Stop this pass of the list there, and work it again from step 12
+    once that run ends (§7, the return's `nextStep`). Output: the relaunch's Workflow run id.
+23. (when the user picks an option to build) Build it through `../develop/CLAUDE.md` §0 from its step 1
+    through step 43, writing at its step 6 one plan file that holds a block per pick and, in each block,
+    each defect under `## Defects` in `review.md` that names its pick, with the fix when the defect names
+    one (§6, the return's `nextStep`). Output: develop §0 step 37's summary.
+24. (when `notes` is set) Run `node <survey's folder>/survey.mjs <notes.dir>` and report the themes, for
+    this run and for each develop run that step 23 launched with `notes` set (§8, `../develop/CLAUDE.md` §0
+    step 44). Output: the themes of each `SURVEY.md` it writes.
+
 ## 1. Scope (check FIRST)
 
 Right size: one real decision with **genuine trade-offs**, such as an architecture or pattern choice, a
