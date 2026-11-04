@@ -203,6 +203,15 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   and verifier reads every listed file in full. A relative path needs `target.repo`.
 - **Enhance counts split defects.** A kept proposal whose defect half went under `## Defects to route`
   counts in `summary.defects`.
+- **Debug and enhance are one audit workflow.** The engine `workflows/audit/audit.mjs` takes a `kind`
+  arg. The `defects` kind is the default and runs what debug ran. The `enhancements` kind runs what
+  enhance ran. Each kind keeps its prompts, its files and its return value.
+- **`/aipg:debug` and `/aipg:enhance` still work.** Each skill launches audit with its own kind.
+- **An arg of the other kind throws.** A launch with no `kind` that passes `scope`, `lenses`,
+  `minImpact` or `goals` throws "pass kind: enhancements". An enhancements launch that passes a defects
+  arg such as `units` names `kind: defects`.
+- **Audit's files moved.** The unit slicer is `workflows/audit/gen-units.mjs`, and the flow maps are
+  `FLOW-defects.md` and `FLOW-enhancements.md`. A launch by path names `audit.mjs`.
 
 ### 2026-11-02
 
