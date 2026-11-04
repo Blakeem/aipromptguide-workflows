@@ -314,43 +314,44 @@ best working set for a coding LLM on this brief.
 ${ENV}${TESTBED_ENV}
 ${round > 1 ? `This is curate round ${round}: the gap-fill gatherer added files to the already curated +
 indexed set. Re-read the whole set, integrate the new files, and rewrite the index in full. This round's
-gap-fill captures were written under: ${newDirs.join(', ')}\n` : ''}If ${INDEX_FILE} already exists
-(an earlier round, or an earlier run into this folder, wrote it), READ the previous ${INDEX_FILE} before
-you rewrite it: its Coverage notes hold one id'd entry per gap, and an entry whose file line names a
-file is a recapture (a failed fidelity check or a wrong version).
-RECAPTURE CHECK: before you delete a file that a newer capture recaptures, open the source cited in the
-NEW capture's own header and compare ONE substantive passage (a code block, or a parameter/field table)
-word for word, and count the check in fidelity_checked. A recapture that matches: DELETE the superseded
-file and drop it from the index. A reworded, condensed or reordered recapture fails: count it in
-fidelity_failures, delete the failed recapture, keep the superseded file, and return its gap again. When
-the source cannot be reached, keep both files, leave the check out of the count, and say so in the gap's
-entry.
-A gap that no newer capture fills stays open: keep its entry and return it again under the same id.
-
+gap-fill captures were written under: ${newDirs.join(', ')}\n` : ''}
 YOUR FOLDER: ${OUT_DIR} is dedicated to THIS doc set. Everything in it is either a source-headed capture
 made for this doc set (by this run's gatherers or by an earlier run into this folder), or a file a
 curator wrote (${INDEX_FILE}). Inside it you have FULL delete authority: delete freely to serve the brief.
 SAFETY CATCH: if you nonetheless find content under ${OUT_DIR} that is clearly NEITHER (no source header
 and unrelated to any source, hand-authored notes, an unrelated project's docs), the folder is not
-dedicated to this set. Do NOT delete, move, split, or rewrite that content: leave it exactly as it is,
-list its paths under Coverage notes, and return foreign_content=true with foreign_paths. Everything else
-stays under your full authority.
+dedicated to this set. Jobs 3 and 5 say how to treat that content.
 
 JOBS (in order):
-1. ORGANIZE: consistent kebab-case names, grouped by topic. SPLIT any file too big for one focused read
+1. If ${INDEX_FILE} already exists (an earlier round, or an earlier run into this folder, wrote it),
+   READ the previous ${INDEX_FILE} before you rewrite it: its Coverage notes hold one id'd entry per gap,
+   and an entry whose file line names a file is a recapture (a failed fidelity check or a wrong version).
+   Output: its open gap entries, and which of them are recaptures.
+2. (when job 1 found a recapture entry with a newer capture on disk) RECAPTURE CHECK: before you delete a
+   file that a newer capture recaptures, open the source cited in the NEW capture's own header and compare
+   ONE substantive passage (a code block, or a parameter/field table) word for word, and count the check
+   in fidelity_checked. A recapture that matches: DELETE the superseded file and drop it from the index.
+   A reworded, condensed or reordered recapture fails: count it in fidelity_failures, delete the failed
+   recapture, keep the superseded file, and return its gap again. When the source cannot be reached, keep
+   both files, leave the check out of the count, and say so in the gap's entry. Output: each check
+   counted, and the superseded file or the failed recapture deleted.
+3. ORGANIZE: consistent kebab-case names, grouped by topic. SPLIT any file too big for one focused read
    at heading boundaries, carrying the source header into every part. DELETE files and sections the
-   brief does not need, and exact duplicates (keep the more authoritative source).
-2. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
+   brief does not need, and exact duplicates (keep the more authoritative source). Do NOT delete, move,
+   split, or rewrite content the SAFETY CATCH names: leave it exactly as it is.
+4. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
-3. INDEX — write ${INDEX_FILE}. ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} It holds one line per file (path — what it covers — when to read it), then a
+5. INDEX — write ${INDEX_FILE}. ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} It holds one line per file (path — what it covers — when to read it), then a
    "Coverage notes" section holding the inconsistencies (with citations) and one entry per open gap, in
    this format (the gap-fill gatherer reads the entry as its directive, so name the source precisely):
 ${gapEntry(round)}
    Number this round's new gaps in sequence, the first one past the highest <n> any entry of the
    ${INDEX_FILE} on disk when your turn began uses under gap-r${round}- (from 1 when none does).${FIDELITY_N > 0 ? ` A gap the
    FIDELITY SPOT-CHECK adds continues that sequence.` : ''} Keep the id of a gap carried from an earlier round.
-${FIDELITY_N > 0 ? `4. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
+   A gap that no newer capture fills stays open: keep its entry under its id and return it again. List each
+   path the SAFETY CATCH names under Coverage notes, and return foreign_content=true with foreign_paths.
+${FIDELITY_N > 0 ? `6. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
    source's OWN WORDS. ${round > 1 ? `This round,
    pick ONLY from the files this round's gap-fill gatherer captured: the files under the directories named
    above when your turn began, wherever ORGANIZE then moved them, apart from a recapture the RECAPTURE

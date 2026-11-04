@@ -113,6 +113,10 @@ section('each recapture is spot-checked before the file it replaces is deleted')
   ok(r2.includes('A reworded, condensed or reordered recapture fails: count it in fidelity_failures, delete the failed recapture, keep the superseded file, and return its gap again.'),
     'a failed recapture keeps the superseded file and reopens the gap');
   ok(r2.includes('apart from a recapture the RECAPTURE CHECK already compared'), 'and the sample does not spend a pick on a checked recapture');
+  // ORGANIZE also deletes files, so a check placed after it could find the superseded file already gone.
+  const steps = ['JOBS (in order):', '1. If E:/r/runs/t/docs/INDEX.md already exists', 'RECAPTURE CHECK: before', '3. ORGANIZE:'].map((s) => r2.indexOf(s));
+  ok(steps.every((at, i) => at !== -1 && (i === 0 || at > steps[i - 1])),
+    `the index read and the RECAPTURE CHECK are numbered jobs that precede ORGANIZE: ${steps}`);
   const off = await run({ 'gather': GATHER, 'scrub': { files_cleaned: 1 }, 'curate:r1': RECAPTURE, 'curate:r2': CURATE }, { ...baseArgs, fidelitySample: 0 });
   ok(off.prompt('curate:r2').includes('The sample spot-check is disabled for this run, so fidelity_checked counts only RECAPTURE CHECK comparisons.'),
     'fidelitySample 0 turns off the sample and keeps the recapture check');

@@ -9,9 +9,9 @@ this file is stale.
 | gather | 1 | 1 | 1978 | two sources, one round |
 | gather | 2 | 1 | 1978 | two sources, one round |
 | scrub | 1 | 1 | 1296 | two sources, one round |
-| curate | 1 | 1 | 5939 | two sources, one round |
+| curate | 1 | 1 | 6230 | two sources, one round |
 | gather | 3 | 1 | 2925 | gap-fill round |
-| curate | 2 | 1 | 6578 | gap-fill round |
+| curate | 2 | 1 | 6869 | gap-fill round |
 | gather | 4 | 1 | 1966 | a repo source skips the scrubber |
 
 ## gather · variant 1 · schema 1
@@ -193,36 +193,35 @@ words is not. Brevity comes from leaving irrelevant content OUT, never from comp
 Every doc file starts with a source header: source (URL, or file path/range, or doc#section), version,
 retrieval date.
 Write ONLY inside E:/flow/runs/flow/docs; do NOT touch any repo, stage, or commit.
-If E:/flow/runs/flow/docs/INDEX.md already exists
-(an earlier round, or an earlier run into this folder, wrote it), READ the previous E:/flow/runs/flow/docs/INDEX.md before
-you rewrite it: its Coverage notes hold one id'd entry per gap, and an entry whose file line names a
-file is a recapture (a failed fidelity check or a wrong version).
-RECAPTURE CHECK: before you delete a file that a newer capture recaptures, open the source cited in the
-NEW capture's own header and compare ONE substantive passage (a code block, or a parameter/field table)
-word for word, and count the check in fidelity_checked. A recapture that matches: DELETE the superseded
-file and drop it from the index. A reworded, condensed or reordered recapture fails: count it in
-fidelity_failures, delete the failed recapture, keep the superseded file, and return its gap again. When
-the source cannot be reached, keep both files, leave the check out of the count, and say so in the gap's
-entry.
-A gap that no newer capture fills stays open: keep its entry and return it again under the same id.
 
 YOUR FOLDER: E:/flow/runs/flow/docs is dedicated to THIS doc set. Everything in it is either a source-headed capture
 made for this doc set (by this run's gatherers or by an earlier run into this folder), or a file a
 curator wrote (E:/flow/runs/flow/docs/INDEX.md). Inside it you have FULL delete authority: delete freely to serve the brief.
 SAFETY CATCH: if you nonetheless find content under E:/flow/runs/flow/docs that is clearly NEITHER (no source header
 and unrelated to any source, hand-authored notes, an unrelated project's docs), the folder is not
-dedicated to this set. Do NOT delete, move, split, or rewrite that content: leave it exactly as it is,
-list its paths under Coverage notes, and return foreign_content=true with foreign_paths. Everything else
-stays under your full authority.
+dedicated to this set. Jobs 3 and 5 say how to treat that content.
 
 JOBS (in order):
-1. ORGANIZE: consistent kebab-case names, grouped by topic. SPLIT any file too big for one focused read
+1. If E:/flow/runs/flow/docs/INDEX.md already exists (an earlier round, or an earlier run into this folder, wrote it),
+   READ the previous E:/flow/runs/flow/docs/INDEX.md before you rewrite it: its Coverage notes hold one id'd entry per gap,
+   and an entry whose file line names a file is a recapture (a failed fidelity check or a wrong version).
+   Output: its open gap entries, and which of them are recaptures.
+2. (when job 1 found a recapture entry with a newer capture on disk) RECAPTURE CHECK: before you delete a
+   file that a newer capture recaptures, open the source cited in the NEW capture's own header and compare
+   ONE substantive passage (a code block, or a parameter/field table) word for word, and count the check
+   in fidelity_checked. A recapture that matches: DELETE the superseded file and drop it from the index.
+   A reworded, condensed or reordered recapture fails: count it in fidelity_failures, delete the failed
+   recapture, keep the superseded file, and return its gap again. When the source cannot be reached, keep
+   both files, leave the check out of the count, and say so in the gap's entry. Output: each check
+   counted, and the superseded file or the failed recapture deleted.
+3. ORGANIZE: consistent kebab-case names, grouped by topic. SPLIT any file too big for one focused read
    at heading boundaries, carrying the source header into every part. DELETE files and sections the
-   brief does not need, and exact duplicates (keep the more authoritative source).
-2. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
+   brief does not need, and exact duplicates (keep the more authoritative source). Do NOT delete, move,
+   split, or rewrite content the SAFETY CATCH names: leave it exactly as it is.
+4. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
-3. INDEX — write E:/flow/runs/flow/docs/INDEX.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. It holds one line per file (path — what it covers — when to read it), then a
+5. INDEX — write E:/flow/runs/flow/docs/INDEX.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. It holds one line per file (path — what it covers — when to read it), then a
    "Coverage notes" section holding the inconsistencies (with citations) and one entry per open gap, in
    this format (the gap-fill gatherer reads the entry as its directive, so name the source precisely):
 ### [gap-r1-<n>] <short title>
@@ -233,7 +232,9 @@ JOBS (in order):
    Number this round's new gaps in sequence, the first one past the highest <n> any entry of the
    E:/flow/runs/flow/docs/INDEX.md on disk when your turn began uses under gap-r1- (from 1 when none does). A gap the
    FIDELITY SPOT-CHECK adds continues that sequence. Keep the id of a gap carried from an earlier round.
-4. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
+   A gap that no newer capture fills stays open: keep its entry under its id and return it again. List each
+   path the SAFETY CATCH names under Coverage notes, and return foreign_content=true with foreign_paths.
+6. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
    source's OWN WORDS. Pick up to 3 captured file(s), preferring first any file that reads as
    paraphrase/summary or lacks a source header, then files captured from a repo/local path (an exact,
    nearly free local read), then the largest and least official web files. For each, open the source
@@ -419,36 +420,35 @@ Write ONLY inside E:/flow/runs/flow/docs; do NOT touch any repo, stage, or commi
 This is curate round 2: the gap-fill gatherer added files to the already curated +
 indexed set. Re-read the whole set, integrate the new files, and rewrite the index in full. This round's
 gap-fill captures were written under: E:/flow/runs/flow/docs/gap-r1-1/ (gap gap-r1-1)
-If E:/flow/runs/flow/docs/INDEX.md already exists
-(an earlier round, or an earlier run into this folder, wrote it), READ the previous E:/flow/runs/flow/docs/INDEX.md before
-you rewrite it: its Coverage notes hold one id'd entry per gap, and an entry whose file line names a
-file is a recapture (a failed fidelity check or a wrong version).
-RECAPTURE CHECK: before you delete a file that a newer capture recaptures, open the source cited in the
-NEW capture's own header and compare ONE substantive passage (a code block, or a parameter/field table)
-word for word, and count the check in fidelity_checked. A recapture that matches: DELETE the superseded
-file and drop it from the index. A reworded, condensed or reordered recapture fails: count it in
-fidelity_failures, delete the failed recapture, keep the superseded file, and return its gap again. When
-the source cannot be reached, keep both files, leave the check out of the count, and say so in the gap's
-entry.
-A gap that no newer capture fills stays open: keep its entry and return it again under the same id.
 
 YOUR FOLDER: E:/flow/runs/flow/docs is dedicated to THIS doc set. Everything in it is either a source-headed capture
 made for this doc set (by this run's gatherers or by an earlier run into this folder), or a file a
 curator wrote (E:/flow/runs/flow/docs/INDEX.md). Inside it you have FULL delete authority: delete freely to serve the brief.
 SAFETY CATCH: if you nonetheless find content under E:/flow/runs/flow/docs that is clearly NEITHER (no source header
 and unrelated to any source, hand-authored notes, an unrelated project's docs), the folder is not
-dedicated to this set. Do NOT delete, move, split, or rewrite that content: leave it exactly as it is,
-list its paths under Coverage notes, and return foreign_content=true with foreign_paths. Everything else
-stays under your full authority.
+dedicated to this set. Jobs 3 and 5 say how to treat that content.
 
 JOBS (in order):
-1. ORGANIZE: consistent kebab-case names, grouped by topic. SPLIT any file too big for one focused read
+1. If E:/flow/runs/flow/docs/INDEX.md already exists (an earlier round, or an earlier run into this folder, wrote it),
+   READ the previous E:/flow/runs/flow/docs/INDEX.md before you rewrite it: its Coverage notes hold one id'd entry per gap,
+   and an entry whose file line names a file is a recapture (a failed fidelity check or a wrong version).
+   Output: its open gap entries, and which of them are recaptures.
+2. (when job 1 found a recapture entry with a newer capture on disk) RECAPTURE CHECK: before you delete a
+   file that a newer capture recaptures, open the source cited in the NEW capture's own header and compare
+   ONE substantive passage (a code block, or a parameter/field table) word for word, and count the check
+   in fidelity_checked. A recapture that matches: DELETE the superseded file and drop it from the index.
+   A reworded, condensed or reordered recapture fails: count it in fidelity_failures, delete the failed
+   recapture, keep the superseded file, and return its gap again. When the source cannot be reached, keep
+   both files, leave the check out of the count, and say so in the gap's entry. Output: each check
+   counted, and the superseded file or the failed recapture deleted.
+3. ORGANIZE: consistent kebab-case names, grouped by topic. SPLIT any file too big for one focused read
    at heading boundaries, carrying the source header into every part. DELETE files and sections the
-   brief does not need, and exact duplicates (keep the more authoritative source).
-2. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
+   brief does not need, and exact duplicates (keep the more authoritative source). Do NOT delete, move,
+   split, or rewrite content the SAFETY CATCH names: leave it exactly as it is.
+4. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
-3. INDEX — write E:/flow/runs/flow/docs/INDEX.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. It holds one line per file (path — what it covers — when to read it), then a
+5. INDEX — write E:/flow/runs/flow/docs/INDEX.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. It holds one line per file (path — what it covers — when to read it), then a
    "Coverage notes" section holding the inconsistencies (with citations) and one entry per open gap, in
    this format (the gap-fill gatherer reads the entry as its directive, so name the source precisely):
 ### [gap-r2-<n>] <short title>
@@ -459,7 +459,9 @@ JOBS (in order):
    Number this round's new gaps in sequence, the first one past the highest <n> any entry of the
    E:/flow/runs/flow/docs/INDEX.md on disk when your turn began uses under gap-r2- (from 1 when none does). A gap the
    FIDELITY SPOT-CHECK adds continues that sequence. Keep the id of a gap carried from an earlier round.
-4. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
+   A gap that no newer capture fills stays open: keep its entry under its id and return it again. List each
+   path the SAFETY CATCH names under Coverage notes, and return foreign_content=true with foreign_paths.
+6. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
    source's OWN WORDS. This round,
    pick ONLY from the files this round's gap-fill gatherer captured: the files under the directories named
    above when your turn began, wherever ORGANIZE then moved them, apart from a recapture the RECAPTURE

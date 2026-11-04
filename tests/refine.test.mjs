@@ -44,6 +44,8 @@ const PLAN_BROKEN   = 'BLOCKED (the folded plan file no longer parses - every la
 const STATE    = 'E:/r/runs/t-refine';
 const LIST     = `node 'E:/r/tools/plan-block.mjs' 'E:/plans/bus.md' --list`;
 const RELAUNCH = `A relaunch takes the same args and runId and no resumeFromRunId, which keeps the stateDir and its ledger ${STATE}/DISMISSED-PLAN.md.`;
+const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
+const DEVELOP_CLAUSE = 'Then build the plan through the develop guide\'s §0, which takes the user\'s approval of E:/plans/bus.md at its step 12, once its steps 10 and 11 give the approval summary\'s values: continue at develop §0 step 9 when develop §0 step 8 started this refine run, or else work develop §0 from its step 1.';
 const handBack = (out, halted, clauses, where) => {
   eq(out.halted, halted, `${where}: halted`);
   ok(halted ? /\bround \d+\b/.test(out.haltReason) : out.haltReason === '',
@@ -67,10 +69,15 @@ section('a clean first round converges, and is the one path that spawns no edito
   eq(out.openGaps, 0, 'with no open gaps');
   eq(out.lastCritique, 'E:/r/runs/t-refine/plan-critique-1.md', 'and the clean round\'s critique file is named, since every round writes one');
   handBack(out, false, [
-    'Hand the plan E:/plans/bus.md to the user for approval.',
     `Audit ${STATE}/DISMISSED-PLAN.md before trusting the converge, since each declined gap is a judgment call.`,
-    `Then build the plan with develop, deriving its args with plan-edit.mjs args 'E:/plans/bus.md'.`,
+    DEVELOP_CLAUSE,
   ], 'converged');
+  // The refine guide's checklist audits the ledger before develop's §0 takes the approval.
+  const step = String(out.nextStep ?? '');
+  ok(step.indexOf('Audit ') !== -1 && step.indexOf('Audit ') < step.indexOf(DEVELOP_CLAUSE),
+    'the audit clause comes before the develop clause');
+  ok(!step.includes('Hand the plan') && !step.includes('plan-edit.mjs args'),
+    'and nextStep takes no approval and derives no args, since develop\'s checklist owns both');
   ok(typeof out.nextStep === 'string' && !/FYI|relaunch/.test(out.nextStep),'a converge with no below-floor findings sends nobody to an FYI section and relaunches nothing');
 }
 
@@ -95,15 +102,18 @@ section('an FYI-only round writes its critique file and still converges, naming 
   handBack(out, false, [
     `Show the user the FYI section of ${STATE}/plan-critique-1.md with the plan, since no editor folded its 2 item(s).`,
     'The user can add an item to a block before approving.',
-    'Hand the plan E:/plans/bus.md to the user for approval.',
+    DEVELOP_CLAUSE,
   ], 'converged with FYI items');
+  const step = String(out.nextStep ?? '');
+  ok(step.indexOf('Audit ') < step.indexOf('Show the user the FYI') && step.indexOf('Show the user the FYI') < step.indexOf(DEVELOP_CLAUSE),
+    'the clauses run audit, FYI, then develop, in the refine checklist\'s order');
 }
 
 section('the critic writes the FYI section only in a round with no gap and no question, grouped by location');
 {
   const { prompt } = await run({ 'plan-critic': CLEAN });
   const p = prompt('plan-critic').replace(/\s+/g, ' ');
-  const fyi = p.slice(p.indexOf('THE FYI SECTION'), p.indexOf('SETTLED DECISIONS'));
+  const fyi = p.slice(p.indexOf('THE FYI SECTION is'), p.indexOf('SETTLED DECISIONS -'));
   ok(fyi.length > 0, 'the prompt has an FYI section paragraph before the settled decisions');
   ok(p.includes('Below-floor findings are wrong plan text graded minor, never an omission. EXCLUDE them from gap_count and write them only in the FYI section.'),
     'a below-floor finding is wrong plan text, never an omission, and stays out of gap_count');
@@ -127,6 +137,18 @@ section('the critic writes the FYI section only in a round with no gap and no qu
     'the critique file layout puts no FYI section beside the gaps the editor reads');
   ok(p.includes('You write only your critique file E:/r/runs/t-refine/plan-critique-1.md, E:/r/runs/t-refine/NEEDS-USER.md, and a probe\'s files'),
     'the opening write list names the critique file by its path');
+}
+
+section('the critic\'s required actions are numbered steps, the ledger read first');
+// A critic that skips the ledger re-raises declined or USER-RULED gaps, which costs a round each time.
+{
+  const { prompt } = await run({ 'plan-critic': CLEAN });
+  const p = prompt('plan-critic').replace(/\s+/g, ' ');
+  const steps = ['PROCEDURE:', `1. (when ${STATE}/DISMISSED-PLAN.md exists) READ it FIRST`, '3. WRITE', '4. (when you have a question)',
+    '5. (in the converged round', '6. Do NOT modify the plan file', '7. Return via the schema.', 'THE DEFECT BAR -'].map((s) => p.indexOf(s));
+  ok(steps.every((at, i) => at !== -1 && (i === 0 || at > steps[i - 1])),
+    `the procedure opens the prompt in run order, before the rules it cites: ${steps}`);
+  ok(!p.includes('READ E:/r/runs/t-refine/DISMISSED-PLAN.md FIRST if it exists'), 'and the ledger read no longer sits in the settled-decisions paragraph');
 }
 
 section('at the minor floor the critic has no below-floor subsection and still writes Outside the plan');
@@ -244,7 +266,7 @@ section('the critic grades by impact on accepted input, never by fix size');
 {
   const { byLabel } = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK });
   const prompts = byLabel('plan-critic').map((c) => c.prompt.replace(/\s+/g, ' '));
-  const bar = (p) => p.slice(p.indexOf('THE SEVERITY FLOOR'), p.indexOf('THE FYI SECTION'));
+  const bar = (p) => p.slice(p.indexOf('THE SEVERITY FLOOR is'), p.indexOf('THE FYI SECTION is'));
   eq(prompts.length, 2, 'two critic rounds ran');
   ok(prompts[0].includes('crashes, loses or corrupts data, or gives wrong output on an input the repo or the plan accepts'),
     'a runtime failure on accepted input is major by definition, whether or not a criterion names it');
@@ -346,6 +368,8 @@ section('questions end the run on any round, and the editor never sees them');
     RELAUNCH,
     'A replay returns the cached critic and halts the same way.',
   ], 'needs-answers');
+  // A relaunch from a user turn relays that message to every agent, and the engine sees it only after the critic's round.
+  ok(String(out.nextStep ?? '').includes(`To relaunch, ${LAUNCH}.`), 'the relaunch names the notification-turn launch path');
 
   const { out: later, byLabel } = await run({ 'plan-critic': firstRound(GAPS, QUESTIONS), 'plan-editor': FOLD_OK });
   eq(later.status, NEEDS_ANSWERS, 'a question raised after a fold lands on the same status');
@@ -457,6 +481,7 @@ section('a dead critic throws on every round — zero gaps from an agent that di
   const r1 = await throwsWith(ENGINE, { args: baseArgs, respond: { 'plan-critic': null } });
   ok(/Plan critic returned nothing in round 1/.test(r1) && /resumeFromRunId/.test(r1),
     `round 1 throws with the resume hint: ${r1.slice(0, 50)}`);
+  ok(r1.includes(`To re-invoke, ${LAUNCH}.`), 'and names the notification-turn launch path');
 
   const r2 = await throwsWith(ENGINE, {
     args: baseArgs,
@@ -476,6 +501,7 @@ section('a dead editor halts instead, because the round\'s critique file survive
   handBack(out, true, [
     `Run ${LIST} first, since the editor may have partly edited the plan.`,
     `Then replay with the same args and runId plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${STATE}/plan-critique-1.md runs again.`,
+    `To replay, ${LAUNCH}.`,
     'A relaunch without resumeFromRunId restarts at round 1.',
   ], 'agent-dead');
 }

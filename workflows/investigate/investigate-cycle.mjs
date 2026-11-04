@@ -164,13 +164,13 @@ const INVESTIGATE_SCHEMA = {
   required: ['relayed_request', 'wrote_files', 'option_ids', 'disqualified_added', 'flagged', 'rediscovered', 'next_avenue_confidence', 'claim', 'needs_user'],
   properties: {
     relayed_request:    RELAYED_REQUEST,
-    wrote_files:        { type: 'boolean', description: 'true if you wrote every file steps 4 to 8 call for this round' },
+    wrote_files:        { type: 'boolean', description: 'true if you wrote every file steps 6 to 10 call for this round' },
     option_ids:         { type: 'array', items: { type: 'string' }, description: 'the ids of the options you wrote to options/ THIS round, re-proposals included (file names, not content). [] is a legitimate round' },
     disqualified_added: { type: 'integer', description: 'candidates you appended to the DISQUALIFIED ledger this round' },
-    flagged:            { type: 'integer', description: 'FLAG lines you appended to the DISQUALIFIED ledger this round (step 5), 0 if none' },
-    rediscovered:       { type: 'integer', description: 'closed candidates you met again this round, not re-appended (step 5)' },
-    next_avenue_confidence: { type: 'string', enum: CONFIDENCE, description: 'the confidence on this round\'s r<N> NEXT: line (step 6)' },
-    claim:              { type: 'string', enum: CLAIMS, description: 'this round\'s termination claim (step 7): none unless you can evidence one' },
+    flagged:            { type: 'integer', description: 'FLAG lines you appended to the DISQUALIFIED ledger this round (step 7), 0 if none' },
+    rediscovered:       { type: 'integer', description: 'closed candidates you met again this round, not re-appended (step 7)' },
+    next_avenue_confidence: { type: 'string', enum: CONFIDENCE, description: 'the confidence on this round\'s r<N> NEXT: line (step 8)' },
+    claim:              { type: 'string', enum: CLAIMS, description: 'this round\'s termination claim (step 9): none unless you can evidence one' },
     needs_user:         { type: 'boolean', description: 'true ONLY if a criteria contradiction or a user-only call blocks you before you can claim anything; you wrote a full entry to NEEDS-USER.md and cannot proceed. A no_solution claim resting on a contradiction is not one: leave this false' },
   },
 };
@@ -238,10 +238,12 @@ const CRITERIA_SCHEMA = {
   },
 };
 
+// A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
+const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
 // A run launched inside a user turn relays that message to every agent, so the first agent of the launch stops it.
 const haltIfRelayed = (role, relayed) => {
   if (relayed === true) {
-    throw new Error(`A user request was relayed into the context of the ${role} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.`);
+    throw new Error(`A user request was relayed into the context of the ${role} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}.`);
   }
 };
 
@@ -282,9 +284,9 @@ You are the INVESTIGATOR (round ${round} of at most ${LAST_ROUND}). Find an answ
 meets every criterion. You are SEARCHING, not designing: prefer what is documented, shipped and citable
 over anything you could invent.
 ${ENV}
-SEARCH MEMORY — read ALL THREE before you search:
+SEARCH MEMORY — the three files step 2 reads:
   • ${LEDGER} — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
-    re-opens it: FLAG a line you can contradict with a citation instead (step 5). Do NOT re-walk an
+    re-opens it: FLAG a line you can contradict with a citation instead (step 7). Do NOT re-walk an
     avenue it closes.${resumedRound(round)
     ? ` This search resumes after round ${PRIOR_ROUNDS}, and the criteria
     may have changed since: a line whose named failing criterion no longer disqualifies the candidate as
@@ -298,32 +300,36 @@ SEARCH MEMORY — read ALL THREE before you search:
     before round ${round} is OUT: never link it in ANSWER. A file with no verdict line, or one naming round
     ${round} or a later round, is unverified until a critic judges it. Bring a disqualified option back
     only on a critique's re-open note, by re-proposing it: rewrite its whole file with no verdict line.
-${round === 1
-    ? `Round 1: none of them may exist yet. Create them as you go.`
-    : reviewPath
-      ? `${resumedRound(round)
-        ? `This search resumes after round ${PRIOR_ROUNDS}. If ${reviewPath} does not exist, that round ran
-no critic, and this round's critic checks its ledger lines. Change the avenue rather than repeat it. If it
-exists, READ it`
-        : `The critic reviewed the last round. READ ${reviewPath}`} and answer EVERY point it raises. A
-disqualified option needs a DIFFERENT candidate, not a re-argued one. A candidate the review re-opens is
-the exception: re-propose it. A contested exhaustion claim names
-an avenue you did not sweep: sweep it.`
-      : `The last round added no option and claimed nothing, so NO critique was written. Change the avenue
-rather than repeat the last one.`}
 
 PROCEDURE:
 1. Read the criteria VERBATIM and list them NUMBERED. Every step below checks against that numbering.
-2. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
+2. READ ALL THREE SEARCH MEMORY files before you search, under the rules that section states.${round === 1
+    ? ` Round 1: none of
+   them may exist yet. Create them as you go.`
+    : ''} Output: the closed candidates and swept avenues this round avoids.
+3. ${round === 1
+    ? `Round 1 has no review.`
+    : reviewPath
+      ? `${resumedRound(round)
+        ? `This search resumes after round ${PRIOR_ROUNDS}. If ${reviewPath} does not exist, that round ran
+   no critic, and this round's critic checks its ledger lines. Change the avenue rather than repeat it. If
+   it exists, READ it`
+        : `The critic reviewed the last round. READ ${reviewPath}`} and answer EVERY point it raises. A
+   disqualified option needs a DIFFERENT candidate, not a re-argued one. A candidate the review re-opens is
+   the exception: re-propose it. A contested exhaustion claim names an avenue you did not sweep: sweep it.
+   Output: each review point answered, and each contested avenue swept.`
+      : `The last round added no option and claimed nothing, so NO critique was written. Change the avenue
+   rather than repeat the last one. Output: the avenue this round takes in its place.`}
+4. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
    itself, release notes, the spec) over summaries.
-3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
+5. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
    to keep a candidate you like.
-4. QUALIFIERS: write ${OPTIONS_DIR}/<id>.md per option, <id> a short kebab slug that no file in
+6. QUALIFIERS: write ${OPTIONS_DIR}/<id>.md per option, <id> a short kebab slug that no file in
    ${OPTIONS_DIR} uses yet (create the dir if needed). ${REPLACE_NOTE} Replace an existing <id>.md only when re-proposing a
    disqualified option or rewriting an unverified file (no verdict line, or one naming round ${round} or later) for the
    same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
    what the option BUYS, what it COSTS, and its sources. Terse and concrete.
-5. REJECTS: APPEND one line each to ${LEDGER}:
+7. REJECTS: APPEND one line each to ${LEDGER}:
    \`${ledgerLine(round, 'inv')}\`
    A FAILS line's locator is the exact passage, section, line or command output that shows the failure.
    An UNPROVEN line's locator follows the UNPROVEN rule above. The critic checks the line against it.
@@ -338,16 +344,16 @@ PROCEDURE:
    Append only: never rewrite, reorder or prune it.
    Do NOT re-append a REDISCOVERED candidate (one the ledger already closed that your search turned up
    again). Return their count as rediscovered.
-6. AVENUES — APPEND to ${SEARCHED} one line per avenue you actually SWEPT this round:
+8. AVENUES — APPEND to ${SEARCHED} one line per avenue you actually SWEPT this round:
    \`r${round} SWEPT: <avenue> — <queries/terms used> — <result: X new, Y rediscovered | nothing>\`
    Then EXACTLY ONE line saying where you would look next:
    \`r${round} NEXT: <most promising unswept avenue> — confidence: high|medium|low|none — <why>\`
-   \`confidence: none\` means NO unswept avenue remains. That is step 7's exhaustion claim, so write it
-   only with the evidence step 7 demands. Return the same value as next_avenue_confidence.
+   \`confidence: none\` means NO unswept avenue remains. That is step 9's exhaustion claim, so write it
+   only with the evidence step 9 demands. Return the same value as next_avenue_confidence.
    Append only: never rewrite, reorder or prune it.
-7. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
+9. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
    nothing). The critic will attack the evidence.
-   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 8. "I did not find
+   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 10. "I did not find
      more" is not exhaustion. Return claim=exhausted.
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
      stronger fact than finding none. Say which criterion every candidate died on. Return
@@ -362,7 +368,7 @@ PROCEDURE:
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.`
       : ''}
-8. THE DETERMINATION — write ${DETERMINATION} on a terminating round${round >= LAST_ROUND
+10. THE DETERMINATION — write ${DETERMINATION} on a terminating round${round >= LAST_ROUND
       ? `, AND on this one: round ${round} is this run's LAST, so it gets written whatever you conclude`
       : ''}. ${REPLACE_NOTE} LINK to each
    ${OPTIONS_DIR}/<id>.md, never restate one. These sections, in this order:
@@ -388,8 +394,9 @@ PROCEDURE:
    is a PARTIAL result. Say what stopped it (the round budget, or the escalation you are about to write
    to ${NEEDS_USER}), never that nothing more is there.`
       : ''}
-If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
-append a full entry to ${NEEDS_USER} that opens with the line \`## r${round} investigator\`, and set needs_user=true.
+11. (when a criteria contradiction, or a call only the user can make, blocks you before you can claim
+   anything) Append a full entry to ${NEEDS_USER} that opens with the line \`## r${round} investigator\`, and
+   set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
 ${WROTE_NOTE} ${FILE_WRITE_NOTE}
 Return via the schema, option_ids included.`;
@@ -529,7 +536,7 @@ if (PHASE === 'refine') {
   const critique = await callAgent(criteriaPrompt(), roleOpts('criteria', {
     schema: CRITERIA_SCHEMA, phase: 'Refine', label: 'criteria-critic',
   }));
-  if (!critique) throw new Error('Criteria critic returned nothing (agent skipped or died) — that is NOT a clean bill of health for the criteria. Re-invoke with the same args (same runId); pass the Workflow tool\'s resumeFromRunId to replay completed agents from cache.');
+  if (!critique) throw new Error(`Criteria critic returned nothing (agent skipped or died) — that is NOT a clean bill of health for the criteria. Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache. To re-invoke, ${LAUNCH}.`);
   haltIfRelayed('criteria critic', critique.relayed_request);
   const gaps = Array.isArray(critique.gaps) ? critique.gaps : [];
   const questions = Array.isArray(critique.questions) ? critique.questions : [];
@@ -547,12 +554,12 @@ if (PHASE === 'refine') {
     notes: critique.notes || '',
     failed: [],
     nextStep: questions.length
-      ? `Relay the questions to the user (AskUserQuestion). ${gapCheck}Fold the answers${gaps.length ? ' + the confirmed gap fixes' : ''}${unfalsifiable.length ? ' + the unfalsifiable fixes' : ''} into the criteria (planPath)${unfalsifiable.length ? ', REPLACING every unfalsifiable criterion with one that evidence can settle' : ''}, then run phase:"run" with this SAME runId and priorRounds: 0.${unfalsifiable.length ? ' A criterion nothing can decide never converges.' : ''}`
+      ? `Relay the questions to the user (AskUserQuestion). ${gapCheck}Fold the answers${gaps.length ? ' + the confirmed gap fixes' : ''}${unfalsifiable.length ? ' + the unfalsifiable fixes' : ''} into the criteria (planPath)${unfalsifiable.length ? ', REPLACING every unfalsifiable criterion with one that evidence can settle' : ''}, then ${LAUNCH}, with phase:"run", this SAME runId and priorRounds: 0.${unfalsifiable.length ? ' A criterion nothing can decide never converges.' : ''}`
       : (gaps.length || unfalsifiable.length)
         ? `${gaps.length
           ? `${gapCheck}Fold the confirmed gap fixes into the criteria (planPath)${unfalsifiable.length ? ' and REPLACE every unfalsifiable criterion with one that evidence can settle' : ''}`
-          : 'REPLACE every unfalsifiable criterion in the criteria (planPath) with one that evidence can settle'}, then run phase:"run" with this SAME runId and priorRounds: 0.${unfalsifiable.length ? ' A criterion nothing can decide never converges.' : ''}`
-        : 'Criteria are sound — run phase:"run" with this SAME runId and priorRounds: 0.',
+          : 'REPLACE every unfalsifiable criterion in the criteria (planPath) with one that evidence can settle'}, then ${LAUNCH}, with phase:"run", this SAME runId and priorRounds: 0.${unfalsifiable.length ? ' A criterion nothing can decide never converges.' : ''}`
+        : `Criteria are sound — ${LAUNCH}, with phase:"run", this SAME runId and priorRounds: 0.`,
   };
 }
 
@@ -597,7 +604,7 @@ while (round < LAST_ROUND) {
   // half-written. The ledger IS the resume state, so a clean stop costs nothing to continue from.
   if (budget.total && budget.remaining() < MIN_ROUND_BUDGET) {
     haltKind = 'budget';
-    haltReason = `Stopped before round ${round + 1}: ~${Math.round(budget.remaining() / 1000)}k tokens remain (< minRoundBudget). Re-invoke phase:"run" with the same args and priorRounds: ${round} — ${LEDGER} carries the search's memory, so the next round resumes where this one stopped instead of re-walking closed avenues.`;
+    haltReason = `Stopped before round ${round + 1}: ~${Math.round(budget.remaining() / 1000)}k tokens remain (< minRoundBudget). Re-invoke phase:"run" with the same args and priorRounds: ${round} — ${LEDGER} carries the search's memory, so the next round resumes where this one stopped instead of re-walking closed avenues. To re-invoke, ${LAUNCH}.`;
     log(`⏸ ${haltReason}`);
     break;
   }
@@ -612,7 +619,7 @@ while (round < LAST_ROUND) {
   }));
   // A dead investigator must NEVER read as "found nothing, swept everything" — that is exactly the shape
   // of an exhausted search, and it would be reported as a proof of absence.
-  if (!inv) throw new Error(`Investigator returned nothing in round ${round} (agent skipped or died) — that is NOT an exhausted search. Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
+  if (!inv) throw new Error(`Investigator returned nothing in round ${round} (agent skipped or died) — that is NOT an exhausted search. Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache. To re-invoke, ${LAUNCH}.`);
   haltIfRelayed('investigator', inv.relayed_request);
   const ids = [...new Set(idList(inv.option_ids))];
   const added = ids.length;
@@ -645,7 +652,7 @@ while (round < LAST_ROUND) {
     crit = await callAgent(critiquePrompt(round, ids, claimKind, det, critRound + 1), roleOpts('critique', {
       schema: CRITIQUE_SCHEMA, phase: 'Critique', label: `critique r${round}`,
     }));
-    if (!crit) throw new Error(`Acceptance critic returned nothing in round ${round} (agent skipped or died) — its options and any termination claim are therefore UNVERIFIED. Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
+    if (!crit) throw new Error(`Acceptance critic returned nothing in round ${round} (agent skipped or died) — its options and any termination claim are therefore UNVERIFIED. Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache. To re-invoke, ${LAUNCH}.`);
     // The next investigator, and a contest's cited avenue, live only in that file.
     if (crit.wrote_file !== true) {
       haltKind = 'write-unattested';
@@ -826,21 +833,21 @@ return {
   searchTrail: `${LEDGER} is the full list of what was ruled out and why (lines marked NEAR-MISS: failed exactly one criterion); ${SEARCHED} is the avenue log — which ground each round swept, with the terms used, and the most promising avenue it left unswept; options/<id>.md hold each option the investigator qualified, with its evidence (a critic-disqualified option's file stays on disk, so \`optionFiles\` lists the verified ones); acceptance-review-rN.md in ${STATE_DIR}/ shows each round the critic judged.`,
   nextStep: halted
     ? (haltKind === 'needs-user'
-      ? `Run halted — ${haltReason} Read the new entries headed ${entryHeadings} at the end of ${NEEDS_USER}, resolve them with the user (usually by editing the criteria), then re-invoke phase:"run" with the same runId and priorRounds: ${rerunEscalated ? round - 1 : round} — the ledger means the search resumes rather than restarts.${rerunEscalated ? ` Round ${round} re-runs from its start, so its investigator re-reads any review it was handed.` : ''}`
+      ? `Run halted — ${haltReason} Read the new entries headed ${entryHeadings} at the end of ${NEEDS_USER}, resolve them with the user (usually by editing the criteria), then re-invoke phase:"run" with the same runId and priorRounds: ${rerunEscalated ? round - 1 : round} — the ledger means the search resumes rather than restarts.${rerunEscalated ? ` Round ${round} re-runs from its start, so its investigator re-reads any review it was handed.` : ''} To re-invoke, ${LAUNCH}.`
       : haltKind === 'write-unattested'
-        ? `Run halted — ${haltReason} Check those files, then relaunch phase:"run" as a FRESH run with the same runId, priorRounds: ${round - 1} and no resumeFromRunId: a resume replays the cached return and halts the same way. No determination is named, since no file behind it was attested.`
+        ? `Run halted — ${haltReason} Check those files, then relaunch phase:"run" as a FRESH run with the same runId, priorRounds: ${round - 1} and no resumeFromRunId: a resume replays the cached return and halts the same way. No determination is named, since no file behind it was attested. To relaunch, ${LAUNCH}.`
         : `Run stopped on budget — ${haltReason}`)
     : haltKind === 'exhausted'
       ? `The search is CLOSED: the critic agreed it is exhaustive. Present the determination: relay ${DETERMINATION} (the options, the comparison, which to pick when, the near misses, the coverage evidence) and let the user read each options/<id>.md for the per-criterion evidence, plus ${LEDGER} for what was ruled out. The return's ${setPhrase()}. The options are UNRANKED by design — present the trade-offs and let the user choose; to rank them, run decide-cycle over this option set, not a re-run here. ${determinationNote} To build what it names, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.`
       : haltKind === 'saturated'
-        ? `The search STOPPED on diminishing returns and the critic agreed the collapse is real — it is OPEN, not closed, so never present it as exhaustive or complete. Relay ${DETERMINATION} and lead with its WHERE NEXT section. ${verifiedIds === null ? `The return's \`options\` is null: the verified set is unknown, so read the verdict line atop each file in ${OPTIONS_DIR}/.` : `The return's \`options\` is the verified set of ${verifiedIds.length} option(s), and each is a valid answer, but nothing was proved to be all of them.`} ${determinationNote} Include the determination's NEAR MISSES section when it lists any — each failed exactly one criterion. Offer ${LEDGER} for what was ruled out and why. To continue, pick an avenue WHERE NEXT names and re-invoke phase:"run" with the same runId and priorRounds: ${round} — ${SEARCHED} and ${LEDGER} carry the memory, so the next round starts from swept ground rather than re-walking it — or make the premise/criteria change it proposes. Re-running unchanged buys another round over the same worked-out ground, which is what this stop is telling you.`
+        ? `The search STOPPED on diminishing returns and the critic agreed the collapse is real — it is OPEN, not closed, so never present it as exhaustive or complete. Relay ${DETERMINATION} and lead with its WHERE NEXT section. ${verifiedIds === null ? `The return's \`options\` is null: the verified set is unknown, so read the verdict line atop each file in ${OPTIONS_DIR}/.` : `The return's \`options\` is the verified set of ${verifiedIds.length} option(s), and each is a valid answer, but nothing was proved to be all of them.`} ${determinationNote} Include the determination's NEAR MISSES section when it lists any — each failed exactly one criterion. Offer ${LEDGER} for what was ruled out and why. To continue, pick an avenue WHERE NEXT names and re-invoke phase:"run" with the same runId and priorRounds: ${round} — ${SEARCHED} and ${LEDGER} carry the memory, so the next round starts from swept ground rather than re-walking it — or make the premise/criteria change it proposes. To re-invoke, ${LAUNCH}. Re-running unchanged buys another round over the same worked-out ground, which is what this stop is telling you.`
         : haltKind === 'stalled'
           ? `Round ${round}'s investigator added NOTHING — no option, no ledger line, no claim — so the run stopped rather than buy another round of the same. ${stallCritic
             ? `In that round ${stallCritic}.`
-            : `No critic ran in round ${round}, and the return's ${setPhrase()}.`} No ${DETERMINATION} was written, so there is no product file to relay. Read the \`r<N> NEXT:\` lines in ${SEARCHED} (the avenues the search itself named as unswept) and ${LEDGER} (what is already closed${stallUnchecked ? `, apart from the lines tagged ${stallUnchecked}, which no critic checked and a re-invoke's first critic checks` : ''}), and say plainly that the search found nothing new this invocation. Then either re-invoke phase:"run" with the same runId and priorRounds: ${round} to continue from that memory, or change the criteria/premise — an unchanged re-run starts from the same empty round.`
+            : `No critic ran in round ${round}, and the return's ${setPhrase()}.`} No ${DETERMINATION} was written, so there is no product file to relay. Read the \`r<N> NEXT:\` lines in ${SEARCHED} (the avenues the search itself named as unswept) and ${LEDGER} (what is already closed${stallUnchecked ? `, apart from the lines tagged ${stallUnchecked}, which no critic checked and a re-invoke's first critic checks` : ''}), and say plainly that the search found nothing new this invocation. Then either re-invoke phase:"run" with the same runId and priorRounds: ${round} to continue from that memory, or change the criteria/premise — an unchanged re-run starts from the same empty round. To re-invoke, ${LAUNCH}.`
           : haltKind === 'no-solution'
             ? `NOTHING qualifies, and the critic verified that: this is a real answer, not a failure. Relay ${DETERMINATION} + ${LEDGER} and take the criterion it names to the user: relaxing one criterion is the only thing that changes this answer. ${determinationNote} Lead with the determination's NEAR MISSES section when it lists any — each failed exactly one criterion, so they are what relaxing a criterion would make available, and some may be worth doing on their own merits even though they do not qualify. Do NOT re-run unchanged — the same criteria produce the same dead end.`
             : `The round budget ran out with the search still open — ${optionCount()} option(s) qualified so far but NOTHING was proved exhaustive, so do not present this as a complete answer. ${lastClaimRejected
               ? `${DETERMINATION} asserts the ${lastClaimRejected} claim the critic did NOT accept (see ${reviewPath}): it is NOT labelled partial and may lack WHERE NEXT, so label it a PARTIAL result and add that review's open avenue before relaying it`
-              : `${DETERMINATION} was written as a PARTIAL result (it says so at the top)`} — relay it with that caveat and its NEAR MISSES section, alongside ${LEDGER} and the latest ${reviewPath || 'round review'}. ${determinationNote} Then either re-invoke with the same runId and priorRounds: ${round} to continue from the ledger, or accept the partial result.`,
+              : `${DETERMINATION} was written as a PARTIAL result (it says so at the top)`} — relay it with that caveat and its NEAR MISSES section, alongside ${LEDGER} and the latest ${reviewPath || 'round review'}. ${determinationNote} Then either re-invoke with the same runId and priorRounds: ${round} to continue from the ledger, or accept the partial result. To re-invoke, ${LAUNCH}.`,
 };

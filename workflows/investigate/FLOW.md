@@ -112,10 +112,10 @@ flowchart TD
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 105) |
 | throw: args.planPath is required | args carry no planPath | throw (line 130) |
 | throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 139) |
-| throw: A user request was relayed into the context of the ... ahead of its task | phase:"refine" and the criteria critic reports a user request relayed into its context · the investigator reports a user request relayed into its context | throw (line 244) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 532) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 615) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 648) |
+| throw: A user request was relayed into the context of the ... ahead of its task | phase:"refine" and the criteria critic reports a user request relayed into its context · the investigator reports a user request relayed into its context | throw (line 246) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 539) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 622) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 655) |
 
 ## Coverage
 

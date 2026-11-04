@@ -7,17 +7,17 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | criteria-critic | 1 | 1 | 1900 | refine the criteria |
-| investigate | 1 | 1 | 8141 | exhaustion agreed |
+| investigate | 1 | 1 | 8370 | exhaustion agreed |
 | critique | 1 | 1 | 7760 | exhaustion agreed |
 | critique | 2 | 1 | 7773 | no solution verified |
-| investigate | 2 | 1 | 9188 | exhaustion contested |
-| investigate | 3 | 1 | 9553 | exhaustion contested |
+| investigate | 2 | 1 | 9469 | exhaustion contested |
+| investigate | 3 | 1 | 9834 | exhaustion contested |
 | critique | 3 | 1 | 8068 | saturation agreed |
 | critique | 4 | 1 | 5869 | stalled |
-| investigate | 4 | 1 | 9622 | resumed quiet first round |
+| investigate | 4 | 1 | 9909 | resumed quiet first round |
 | critique | 5 | 1 | 6109 | resumed quiet first round |
-| investigate | 5 | 1 | 8991 | quiet rounds |
-| investigate | 6 | 1 | 9356 | quiet rounds |
+| investigate | 5 | 1 | 9247 | quiet rounds |
+| investigate | 6 | 1 | 9612 | quiet rounds |
 | critique | 6 | 1 | 7192 | quiet rounds |
 | critique | 7 | 1 | 8000 | resumed search |
 | critique | 8 | 1 | 5856 | investigator escalates |
@@ -154,9 +154,9 @@ EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no we
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
 either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
 names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
-SEARCH MEMORY — read ALL THREE before you search:
+SEARCH MEMORY — the three files step 2 reads:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
-    re-opens it: FLAG a line you can contradict with a citation instead (step 5). Do NOT re-walk an
+    re-opens it: FLAG a line you can contradict with a citation instead (step 7). Do NOT re-walk an
     avenue it closes.
   • E:/flow/runs/flow/SEARCHED.md — every AVENUE already swept, with its terms and yield. Do not re-run a search recorded
     here with the same terms. Pick up from its last `NEXT:` line, or say what you are doing differently.
@@ -166,20 +166,22 @@ SEARCH MEMORY — read ALL THREE before you search:
     before round 1 is OUT: never link it in ANSWER. A file with no verdict line, or one naming round
     1 or a later round, is unverified until a critic judges it. Bring a disqualified option back
     only on a critique's re-open note, by re-proposing it: rewrite its whole file with no verdict line.
-Round 1: none of them may exist yet. Create them as you go.
 
 PROCEDURE:
 1. Read the criteria VERBATIM and list them NUMBERED. Every step below checks against that numbering.
-2. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
+2. READ ALL THREE SEARCH MEMORY files before you search, under the rules that section states. Round 1: none of
+   them may exist yet. Create them as you go. Output: the closed candidates and swept avenues this round avoids.
+3. Round 1 has no review.
+4. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
    itself, release notes, the spec) over summaries.
-3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
+5. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
    to keep a candidate you like.
-4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
+6. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
    E:/flow/runs/flow/options uses yet (create the dir if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace an existing <id>.md only when re-proposing a
    disqualified option or rewriting an unverified file (no verdict line, or one naming round 1 or later) for the
    same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
    what the option BUYS, what it COSTS, and its sources. Terse and concrete.
-5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
+7. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
    `r1 inv — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`
    A FAILS line's locator is the exact passage, section, line or command output that shows the failure.
    An UNPROVEN line's locator follows the UNPROVEN rule above. The critic checks the line against it.
@@ -192,21 +194,21 @@ PROCEDURE:
    Append only: never rewrite, reorder or prune it.
    Do NOT re-append a REDISCOVERED candidate (one the ledger already closed that your search turned up
    again). Return their count as rediscovered.
-6. AVENUES — APPEND to E:/flow/runs/flow/SEARCHED.md one line per avenue you actually SWEPT this round:
+8. AVENUES — APPEND to E:/flow/runs/flow/SEARCHED.md one line per avenue you actually SWEPT this round:
    `r1 SWEPT: <avenue> — <queries/terms used> — <result: X new, Y rediscovered | nothing>`
    Then EXACTLY ONE line saying where you would look next:
    `r1 NEXT: <most promising unswept avenue> — confidence: high|medium|low|none — <why>`
-   `confidence: none` means NO unswept avenue remains. That is step 7's exhaustion claim, so write it
-   only with the evidence step 7 demands. Return the same value as next_avenue_confidence.
+   `confidence: none` means NO unswept avenue remains. That is step 9's exhaustion claim, so write it
+   only with the evidence step 9 demands. Return the same value as next_avenue_confidence.
    Append only: never rewrite, reorder or prune it.
-7. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
+9. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
    nothing). The critic will attack the evidence.
-   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 8. "I did not find
+   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 10. "I did not find
      more" is not exhaustion. Return claim=exhausted.
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
      stronger fact than finding none. Say which criterion every candidate died on. Return
      claim=no_solution.
-8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
+10. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -226,8 +228,9 @@ PROCEDURE:
    For no_solution ALSO: why nothing qualifies, and the SINGLE criterion the user could relax to change
    that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## r1 investigator`. That entry is
    informational: needs_user stays false, because the critic verifies the no_solution claim itself.
-If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
-append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r1 investigator`, and set needs_user=true.
+11. (when a criteria contradiction, or a call only the user can make, blocks you before you can claim
+   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r1 investigator`, and
+   set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Return via the schema, option_ids included.
@@ -254,7 +257,7 @@ Return via the schema, option_ids included.
     },
     "wrote_files": {
       "type": "boolean",
-      "description": "true if you wrote every file steps 4 to 8 call for this round"
+      "description": "true if you wrote every file steps 6 to 10 call for this round"
     },
     "option_ids": {
       "type": "array",
@@ -269,11 +272,11 @@ Return via the schema, option_ids included.
     },
     "flagged": {
       "type": "integer",
-      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 5), 0 if none"
+      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 7), 0 if none"
     },
     "rediscovered": {
       "type": "integer",
-      "description": "closed candidates you met again this round, not re-appended (step 5)"
+      "description": "closed candidates you met again this round, not re-appended (step 7)"
     },
     "next_avenue_confidence": {
       "type": "string",
@@ -283,7 +286,7 @@ Return via the schema, option_ids included.
         "low",
         "none"
       ],
-      "description": "the confidence on this round's r<N> NEXT: line (step 6)"
+      "description": "the confidence on this round's r<N> NEXT: line (step 8)"
     },
     "claim": {
       "type": "string",
@@ -293,7 +296,7 @@ Return via the schema, option_ids included.
         "no_solution",
         "saturated"
       ],
-      "description": "this round's termination claim (step 7): none unless you can evidence one"
+      "description": "this round's termination claim (step 9): none unless you can evidence one"
     },
     "needs_user": {
       "type": "boolean",
@@ -614,9 +617,9 @@ EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no we
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
 either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
 names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
-SEARCH MEMORY — read ALL THREE before you search:
+SEARCH MEMORY — the three files step 2 reads:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
-    re-opens it: FLAG a line you can contradict with a citation instead (step 5). Do NOT re-walk an
+    re-opens it: FLAG a line you can contradict with a citation instead (step 7). Do NOT re-walk an
     avenue it closes.
   • E:/flow/runs/flow/SEARCHED.md — every AVENUE already swept, with its terms and yield. Do not re-run a search recorded
     here with the same terms. Pick up from its last `NEXT:` line, or say what you are doing differently.
@@ -626,23 +629,24 @@ SEARCH MEMORY — read ALL THREE before you search:
     before round 2 is OUT: never link it in ANSWER. A file with no verdict line, or one naming round
     2 or a later round, is unverified until a critic judges it. Bring a disqualified option back
     only on a critique's re-open note, by re-proposing it: rewrite its whole file with no verdict line.
-The critic reviewed the last round. READ E:/flow/runs/flow/acceptance-review-r1.md and answer EVERY point it raises. A
-disqualified option needs a DIFFERENT candidate, not a re-argued one. A candidate the review re-opens is
-the exception: re-propose it. A contested exhaustion claim names
-an avenue you did not sweep: sweep it.
 
 PROCEDURE:
 1. Read the criteria VERBATIM and list them NUMBERED. Every step below checks against that numbering.
-2. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
+2. READ ALL THREE SEARCH MEMORY files before you search, under the rules that section states. Output: the closed candidates and swept avenues this round avoids.
+3. The critic reviewed the last round. READ E:/flow/runs/flow/acceptance-review-r1.md and answer EVERY point it raises. A
+   disqualified option needs a DIFFERENT candidate, not a re-argued one. A candidate the review re-opens is
+   the exception: re-propose it. A contested exhaustion claim names an avenue you did not sweep: sweep it.
+   Output: each review point answered, and each contested avenue swept.
+4. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
    itself, release notes, the spec) over summaries.
-3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
+5. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
    to keep a candidate you like.
-4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
+6. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
    E:/flow/runs/flow/options uses yet (create the dir if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace an existing <id>.md only when re-proposing a
    disqualified option or rewriting an unverified file (no verdict line, or one naming round 2 or later) for the
    same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
    what the option BUYS, what it COSTS, and its sources. Terse and concrete.
-5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
+7. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
    `r2 inv — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`
    A FAILS line's locator is the exact passage, section, line or command output that shows the failure.
    An UNPROVEN line's locator follows the UNPROVEN rule above. The critic checks the line against it.
@@ -655,16 +659,16 @@ PROCEDURE:
    Append only: never rewrite, reorder or prune it.
    Do NOT re-append a REDISCOVERED candidate (one the ledger already closed that your search turned up
    again). Return their count as rediscovered.
-6. AVENUES — APPEND to E:/flow/runs/flow/SEARCHED.md one line per avenue you actually SWEPT this round:
+8. AVENUES — APPEND to E:/flow/runs/flow/SEARCHED.md one line per avenue you actually SWEPT this round:
    `r2 SWEPT: <avenue> — <queries/terms used> — <result: X new, Y rediscovered | nothing>`
    Then EXACTLY ONE line saying where you would look next:
    `r2 NEXT: <most promising unswept avenue> — confidence: high|medium|low|none — <why>`
-   `confidence: none` means NO unswept avenue remains. That is step 7's exhaustion claim, so write it
-   only with the evidence step 7 demands. Return the same value as next_avenue_confidence.
+   `confidence: none` means NO unswept avenue remains. That is step 9's exhaustion claim, so write it
+   only with the evidence step 9 demands. Return the same value as next_avenue_confidence.
    Append only: never rewrite, reorder or prune it.
-7. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
+9. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
    nothing). The critic will attack the evidence.
-   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 8. "I did not find
+   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 10. "I did not find
      more" is not exhaustion. Return claim=exhausted.
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
      stronger fact than finding none. Say which criterion every candidate died on. Return
@@ -677,7 +681,7 @@ PROCEDURE:
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
+10. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -697,8 +701,9 @@ PROCEDURE:
    For no_solution ALSO: why nothing qualifies, and the SINGLE criterion the user could relax to change
    that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## r2 investigator`. That entry is
    informational: needs_user stays false, because the critic verifies the no_solution claim itself.
-If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
-append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r2 investigator`, and set needs_user=true.
+11. (when a criteria contradiction, or a call only the user can make, blocks you before you can claim
+   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r2 investigator`, and
+   set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Return via the schema, option_ids included.
@@ -725,7 +730,7 @@ Return via the schema, option_ids included.
     },
     "wrote_files": {
       "type": "boolean",
-      "description": "true if you wrote every file steps 4 to 8 call for this round"
+      "description": "true if you wrote every file steps 6 to 10 call for this round"
     },
     "option_ids": {
       "type": "array",
@@ -740,11 +745,11 @@ Return via the schema, option_ids included.
     },
     "flagged": {
       "type": "integer",
-      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 5), 0 if none"
+      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 7), 0 if none"
     },
     "rediscovered": {
       "type": "integer",
-      "description": "closed candidates you met again this round, not re-appended (step 5)"
+      "description": "closed candidates you met again this round, not re-appended (step 7)"
     },
     "next_avenue_confidence": {
       "type": "string",
@@ -754,7 +759,7 @@ Return via the schema, option_ids included.
         "low",
         "none"
       ],
-      "description": "the confidence on this round's r<N> NEXT: line (step 6)"
+      "description": "the confidence on this round's r<N> NEXT: line (step 8)"
     },
     "claim": {
       "type": "string",
@@ -764,7 +769,7 @@ Return via the schema, option_ids included.
         "no_solution",
         "saturated"
       ],
-      "description": "this round's termination claim (step 7): none unless you can evidence one"
+      "description": "this round's termination claim (step 9): none unless you can evidence one"
     },
     "needs_user": {
       "type": "boolean",
@@ -789,9 +794,9 @@ EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no we
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
 either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
 names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
-SEARCH MEMORY — read ALL THREE before you search:
+SEARCH MEMORY — the three files step 2 reads:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
-    re-opens it: FLAG a line you can contradict with a citation instead (step 5). Do NOT re-walk an
+    re-opens it: FLAG a line you can contradict with a citation instead (step 7). Do NOT re-walk an
     avenue it closes.
   • E:/flow/runs/flow/SEARCHED.md — every AVENUE already swept, with its terms and yield. Do not re-run a search recorded
     here with the same terms. Pick up from its last `NEXT:` line, or say what you are doing differently.
@@ -801,23 +806,24 @@ SEARCH MEMORY — read ALL THREE before you search:
     before round 5 is OUT: never link it in ANSWER. A file with no verdict line, or one naming round
     5 or a later round, is unverified until a critic judges it. Bring a disqualified option back
     only on a critique's re-open note, by re-proposing it: rewrite its whole file with no verdict line.
-The critic reviewed the last round. READ E:/flow/runs/flow/acceptance-review-r4.md and answer EVERY point it raises. A
-disqualified option needs a DIFFERENT candidate, not a re-argued one. A candidate the review re-opens is
-the exception: re-propose it. A contested exhaustion claim names
-an avenue you did not sweep: sweep it.
 
 PROCEDURE:
 1. Read the criteria VERBATIM and list them NUMBERED. Every step below checks against that numbering.
-2. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
+2. READ ALL THREE SEARCH MEMORY files before you search, under the rules that section states. Output: the closed candidates and swept avenues this round avoids.
+3. The critic reviewed the last round. READ E:/flow/runs/flow/acceptance-review-r4.md and answer EVERY point it raises. A
+   disqualified option needs a DIFFERENT candidate, not a re-argued one. A candidate the review re-opens is
+   the exception: re-propose it. A contested exhaustion claim names an avenue you did not sweep: sweep it.
+   Output: each review point answered, and each contested avenue swept.
+4. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
    itself, release notes, the spec) over summaries.
-3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
+5. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
    to keep a candidate you like.
-4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
+6. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
    E:/flow/runs/flow/options uses yet (create the dir if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace an existing <id>.md only when re-proposing a
    disqualified option or rewriting an unverified file (no verdict line, or one naming round 5 or later) for the
    same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
    what the option BUYS, what it COSTS, and its sources. Terse and concrete.
-5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
+7. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
    `r5 inv — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`
    A FAILS line's locator is the exact passage, section, line or command output that shows the failure.
    An UNPROVEN line's locator follows the UNPROVEN rule above. The critic checks the line against it.
@@ -830,16 +836,16 @@ PROCEDURE:
    Append only: never rewrite, reorder or prune it.
    Do NOT re-append a REDISCOVERED candidate (one the ledger already closed that your search turned up
    again). Return their count as rediscovered.
-6. AVENUES — APPEND to E:/flow/runs/flow/SEARCHED.md one line per avenue you actually SWEPT this round:
+8. AVENUES — APPEND to E:/flow/runs/flow/SEARCHED.md one line per avenue you actually SWEPT this round:
    `r5 SWEPT: <avenue> — <queries/terms used> — <result: X new, Y rediscovered | nothing>`
    Then EXACTLY ONE line saying where you would look next:
    `r5 NEXT: <most promising unswept avenue> — confidence: high|medium|low|none — <why>`
-   `confidence: none` means NO unswept avenue remains. That is step 7's exhaustion claim, so write it
-   only with the evidence step 7 demands. Return the same value as next_avenue_confidence.
+   `confidence: none` means NO unswept avenue remains. That is step 9's exhaustion claim, so write it
+   only with the evidence step 9 demands. Return the same value as next_avenue_confidence.
    Append only: never rewrite, reorder or prune it.
-7. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
+9. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
    nothing). The critic will attack the evidence.
-   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 8. "I did not find
+   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 10. "I did not find
      more" is not exhaustion. Return claim=exhausted.
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
      stronger fact than finding none. Say which criterion every candidate died on. Return
@@ -852,7 +858,7 @@ PROCEDURE:
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round, AND on this one: round 5 is this run's LAST, so it gets written whatever you conclude. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
+10. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round, AND on this one: round 5 is this run's LAST, so it gets written whatever you conclude. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -875,8 +881,9 @@ PROCEDURE:
    If you are NOT claiming termination, OPEN the file stating the search is NOT exhaustive and this
    is a PARTIAL result. Say what stopped it (the round budget, or the escalation you are about to write
    to E:/flow/runs/flow/NEEDS-USER.md), never that nothing more is there.
-If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
-append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r5 investigator`, and set needs_user=true.
+11. (when a criteria contradiction, or a call only the user can make, blocks you before you can claim
+   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r5 investigator`, and
+   set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Return via the schema, option_ids included.
@@ -903,7 +910,7 @@ Return via the schema, option_ids included.
     },
     "wrote_files": {
       "type": "boolean",
-      "description": "true if you wrote every file steps 4 to 8 call for this round"
+      "description": "true if you wrote every file steps 6 to 10 call for this round"
     },
     "option_ids": {
       "type": "array",
@@ -918,11 +925,11 @@ Return via the schema, option_ids included.
     },
     "flagged": {
       "type": "integer",
-      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 5), 0 if none"
+      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 7), 0 if none"
     },
     "rediscovered": {
       "type": "integer",
-      "description": "closed candidates you met again this round, not re-appended (step 5)"
+      "description": "closed candidates you met again this round, not re-appended (step 7)"
     },
     "next_avenue_confidence": {
       "type": "string",
@@ -932,7 +939,7 @@ Return via the schema, option_ids included.
         "low",
         "none"
       ],
-      "description": "the confidence on this round's r<N> NEXT: line (step 6)"
+      "description": "the confidence on this round's r<N> NEXT: line (step 8)"
     },
     "claim": {
       "type": "string",
@@ -942,7 +949,7 @@ Return via the schema, option_ids included.
         "no_solution",
         "saturated"
       ],
-      "description": "this round's termination claim (step 7): none unless you can evidence one"
+      "description": "this round's termination claim (step 9): none unless you can evidence one"
     },
     "needs_user": {
       "type": "boolean",
@@ -1248,9 +1255,9 @@ EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no we
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
 either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
 names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
-SEARCH MEMORY — read ALL THREE before you search:
+SEARCH MEMORY — the three files step 2 reads:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
-    re-opens it: FLAG a line you can contradict with a citation instead (step 5). Do NOT re-walk an
+    re-opens it: FLAG a line you can contradict with a citation instead (step 7). Do NOT re-walk an
     avenue it closes. This search resumes after round 2, and the criteria
     may have changed since: a line whose named failing criterion no longer disqualifies the candidate as
     the criteria read now is OPEN, so re-propose that candidate.
@@ -1262,25 +1269,26 @@ SEARCH MEMORY — read ALL THREE before you search:
     before round 3 is OUT: never link it in ANSWER. A file with no verdict line, or one naming round
     3 or a later round, is unverified until a critic judges it. Bring a disqualified option back
     only on a critique's re-open note, by re-proposing it: rewrite its whole file with no verdict line.
-This search resumes after round 2. If E:/flow/runs/flow/acceptance-review-r2.md does not exist, that round ran
-no critic, and this round's critic checks its ledger lines. Change the avenue rather than repeat it. If it
-exists, READ it and answer EVERY point it raises. A
-disqualified option needs a DIFFERENT candidate, not a re-argued one. A candidate the review re-opens is
-the exception: re-propose it. A contested exhaustion claim names
-an avenue you did not sweep: sweep it.
 
 PROCEDURE:
 1. Read the criteria VERBATIM and list them NUMBERED. Every step below checks against that numbering.
-2. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
+2. READ ALL THREE SEARCH MEMORY files before you search, under the rules that section states. Output: the closed candidates and swept avenues this round avoids.
+3. This search resumes after round 2. If E:/flow/runs/flow/acceptance-review-r2.md does not exist, that round ran
+   no critic, and this round's critic checks its ledger lines. Change the avenue rather than repeat it. If
+   it exists, READ it and answer EVERY point it raises. A
+   disqualified option needs a DIFFERENT candidate, not a re-argued one. A candidate the review re-opens is
+   the exception: re-propose it. A contested exhaustion claim names an avenue you did not sweep: sweep it.
+   Output: each review point answered, and each contested avenue swept.
+4. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
    itself, release notes, the spec) over summaries.
-3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
+5. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
    to keep a candidate you like.
-4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
+6. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
    E:/flow/runs/flow/options uses yet (create the dir if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace an existing <id>.md only when re-proposing a
    disqualified option or rewriting an unverified file (no verdict line, or one naming round 3 or later) for the
    same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
    what the option BUYS, what it COSTS, and its sources. Terse and concrete.
-5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
+7. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
    `r3 inv — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`
    A FAILS line's locator is the exact passage, section, line or command output that shows the failure.
    An UNPROVEN line's locator follows the UNPROVEN rule above. The critic checks the line against it.
@@ -1294,16 +1302,16 @@ PROCEDURE:
    Append only: never rewrite, reorder or prune it.
    Do NOT re-append a REDISCOVERED candidate (one the ledger already closed that your search turned up
    again). Return their count as rediscovered.
-6. AVENUES — APPEND to E:/flow/runs/flow/SEARCHED.md one line per avenue you actually SWEPT this round:
+8. AVENUES — APPEND to E:/flow/runs/flow/SEARCHED.md one line per avenue you actually SWEPT this round:
    `r3 SWEPT: <avenue> — <queries/terms used> — <result: X new, Y rediscovered | nothing>`
    Then EXACTLY ONE line saying where you would look next:
    `r3 NEXT: <most promising unswept avenue> — confidence: high|medium|low|none — <why>`
-   `confidence: none` means NO unswept avenue remains. That is step 7's exhaustion claim, so write it
-   only with the evidence step 7 demands. Return the same value as next_avenue_confidence.
+   `confidence: none` means NO unswept avenue remains. That is step 9's exhaustion claim, so write it
+   only with the evidence step 9 demands. Return the same value as next_avenue_confidence.
    Append only: never rewrite, reorder or prune it.
-7. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
+9. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
    nothing). The critic will attack the evidence.
-   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 8. "I did not find
+   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 10. "I did not find
      more" is not exhaustion. Return claim=exhausted.
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
      stronger fact than finding none. Say which criterion every candidate died on. Return
@@ -1316,7 +1324,7 @@ PROCEDURE:
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
+10. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -1336,8 +1344,9 @@ PROCEDURE:
    For no_solution ALSO: why nothing qualifies, and the SINGLE criterion the user could relax to change
    that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## r3 investigator`. That entry is
    informational: needs_user stays false, because the critic verifies the no_solution claim itself.
-If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
-append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r3 investigator`, and set needs_user=true.
+11. (when a criteria contradiction, or a call only the user can make, blocks you before you can claim
+   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r3 investigator`, and
+   set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Return via the schema, option_ids included.
@@ -1364,7 +1373,7 @@ Return via the schema, option_ids included.
     },
     "wrote_files": {
       "type": "boolean",
-      "description": "true if you wrote every file steps 4 to 8 call for this round"
+      "description": "true if you wrote every file steps 6 to 10 call for this round"
     },
     "option_ids": {
       "type": "array",
@@ -1379,11 +1388,11 @@ Return via the schema, option_ids included.
     },
     "flagged": {
       "type": "integer",
-      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 5), 0 if none"
+      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 7), 0 if none"
     },
     "rediscovered": {
       "type": "integer",
-      "description": "closed candidates you met again this round, not re-appended (step 5)"
+      "description": "closed candidates you met again this round, not re-appended (step 7)"
     },
     "next_avenue_confidence": {
       "type": "string",
@@ -1393,7 +1402,7 @@ Return via the schema, option_ids included.
         "low",
         "none"
       ],
-      "description": "the confidence on this round's r<N> NEXT: line (step 6)"
+      "description": "the confidence on this round's r<N> NEXT: line (step 8)"
     },
     "claim": {
       "type": "string",
@@ -1403,7 +1412,7 @@ Return via the schema, option_ids included.
         "no_solution",
         "saturated"
       ],
-      "description": "this round's termination claim (step 7): none unless you can evidence one"
+      "description": "this round's termination claim (step 9): none unless you can evidence one"
     },
     "needs_user": {
       "type": "boolean",
@@ -1560,9 +1569,9 @@ EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no we
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
 either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
 names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
-SEARCH MEMORY — read ALL THREE before you search:
+SEARCH MEMORY — the three files step 2 reads:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
-    re-opens it: FLAG a line you can contradict with a citation instead (step 5). Do NOT re-walk an
+    re-opens it: FLAG a line you can contradict with a citation instead (step 7). Do NOT re-walk an
     avenue it closes.
   • E:/flow/runs/flow/SEARCHED.md — every AVENUE already swept, with its terms and yield. Do not re-run a search recorded
     here with the same terms. Pick up from its last `NEXT:` line, or say what you are doing differently.
@@ -1572,21 +1581,22 @@ SEARCH MEMORY — read ALL THREE before you search:
     before round 3 is OUT: never link it in ANSWER. A file with no verdict line, or one naming round
     3 or a later round, is unverified until a critic judges it. Bring a disqualified option back
     only on a critique's re-open note, by re-proposing it: rewrite its whole file with no verdict line.
-The last round added no option and claimed nothing, so NO critique was written. Change the avenue
-rather than repeat the last one.
 
 PROCEDURE:
 1. Read the criteria VERBATIM and list them NUMBERED. Every step below checks against that numbering.
-2. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
+2. READ ALL THREE SEARCH MEMORY files before you search, under the rules that section states. Output: the closed candidates and swept avenues this round avoids.
+3. The last round added no option and claimed nothing, so NO critique was written. Change the avenue
+   rather than repeat the last one. Output: the avenue this round takes in its place.
+4. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
    itself, release notes, the spec) over summaries.
-3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
+5. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
    to keep a candidate you like.
-4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
+6. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
    E:/flow/runs/flow/options uses yet (create the dir if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace an existing <id>.md only when re-proposing a
    disqualified option or rewriting an unverified file (no verdict line, or one naming round 3 or later) for the
    same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
    what the option BUYS, what it COSTS, and its sources. Terse and concrete.
-5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
+7. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
    `r3 inv — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`
    A FAILS line's locator is the exact passage, section, line or command output that shows the failure.
    An UNPROVEN line's locator follows the UNPROVEN rule above. The critic checks the line against it.
@@ -1599,16 +1609,16 @@ PROCEDURE:
    Append only: never rewrite, reorder or prune it.
    Do NOT re-append a REDISCOVERED candidate (one the ledger already closed that your search turned up
    again). Return their count as rediscovered.
-6. AVENUES — APPEND to E:/flow/runs/flow/SEARCHED.md one line per avenue you actually SWEPT this round:
+8. AVENUES — APPEND to E:/flow/runs/flow/SEARCHED.md one line per avenue you actually SWEPT this round:
    `r3 SWEPT: <avenue> — <queries/terms used> — <result: X new, Y rediscovered | nothing>`
    Then EXACTLY ONE line saying where you would look next:
    `r3 NEXT: <most promising unswept avenue> — confidence: high|medium|low|none — <why>`
-   `confidence: none` means NO unswept avenue remains. That is step 7's exhaustion claim, so write it
-   only with the evidence step 7 demands. Return the same value as next_avenue_confidence.
+   `confidence: none` means NO unswept avenue remains. That is step 9's exhaustion claim, so write it
+   only with the evidence step 9 demands. Return the same value as next_avenue_confidence.
    Append only: never rewrite, reorder or prune it.
-7. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
+9. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
    nothing). The critic will attack the evidence.
-   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 8. "I did not find
+   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 10. "I did not find
      more" is not exhaustion. Return claim=exhausted.
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
      stronger fact than finding none. Say which criterion every candidate died on. Return
@@ -1621,7 +1631,7 @@ PROCEDURE:
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
+10. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -1641,8 +1651,9 @@ PROCEDURE:
    For no_solution ALSO: why nothing qualifies, and the SINGLE criterion the user could relax to change
    that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## r3 investigator`. That entry is
    informational: needs_user stays false, because the critic verifies the no_solution claim itself.
-If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
-append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r3 investigator`, and set needs_user=true.
+11. (when a criteria contradiction, or a call only the user can make, blocks you before you can claim
+   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r3 investigator`, and
+   set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Return via the schema, option_ids included.
@@ -1669,7 +1680,7 @@ Return via the schema, option_ids included.
     },
     "wrote_files": {
       "type": "boolean",
-      "description": "true if you wrote every file steps 4 to 8 call for this round"
+      "description": "true if you wrote every file steps 6 to 10 call for this round"
     },
     "option_ids": {
       "type": "array",
@@ -1684,11 +1695,11 @@ Return via the schema, option_ids included.
     },
     "flagged": {
       "type": "integer",
-      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 5), 0 if none"
+      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 7), 0 if none"
     },
     "rediscovered": {
       "type": "integer",
-      "description": "closed candidates you met again this round, not re-appended (step 5)"
+      "description": "closed candidates you met again this round, not re-appended (step 7)"
     },
     "next_avenue_confidence": {
       "type": "string",
@@ -1698,7 +1709,7 @@ Return via the schema, option_ids included.
         "low",
         "none"
       ],
-      "description": "the confidence on this round's r<N> NEXT: line (step 6)"
+      "description": "the confidence on this round's r<N> NEXT: line (step 8)"
     },
     "claim": {
       "type": "string",
@@ -1708,7 +1719,7 @@ Return via the schema, option_ids included.
         "no_solution",
         "saturated"
       ],
-      "description": "this round's termination claim (step 7): none unless you can evidence one"
+      "description": "this round's termination claim (step 9): none unless you can evidence one"
     },
     "needs_user": {
       "type": "boolean",
@@ -1733,9 +1744,9 @@ EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no we
 passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
 either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS`, and its locator
 names the sources checked that leave it unsettled and the source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
-SEARCH MEMORY — read ALL THREE before you search:
+SEARCH MEMORY — the three files step 2 reads:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
-    re-opens it: FLAG a line you can contradict with a citation instead (step 5). Do NOT re-walk an
+    re-opens it: FLAG a line you can contradict with a citation instead (step 7). Do NOT re-walk an
     avenue it closes.
   • E:/flow/runs/flow/SEARCHED.md — every AVENUE already swept, with its terms and yield. Do not re-run a search recorded
     here with the same terms. Pick up from its last `NEXT:` line, or say what you are doing differently.
@@ -1745,21 +1756,22 @@ SEARCH MEMORY — read ALL THREE before you search:
     before round 5 is OUT: never link it in ANSWER. A file with no verdict line, or one naming round
     5 or a later round, is unverified until a critic judges it. Bring a disqualified option back
     only on a critique's re-open note, by re-proposing it: rewrite its whole file with no verdict line.
-The last round added no option and claimed nothing, so NO critique was written. Change the avenue
-rather than repeat the last one.
 
 PROCEDURE:
 1. Read the criteria VERBATIM and list them NUMBERED. Every step below checks against that numbering.
-2. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
+2. READ ALL THREE SEARCH MEMORY files before you search, under the rules that section states. Output: the closed candidates and swept avenues this round avoids.
+3. The last round added no option and claimed nothing, so NO critique was written. Change the avenue
+   rather than repeat the last one. Output: the avenue this round takes in its place.
+4. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
    itself, release notes, the spec) over summaries.
-3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
+5. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
    to keep a candidate you like.
-4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
+6. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
    E:/flow/runs/flow/options uses yet (create the dir if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace an existing <id>.md only when re-proposing a
    disqualified option or rewriting an unverified file (no verdict line, or one naming round 5 or later) for the
    same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
    what the option BUYS, what it COSTS, and its sources. Terse and concrete.
-5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
+7. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
    `r5 inv — <candidate> — FAILS|UNPROVEN <criterion> — <≤15-word why> — <source and locator>`
    A FAILS line's locator is the exact passage, section, line or command output that shows the failure.
    An UNPROVEN line's locator follows the UNPROVEN rule above. The critic checks the line against it.
@@ -1772,16 +1784,16 @@ PROCEDURE:
    Append only: never rewrite, reorder or prune it.
    Do NOT re-append a REDISCOVERED candidate (one the ledger already closed that your search turned up
    again). Return their count as rediscovered.
-6. AVENUES — APPEND to E:/flow/runs/flow/SEARCHED.md one line per avenue you actually SWEPT this round:
+8. AVENUES — APPEND to E:/flow/runs/flow/SEARCHED.md one line per avenue you actually SWEPT this round:
    `r5 SWEPT: <avenue> — <queries/terms used> — <result: X new, Y rediscovered | nothing>`
    Then EXACTLY ONE line saying where you would look next:
    `r5 NEXT: <most promising unswept avenue> — confidence: high|medium|low|none — <why>`
-   `confidence: none` means NO unswept avenue remains. That is step 7's exhaustion claim, so write it
-   only with the evidence step 7 demands. Return the same value as next_avenue_confidence.
+   `confidence: none` means NO unswept avenue remains. That is step 9's exhaustion claim, so write it
+   only with the evidence step 9 demands. Return the same value as next_avenue_confidence.
    Append only: never rewrite, reorder or prune it.
-7. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
+9. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
    nothing). The critic will attack the evidence.
-   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 8. "I did not find
+   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 10. "I did not find
      more" is not exhaustion. Return claim=exhausted.
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
      stronger fact than finding none. Say which criterion every candidate died on. Return
@@ -1794,7 +1806,7 @@ PROCEDURE:
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round, AND on this one: round 5 is this run's LAST, so it gets written whatever you conclude. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
+10. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round, AND on this one: round 5 is this run's LAST, so it gets written whatever you conclude. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -1817,8 +1829,9 @@ PROCEDURE:
    If you are NOT claiming termination, OPEN the file stating the search is NOT exhaustive and this
    is a PARTIAL result. Say what stopped it (the round budget, or the escalation you are about to write
    to E:/flow/runs/flow/NEEDS-USER.md), never that nothing more is there.
-If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
-append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r5 investigator`, and set needs_user=true.
+11. (when a criteria contradiction, or a call only the user can make, blocks you before you can claim
+   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r5 investigator`, and
+   set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 Return via the schema, option_ids included.
@@ -1845,7 +1858,7 @@ Return via the schema, option_ids included.
     },
     "wrote_files": {
       "type": "boolean",
-      "description": "true if you wrote every file steps 4 to 8 call for this round"
+      "description": "true if you wrote every file steps 6 to 10 call for this round"
     },
     "option_ids": {
       "type": "array",
@@ -1860,11 +1873,11 @@ Return via the schema, option_ids included.
     },
     "flagged": {
       "type": "integer",
-      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 5), 0 if none"
+      "description": "FLAG lines you appended to the DISQUALIFIED ledger this round (step 7), 0 if none"
     },
     "rediscovered": {
       "type": "integer",
-      "description": "closed candidates you met again this round, not re-appended (step 5)"
+      "description": "closed candidates you met again this round, not re-appended (step 7)"
     },
     "next_avenue_confidence": {
       "type": "string",
@@ -1874,7 +1887,7 @@ Return via the schema, option_ids included.
         "low",
         "none"
       ],
-      "description": "the confidence on this round's r<N> NEXT: line (step 6)"
+      "description": "the confidence on this round's r<N> NEXT: line (step 8)"
     },
     "claim": {
       "type": "string",
@@ -1884,7 +1897,7 @@ Return via the schema, option_ids included.
         "no_solution",
         "saturated"
       ],
-      "description": "this round's termination claim (step 7): none unless you can evidence one"
+      "description": "this round's termination claim (step 9): none unless you can evidence one"
     },
     "needs_user": {
       "type": "boolean",

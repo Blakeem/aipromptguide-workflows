@@ -239,6 +239,8 @@ const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it fir
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 // Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
+// A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
+const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
 
 // =============================================================================
 // Role prompts
@@ -250,6 +252,29 @@ commands, including a build or test command you find in the repo. You MAY read a
 such as a design note or another plan file, to judge a claim about it. Judge the plan file against the REAL
 repo and find plan text that is wrong. An EMPTY result is a GOOD outcome and ends the run.
 ${ENV}
+PROCEDURE:
+1. (when ${DISMISSED} exists) READ it FIRST, under the SETTLED DECISIONS rules below. Output: the settled
+   items you skip.
+2. Read the plan file and grep the repo, judging each todo block by THE DEFECT BAR, BLOCK METADATA, the
+   SCOPE RULES and THE SEVERITY FLOOR below. Output: each gap and question, with its evidence.
+3. WRITE ${critiqueFile(round)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Put EVERYTHING there VERBATIM, since it
+   is your ONLY channel to the editor: a numbered GAPS section, then a QUESTIONS section, or in the
+   converged round only what step 5 names. Per gap: the block id, which of the four classes it is, its
+   grade, its evidence with the plan line quoted verbatim, EXACTLY ONE smallest change that closes it
+   (never alternatives), and the number of every other gap whose change touches the same plan lines, so
+   the editor folds them together. The one change may touch
+   several lines of one block, such as a Files line, a Docs bullet and a criterion, and still names no
+   alternatives. It names every plan line the change makes stale.
+   Write the file EVERY round and return wrote_file=true. Output: the file, and wrote_file=true.
+4. (when you have a question) QUESTIONS also go to ${NEEDS_USER} IN FULL (append, create it if needed).
+   Each question you append there opens with the line \`## r${round} critic\`. Output: the appended entry.
+5. (in the converged round the FYI rules below define) The file step 3 writes holds the FYI section. A
+   round with FYI items and no gaps or questions writes the file with its FYI section, returns gap_count
+   and question_count 0 and fyi_count set, and still converges. A round with nothing at all writes the
+   one line "No gaps." and returns all three counts 0. Output: the FYI section, or the line "No gaps.".
+6. Do NOT modify the plan file or the target repo. Do NOT stage or commit.
+7. Return via the schema.
+
 THE DEFECT BAR - the plan states what the user wants. Judge only whether what it SAYS is correct. A gap
 names plan text that is wrong. Exactly four classes qualify:
   1. A CONTRADICTION: two statements in the plan that cannot both hold, or a plan statement the repo
@@ -326,26 +351,10 @@ ${BELOW.length ? `  - One subsection per block that has below-floor findings, he
   - "Outside the plan": a real defect that no plan text holds, in a file you read to judge the plan, with
     its file and line. Write it at every floor, minor included. Never search further for one.
 
-SETTLED DECISIONS - READ ${DISMISSED} FIRST if it exists: the editor's ledger of declined gaps, one line
-each with a reason. SKIP every item listed there FOR THE STATED REASON. If you are confident a reason is
-WRONG and the gap genuinely clears the defect bar, raise it ONCE for the whole run, prefixed
-"CONTESTS DISMISSAL:", saying why the reason does not hold. A line marked \`USER-RULED:\` is the user's
-own ruling: never contest it.
-
-WRITE ${critiqueFile(round)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Put EVERYTHING there VERBATIM, since it
-is your ONLY channel to the editor: a numbered GAPS section, then a QUESTIONS section. Per gap: the block
-id, which of the four classes it is, its grade, its evidence with the plan line quoted verbatim, EXACTLY ONE
-smallest change that closes it (never alternatives), and the number of every other gap whose change touches
-the same plan lines, so the editor folds them together. The one change may touch several lines of one block,
-such as a Files line, a Docs bullet and a criterion, and still names no alternatives. It names every plan
-line the change makes stale.
-QUESTIONS also go to ${NEEDS_USER} IN FULL (append, create it if needed). Each question you append there
-opens with the line \`## r${round} critic\`.
-Write the file EVERY round and return wrote_file=true. A round with FYI items and no gaps or questions
-writes the file with its FYI section, returns gap_count and question_count 0 and fyi_count set, and still
-converges. A round with nothing at all writes the one line "No gaps." and returns all three counts 0.
-Do NOT modify the plan file or the target repo. Do NOT stage or commit.
-Return via the schema.`;
+SETTLED DECISIONS - ${DISMISSED} is the editor's ledger of declined gaps, one line each with a reason.
+SKIP every item listed there FOR THE STATED REASON. If you are confident a reason is WRONG and the gap
+genuinely clears the defect bar, raise it ONCE for the whole run, prefixed "CONTESTS DISMISSAL:", saying
+why the reason does not hold. A line marked \`USER-RULED:\` is the user's own ruling: never contest it.`;
 
 const editorPrompt = (round, critiquePath) => `
 You are the PLAN EDITOR. Fold this round's gaps into the plan file.
@@ -422,7 +431,7 @@ while (round < MAX_ROUNDS) {
   // fires on a NULL return specifically - never on a missing count - because an agent that returns an
   // empty object still ran, and the required-args baseline contract feeds every engine exactly that and
   // expects a return, not a throw (decide-cycle's guard is the pattern).
-  if (!crit) throw new Error(`Plan critic returned nothing in round ${round} (agent skipped or died) - that is NOT a clean plan. Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
+  if (!crit) throw new Error(`Plan critic returned nothing in round ${round} (agent skipped or died) - that is NOT a clean plan. Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache. To re-invoke, ${LAUNCH}.`);
   // A run launched inside a user turn relays that message to every agent, so the critic stops it before any editor.
   if (crit.relayed_request === true) {
     haltKind = 'relayed-request';
@@ -537,18 +546,18 @@ log(`refine: ${status} after ${round} round(s) - ${openGaps} open gap(s), ${ques
 // Every terminal but agent-dead relaunches, since a replay would return the same cached agents and halt the
 // same way. agent-dead replays because its editor never returned, so only the fold runs again.
 const listCmd  = `node '${BLOCK_TOOL}' '${PLAN_PATH}' --list`;
-const relaunch = `A relaunch takes the same args and runId and no resumeFromRunId, which keeps the stateDir and its ledger ${DISMISSED}.`;
+const relaunch = `A relaunch takes the same args and runId and no resumeFromRunId, which keeps the stateDir and its ledger ${DISMISSED}. To relaunch, ${LAUNCH}.`;
 const NEXT_STEP = {
-  'converged': `Hand the plan ${PLAN_PATH} to the user for approval.`
+  'converged': `Audit ${DISMISSED} before trusting the converge, since each declined gap is a judgment call.`
     + (belowFloor > 0 ? ` Show the user the FYI section of ${lastCritique} with the plan, since no editor folded its ${belowFloor} item(s). The user can add an item to a block before approving.` : '')
-    + ` Audit ${DISMISSED} before trusting the converge, since each declined gap is a judgment call. Then build the plan with develop, deriving its args with plan-edit.mjs args '${PLAN_PATH}'.`,
+    + ` Then build the plan through the develop guide's §0, which takes the user's approval of ${PLAN_PATH} at its step 12, once its steps 10 and 11 give the approval summary's values: continue at develop §0 step 9 when develop §0 step 8 started this refine run, or else work develop §0 from its step 1.`,
   'rounds': `The last round's gaps were folded but no critic re-read them. Read ${lastCritique}, decide with the user, then relaunch to confirm, raising maxRounds if needed. ${relaunch}`,
   'needs-answers': `Read the QUESTIONS section of ${lastCritique} and the new entries headed "## r${round} critic" at the end of ${NEEDS_USER}, settle the questions with the user and restructure ${PLAN_PATH}, where new blocks take fresh kebab ids. Then relaunch. ${relaunch} A replay returns the cached critic and halts the same way.`,
   'dismissal-contested': `Read the new entries headed "## r${round} editor" at the end of ${NEEDS_USER} and record the user's ruling, by folding the gap into ${PLAN_PATH} or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${DISMISSED}. Then relaunch. ${relaunch}`,
-  'agent-dead': `Run ${listCmd} first, since the editor may have partly edited the plan. Then replay with the same args and runId plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${critiqueFile(round)} runs again. A relaunch without resumeFromRunId restarts at round 1.`,
+  'agent-dead': `Run ${listCmd} first, since the editor may have partly edited the plan. Then replay with the same args and runId plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${critiqueFile(round)} runs again. To replay, ${LAUNCH}. A relaunch without resumeFromRunId restarts at round 1.`,
   'critique-unwritten': `Relaunch to redo the round. ${relaunch}`,
   'fold-unattested': `Inspect ${PLAN_PATH}, then relaunch. ${relaunch}`,
-  'relayed-request': `Start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts. ${relaunch}`,
+  'relayed-request': relaunch,
   'plan-broken': `Repair ${PLAN_PATH} by hand until ${listCmd} exits 0, then relaunch. ${relaunch}`,
 };
 const nextStep = (halted ? `Run halted - ${haltReason} ` : '')

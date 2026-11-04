@@ -6,7 +6,7 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| plan-critic | 1 | 1 | 9471 | a clean first round |
+| plan-critic | 1 | 1 | 10156 | a clean first round |
 | plan-editor | 1 | 1 | 4016 | gaps folded, then a clean round |
 
 ## plan-critic · variant 1 · schema 1
@@ -25,6 +25,29 @@ THE TARGET REPO (read-only - grep it): E:/repo  (lang=JavaScript, framework=none
 CONVENTIONS the plan must fit: (none supplied - infer from the surrounding code)
 CONVENTION FILES (the target's own rules, which the CONVENTIONS line above indexes. Read each one in full):
   - E:/repo/CLAUDE.md
+
+PROCEDURE:
+1. (when E:/flow/runs/flow-refine/DISMISSED-PLAN.md exists) READ it FIRST, under the SETTLED DECISIONS rules below. Output: the settled
+   items you skip.
+2. Read the plan file and grep the repo, judging each todo block by THE DEFECT BAR, BLOCK METADATA, the
+   SCOPE RULES and THE SEVERITY FLOOR below. Output: each gap and question, with its evidence.
+3. WRITE E:/flow/runs/flow-refine/plan-critique-1.md (create E:/flow/runs/flow-refine/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Put EVERYTHING there VERBATIM, since it
+   is your ONLY channel to the editor: a numbered GAPS section, then a QUESTIONS section, or in the
+   converged round only what step 5 names. Per gap: the block id, which of the four classes it is, its
+   grade, its evidence with the plan line quoted verbatim, EXACTLY ONE smallest change that closes it
+   (never alternatives), and the number of every other gap whose change touches the same plan lines, so
+   the editor folds them together. The one change may touch
+   several lines of one block, such as a Files line, a Docs bullet and a criterion, and still names no
+   alternatives. It names every plan line the change makes stale.
+   Write the file EVERY round and return wrote_file=true. Output: the file, and wrote_file=true.
+4. (when you have a question) QUESTIONS also go to E:/flow/runs/flow-refine/NEEDS-USER.md IN FULL (append, create it if needed).
+   Each question you append there opens with the line `## r1 critic`. Output: the appended entry.
+5. (in the converged round the FYI rules below define) The file step 3 writes holds the FYI section. A
+   round with FYI items and no gaps or questions writes the file with its FYI section, returns gap_count
+   and question_count 0 and fyi_count set, and still converges. A round with nothing at all writes the
+   one line "No gaps." and returns all three counts 0. Output: the FYI section, or the line "No gaps.".
+6. Do NOT modify the plan file or the target repo. Do NOT stage or commit.
+7. Return via the schema.
 
 THE DEFECT BAR - the plan states what the user wants. Judge only whether what it SAYS is correct. A gap
 names plan text that is wrong. Exactly four classes qualify:
@@ -100,26 +123,10 @@ entire section, and count them in fyi_count. It holds these subsections, each on
   - "Outside the plan": a real defect that no plan text holds, in a file you read to judge the plan, with
     its file and line. Write it at every floor, minor included. Never search further for one.
 
-SETTLED DECISIONS - READ E:/flow/runs/flow-refine/DISMISSED-PLAN.md FIRST if it exists: the editor's ledger of declined gaps, one line
-each with a reason. SKIP every item listed there FOR THE STATED REASON. If you are confident a reason is
-WRONG and the gap genuinely clears the defect bar, raise it ONCE for the whole run, prefixed
-"CONTESTS DISMISSAL:", saying why the reason does not hold. A line marked `USER-RULED:` is the user's
-own ruling: never contest it.
-
-WRITE E:/flow/runs/flow-refine/plan-critique-1.md (create E:/flow/runs/flow-refine/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Put EVERYTHING there VERBATIM, since it
-is your ONLY channel to the editor: a numbered GAPS section, then a QUESTIONS section. Per gap: the block
-id, which of the four classes it is, its grade, its evidence with the plan line quoted verbatim, EXACTLY ONE
-smallest change that closes it (never alternatives), and the number of every other gap whose change touches
-the same plan lines, so the editor folds them together. The one change may touch several lines of one block,
-such as a Files line, a Docs bullet and a criterion, and still names no alternatives. It names every plan
-line the change makes stale.
-QUESTIONS also go to E:/flow/runs/flow-refine/NEEDS-USER.md IN FULL (append, create it if needed). Each question you append there
-opens with the line `## r1 critic`.
-Write the file EVERY round and return wrote_file=true. A round with FYI items and no gaps or questions
-writes the file with its FYI section, returns gap_count and question_count 0 and fyi_count set, and still
-converges. A round with nothing at all writes the one line "No gaps." and returns all three counts 0.
-Do NOT modify the plan file or the target repo. Do NOT stage or commit.
-Return via the schema.
+SETTLED DECISIONS - E:/flow/runs/flow-refine/DISMISSED-PLAN.md is the editor's ledger of declined gaps, one line each with a reason.
+SKIP every item listed there FOR THE STATED REASON. If you are confident a reason is WRONG and the gap
+genuinely clears the defect bar, raise it ONCE for the whole run, prefixed "CONTESTS DISMISSAL:", saying
+why the reason does not hold. A line marked `USER-RULED:` is the user's own ruling: never contest it.
 ~~~~
 
 ~~~~json

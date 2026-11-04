@@ -83,6 +83,28 @@ section('phase:"refine" stops at its critic and writes nothing');
     'criteria-critic': { gaps: [], questions: [], unfalsifiable: [{ criterion: 'must be popular' }] },
   }, { ...baseArgs, phase: 'refine' });
   ok(/REPLACE every unfalsifiable criterion/.test(quiet.nextStep), 'an unfalsifiable criterion alone still routes back into the criteria');
+
+  // A run launched from a user turn relays that message to the investigator, and the engine sees it only after the round.
+  const { out: sound } = await run({ 'criteria-critic': { gaps: [], questions: [], unfalsifiable: [] } }, { ...baseArgs, phase: 'refine' });
+  for (const [what, step] of [['a question', out.nextStep], ['an unfalsifiable criterion', quiet.nextStep], ['sound criteria', sound.nextStep]]) {
+    const s = String(step ?? '');
+    ok(s.includes('run_in_background') && s.includes('the turn its notification starts') && s.includes('with phase:"run", this SAME runId and priorRounds: 0'),
+      `after ${what}, the run launch names the notification-turn path: ${s.slice(-200)}`);
+  }
+}
+
+section('the investigator\'s required reads are numbered steps ahead of the search');
+// A skipped memory or review read re-proposes closed candidates or re-runs swept avenues.
+{
+  const { byLabel } = await run({ 'investigate': (label) => (/r1$/.test(label) ? LEARN : INV), 'critique': CRIT }, { ...baseArgs, maxRounds: 2 });
+  const [i1, i2] = byLabel('investigate').map((c) => c.prompt.replace(/\s+/g, ' '));
+  const order = (p, steps) => steps.map((s) => p.indexOf(s)).every((at, i, all) => at !== -1 && (i === 0 || at > all[i - 1]));
+  ok(order(i1, ['SEARCH MEMORY — the three files step 2 reads:', 'PROCEDURE:', '1. Read the criteria', '2. READ ALL THREE SEARCH MEMORY files',
+    'Round 1: none of them may exist yet.', '3. Round 1 has no review.', '4. SEARCH', '10. THE DETERMINATION', '11. (when a criteria contradiction']),
+    'round 1 reads the memory files at step 2, says it has no review at step 3, and escalates at step 11');
+  ok(order(i2, ['2. READ ALL THREE SEARCH MEMORY files', '3. The critic reviewed the last round. READ', 'and answer EVERY point it raises', '4. SEARCH']),
+    'a reviewed round reads its review at step 3, before it searches');
+  ok(!i2.includes('Round 1: none of them may exist yet.'), 'and a later round carries no round-1 sentence');
 }
 
 section('a contested exhaustion claim buys another round, and the search can still run out of rounds');
@@ -321,7 +343,7 @@ section('each escalation heads its NEEDS-USER entry with its round and role, and
     'critique': CRIT,
   }, { ...baseArgs, maxRounds: 3 });
   const [i1, i2] = byLabel('investigate').map((c) => flat(c.prompt));
-  ok(/append a full entry to \S+NEEDS-USER\.md that opens with the line `## r1 investigator`, and set needs_user=true\./.test(i1)
+  ok(/Append a full entry to \S+NEEDS-USER\.md that opens with the line `## r1 investigator`, and set needs_user=true\./.test(i1)
     && i2.includes('that opens with the line `## r2 investigator`, and set needs_user=true.'),
     'each investigator round heads its escalation with its own round');
   ok(i1.includes('as well, opening the entry with the line `## r1 investigator`. That entry is informational'),
@@ -604,10 +626,13 @@ section('priorRounds continues the round numbers of a resumed search');
   eq(byLabel('critique').map((c) => c.label).join(), 'critique r3,critique r4', 'the critics write r3 and r4, never over r1 or r2');
   eq(out.rounds, 4, 'rounds counts the whole search');
   ok(/priorRounds: 4/.test(out.nextStep), 'nextStep names the priorRounds that continues the search');
+  const LAUNCH = 'To re-invoke, start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.';
+  ok(String(out.nextStep ?? '').includes(LAUNCH), 'and the re-invoke names the notification-turn launch path');
 
   const { out: stopped } = await run({}, { ...baseArgs, priorRounds: 3 }, { total: 400_000, spent: () => 0, remaining: () => 40_000 });
   ok(/Stopped before round 4/.test(stopped.haltReason) && /priorRounds: 3/.test(stopped.haltReason),
     'a budget stop names the round it did not start and the priorRounds to pass');
+  ok(String(stopped.nextStep ?? '').includes(LAUNCH), 'and so does a budget stop\'s re-invoke');
   eq(stopped.determination, '', 'and names no determination, since no round of this run wrote one');
 }
 
