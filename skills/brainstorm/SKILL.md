@@ -14,6 +14,7 @@ When `plugin-access.mjs` exits 1, show the user its message, which names the cau
 once the cause is fixed.
 
 Read `${CLAUDE_PLUGIN_ROOT}/workflows/brainstorm/CLAUDE.md` and follow it exactly.
+Work its `## 0. Checklist` top to bottom.
 Use these paths wherever the guide says "this checkout" or "the tool's own directory":
 
 - Engine `scriptPath`: `${CLAUDE_PLUGIN_ROOT}/workflows/brainstorm/brainstorm-cycle.mjs`

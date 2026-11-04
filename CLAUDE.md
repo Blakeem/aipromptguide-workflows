@@ -1,13 +1,14 @@
 # AI Prompt Guide workflows — router (for Claude)
 
 This is the **AI Prompt Guide workflows** checkout (usually `aipg/`). This file only routes — it carries
-no workflow instructions. Pick the match, then read that workflow's `CLAUDE.md` and follow it exactly
-(it drives plan mode + approval *before* the engine runs):
+no workflow instructions. Each workflow's `CLAUDE.md` opens with `## 0. Checklist`, whose opening lines say
+how to work it. Pick the match, then read that workflow's `CLAUDE.md` and follow it exactly (it drives
+plan mode + approval *before* the engine runs):
 
 | Want to… | Read & follow |
 |----------|---------------|
 | **Build** from an approved plan file: one bounded feature, an ordered roadmap of them, a migration across many call sites, or a triaged issue inventory. Each `## Plan:` block's `mode` (`feature`, `section`, `fix`) picks the frame | `workflows/develop/CLAUDE.md` |
-| Work the project's **backlog**: the defects, cleanups, features and decisions develop left for later. Develop builds the ready entries and the user triages the rest, then fix mode builds them | `workflows/develop/CLAUDE.md`, "Working the backlog" |
+| Work the project's **backlog**: the defects, cleanups, features and decisions develop left for later. Develop builds the ready entries and the user triages the rest, then fix mode builds them | `workflows/develop/CLAUDE.md`, the steps its `## 0. Checklist` names for a session that only works the backlog |
 | **Refine** a plan file before develop builds it: a read-only critic under a fixed defect bar and a minimal-fold editor, until one clean round | `workflows/refine/CLAUDE.md` |
 | **Audit** a repo or change, read-only, in one of two kinds. `kind: defects` (skill `/aipg:debug`) finds production defects, and its triaged issue files are fix-mode plan files develop builds. Bring your own inventory from manual testing the same way. `kind: enhancements` (skill `/aipg:enhance`) audits a system that already works through lenses → verified, impact-scored proposals you triage (nothing auto-applied) | `workflows/audit/CLAUDE.md` |
 | **Brainstorm** several fully-committed variations (one per lens) for a human to pick/combine — creative, no AI verdict | `workflows/brainstorm/CLAUDE.md` |

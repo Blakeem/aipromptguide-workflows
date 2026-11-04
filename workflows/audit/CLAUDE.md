@@ -71,7 +71,7 @@ the one under the list's kind.
 16. Build the triaged issue files through `../develop/CLAUDE.md` §0 steps 2 to 33, with those files as its
     plan files and its step 5 done by steps 11 to 14 of this list. Its steps 4, 6 to 8 and 12, which author,
     refine and approve a plan file, do not run for an issue file, the file this list's step 2 writes
-    included, since "Playbook" step 6 starts develop at its §2 step 3. Start with one file, or a `runOnly`
+    included, since "Playbook" step 6 starts at develop §2 step 3. Start with one file, or a `runOnly`
     that names one block ("Playbook" step 6, "External inventory (skip the review)", `../develop/CLAUDE.md`
     §2 step 1). Output: the output of each develop §0 step that ran.
 17. Spot-read the riskiest fixes beside `../develop/CLAUDE.md` §6's checks, before the landing ("Playbook"

@@ -15,6 +15,14 @@ const POLICY_SKILLS = ['debug', 'develop'];
 // The debug and enhance skills launch audit's two kinds, so both hand over to audit's guide.
 const GUIDE_OF = { debug: 'audit', enhance: 'audit' };
 const guideOf = (name) => GUIDE_OF[name] ?? name;
+// Each guide opens with its `## 0. Checklist`. Audit's guide holds one checklist pair per kind, and develop's
+// backlog route through its checklist comes first.
+const CHECKLIST_SENTENCE_OF = {
+  debug: 'Work the checklist\'s defects lists top to bottom.',
+  enhance: 'Work the checklist\'s enhancements lists top to bottom.',
+  develop: 'Otherwise, work its `## 0. Checklist` top to bottom.',
+};
+const checklistSentenceOf = (name) => CHECKLIST_SENTENCE_OF[name] ?? 'Work its `## 0. Checklist` top to bottom.';
 
 section('every workflow ships a skill, and every skill is a known workflow');
 ok(SKILLS.join(',') === 'brainstorm,debug,decide,develop,docs,enhance,investigate,refine',
@@ -56,6 +64,22 @@ for (const name of SKILLS) {
   const onboardCheck = body.indexOf('node "${CLAUDE_PLUGIN_ROOT}/tools/onboard.mjs" check --root "${CLAUDE_PLUGIN_DATA}" --repo <target.repo>`');
   const handover = body.indexOf(`Read \`\${CLAUDE_PLUGIN_ROOT}/workflows/${guideOf(name)}/CLAUDE.md\` and follow it exactly`);
   ok(handover >= 0, 'body hands over to this workflow\'s guide');
+  const checklistAt = body.indexOf(checklistSentenceOf(name));
+  const pathListAt = body.indexOf('Use these paths wherever the guide says');
+  ok(handover >= 0 && checklistAt > handover && checklistAt < pathListAt,
+    `body sends the operator to the guide's checklist right after the handover: "${checklistSentenceOf(name)}"`);
+  if (name === 'develop') {
+    // The skill names the backlog route by the phrase the guide's §0 opening gives it, not by step numbers.
+    const backlogRoute = 'a session that only works the backlog';
+    const flatBody = body.replace(/\s+/g, ' ');
+    const backlogAt = flatBody.indexOf(`When the task is to work the project's backlog, work only the steps its \`## 0. Checklist\` names for ${backlogRoute}.`);
+    ok(backlogAt > flatBody.indexOf('and follow it exactly') && backlogAt < flatBody.indexOf(checklistSentenceOf(name)),
+      'body routes a backlog task through the checklist\'s backlog steps, between the handover and the checklist sentence');
+    const guide = readFileSync(join(REPO_ROOT, 'workflows', 'develop', 'CLAUDE.md'), 'utf8').replace(/\s+/g, ' ');
+    const checklistOpening = guide.slice(guide.indexOf('## 0. Checklist'), guide.indexOf('### Before'));
+    ok(checklistOpening.toLowerCase().includes(`${backlogRoute} runs steps`),
+      'the opening of the develop guide\'s checklist names the steps of the backlog route the skill cites');
+  }
   if (POLICY_SKILLS.includes(name)) {
     ok(onboardCheck >= 0 && onboardCheck < handover,
       'body runs the onboarding check on the run\'s target.repo before it hands over to the guide');

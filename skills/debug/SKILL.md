@@ -19,6 +19,7 @@ later check in this session. A user who declines both gets no run, since the Wor
 
 Read `${CLAUDE_PLUGIN_ROOT}/workflows/audit/CLAUDE.md` and follow it exactly, through its scope section
 and its defects kind section.
+Work the checklist's defects lists top to bottom.
 Use these paths wherever the guide says "this checkout" or "the tool's own directory":
 
 - Review engine `scriptPath`: `${CLAUDE_PLUGIN_ROOT}/workflows/audit/audit.mjs`, launched with

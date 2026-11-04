@@ -223,6 +223,11 @@ against (halt); an unreachable feature does not (flag).
   one token that no wrap fits under the width, such as a URL. It does not check `docs/`,
   `tests/README.md` or `skills/`. `node tests/run.mjs static` runs that test file without the rest of the
   suite, so a guide edit runs it before the full suite.
+- **Each workflow guide opens with its checklist.** `static.test.mjs` fails when a `workflows/*/CLAUDE.md`
+  does not open with `## 0. Checklist`, lacks a numbered `### Before` or `### After` list, numbers its §0
+  steps with a gap or a repeat, or cites in §0 a `§N` its own headings lack. A `§N` cites another guide
+  only right after that guide's `CLAUDE.md` path in backticks or its bare workflow name, such as
+  `develop §2`. A possessive such as `develop's §2` reads as the guide's own §2.
 - **Test failure paths.** The happy path is exercised constantly by real runs. Halts, parks, dead agents,
   contradictory returns and bad args are what rot silently — and are where every real defect has been.
 - **`respond: { 'label': null }` simulates a dead agent** — one character, and it covers §3's number-one
@@ -391,7 +396,7 @@ strictest layout measured).
       the edit did not show
 - [ ] Engine edited? `node tools/gen-flows.mjs` re-run and the updated `FLOW.md` committed (§7);
       a new agent, guard or terminal state needs a scenario in `tools/flows/<name>.flow.mjs` too
-- [ ] Root `README.md` changelog updated if a user would notice
+- [ ] Root `README.md` changelog updated as §10 step 1 says
 - [ ] Merged into `main`, the suite run here, and the worktree and its branch removed (§9)
 
 ## 9. Build in a worktree, and remove it when it merges
@@ -418,3 +423,15 @@ merge, since a worktree holds only tracked files (docs/worktree-batches.md, "unt
 snapshot worktree that a read-only run audits is removed when that run ends, since its findings name the
 commit. Parallel chains use the batch verbs of `tools/wt.mjs`, whose `clean` verb moves the folder to the
 trash, runs `git worktree prune` and keeps the branch.
+
+## 10. After a build lands here
+
+When a workflow's build lands in this repo, work these steps once that workflow's entire `## 0. Checklist`
+is done:
+
+1. Add one bullet per user-visible change to the newest dated section of the root `README.md` changelog,
+   opening today's section when it is missing.
+2. Run `node tests/run.mjs static`.
+3. Commit the changelog on its own.
+4. (when the run set `notes`) Check each survey theme against the code, and add each one that holds to the
+   backlog with `tools/plan-entry.mjs new` (`tools/CLAUDE.md`).

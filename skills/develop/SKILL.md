@@ -17,7 +17,9 @@ the `/add-dir` command that question names for this session, and you pass `--acc
 later check in this session. A user who declines both gets no run, since the Workflow tool cannot read the engine.
 
 Read `${CLAUDE_PLUGIN_ROOT}/workflows/develop/CLAUDE.md` and follow it exactly.
-When the task is to work the project's backlog, start at its §10 "Working the backlog".
+When the task is to work the project's backlog, work only the steps its `## 0. Checklist` names for a
+session that only works the backlog.
+Otherwise, work its `## 0. Checklist` top to bottom.
 Use these paths wherever the guide says "this checkout" or "the tool's own directory":
 
 - Engine `scriptPath`: `${CLAUDE_PLUGIN_ROOT}/workflows/develop/develop-cycle.mjs`

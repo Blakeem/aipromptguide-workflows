@@ -16,6 +16,7 @@ once the cause is fixed.
 
 Read `${CLAUDE_PLUGIN_ROOT}/workflows/audit/CLAUDE.md` and follow it exactly, through its scope section
 and its enhancements kind section.
+Work the checklist's enhancements lists top to bottom.
 Use these paths wherever the guide says "this checkout" or "the tool's own directory":
 
 - Engine `scriptPath`: `${CLAUDE_PLUGIN_ROOT}/workflows/audit/audit.mjs`, launched with

@@ -1,6 +1,7 @@
 // Static integrity of every engine. These are the checks a compiler would do if this project had one.
 import { execFileSync } from 'node:child_process';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { ENGINES, REPO_ROOT, section, ok, throwsWith } from './harness.mjs';
 
@@ -613,5 +614,106 @@ section('guide prose wraps at 110 characters');
   for (const rel of guides) {
     const hits = overWidthLines(readFileSync(join(REPO_ROOT, rel), 'utf8'));
     ok(hits.length === 0, `${rel} has no prose line past ${GUIDE_WIDTH} characters${hits.length ? ` (line ${hits.slice(0, 5).join(', ')})` : ''}`);
+  }
+}
+
+section('every workflow guide opens with its checklist');
+// The skills and the root CLAUDE.md send the operator to each guide's §0 first, so its steps must parse.
+{
+  const CHECKS = {
+    opening: 'the first "## " heading is "## 0. Checklist"',
+    before: '§0 holds a "### Before" heading',
+    after: '§0 holds a "### After" heading',
+    list: 'each "### Before" and "### After" heading of §0 is followed by a numbered list',
+    numbering: 'the steps of §0 number 1, 2, 3 without a gap or a repeat',
+    sections: 'each §N in §0 that follows no other guide\'s name names a "## N." heading of the guide',
+  };
+  const fencePattern = /^\s*(```|~~~)/;
+  const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const readGuides = (workflowsDir) => readdirSync(workflowsDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && statSync(join(workflowsDir, d.name, 'CLAUDE.md'), { throwIfNoEntry: false }))
+    .map((d) => ({ name: d.name, text: readFileSync(join(workflowsDir, d.name, 'CLAUDE.md'), 'utf8') }));
+  // A §N right after another guide's backticked `CLAUDE.md` path or bare workflow name cites that guide's section.
+  const checklistFailures = (text, guideName, otherGuideNames) => {
+    const failures = [];
+    let inFence = false;
+    const proseLines = text.split('\n').filter((line) => {
+      if (fencePattern.test(line)) { inFence = !inFence; return false; }
+      return !inFence;
+    });
+    const openingAt = proseLines.findIndex((line) => line.startsWith('## '));
+    if (proseLines[openingAt] !== '## 0. Checklist') {
+      return [`${CHECKS.opening} (found "${proseLines[openingAt] ?? 'no "## " heading'}")`];
+    }
+    const nextHeadingAt = proseLines.findIndex((line, i) => i > openingAt && line.startsWith('## '));
+    const checklist = proseLines.slice(openingAt + 1, nextHeadingAt < 0 ? proseLines.length : nextHeadingAt);
+    const sectionNumbers = new Set(proseLines.map((line) => line.match(/^## (\d+)\./)?.[1]).filter(Boolean));
+    const listHeadings = checklist
+      .map((line, i) => ({ line, i }))
+      .filter(({ line }) => /^### (Before|After)\b/.test(line));
+    const unlisted = listHeadings
+      .filter(({ i }) => !/^\d+\. /.test(checklist.slice(i + 1).find((line) => line.trim() !== '') ?? ''))
+      .map(({ line }) => line);
+    const stepNumbers = checklist.map((line) => line.match(/^(\d+)\. /)?.[1]).filter(Boolean).map(Number);
+    const misnumberedAt = stepNumbers.findIndex((number, i) => number !== i + 1);
+    const prose = checklist.join(' ').replace(/\s+/g, ' ');
+    const otherGuidePath = `\`(?!(?:[^\`]*/)?${escapeRegExp(guideName)}/CLAUDE\\.md\`)[^\`]*CLAUDE\\.md\``;
+    const otherGuideName = otherGuideNames.map((name) => `|\\b${escapeRegExp(name)}`).join('');
+    const citedGuide = new RegExp(`(?:${otherGuidePath}${otherGuideName}) ?$`);
+    const unknownSections = [...new Set([...prose.matchAll(/§(\d+)/g)]
+      .filter((m) => !citedGuide.test(prose.slice(0, m.index)) && !sectionNumbers.has(m[1]))
+      .map((m) => `§${m[1]}`))];
+
+    if (!listHeadings.some(({ line }) => line.startsWith('### Before'))) failures.push(CHECKS.before);
+    if (!listHeadings.some(({ line }) => line.startsWith('### After'))) failures.push(CHECKS.after);
+    if (unlisted.length) failures.push(`${CHECKS.list} (not followed by one: "${unlisted.join('", "')}")`);
+    if (misnumberedAt >= 0) failures.push(`${CHECKS.numbering} (step ${misnumberedAt + 1} is numbered ${stepNumbers[misnumberedAt]})`);
+    if (unknownSections.length) failures.push(`${CHECKS.sections} (no heading for ${unknownSections.join(', ')})`);
+    return failures;
+  };
+  const guideFailures = (workflowsDir) => {
+    const guides = readGuides(workflowsDir);
+    const names = guides.map(({ name }) => name);
+    return guides.map(({ name, text }) => ({ name, failures: checklistFailures(text, name, names.filter((other) => other !== name)) }));
+  };
+
+  const checklistGuide = (before, after, rest = '## 1. Scope\n\nText.\n') =>
+    `# Fixture guide\n\nIntro.\n\n## 0. Checklist\n\n${before}\n${after}\n${rest}`;
+  const FIXTURES = {
+    sound: [checklistGuide('### Before the run\n\n1. Read it (§1, `../gap/CLAUDE.md`\n   §9, gap §8).',
+      '### After the run\n\n2. Report it.\n', '## 1. Scope\n\n```\n## 7. Fenced\n```\n'), null],
+    unopened: ['# Fixture guide\n\n## 1. Scope\n\n## 0. Checklist\n\n### Before the run\n\n1. Read it.\n\n### After the run\n\n2. Report it.\n', 'opening'],
+    'no-before': [checklistGuide('', '### After the run\n\n1. Report it.\n'), 'before'],
+    'no-after': [checklistGuide('### Before the run\n\n1. Read it.\n', ''), 'after'],
+    unlisted: [checklistGuide('### Before the run\n\nProse first.\n\n1. Read it.\n', '### After the run\n\n2. Report it.\n'), 'list'],
+    gap: [checklistGuide('### Before the run\n\n1. Read it.\n2. Launch it.\n', '### After the run\n\n4. Report it.\n'), 'numbering'],
+    repeat: [checklistGuide('### Before the run\n\n1. Read it.\n2. Launch it.\n', '### After the run\n\n2. Report it.\n'), 'numbering'],
+    'unknown-section': [checklistGuide('### Before the run\n\n1. Read it (§7).\n', '### After the run\n\n2. Report it.\n',
+      '## 1. Scope\n\n```\n## 7. Fenced\n```\n'), 'sections'],
+    'own-path': [checklistGuide('### Before the run\n\n1. Read it (`workflows/own-path/CLAUDE.md` §7).\n',
+      '### After the run\n\n2. Report it.\n'), 'sections'],
+  };
+  const fixtureDir = mkdtempSync(join(tmpdir(), 'aipg-checklist-'));
+  try {
+    for (const [name, [text]] of Object.entries(FIXTURES)) {
+      mkdirSync(join(fixtureDir, name));
+      writeFileSync(join(fixtureDir, name, 'CLAUDE.md'), text);
+    }
+    const fixtureResults = guideFailures(fixtureDir);
+    ok(fixtureResults.length === Object.keys(FIXTURES).length, `the scan reads every fixture guide (${fixtureResults.length})`);
+    for (const { name, failures } of fixtureResults) {
+      const check = FIXTURES[name][1];
+      const got = failures.length ? ` — got: ${failures.join('; ')}` : ' — got no failure';
+      if (check === null) ok(failures.length === 0, `the ${name} fixture guide passes every check${failures.length ? got : ''}`);
+      else ok(failures.length === 1 && failures[0].startsWith(CHECKS[check]), `the ${name} fixture guide fails only "${CHECKS[check]}"${got}`);
+    }
+  } finally {
+    rmSync(fixtureDir, { recursive: true, force: true });
+  }
+
+  const repoResults = guideFailures(join(REPO_ROOT, 'workflows'));
+  ok(repoResults.length > 0, `the scan reads the workflow guides (${repoResults.length})`);
+  for (const { name, failures } of repoResults) {
+    ok(failures.length === 0, `workflows/${name}/CLAUDE.md opens with a well-formed checklist${failures.length ? ` — ${failures.join('; ')}` : ''}`);
   }
 }
