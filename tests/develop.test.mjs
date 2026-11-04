@@ -180,6 +180,13 @@ section('a dirty baseline halts before any reviewer, and never parks the operato
   const relayed = String((await run({ develop: { ...DEV_OK, relayed_request: true } })).out.haltReason ?? '');
   const marks = ['When it lists any change, SET IT ASIDE', '(3) Create the state dir', 'SAVE BEFORE YOU CLEAR', '(4) Restore the modified', 'once the tree is settled, relaunch in these steps. (1) Run'].map((m) => relayed.indexOf(m));
   ok(marks.every((at, i) => at > -1 && (i === 0 || at > marks[i - 1])) && !relayed.includes('section 4 steps'), 'the relayed-request halt numbers its set-aside and relaunch steps');
+  const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.';
+  ok(relayed.includes(`"Launch from a notification turn" says: ${LAUNCH}`), 'and names the notification-turn launch path');
+  const relayedStep = String((await run({ develop: { ...DEV_OK, relayed_request: true } })).out.nextStep ?? '');
+  eq(relayedStep.split(LAUNCH).length - 1, 1, 'and its nextStep names that path once');
+  const dirtyStep = String((await run({ develop: { ...DEV_OK, baseline_dirty_files: 2 } })).out.nextStep ?? '');
+  ok(dirtyStep.includes(`which first folds this run's statuses into the plan file. To relaunch, ${LAUNCH}`),
+    'every other nextStep names it after the next launch\'s args');
 }
 {
   // A developer that stops on a dirty tree never runs its block command, so it honestly reports
@@ -2170,6 +2177,8 @@ section('only todo blocks are built: done, skip, backlogged, parked and blocked 
   eq(out.status, 'nothing to run (no todo blocks)', 'status');
   ok(out.halted === false, 'and it is not a halt');
   ok(/status back to todo/.test(out.nextStep), 'nextStep says how to re-open a block');
+  ok(String(out.nextStep ?? '').includes('otherwise this roadmap is finished. To relaunch, start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.'),
+    'and names the notification-turn launch path for the re-run');
 
   // A halt before the sweep, resolved to done by hand, leaves this relaunch as the only run that can say so.
   const ALL_DONE = { ...baseArgs, goal: 'g', plans: BLOCKS.map((b) => ({ ...b, status: 'done' })) };

@@ -164,6 +164,8 @@ section('an agent that returns nothing throws, with the resume instruction');
     const msg = await throwsWith(ENGINE, { args: baseArgs, respond: { ...CLEAN, ...override } });
     ok(msg.startsWith(lead), `${who} throws: ${msg.slice(0, 70)}`);
     ok(msg.includes('same runId') && msg.includes('resumeFromRunId'), `${who}: the message says to relaunch with the same runId and resumeFromRunId`);
+    ok(msg.includes('To re-invoke, start the pre-launch command with run_in_background') && msg.includes('the turn its notification starts.'),
+      `${who}: the message names the notification-turn launch path`);
   }
 }
 

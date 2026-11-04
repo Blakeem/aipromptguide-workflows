@@ -275,6 +275,8 @@ section('a reviewer whose count and review file disagree counts as a lens with n
     ok(!calls[1].prompt.includes('ALREADY FOUND'), `${name}: the next lens is handed no unconfirmed file`);
     ok(calls[2].prompt.includes('\nhash: incomplete\n'), `${name}: the inventory is stamped incomplete`);
     ok(out.nextStep.startsWith('1. First re-review u1:'), `${name}: nextStep leads with the re-review`);
+    ok(out.nextStep.split('\n')[0].endsWith('rewrites each re-reviewed unit\'s issue file. To relaunch, start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.'),
+      `${name}: and the re-review names the notification-turn launch path`);
   }
   // The marker it claims carries the real hash, so resume would skip the unit unless the operator names it.
   const { logs: claimed } = await run({}, { 'review': { finding_count: 1, wrote_file: false, wrote_clean_marker: true } });

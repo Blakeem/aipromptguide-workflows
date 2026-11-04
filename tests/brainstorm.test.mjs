@@ -29,6 +29,8 @@ section('nextStep names how many variations landed and relays each entry with it
   const { out } = await runEngine(ENGINE, { args: baseArgs, respond: { 'generate:playful': null, generate: GEN } });
   ok(out.nextStep.startsWith('Present the 1 of 2 variation(s)'), 'a failed lens lowers the landed count');
   ok(out.nextStep.includes('these lenses produced NOTHING: playful'), 'the failed-lens clause names the lens');
+  ok(out.nextStep.includes('offer to re-run just those with the same runId. To relaunch, start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.'),
+    'and the re-run names the notification-turn launch path');
 }
 
 section('a dead generator lands in failed as one { id, stage } entry, and the return carries no phase');

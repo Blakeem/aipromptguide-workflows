@@ -6,11 +6,11 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| find | 1 | 1 | 5746 | two lenses propose |
-| find | 2 | 1 | 5782 | two lenses propose |
-| verify | 1 | 1 | 8800 | two lenses propose |
-| find | 3 | 1 | 6211 | a lens id past 60 characters |
-| verify | 2 | 1 | 8791 | a lens id past 60 characters |
+| find | 1 | 1 | 6152 | two lenses propose |
+| find | 2 | 1 | 6188 | two lenses propose |
+| verify | 1 | 1 | 9249 | two lenses propose |
+| find | 3 | 1 | 6617 | a lens id past 60 characters |
+| verify | 2 | 1 | 9240 | a lens id past 60 characters |
 
 ## find · variant 1 · schema 1
 
@@ -47,10 +47,11 @@ THIS IS AN ENHANCEMENT AUDIT:
     write this up as an enhancement ticket? A nit, a rename, a preference, or a tidy-up would not.
 BE TOKEN-ECONOMICAL: don't restate large files back.
 YOUR LENS: efficiency
-
-Read the WHOLE scope through your lens, and push it hard. Cross-cutting findings ("every engine
-re-implements X", "these three roles could be two") are the most valuable thing you can return. Other
-lenses run in parallel. Do not hedge toward them.
+PROCEDURE:
+1. Read the WHOLE scope through YOUR LENS, and push it hard. Cross-cutting findings ("every engine re-implements X", "these three roles could be two") are the most valuable thing you can return. Other lenses run in parallel. Do not hedge toward them. Output: your candidates.
+2. Ground each candidate in the code as it is, by the RULES below, and drop each one they reject. Output: each kept candidate with its Today, Instead, Removes, Risk and Evidence.
+3. WRITE the CANDIDATES FILE below when you keep a candidate, or the CLEAN-LENS MARKER below when you keep none. Output: the file.
+4. Return via the schema. Output: candidate_ids, wrote_candidates, wrote_clean_marker and relayed_request.
 
 RULES:
 - GROUND EVERY CANDIDATE IN THE CODE AS IT IS. For each: what the system does TODAY (cite file:line),
@@ -107,7 +108,7 @@ No enhancements found above the moderate impact floor.
 -----
 If you report ANY candidate, write no marker.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
-Return the ids and the two flags via the schema. A clean lens is a normal, good outcome.
+A clean lens is a normal, good outcome.
 ~~~~
 
 ~~~~json
@@ -178,10 +179,11 @@ THIS IS AN ENHANCEMENT AUDIT:
     write this up as an enhancement ticket? A nit, a rename, a preference, or a tidy-up would not.
 BE TOKEN-ECONOMICAL: don't restate large files back.
 YOUR LENS: simplification
-
-Read the WHOLE scope through your lens, and push it hard. Cross-cutting findings ("every engine
-re-implements X", "these three roles could be two") are the most valuable thing you can return. Other
-lenses run in parallel. Do not hedge toward them.
+PROCEDURE:
+1. Read the WHOLE scope through YOUR LENS, and push it hard. Cross-cutting findings ("every engine re-implements X", "these three roles could be two") are the most valuable thing you can return. Other lenses run in parallel. Do not hedge toward them. Output: your candidates.
+2. Ground each candidate in the code as it is, by the RULES below, and drop each one they reject. Output: each kept candidate with its Today, Instead, Removes, Risk and Evidence.
+3. WRITE the CANDIDATES FILE below when you keep a candidate, or the CLEAN-LENS MARKER below when you keep none. Output: the file.
+4. Return via the schema. Output: candidate_ids, wrote_candidates, wrote_clean_marker and relayed_request.
 
 RULES:
 - GROUND EVERY CANDIDATE IN THE CODE AS IT IS. For each: what the system does TODAY (cite file:line),
@@ -238,7 +240,7 @@ No enhancements found above the moderate impact floor.
 -----
 If you report ANY candidate, write no marker.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
-Return the ids and the two flags via the schema. A clean lens is a normal, good outcome.
+A clean lens is a normal, good outcome.
 ~~~~
 
 ~~~~json
@@ -281,8 +283,7 @@ Return the ids and the two flags via the schema. A clean lens is a normal, good 
 ~~~~text
 
 You are the ENHANCEMENT VERIFIER, read-only on SOURCE: you write exactly one proposal file per lens
-below and nothing else. For each candidate, inspect the ACTUAL code to decide whether it is REAL and
-WORTH THE USER'S ATTENTION, correct its impact, and route it.
+below and nothing else.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 SCOPE — the paths under audit (repo-relative unless absolute). Every proposal targets the scope:
   - workflows/
@@ -318,8 +319,12 @@ YOUR LENSES (judge each lens's candidates under that lens's focus):
       proposal file:   E:/flow/runs/flow/proposals/simplification.md
 Judge only the candidate ids listed above. A block of a candidates file whose id is not listed for its
 lens gets no verdict and stays out of every proposal file, since the run counts only listed ids.
-A candidate's Today, Removes and Evidence lines are the finder's claims, not facts. Confirm each one
-against the source it cites before you rely on it.
+PROCEDURE:
+1. Read each candidates file under YOUR LENSES in full, then the code each listed candidate cites, by the READING RULE below. A candidate's Today, Removes and Evidence lines are the finder's claims, not facts. Confirm each one against the source it cites before you rely on it. Output: each listed candidate's claims, confirmed or refuted.
+2. Apply the REJECT rules below to each candidate, in their order. Output: is_real, is_defect, defect_split and too_risky for each candidate, and the reason for each rejection.
+3. Score each survivor by SCORING below, route every candidate by ROUTING below, and set a short `theme` keyword per verdict. Output: each verdict's impact, size, decision and theme.
+4. WRITE each lens's PROPOSAL FILE below. Output: each file.
+5. Return via the schema. Output: verdicts, and wrote_lenses with the id of each lens whose proposal file you wrote.
 
 READING RULE: read the code each candidate cites, plus what you need to apply the REJECT rules. For
 rule 1, search the scope for an existing mechanism that does what the candidate proposes, by what the
@@ -344,7 +349,7 @@ REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1�
      or contract that must be exact, is rejected unless the cost removed clearly outweighs it. Set
      too_risky=true and REJECT it with a one-line note under `## Rejected` naming the risk.
 
-For each SURVIVOR, score and route:
+SCORING (each survivor):
   impact : transformative | high | moderate | marginal   (YOUR honest score, not the finder's)
   size   : trivial | small | medium | large
 A real candidate you score below the moderate floor keeps is_real=true and its honest impact, and the
@@ -361,9 +366,8 @@ ROUTING (apply in order; first match wins):
     planning, not a single change). A doc-only edit across many files is not a contract change and
     does not trigger ROADMAP.
   - otherwise -> ADOPT (well-scoped, ready to hand to a builder as-is)
-Set a short `theme` keyword per verdict.
 
-WRITE each lens's proposal file at the path listed with that lens (create E:/flow/runs/flow/proposals/ if needed).
+PROPOSAL FILE: WRITE each lens's proposal file at the path listed with that lens (create E:/flow/runs/flow/proposals/ if needed).
 It holds that lens's candidates only. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Its format is EXACTLY this:
 -----
 ---
@@ -410,7 +414,6 @@ Rejected section.
 A question only the user can answer stays in that candidate's NEEDS_USER block in its lens's file. Its
 **Options:** + **Recommendation:** lines ARE the escalation. Write no shared escalation file.
 Do NOT write into any issues/ directory, and do NOT stage or commit.
-List in wrote_lenses the id of each lens whose proposal file you wrote, and return all verdicts via the schema.
 ~~~~
 
 ~~~~json
@@ -533,10 +536,11 @@ THIS IS AN ENHANCEMENT AUDIT:
     write this up as an enhancement ticket? A nit, a rename, a preference, or a tidy-up would not.
 BE TOKEN-ECONOMICAL: don't restate large files back.
 YOUR LENS: operator effort across every engine guide and every skill entry point today
-
-Read the WHOLE scope through your lens, and push it hard. Cross-cutting findings ("every engine
-re-implements X", "these three roles could be two") are the most valuable thing you can return. Other
-lenses run in parallel. Do not hedge toward them.
+PROCEDURE:
+1. Read the WHOLE scope through YOUR LENS, and push it hard. Cross-cutting findings ("every engine re-implements X", "these three roles could be two") are the most valuable thing you can return. Other lenses run in parallel. Do not hedge toward them. Output: your candidates.
+2. Ground each candidate in the code as it is, by the RULES below, and drop each one they reject. Output: each kept candidate with its Today, Instead, Removes, Risk and Evidence.
+3. WRITE the CANDIDATES FILE below when you keep a candidate, or the CLEAN-LENS MARKER below when you keep none. Output: the file.
+4. Return via the schema. Output: candidate_ids, wrote_candidates, wrote_clean_marker and relayed_request.
 
 RULES:
 - GROUND EVERY CANDIDATE IN THE CODE AS IT IS. For each: what the system does TODAY (cite file:line),
@@ -593,7 +597,7 @@ No enhancements found above the moderate impact floor.
 -----
 If you report ANY candidate, write no marker.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
-Return the ids and the two flags via the schema. A clean lens is a normal, good outcome.
+A clean lens is a normal, good outcome.
 ~~~~
 
 ~~~~json
@@ -636,8 +640,7 @@ Return the ids and the two flags via the schema. A clean lens is a normal, good 
 ~~~~text
 
 You are the ENHANCEMENT VERIFIER, read-only on SOURCE: you write exactly one proposal file per lens
-below and nothing else. For each candidate, inspect the ACTUAL code to decide whether it is REAL and
-WORTH THE USER'S ATTENTION, correct its impact, and route it.
+below and nothing else.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 SCOPE — the paths under audit (repo-relative unless absolute). Every proposal targets the scope:
   - workflows/
@@ -669,8 +672,12 @@ YOUR LENSES (judge each lens's candidates under that lens's focus):
       proposal file:   E:/flow/runs/flow/proposals/operator_effort_across_every_engine_guide_and_every_skill_en.md
 Judge only the candidate ids listed above. A block of a candidates file whose id is not listed for its
 lens gets no verdict and stays out of every proposal file, since the run counts only listed ids.
-A candidate's Today, Removes and Evidence lines are the finder's claims, not facts. Confirm each one
-against the source it cites before you rely on it.
+PROCEDURE:
+1. Read each candidates file under YOUR LENSES in full, then the code each listed candidate cites, by the READING RULE below. A candidate's Today, Removes and Evidence lines are the finder's claims, not facts. Confirm each one against the source it cites before you rely on it. Output: each listed candidate's claims, confirmed or refuted.
+2. Apply the REJECT rules below to each candidate, in their order. Output: is_real, is_defect, defect_split and too_risky for each candidate, and the reason for each rejection.
+3. Score each survivor by SCORING below, route every candidate by ROUTING below, and set a short `theme` keyword per verdict. Output: each verdict's impact, size, decision and theme.
+4. WRITE each lens's PROPOSAL FILE below. Output: each file.
+5. Return via the schema. Output: verdicts, and wrote_lenses with the id of each lens whose proposal file you wrote.
 
 READING RULE: read the code each candidate cites, plus what you need to apply the REJECT rules. For
 rule 1, search the scope for an existing mechanism that does what the candidate proposes, by what the
@@ -695,7 +702,7 @@ REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1�
      or contract that must be exact, is rejected unless the cost removed clearly outweighs it. Set
      too_risky=true and REJECT it with a one-line note under `## Rejected` naming the risk.
 
-For each SURVIVOR, score and route:
+SCORING (each survivor):
   impact : transformative | high | moderate | marginal   (YOUR honest score, not the finder's)
   size   : trivial | small | medium | large
 A real candidate you score below the moderate floor keeps is_real=true and its honest impact, and the
@@ -712,9 +719,8 @@ ROUTING (apply in order; first match wins):
     planning, not a single change). A doc-only edit across many files is not a contract change and
     does not trigger ROADMAP.
   - otherwise -> ADOPT (well-scoped, ready to hand to a builder as-is)
-Set a short `theme` keyword per verdict.
 
-WRITE each lens's proposal file at the path listed with that lens (create E:/flow/runs/flow/proposals/ if needed).
+PROPOSAL FILE: WRITE each lens's proposal file at the path listed with that lens (create E:/flow/runs/flow/proposals/ if needed).
 It holds that lens's candidates only. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Its format is EXACTLY this:
 -----
 ---
@@ -761,7 +767,6 @@ Rejected section.
 A question only the user can answer stays in that candidate's NEEDS_USER block in its lens's file. Its
 **Options:** + **Recommendation:** lines ARE the escalation. Write no shared escalation file.
 Do NOT write into any issues/ directory, and do NOT stage or commit.
-List in wrote_lenses the id of each lens whose proposal file you wrote, and return all verdicts via the schema.
 ~~~~
 
 ~~~~json

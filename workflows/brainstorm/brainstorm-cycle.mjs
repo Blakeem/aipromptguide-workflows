@@ -149,6 +149,8 @@ const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it fir
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 // Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
+// A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
+const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
 
 // =============================================================================
 // Generator prompt — divergent, fully committed, writes one folder, reviews nothing.
@@ -192,7 +194,7 @@ const results = await parallel(LENSES.map((lens) => () =>
 // A run launched inside a user turn relays that message to every generator, so no variation is trustworthy.
 const relayedLensIds = results.filter((v) => v?.relayed).map((v) => v.lens);
 if (relayedLensIds.length) {
-  throw new Error(`A user request was relayed into the context of the generator for ${relayedLensIds.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.`);
+  throw new Error(`A user request was relayed into the context of the generator for ${relayedLensIds.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}.`);
 }
 
 const variations = results.filter(Boolean).filter((v) => v.entry);
@@ -207,6 +209,6 @@ return {
   variations: variations.map((v) => ({ lens: v.lens, focus: v.focus, entry: v.entry, summary: v.summary })),
   failed: failedLensIds.map((id) => ({ id, stage: 'generate' })),
   nextStep: variations.length
-    ? `Present the ${variations.length} of ${LENSES.length} variation(s) that landed under ${VAR_DIR}/: relay each one's entry path with its one-line summary, open the entries as needed, and walk the user through the distinct take of each. This is divergent — there is no winner; the user picks one, asks for a hybrid, or cherry-picks elements. To turn a chosen direction into a built feature, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle; to have the AI conclude among options with a decision matrix, use decide-cycle.${failedLensIds.length ? ` Tell the user these lenses produced NOTHING: ${failedLensIds.join(', ')} — offer to re-run just those with the same runId.` : ''}`
-    : `NOTHING was produced: every generator failed or returned no entry (${failedLensIds.join(', ')}). There is nothing to present — do NOT describe variations. Tell the user the batch produced no output, then re-run those lenses with the same runId (check the brief/planPath is readable and each lens focus is sane first).`,
+    ? `Present the ${variations.length} of ${LENSES.length} variation(s) that landed under ${VAR_DIR}/: relay each one's entry path with its one-line summary, open the entries as needed, and walk the user through the distinct take of each. This is divergent — there is no winner; the user picks one, asks for a hybrid, or cherry-picks elements. To turn a chosen direction into a built feature, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle; to have the AI conclude among options with a decision matrix, use decide-cycle.${failedLensIds.length ? ` Tell the user these lenses produced NOTHING: ${failedLensIds.join(', ')} — offer to re-run just those with the same runId. To relaunch, ${LAUNCH}.` : ''}`
+    : `NOTHING was produced: every generator failed or returned no entry (${failedLensIds.join(', ')}). There is nothing to present — do NOT describe variations. Tell the user the batch produced no output, then re-run those lenses with the same runId (check the brief/planPath is readable and each lens focus is sane first). To relaunch, ${LAUNCH}.`,
 };

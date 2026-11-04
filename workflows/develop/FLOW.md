@@ -276,10 +276,10 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | throw: plan title(s) [...] are not one line of text | commit is true and a block title spans two lines | throw (line 386) |
 | throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 406) |
 | throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 417) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 2338) |
-| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 2349) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 2356) |
-| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 2364) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 2340) |
+| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 2351) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 2358) |
+| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 2366) |
 
 ## Coverage
 

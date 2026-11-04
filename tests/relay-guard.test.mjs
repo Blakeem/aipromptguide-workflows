@@ -1,5 +1,6 @@
 // The Workflow runtime copies the launching turn's user message into every agent's context. Each engine
-// asks its first agent whether it holds such a message and halts before any later agent when it does.
+// asks its first agent, and in some engines later agents too, whether their context holds such a message.
+// When one does, the engine halts before the next stage and names the notification-turn launch path.
 // Both branches are driven off the engines' flow scenarios, so a new engine or a renamed scenario goes red here.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -7,6 +8,7 @@ import { REPO_ROOT, runTrace, section, ok, eq, toResponder } from './harness.mjs
 import { loadSpecs } from '../tools/gen-flows.mjs';
 
 const RULE = 'Launch from a notification turn';
+const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
 
 // laterRoles: label prefixes of agents that run only after the first agent's check. A scenario named in
 // noLater halts at a later stage of its engine, so no role is checked for it.
@@ -49,7 +51,9 @@ for (const spec of specs) {
     if (want.how === 'throw') {
       ok(trace.terminal.kind === 'throw' && trace.terminal.message.startsWith('A user request was relayed'), `${where}: throws the relayed-request message`);
       ok(trace.terminal.message.includes(RULE), `${where}: the message names the root CLAUDE.md launch rule`);
+      ok(trace.terminal.message.includes(LAUNCH), `${where}: the message names the notification-turn launch path`);
     } else {
+      ok(String(trace.out?.nextStep ?? '').includes(LAUNCH), `${where}: nextStep names the notification-turn launch path`);
       ok(trace.terminal.kind === 'return' && trace.out?.halted === true, `${where}: returns halted`);
       ok(String(trace.out?.haltReason).includes(RULE), `${where}: the halt reason names the root CLAUDE.md launch rule`);
       ok(/launched inside a user turn/.test(String(trace.out?.status)), `${where}: the status says the run was launched inside a user turn`);

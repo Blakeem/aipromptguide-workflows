@@ -79,9 +79,9 @@ flowchart TD
 | throw: Provide the brief | neither brief nor planPath | throw (line 141) |
 | throw: args.sources is required | args.sources is empty | throw (line 154) |
 | throw: source ids collide after slugging | two sources slug to one directory | throw (line 158) |
-| throw: A user request was relayed into the context of the gatherer for ... ahead of its task | a gatherer reports a user request relayed into its context, so the scrubbers and the curator never run · the gap-fill gatherer reports a user request relayed into its context | throw (line 404) |
-| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 452) |
-| throw: Curator returned nothing in round ... | the curator dies | throw (line 483) |
+| throw: A user request was relayed into the context of the gatherer for ... ahead of its task | a gatherer reports a user request relayed into its context, so the scrubbers and the curator never run · the gap-fill gatherer reports a user request relayed into its context | throw (line 406) |
+| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 454) |
+| throw: Curator returned nothing in round ... | the curator dies | throw (line 485) |
 
 ## Coverage
 

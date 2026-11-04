@@ -64,7 +64,7 @@ flowchart TD
 | throw: Provide the problem framing | neither brief nor planPath | throw (line 110) |
 | throw: args.lenses is required | args.lenses is empty | throw (line 125) |
 | throw: lens ids collide after slugging | two lenses slug to one folder | throw (line 129) |
-| throw: A user request was relayed into the context of the generator for ... ahead of its task | a generator reports a user request relayed into its context | throw (line 195) |
+| throw: A user request was relayed into the context of the generator for ... ahead of its task | a generator reports a user request relayed into its context | throw (line 197) |
 
 ## Coverage
 

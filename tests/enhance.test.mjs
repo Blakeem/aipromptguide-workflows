@@ -8,6 +8,7 @@ import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs
 
 const ENGINE = 'workflows/audit/audit.mjs';
 const ENHANCE_GUIDE_POINTER = '\nworkflows/audit/CLAUDE.md §0 "After an enhancements run" holds each of these steps with its output, and the steps after the triage.';
+const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
 const baseArgs = {
   kind: 'enhancements', runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   scope: ['workflows/'], lenses: ['efficiency', 'simplification'],
@@ -265,9 +266,23 @@ section('the finder writes each candidate with its evidence to a file and return
   const v = prompt('verify');
   ok(v.includes('candidates file: E:/r/runs/t/candidates/efficiency.md   (read it in full'), 'the verifier reads the candidates file by path');
   ok(v.includes('proposal file:   E:/r/runs/t/proposals/efficiency.md'), 'and is told its proposal file');
-  ok(/are the finder's claims, not facts\. Confirm each one\nagainst the source it cites/.test(v), 'and confirms the finder\'s claims against their sources');
+  ok(v.includes('are the finder\'s claims, not facts. Confirm each one against the source it cites'), 'and confirms the finder\'s claims against their sources');
   ok(v.replace(/\s+/g, ' ').includes('Judge only the candidate ids listed above. A block of a candidates file whose id is not listed for its lens gets no verdict and stays out of every proposal file'),
     'and judges only the listed ids, so a block whose id the run dropped reaches no proposal file');
+  const order = (text, heads) => heads.every((h, i) => text.indexOf(h) >= 0 && (i === 0 || text.indexOf(heads[i - 1]) < text.indexOf(h)));
+  ok(order(f, ['\nPROCEDURE:\n1. Read the WHOLE scope through YOUR LENS', '\n2. Ground each candidate in the code as it is, by the RULES below',
+    '\n3. WRITE the CANDIDATES FILE below when you keep a candidate, or the CLEAN-LENS MARKER below when you keep none. Output: the file.',
+    '\n4. Return via the schema. Output: candidate_ids, wrote_candidates, wrote_clean_marker and relayed_request.', '\nRULES:', '\nCANDIDATES FILE:', '\nCLEAN-LENS MARKER:']),
+  'the find prompt opens with a numbered PROCEDURE in run order, and the blocks its steps cite follow it');
+  ok(!f.includes('Return the ids and the two flags'), 'and the prose return line its last step replaces is gone');
+  ok(order(v, ['\nPROCEDURE:\n1. Read each candidates file under YOUR LENSES in full', '\n2. Apply the REJECT rules below to each candidate, in their order.',
+    '\n3. Score each survivor by SCORING below, route every candidate by ROUTING below, and set a short `theme` keyword per verdict.',
+    '\n4. WRITE each lens\'s PROPOSAL FILE below. Output: each file.',
+    '\n5. Return via the schema. Output: verdicts, and wrote_lenses with the id of each lens whose proposal file you wrote.',
+    '\nREADING RULE:', '\nREJECT RUTHLESSLY', '\nSCORING (each survivor):', '\nROUTING (apply in order','\nPROPOSAL FILE: WRITE each lens\'s proposal file']),
+  'the verify prompt opens with a numbered PROCEDURE in run order, and the blocks its steps cite follow it');
+  ok(!v.includes('List in wrote_lenses') && !v.includes('For each SURVIVOR') && !v.includes('WORTH THE USER\'S ATTENTION'),
+    'and the prose sentences its steps replace are gone');
 }
 
 section('verifiers are bin-packed across lenses up to the candidate cap, and a lens never splits');
@@ -434,8 +449,8 @@ section('a run where every lens failed says NOTHING was audited, never presents 
     'every lens failed at the find stage');
   ok(/^1\. NOTHING was audited: every lens failed: efficiency \(find\), simplification \(find\)\./.test(out.nextStep),
     'nextStep says nothing was audited and names each lens with its stage');
-  ok(out.nextStep.endsWith(`\n2. Re-run those lenses with the same runId.${ENHANCE_GUIDE_POINTER}`),
-    'and numbers the re-run as its second step, then ends on the guide checklist by its heading');
+  ok(out.nextStep.endsWith(`\n2. Re-run those lenses with the same runId. To relaunch, ${LAUNCH}.${ENHANCE_GUIDE_POINTER}`),
+    'and numbers the re-run as its second step with the notification-turn launch path, then ends on the guide checklist by its heading');
   ok(!/PRESENT them/.test(out.nextStep), 'and never says to present proposals');
 }
 

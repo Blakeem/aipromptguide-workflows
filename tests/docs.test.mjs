@@ -2,7 +2,7 @@
 // Focus: the SCRUBBER, the one auxiliary role whose death cannot stop the run and therefore has to be
 // visible in the log instead. Everything else about this engine is held by tools/flows/docs.flow.mjs
 // (its throw sites, both exits of the gap loop, a dead gatherer, a zero-file source).
-import { runEngine, section, ok, eq } from './harness.mjs';
+import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
 import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/docs/docs-cycle.mjs';
@@ -261,6 +261,18 @@ section('nextStep states the set\'s counts and leads with the foreign-content wa
   ok(step.startsWith('WARN THE USER FIRST: these sources\' files were NOT scrubbed'), `the death warning still opens nextStep: ${step.slice(0, 120)}`);
   const foreignAt = step.indexOf('WARN THE USER FIRST: E:/r/runs/t/docs held');
   ok(foreignAt !== -1 && foreignAt < step.indexOf('Present the set'), 'and the foreign-content warning sits before "Present the set"');
+  const LAUNCH = 'To relaunch, start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.';
+  ok(foreign.out.nextStep.includes(`pick a different outDir before re-running. ${LAUNCH}`), 'the foreign-content re-run names the notification-turn launch path');
+  ok(healthy.out.nextStep.includes(`(or re-run with outDir) if it should persist. ${LAUNCH}`), 'and so does the run-state copy\'s re-run');
+  eq(foreign.out.nextStep.split(LAUNCH).length - 1, 1, 'and a run-state set with foreign content names that path once');
+}
+
+section('a dead curator throws with the resume instruction and the notification-turn launch path');
+{
+  const msg = await throwsWith(ENGINE, { args: baseArgs, respond: { 'gather': GATHER, 'scrub': { files_cleaned: 1 }, 'curate': null } });
+  ok(msg.startsWith('Curator returned nothing in round 1'), `the curator death throws: ${msg.slice(0, 80)}`);
+  ok(msg.includes('resumeFromRunId') && msg.includes('To re-invoke, start the pre-launch command with run_in_background')
+    && msg.includes('the turn its notification starts.'), 'and the re-invoke names the notification-turn launch path');
 }
 
 await pinRoleMaps({

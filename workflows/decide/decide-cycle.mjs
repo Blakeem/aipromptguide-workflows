@@ -207,6 +207,8 @@ const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it fir
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 // Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
+// A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
+const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
 
 // =============================================================================
 // Shared prompt fragments
@@ -452,7 +454,7 @@ Return via the schema.`;
 // =============================================================================
 // Run state
 // =============================================================================
-const RESUME = "Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.";
+const RESUME = `Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache. To re-invoke, ${LAUNCH}.`;
 const agents = { investigate: 0, decide: 0, review: 0 };   // agents started per phase
 const investigationFiles = [];  // every attested investigation file, in chain order
 let stop = '';                  // why the chain ended: '' (halted inside it) | dry | cap
@@ -484,7 +486,7 @@ run: {
   if (!opened) throw new Error(`Opening investigator returned nothing (investigate i1: agent skipped or died). ${RESUME}`);
   // A run launched inside a user turn relays that message to every agent, so the first agent stops it before any later one.
   if (opened.relayed_request === true) {
-    throw new Error('A user request was relayed into the context of the opening investigator ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.');
+    throw new Error(`A user request was relayed into the context of the opening investigator ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}.`);
   }
   if (opened.wrote_file !== true) { unattested('opening investigator', invFile(1)); break run; }
   investigationFiles.push(invFile(1));
@@ -565,7 +567,7 @@ const defectsNote = defects
 // With nothing ranked there is no rank 1 to present or build, so that hand-back names only the ruled-out options.
 const decidedStep = ranking.length
   ? `Present the ranking under \`## Ranking\` in ${DECISION_FILE}, with ${reviewNote}. ${flipNote}${checksNote}Rank 1 is the top answer, and the user may combine the entries marked as combinable. When rank 1 is the do-nothing option, the answer is not to act. To build a pick, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle (several picks become several blocks of one plan file).${defectsNote}`
-  : `No option passes every non-negotiable: present \`## Ruled out\` in ${DECISION_FILE}, with ${reviewNote}. ${checksNote}Refine the requirements with the user before a relaunch.`;
+  : `No option passes every non-negotiable: present \`## Ruled out\` in ${DECISION_FILE}, with ${reviewNote}. ${checksNote}Refine the requirements with the user before a relaunch. To relaunch, ${LAUNCH}.`;
 
 return {
   runId: RUN_ID,
@@ -588,6 +590,6 @@ return {
   investigationFiles,
   failed: [],
   nextStep: halted
-    ? `Run halted — ${haltReason} Check that file, then relaunch with the same args and no resumeFromRunId: a resume replays the cached return and halts the same way. The relaunch reruns the chain from the opening investigator and replaces each file it reaches.`
+    ? `Run halted — ${haltReason} Check that file, then relaunch with the same args and no resumeFromRunId: a resume replays the cached return and halts the same way. The relaunch reruns the chain from the opening investigator and replaces each file it reaches. To relaunch, ${LAUNCH}.`
     : decidedStep,
 };

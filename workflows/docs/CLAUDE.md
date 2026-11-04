@@ -108,8 +108,8 @@ official docs verbatim instead of a rewritten spec.
 ## 2. The flow
 
 Launch every run from a notification turn (root `CLAUDE.md`, "Launch from a notification turn").
-The first agent of a run says whether its context holds a relayed user request, and the engine throws
-before any later agent when it does.
+Each gatherer, the gap-fill gatherer included, says whether its context holds a relayed user request.
+When one does, the engine throws before curation.
 Pick a `runId`. `Workflow` loads by path: `scriptPath` = absolute path to `docs-cycle.mjs` + args.
 No mid-run questions — frame it with the user first:
 

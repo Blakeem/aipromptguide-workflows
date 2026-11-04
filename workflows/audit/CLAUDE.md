@@ -362,12 +362,12 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
      `plan-edit.mjs move` appended at the end of the file. Only the one-line rejections under the heading
      are rejected. In a clean-marker file, first add the `## Plan: <slug>` header and its mode/gate/status
      preamble in the verifier format.
-   - regroup lopsided files with `node tools/plan-edit.mjs move <src> <issue-id> <dest> <block-id>`.
-   - set each issue file's developer model with `node tools/plan-edit.mjs set <file> <block-id>
+   - regroup lopsided files with `node <plan-edit.mjs> move <src> <issue-id> <dest> <block-id>`.
+   - set each issue file's developer model with `node <plan-edit.mjs> set <file> <block-id>
      model=<opus|sonnet|haiku|fable>`, judged as develop guide §3 ("Choosing a block's developer model") says.
 6. **Build the triaged files with develop.**
    - Each triaged issue file with findings is one fix-mode block.
-     `node tools/plan-edit.mjs args <issueFile> [<issueFile> ...] --pack <target.repo>` prints one args
+     `node <plan-edit.mjs> args <issueFile> [<issueFile> ...] --pack <target.repo>` prints one args
      object for all of them, with small blocks packed into shared passes. Clean-marker files are not
      plans, so leave them out. A file with no `- decision: ACTIONABLE` entry after triage is not a plan
      either: set its block `status: skip` (or leave it out). Start with one file, or `runOnly` naming

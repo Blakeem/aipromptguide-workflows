@@ -89,12 +89,12 @@ flowchart TD
 | throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside find \| verify, or maps one to a blank name | throw (line 171) |
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 191) |
 | throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 212) |
-| throw: args.scope is required | args.scope is empty | throw (line 229) |
-| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 235) |
-| throw: args.target.repo is required when any args.conventionFiles entry is relative | a conventionFiles entry is relative and target.repo is missing | throw (line 241) |
-| throw: args.lenses is required | args.lenses is empty | throw (line 376) |
-| throw: lens ids collide after slugging | two lenses slug to one id · two lenses differ only past their 60th slug character | throw (line 380) |
-| throw: A user request was relayed into the context of the finder for ... ahead of its task | a finder reports a user request relayed into its context, so no verifier runs | throw (line 1168) |
+| throw: args.scope is required | args.scope is empty | throw (line 231) |
+| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 237) |
+| throw: args.target.repo is required when any args.conventionFiles entry is relative | a conventionFiles entry is relative and target.repo is missing | throw (line 243) |
+| throw: args.lenses is required | args.lenses is empty | throw (line 378) |
+| throw: lens ids collide after slugging | two lenses slug to one id · two lenses differ only past their 60th slug character | throw (line 382) |
+| throw: A user request was relayed into the context of the finder for ... ahead of its task | a finder reports a user request relayed into its context, so no verifier runs | throw (line 1176) |
 
 ## Coverage
 
@@ -108,8 +108,8 @@ Uncovered throw (line 46): Invalid args.kind
 Uncovered throw (line 73): args.target.repo is required
 Uncovered throw (line 89): reviewSeverity "..." is not one of low\|medium\|high\|critical
 Uncovered throw (line 95): Invalid args.changePolicy
-Uncovered throw (line 264): args.notes.dir is inside the target repo
-Uncovered throw (line 917): review requires a non-empty args.units array
-Uncovered throw (line 927): Issue file collision
-Uncovered throw (line 928): Plan id collision
-Uncovered throw (line 1056): A user request was relayed into the context of the reviewer for ... ahead of its task
+Uncovered throw (line 266): args.notes.dir is inside the target repo
+Uncovered throw (line 925): review requires a non-empty args.units array
+Uncovered throw (line 935): Issue file collision
+Uncovered throw (line 936): Plan id collision
+Uncovered throw (line 1064): A user request was relayed into the context of the reviewer for ... ahead of its task

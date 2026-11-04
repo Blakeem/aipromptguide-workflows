@@ -98,11 +98,11 @@ flowchart TD
 | throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside review \| verify, or maps one to a blank name | throw (line 171) |
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 191) |
 | throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 212) |
-| throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 264) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 917) |
-| throw: Issue file collision | two unit ids map to one issue file | throw (line 927) |
-| throw: Plan id collision | two unit ids map to one plan id | throw (line 928) |
-| throw: A user request was relayed into the context of the reviewer for ... ahead of its task | a reviewer reports a user request relayed into its context, so no verifier runs | throw (line 1056) |
+| throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 266) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 925) |
+| throw: Issue file collision | two unit ids map to one issue file | throw (line 935) |
+| throw: Plan id collision | two unit ids map to one plan id | throw (line 936) |
+| throw: A user request was relayed into the context of the reviewer for ... ahead of its task | a reviewer reports a user request relayed into its context, so no verifier runs | throw (line 1064) |
 
 ## Coverage
 
@@ -113,9 +113,9 @@ audit.mjs also runs the enhancements kind, drawn in FLOW-enhancements.md, so the
 Uncovered roles: find.
 
 Uncovered throw (line 115): args.minImpact must be one of ...
-Uncovered throw (line 229): args.scope is required
-Uncovered throw (line 235): args.target.repo is required when any args.scope path is relative
-Uncovered throw (line 241): args.target.repo is required when any args.conventionFiles entry is relative
-Uncovered throw (line 376): args.lenses is required
-Uncovered throw (line 380): lens ids collide after slugging
-Uncovered throw (line 1168): A user request was relayed into the context of the finder for ... ahead of its task
+Uncovered throw (line 231): args.scope is required
+Uncovered throw (line 237): args.target.repo is required when any args.scope path is relative
+Uncovered throw (line 243): args.target.repo is required when any args.conventionFiles entry is relative
+Uncovered throw (line 378): args.lenses is required
+Uncovered throw (line 382): lens ids collide after slugging
+Uncovered throw (line 1176): A user request was relayed into the context of the finder for ... ahead of its task

@@ -759,6 +759,8 @@ const SWEEP_SCHEMA = {
 // =============================================================================
 // Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
+// A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
+const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
 const ENV = `${GOAL ? `GOAL (this run's ONE goal, split into the plan file's blocks): ${GOAL}\n` : ''}TARGET REPO: ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})
 ${REFERENCE_P ? `REFERENCE (a COMPLETED example to mirror for the canonical pattern): ${REFERENCE_P}\n` : ''}CONVENTIONS (match these): ${CONVENTIONS}
 ${CONVENTION_FILES_BLOCK}GATES (the commands that define "it works"):
@@ -2400,7 +2402,7 @@ if (!pending.length) {
     backlogEntries: 0,
     backlogFiles: [],
     reviewTrail,
-    nextStep: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished. When a run worktree still holds work, land it with \`wt.mjs close\` once the develop guide says the run lands, and report to the user.${sweepNote}`,
+    nextStep: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished. To relaunch, ${LAUNCH}. When a run worktree still holds work, land it with \`wt.mjs close\` once the develop guide says the run lands, and report to the user.${sweepNote}`,
   };
 }
 
@@ -2984,7 +2986,7 @@ for (const p of pending) {
       halted = true;
       rec.status = 'BLOCKED (relayed request)';
       haltKind = 'relayed-request';
-      haltReason = `Developer for block ${p.id} held a user request that the harness relayed ahead of its task (${roundName(round)}). The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent, so no agent of this launch can be trusted. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says. The developer may have changed ${REPO} before it returned, and this run did not review or park that work. Inspect \`git -C ${REPO} status --porcelain\`, since the relaunch halts on a dirty baseline otherwise. When it lists any change, ${SET_ASIDE_STEPS} ${RELAUNCH_STEPS('the tree')}`;
+      haltReason = `Developer for block ${p.id} held a user request that the harness relayed ahead of its task (${roundName(round)}). The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent, so no agent of this launch can be trusted. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}. The developer may have changed ${REPO} before it returned, and this run did not review or park that work. Inspect \`git -C ${REPO} status --porcelain\`, since the relaunch halts on a dirty baseline otherwise. When it lists any change, ${SET_ASIDE_STEPS} ${RELAUNCH_STEPS('the tree')}`;
       logLine(`  ✋ ${p.id} r${round}: the developer's context held a relayed user request, so the run was launched inside a user turn → halting before any review agent (relaunch from a notification turn)`);
       break;
     }
@@ -3805,5 +3807,5 @@ return {
       : `This run added ${backlogEntries} entr${backlogEntries === 1 ? 'y' : 'ies'} to the project's backlog folder ${BACKLOG_DIR}/, in: ${[...backlogFiles].sort().join(', ')}.`} Report each added entry's severity, or its category for an entry with no severity line, its title and its decision to the user. Work the backlog as the develop guide's "Working the backlog" says once each file's block is done, skip or backlogged, since a relaunch of a blocked block may still append to its file. `
     : ''}${unparkedPullPlans.length
     ? `These blocks ended without a park that returned, so no status edit closes the "- pulled:" line of an entry that a block's round-1 developer marked and that no report or verdict of this run names. ${unparkedPullPlans.map((r) => `For ${r.id}, grep ${BACKLOG_DIR}/ for the line "- pulled: ${pulledMark(r.id)}" and remove each one ${r.pulled.length ? `on an entry that is not one of ${r.pulled.map((e) => e.issue_id).join(', ')}, the ids its ledger row's \`pulled\` names` : 'you find, since its ledger row\'s `pulled` names no entry'}. `).join('')}`
-    : ''}${acceptedLine}Check that \`git -C ${REPO} diff\` is empty and \`git -C ${REPO} status --porcelain\` lists no \`??\` file. Land the run with \`wt.mjs close\` once the develop guide says the run lands, and report the run's summary to the user: each landed block, each backlog entry named above, and each entry in ${DECISIONS} if it exists, since each is a default the developer took, a plan amendment, or a ${BASELINE_FIX} that the ${CHANGE_POLICY} change policy allowed. Show a ${LOGGED_FIX_TAG} line only after you confirm the landed code still holds its change, since a later round or a park can undo it.${dismissedLine} Then derive the next launch's args with \`node '${toolPath('plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. ${closingLine}`,
+    : ''}${acceptedLine}Check that \`git -C ${REPO} diff\` is empty and \`git -C ${REPO} status --porcelain\` lists no \`??\` file. Land the run with \`wt.mjs close\` once the develop guide says the run lands, and report the run's summary to the user: each landed block, each backlog entry named above, and each entry in ${DECISIONS} if it exists, since each is a default the developer took, a plan amendment, or a ${BASELINE_FIX} that the ${CHANGE_POLICY} change policy allowed. Show a ${LOGGED_FIX_TAG} line only after you confirm the landed code still holds its change, since a later round or a park can undo it.${dismissedLine} Then derive the next launch's args with \`node '${toolPath('plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file.${haltKind === 'relayed-request' ? '' : ` To relaunch, ${LAUNCH}.`} ${closingLine}`,
 };

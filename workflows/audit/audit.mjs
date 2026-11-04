@@ -219,6 +219,8 @@ const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it fir
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 // Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
+// A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
+const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
 const RELAYED_REQUEST = { type: 'boolean', description: 'true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent.' };
 const fileSafe = (id) => String(id).replace(/[^a-z0-9]+/gi, '_').toLowerCase();
 
@@ -737,10 +739,13 @@ target repo (the ONLY file you may write is the candidates file or the clean-len
 in the run-state dir).
 ${ENHANCE_ENV}
 YOUR LENS: ${lens.focus}
-${lens.criteria ? `WHAT TO WEIGH UNDER THIS LENS: ${lens.criteria}\n` : ''}
-Read the WHOLE scope through your lens, and push it hard. Cross-cutting findings ("every engine
-re-implements X", "these three roles could be two") are the most valuable thing you can return. Other
-lenses run in parallel. Do not hedge toward them.
+${lens.criteria ? `WHAT TO WEIGH UNDER THIS LENS: ${lens.criteria}\n` : ''}PROCEDURE:
+${numberedSteps([
+  'Read the WHOLE scope through YOUR LENS, and push it hard. Cross-cutting findings ("every engine re-implements X", "these three roles could be two") are the most valuable thing you can return. Other lenses run in parallel. Do not hedge toward them. Output: your candidates.',
+  'Ground each candidate in the code as it is, by the RULES below, and drop each one they reject. Output: each kept candidate with its Today, Instead, Removes, Risk and Evidence.',
+  'WRITE the CANDIDATES FILE below when you keep a candidate, or the CLEAN-LENS MARKER below when you keep none. Output: the file.',
+  'Return via the schema. Output: candidate_ids, wrote_candidates, wrote_clean_marker and relayed_request.',
+])}
 
 RULES:
 - GROUND EVERY CANDIDATE IN THE CODE AS IT IS. For each: what the system does TODAY (cite file:line),
@@ -797,12 +802,11 @@ No enhancements found above the ${MIN_IMPACT_NAME} impact floor.
 -----
 If you report ANY candidate, write no marker.
 ${WROTE_NOTE} ${FILE_WRITE_NOTE}
-Return the ids and the two flags via the schema. A clean lens is a normal, good outcome.`;
+A clean lens is a normal, good outcome.`;
 
 const enhanceVerifyPrompt = (unit) => `
 You are the ENHANCEMENT VERIFIER, read-only on SOURCE: you write exactly one proposal file per lens
-below and nothing else. For each candidate, inspect the ACTUAL code to decide whether it is REAL and
-WORTH THE USER'S ATTENTION, correct its impact, and route it.
+below and nothing else.
 ${ENHANCE_ENV}
 YOUR LENSES (judge each lens's candidates under that lens's focus):
 ${unit.map((m) => `  - LENS ${m.lens.id}: ${m.lens.focus}
@@ -811,8 +815,14 @@ ${unit.map((m) => `  - LENS ${m.lens.id}: ${m.lens.focus}
       proposal file:   ${proposalFile(m.lens.id)}`).join('\n')}
 Judge only the candidate ids listed above. A block of a candidates file whose id is not listed for its
 lens gets no verdict and stays out of every proposal file, since the run counts only listed ids.
-A candidate's Today, Removes and Evidence lines are the finder's claims, not facts. Confirm each one
-against the source it cites before you rely on it.
+PROCEDURE:
+${numberedSteps([
+  'Read each candidates file under YOUR LENSES in full, then the code each listed candidate cites, by the READING RULE below. A candidate\'s Today, Removes and Evidence lines are the finder\'s claims, not facts. Confirm each one against the source it cites before you rely on it. Output: each listed candidate\'s claims, confirmed or refuted.',
+  'Apply the REJECT rules below to each candidate, in their order. Output: is_real, is_defect, defect_split and too_risky for each candidate, and the reason for each rejection.',
+  'Score each survivor by SCORING below, route every candidate by ROUTING below, and set a short `theme` keyword per verdict. Output: each verdict\'s impact, size, decision and theme.',
+  'WRITE each lens\'s PROPOSAL FILE below. Output: each file.',
+  'Return via the schema. Output: verdicts, and wrote_lenses with the id of each lens whose proposal file you wrote.',
+])}
 
 READING RULE: read the code each candidate cites, plus what you need to apply the REJECT rules. For
 rule 1, search the scope for an existing mechanism that does what the candidate proposes, by what the
@@ -837,7 +847,7 @@ REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1�
      or contract that must be exact, is rejected unless the cost removed clearly outweighs it. Set
      too_risky=true and REJECT it with a one-line note under \`## Rejected\` naming the risk.
 
-For each SURVIVOR, score and route:
+SCORING (each survivor):
   impact : transformative | high | moderate | marginal   (YOUR honest score, not the finder's)
   size   : trivial | small | medium | large
 A real candidate you score below the ${MIN_IMPACT_NAME} floor keeps is_real=true and its honest impact, and the
@@ -854,9 +864,8 @@ ROUTING (apply in order; first match wins):
     planning, not a single change). A doc-only edit across many files is not a contract change and
     does not trigger ROADMAP.
   - otherwise -> ADOPT (well-scoped, ready to hand to a builder as-is)
-Set a short \`theme\` keyword per verdict.
 
-WRITE each lens's proposal file at the path listed with that lens (create ${PROPOSALS_DIR}/ if needed).
+PROPOSAL FILE: WRITE each lens's proposal file at the path listed with that lens (create ${PROPOSALS_DIR}/ if needed).
 It holds that lens's candidates only. ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Its format is EXACTLY this:
 -----
 ---
@@ -902,8 +911,7 @@ ${MIN_IMPACT_NAME} impact floor." followed by the Defects to route section when 
 Rejected section.
 A question only the user can answer stays in that candidate's NEEDS_USER block in its lens's file. Its
 **Options:** + **Recommendation:** lines ARE the escalation. Write no shared escalation file.
-Do NOT write into any issues/ directory, and do NOT stage or commit.
-List in wrote_lenses the id of each lens whose proposal file you wrote, and return all verdicts via the schema.`;
+Do NOT write into any issues/ directory, and do NOT stage or commit.`;
 
 // =============================================================================
 // kind defects: fan out reviewer → verifier per unit (read-only, concurrent), then STOP. The main agent supplies
@@ -1053,7 +1061,7 @@ const auditDefects = async () => {
   );
 
   if (relayedWhere.length) {
-    throw new Error(`A user request was relayed into the context of the reviewer for ${relayedWhere.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.`);
+    throw new Error(`A user request was relayed into the context of the reviewer for ${relayedWhere.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}.`);
   }
   const processed = results.filter(Boolean);
   const all = processed.flatMap((r) => r.kept);
@@ -1072,7 +1080,7 @@ const auditDefects = async () => {
   const reReviewIds = [...new Set(failed.filter((f) => !('unmatched' in f)).map((f) => f.id))];
   const triageIds = [...new Set(failed.filter((f) => 'unmatched' in f && !reReviewIds.includes(f.id)).map((f) => f.id))];
   const nextSteps = [
-    reReviewIds.length && `First re-review ${reReviewIds.join(', ')}: re-run gen-units.mjs with --issues-dir ${ISSUES_DIR}, then pass as args.units, under this runId, manifest.staleUnits plus each of these units it lacks (workflows/audit/CLAUDE.md, defects playbook step "Resume the review"). Do it before any triage edit, because a re-review rewrites each re-reviewed unit's issue file.`,
+    reReviewIds.length && `First re-review ${reReviewIds.join(', ')}: re-run gen-units.mjs with --issues-dir ${ISSUES_DIR}, then pass as args.units, under this runId, manifest.staleUnits plus each of these units it lacks (workflows/audit/CLAUDE.md, defects playbook step "Resume the review"). Do it before any triage edit, because a re-review rewrites each re-reviewed unit's issue file. To relaunch, ${LAUNCH}.`,
     triageIds.length && `Count the findings of ${triageIds.join(', ')} from their issue files, since those units' verifier verdicts did not match every finding id and the returned totals leave those findings out.`,
     `Present the inventory: read ${ISSUES_DIR}/*.md. The returned inventory, hottest and needsUserFiles cover only the ${processed.length} unit(s) this run reviewed, so after a resume the other issue files hold findings they leave out. Walk the user through totals by severity and decision, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). This is a scoping conversation.`,
     'Triage by EDITING those files: set a NEEDS_USER item\'s decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP.',
@@ -1165,7 +1173,7 @@ const auditEnhancements = async () => {
   };
   const toVerify = (await parallel(LENSES.map((lens) => () => findLens(lens)))).filter(Boolean);
   if (relayedLensIds.length) {
-    throw new Error(`A user request was relayed into the context of the finder for ${relayedLensIds.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.`);
+    throw new Error(`A user request was relayed into the context of the finder for ${relayedLensIds.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}.`);
   }
 
   // -- Pack: next-fit in lens order, as gen-units packs the defects kind's small units --------------
@@ -1262,13 +1270,13 @@ const auditEnhancements = async () => {
     nextStep: `${numberedSteps(live.length === 0
       ? [
         `NOTHING was audited: every lens failed: ${failedLabels}. There are no proposals to present — do NOT report a clean audit. Tell the user.`,
-        'Re-run those lenses with the same runId.',
+        `Re-run those lenses with the same runId. To relaunch, ${LAUNCH}.`,
       ]
       : [
         `Read these proposal files and PRESENT them to the user: ${live.map((r) => r.file).join(', ')}. They hold ${adopt} ADOPT, ${roadmap} ROADMAP and ${needsUser} NEEDS_USER item(s) across ${live.length} lens(es). Present only the listed files: any other file in ${PROPOSALS_DIR}/ is from an earlier run or an agent that did not finish. Present the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation.`,
         'Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run.',
         unjudgedTotal > 0 && `The verifier returned no verdict for ${unjudgedTotal} candidate(s) (summary.unjudged), so they are in no count: check them in ${unjudgedFiles.join(', ')} before triage.`,
-        failed.length && `TELL THE USER these lenses were NOT audited and produced no verified proposal file: ${failedLabels} — offer to re-run just those. Any proposal file on disk for them is not presented until the lens is re-run.`,
+        failed.length && `TELL THE USER these lenses were NOT audited and produced no verified proposal file: ${failedLabels} — offer to re-run just those. Any proposal file on disk for them is not presented until the lens is re-run. To relaunch, ${LAUNCH}.`,
         'Triage with the user. NOTHING here is applied automatically and there is no fix step — the user decides what gets built.',
         'Route the triaged items: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block when they span many call sites (otherwise a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and every block under a file\'s `## Defects to route` goes to the defects kind (`/aipg:debug`).',
       ])}\nworkflows/audit/CLAUDE.md §0 "After an enhancements run" holds each of these steps with its output, and the steps after the triage.`,

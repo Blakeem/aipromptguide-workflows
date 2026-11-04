@@ -229,6 +229,8 @@ const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it fir
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 // Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
+// A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
+const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
 // Named fragments so the scrubber, which judges no relevance, can take the rules without the brief.
 const BRIEF_LINE = `PROJECT BRIEF (what the docs are FOR, so it decides relevance): ${B_REF}`;
 const VERBATIM_RULE = `VERBATIM RULE: doc content is COPIED, SPLIT, and DELETED — never rewritten, paraphrased, or summarized.
@@ -401,7 +403,7 @@ const relayedSourceIds = [];
 // A run launched inside a user turn relays that message to every agent, so the first gatherers stop it before the curator.
 const haltIfRelayed = () => {
   if (relayedSourceIds.length) {
-    throw new Error(`A user request was relayed into the context of the gatherer for ${relayedSourceIds.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.`);
+    throw new Error(`A user request was relayed into the context of the gatherer for ${relayedSourceIds.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}.`);
   }
 };
 
@@ -449,7 +451,7 @@ while (rounds < MAX_ROUNDS) {
     const empty = results.filter((d) => d.g && (d.g.files_written ?? 0) === 0).length;
     const died  = toGather.length - results.filter((d) => d.g).length;
     if (empty === toGather.length) {
-      throw new Error('Every source reported zero doc files — nothing to curate. Check the sources/brief (and web access for web sources) and re-run.');
+      throw new Error(`Every source reported zero doc files — nothing to curate. Check the sources/brief (and web access for web sources) and re-run. To relaunch, ${LAUNCH}.`);
     }
     if (empty) log(`  ⚠ ${empty} source(s) reported no files this round`);
     if (died) log(`  ⚠ ${died} gatherer(s) died before returning — anything they wrote is on disk and still gets curated (and scrubbed first for a web source)`);
@@ -480,7 +482,7 @@ while (rounds < MAX_ROUNDS) {
   const c = await callAgent(curatePrompt(rounds, newDirs), roleOpts('curate', {
     schema: CURATE_SCHEMA, phase: 'Curate', label: `curate:r${rounds}`,
   }));
-  if (!c) throw new Error(`Curator returned nothing in round ${rounds} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
+  if (!c) throw new Error(`Curator returned nothing in round ${rounds} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache. To re-invoke, ${LAUNCH}.`);
   curate = c;
   const returnedCount = Array.isArray(curate.gaps) ? curate.gaps.length : 0;
   const gaps = gapsOf(curate.gaps);
@@ -533,7 +535,7 @@ const degradedWarning = failed.length
   ].filter(Boolean).join('. ')}. `
   : '';
 const foreignWarning = foreignFound
-  ? `WARN THE USER FIRST: ${OUT_DIR} held ${foreignPaths.length || 'some'} file(s)/folder(s) that are neither a source-headed capture for this set (this or an earlier run) nor a curator-written file (${foreignPaths.join(', ') || 'paths not reported'}). They were left alone, but outDir must be a fresh directory dedicated to one doc set — move that content out or pick a different outDir before re-running. `
+  ? `WARN THE USER FIRST: ${OUT_DIR} held ${foreignPaths.length || 'some'} file(s)/folder(s) that are neither a source-headed capture for this set (this or an earlier run) nor a curator-written file (${foreignPaths.join(', ') || 'paths not reported'}). They were left alone, but outDir must be a fresh directory dedicated to one doc set — move that content out or pick a different outDir before re-running. To relaunch, ${LAUNCH}. `
   : '';
 const fileCount = curate?.files ?? 0;
 const inconsistencyCount = curate?.inconsistencies ?? 0;
@@ -553,5 +555,5 @@ return {
   unresolvedGaps,
   failed,
   stateDir: STATE_DIR,
-  nextStep: `${degradedWarning}${curate?.wrote_index === true ? '' : `WARN THE USER FIRST: the curator did not confirm writing ${INDEX_FILE} — verify it exists before relying on the set. `}${foreignWarning}Present the set (${fileCount} file(s), ${inconsistencyCount} cross-source inconsistency(ies), ${unresolvedGaps} unresolved gap(s)): read ${INDEX_FILE} (including Coverage notes) and relay what was gathered, any cross-source inconsistencies, unresolved gaps, and the fidelity spot-check result (${fidelity.checked} file(s) compared against their source across all ${rounds} curate round(s), ${fidelity.failures} failed, each failure returned as a recapture gap) — a low or zero check count means the verbatim promise went untested, not that it held. ${A.outDir ? '' : `The set lives in gitignored run-state — copy ${OUT_DIR}/ into the project (or re-run with outDir) if it should persist. `}Point the working agent or plan at the INDEX. Nothing is staged or committed.`,
+  nextStep: `${degradedWarning}${curate?.wrote_index === true ? '' : `WARN THE USER FIRST: the curator did not confirm writing ${INDEX_FILE} — verify it exists before relying on the set. `}${foreignWarning}Present the set (${fileCount} file(s), ${inconsistencyCount} cross-source inconsistency(ies), ${unresolvedGaps} unresolved gap(s)): read ${INDEX_FILE} (including Coverage notes) and relay what was gathered, any cross-source inconsistencies, unresolved gaps, and the fidelity spot-check result (${fidelity.checked} file(s) compared against their source across all ${rounds} curate round(s), ${fidelity.failures} failed, each failure returned as a recapture gap) — a low or zero check count means the verbatim promise went untested, not that it held. ${A.outDir ? '' : `The set lives in gitignored run-state — copy ${OUT_DIR}/ into the project (or re-run with outDir) if it should persist. ${foreignFound ? '' : `To relaunch, ${LAUNCH}. `}`}Point the working agent or plan at the INDEX. Nothing is staged or committed.`,
 };
