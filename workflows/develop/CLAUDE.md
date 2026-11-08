@@ -1067,8 +1067,8 @@ files.
 Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical source).
 - **Required:** `runId` · `root` · `plans` (non-empty array of
   `{ id, title?, planPath, mode, gate, status, model?, effort?, continues? }` rows that `plan-edit.mjs args`
-  prints, or a `--pack` pass
-  `{ id, title?, mode: fix, gate, status, model?, effort?, blocks: [{ id, planPath, issues, continues? }] }`.
+  prints, or a `--pack` pass `{ id, title?, mode: fix, gate, status, model?, effort?,
+  blocks: [{ id, title?, planPath, issues, continues? }] }`.
   Malformed **throws** naming the shape. A row with no `planPath` **throws** naming it. A `model`
   outside `opus | sonnet | haiku | fable` or an `effort` outside `low | medium | high | xhigh | max`
   **throws** naming the row. `continues`, on a fix row or a pass member, is false when no entry of
@@ -1192,15 +1192,23 @@ there, `<file id>.md`, created with the first entry. `<file id>` is
 - `<run slug>` is the runId through the engine's `slug()`, or `run-` and the engine's `fnv1a()` hash of
   the runId when that slug is empty, as for a runId with no ASCII letter or digit.
 - `<block slug>` is the block id's base through `slug()`. A block whose row's `planPath` is
-  `<backlogDir>/<block id>.md` is built from its own backlog file. For such a block, while the raw block
-  id starts with `<run slug>-` and ends with `-` and 8 lowercase hex characters, with a non-empty part
-  between, that part replaces it, so the block keeps its own name at every park. Past the first layer, a
-  layer is stripped only when its 8 characters are the `fnv1a()` hash of `[runId, <that part>]`, the hash
-  a park before this rule wrapped it in, so a tail such as `-20261107` stays. A run of `swarm-1107` gives
-  block `swarm-1107-swarm-1107-tradeoffs-4619df6d-ffc36509` the block slug `tradeoffs`. The first layer's
-  hash covers an id no name stores, so it strips on its shape, and a file of run `t-x` built by run `t`
-  loses its `t-` too. Any other block id is its own base, and its block slug equals the block id when the
-  id has 60 characters or fewer.
+  `<backlogDir>/<block id>.md` is built from its own backlog file, and its row's `title` is that file's
+  header title, `backlog from block <writer block> of run <writer runId>`. For such a block, when the raw
+  block id is `<writer run slug>-<part>-<writer hash>`, where `<writer run slug>` is the writer runId by the
+  `<run slug>` rule and `<writer hash>` is the `fnv1a()` hash of `[<writer runId>, <writer block>]`, that
+  part replaces it, since most rebuilds run under a new runId. A title that does not rebuild the id strips
+  nothing, and so does the title of a writer runId with trailing whitespace or a spaced dash other than
+  ` - `, since the title parser rewrites those. Then, while the base starts with `<run slug>-` and ends
+  with `-` and 8 lowercase hex characters, with a non-empty part between, that part replaces it, so the
+  block keeps its own name at every park. Such a layer is stripped only when its 8 characters are the
+  `fnv1a()` hash of `[runId, <that part>]`, the hash a park before this rule wrapped it in, so a tail such
+  as `-20261107` stays. The one exception is the first layer of a block whose title stripped nothing. That
+  layer's hash covers an id no name stores, so it strips on its shape, and a file of run `t-x` built by run
+  `t` loses its `t-` too. A run of `swarm-1107` gives block
+  `swarm-1107-swarm-1107-tradeoffs-4619df6d-ffc36509` the block slug `tradeoffs`, and a run of
+  `scan21-1105` gives the block of the file run `scan20-1104` wrote for block `fix-root-p1` the block slug
+  `fix-root-p1`. Any other block id is its own base, and its block slug equals the block id when the id has
+  60 characters or fewer.
 - `<pair hash>` is the `fnv1a()` hash of the JSON array `[runId, block id]`, with the raw block id. It
   keeps two runs apart whose slugs join alike, such as run `a` with block `b-c` and run `a-b` with block
   `c`, and gives each park of a rebuilt block its own file and branch.

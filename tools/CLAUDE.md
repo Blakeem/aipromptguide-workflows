@@ -189,11 +189,11 @@ developer with, and that holds none of its open ACTIONABLE issues. A block opens
 fits. A block over the cap, one with nothing open and ACTIONABLE, or one whose open ACTIONABLE issue carries a
 `- branch:` line, stays its own row, so two unfinished branches never restore in one round 1. A block
 whose open ACTIONABLE issue has `- size: large` stays its own row too, since a pass parks as one block and a
-blocking gap in a large entry would park every member. A note names each such block. A pass row is
-`{ id: <first>-plus-<n>, mode: fix, model?, effort?, blocks: [{ id, planPath, issues, continues }] }`,
-where `issues` lists only the member's open ACTIONABLE entries and `continues` is the member's row value,
-and develop writes each member's status and each issue's into the file that holds it. Packing regroups
-blocks, so an `ordered: true` file is refused.
+blocking gap in a large entry would park every member. A note names each such block. A pass row is `{ id:
+<first>-plus-<n>, mode: fix, model?, effort?, blocks: [{ id, title, planPath, issues, continues }] }`, where
+`issues` lists only the member's open ACTIONABLE entries, and `title` and `continues` are the member's row
+values, and develop writes each member's status and each issue's into the file that holds it. Packing
+regroups blocks, so an `ordered: true` file is refused.
 
 ## plan-pull.mjs
 

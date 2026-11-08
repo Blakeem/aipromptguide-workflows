@@ -192,10 +192,10 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   goal before the launch.
 - **The guides name each agent that reports a relayed user request.** They said only the first agent of a
   run reports one.
-- **A rebuilt backlog block keeps its name.** A block built from its own run's backlog file used to repeat
-  the run name and add a hash at each park, until the block's name dropped out of the file, branch and
-  entry ids. Develop now strips what each earlier park added, so every park keeps one run name, the block
-  name and one hash.
+- **A rebuilt backlog block keeps its name.** A block built from a backlog file used to repeat the run
+  name and add a hash at each park, until the block's name dropped out of the file, branch and entry ids.
+  Develop now strips what each earlier park added, in this run or in the earlier run that the file's header
+  names. So every park keeps one run name, the block name and one hash.
 
 ### 2026-11-03
 

@@ -673,7 +673,7 @@ function reopenDone(plan) {
 }
 
 // The title plan-entry.mjs writes into a backlog file's header. A block id is a kebab slug, so the first
-// " of run " ends it.
+// " of run " ends it. develop-cycle.mjs holds a copy, which a test pins equal.
 const WRITER_TITLE = /^backlog from block ([a-z0-9]+(?:-[a-z0-9]+)*) of run (.+)$/;
 // A relaunch of the writing block may still append to its file, so develop works the file only after these.
 const WRITER_FINISHED = ['done', 'skip', 'backlogged'];
@@ -1010,7 +1010,7 @@ function packPasses(args, folded, repo, cap, note) {
     const [head] = [...pass.members].sort((a, b) => a.index - b.index);
     const id = `${head.row.id}-plus-${pass.members.length - 1}`;
     if (taken.has(id)) throw new Error(`pass id ${id} collides with a block id — rename that block`);
-    const members = pass.members.map((m) => ({ id: m.row.id, planPath: m.row.planPath, issues: m.issues, continues: m.row.continues }));
+    const members = pass.members.map((m) => ({ id: m.row.id, title: m.row.title, planPath: m.row.planPath, issues: m.issues, continues: m.row.continues }));
     const settings = Object.fromEntries(['model', 'effort'].map((key) => [key, passSetting(key, pass.members.map((m) => m[key]))]).filter(([, v]) => v));
     // The approval summary must name each member a pass runs above its own line, and only this note carries that.
     const raises = Object.entries(settings).flatMap(([key, to]) => pass.members.filter((m) => m[key] !== to).map((m) => `${m.row.id} ${key} ${m[key] || 'default'} -> ${to}`));

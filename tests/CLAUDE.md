@@ -198,7 +198,9 @@ against (halt); an unreachable feature does not (flag).
   shared module or import across workflows. (#11 governs *facts*, not code across independent tools.)
   `role-map-copies.test.mjs` fails when an engine's `roleMap`, its `agentTypeMap` or its two value sets differ
   from develop's, so change all seven together. `convention-files-copies.test.mjs` fails when refine's
-  or develop's `conventionFilesOf` differs from audit's, so change all three together.
+  or develop's `conventionFilesOf` differs from audit's, so change all three together. `develop.test.mjs`
+  fails when develop's `WRITER_TITLE` or its own copy differs from `tools/plan-edit.mjs`'s, so change all
+  three together.
   `notes.test.mjs` fails when an engine's exit-survey instruction differs from the test's copy, or when an
   engine calls `agent(` anywhere but inside its `callAgent`, so route every new call site through
   `callAgent` and change all seven instructions together. `relay-guard.test.mjs` fails when an engine's

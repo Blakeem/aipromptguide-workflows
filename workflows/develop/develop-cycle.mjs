@@ -397,7 +397,7 @@ const ALL_PLANS = RAW.map((p) => ({
   model: p.model ?? null,
   effort: p.effort ?? null,
   continues: p.continues !== false,
-  blocks: p.blocks ? p.blocks.map((b) => ({ id: b.id, planPath: abs(b.planPath), issues: b.issues, continues: b.continues !== false })) : null,
+  blocks: p.blocks ? p.blocks.map((b) => ({ id: b.id, title: typeof b.title === 'string' ? b.title.trim() : '', planPath: abs(b.planPath), issues: b.issues, continues: b.continues !== false })) : null,
 }));
 
 // An empty plan path would have the developer build against nothing and report success.
@@ -479,21 +479,38 @@ const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;                 // final whole-g
 // One fixed file per source block, so its triage never waits on another block's relaunch. Every run on the
 // project shares the folder, and two (runId, block id) pairs can slug and join alike, such as run "a" with
 // block "b-c" and run "a-b" with block "c", so the name ends in a hash of the raw pair.
-const RUN_SLUG       = slug(RUN_ID) || `run-${fnv1a(String(RUN_ID))}`;
-// A block built from its own backlog file takes that file's id as its id.
-const BACKLOG_BUILT_IDS = new Set(ALL_PLANS.flatMap((p) => p.blocks ?? [p])
-  .filter((b) => pathKey(b.planPath) === pathKey(`${BACKLOG_DIR}/${b.id}.md`)).map((b) => b.id));
-// Stripping each layer of this run's slug and a hash that a park added keeps the block's own name in the slug,
-// which slug() would otherwise cut away. The outer layer's hash covers an id no name stores, so it strips on its
-// shape, as does a file of a run whose slug extends this run's slug. A park before this rule wrapped the raw id,
-// so an inner layer is a park's only when its hash is the pair hash of the part it wraps. A tail such as
+const runSlugOf      = (runId) => slug(runId) || `run-${fnv1a(String(runId))}`;
+const RUN_SLUG       = runSlugOf(RUN_ID);
+// A block built from its own backlog file takes that file's id as its id, and its header title names the
+// writer block and run.
+const BACKLOG_BUILT_TITLES = new Map(ALL_PLANS.flatMap((p) => p.blocks ?? [p])
+  .filter((b) => pathKey(b.planPath) === pathKey(`${BACKLOG_DIR}/${b.id}.md`)).map((b) => [b.id, b.title]));
+// Copy of plan-edit.mjs's WRITER_TITLE, since an engine cannot import: a test pins the copies equal.
+const WRITER_TITLE   = /^backlog from block ([a-z0-9]+(?:-[a-z0-9]+)*) of run (.+)$/;
+// The middle of a file id that its header's writer run and block rebuild exactly, else null, so an edited
+// title strips nothing. The title parser rewrites a spaced dash other than " - " and trailing whitespace in a
+// runId, so such a writer run verifies none.
+const writerBase     = (raw, title) => {
+  const [, writerBlock, writerRun] = WRITER_TITLE.exec(title ?? '') ?? [];
+  if (writerRun === undefined) return null;
+  const prefix = `${runSlugOf(writerRun)}-`;
+  const suffix = `-${fnv1a(JSON.stringify([writerRun, writerBlock]))}`;
+  const fits = raw.length > prefix.length + suffix.length && raw.startsWith(prefix) && raw.endsWith(suffix);
+  return fits ? raw.slice(prefix.length, -suffix.length) : null;
+};
+// Stripping each layer of a run slug and a hash that a park added keeps the block's own name in the slug, which
+// slug() would otherwise cut away. Most rebuilds run under a new runId, so the header's writer run and block
+// verify the outer layer. When they verify none, the outer layer strips this run's slug on its shape, as does a
+// file of a run whose slug extends this run's slug. A park before this rule wrapped the raw id, so an inner
+// layer is this run's park only when its hash is the pair hash of the part it wraps. A tail such as
 // "-20261107" stays.
 const baseBlockId    = (id) => {
   const runPrefix = `${RUN_SLUG}-`;
   const raw = String(id);
   let base = raw;
   let parked = null;
-  if (!BACKLOG_BUILT_IDS.has(raw)) return raw;
+  if (!BACKLOG_BUILT_TITLES.has(raw)) return raw;
+  base = writerBase(raw, BACKLOG_BUILT_TITLES.get(raw)) ?? raw;
   while (base.startsWith(runPrefix) && (parked = /^(.+)-([0-9a-f]{8})$/.exec(base.slice(runPrefix.length)))
     && (base === raw || fnv1a(JSON.stringify([String(RUN_ID), parked[1]])) === parked[2])) base = parked[1];
   return base;

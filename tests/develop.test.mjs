@@ -32,12 +32,20 @@ const BLOCKS = [onBus({ id: 'block-a', mode: 'feature', gate: 'build-only' }),
 const BACKLOG = 'E:/r/backlog/repo-0a1b2c3d';
 // A copy of the engine's hash, so a change to the backlog file names that later runs share fails here. A file's
 // id ends in the hash of its raw [runId, block id] pair, which holds for a runId and block id that are slugs.
-// A block built from its own backlog file loses each layer of the run slug and a hash that a park added, and the
-// outer layer strips on its shape alone, so a file of a run whose slug extends the run slug loses it too.
+// A block built from its own backlog file loses the layer its header title's writer run and block rebuild, then
+// each layer of the run slug and a hash that a park added. Without such a title the outer layer strips on its
+// shape alone, so a file of a run whose slug extends the run slug loses it too. Each runId here is its own slug.
 const fnv1a = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(16).padStart(8, '0'); };
-const backlogFileId = (id, runId = 't', fromBacklog = false) => {
+const writerTitle = (blockId, runId) => `backlog from block ${blockId} of run ${runId}`;
+const WRITER_TITLE = /^backlog from block ([a-z0-9]+(?:-[a-z0-9]+)*) of run (.+)$/;
+const backlogFileId = (id, runId = 't', fromBacklog = false, title = '') => {
   const runPrefix = `${runId}-`;
-  let base = id;
+  const [, writerBlock, writerRun] = WRITER_TITLE.exec(title) ?? [];
+  const writerPrefix = `${writerRun}-`;
+  const writerSuffix = `-${fnv1a(JSON.stringify([writerRun, writerBlock]))}`;
+  const verified = fromBacklog && writerRun !== undefined && id.length > writerPrefix.length + writerSuffix.length
+    && id.startsWith(writerPrefix) && id.endsWith(writerSuffix);
+  let base = verified ? id.slice(writerPrefix.length, -writerSuffix.length) : id;
   let parked = null;
   while (fromBacklog && base.startsWith(runPrefix) && (parked = /^(.+)-([0-9a-f]{8})$/.exec(base.slice(runPrefix.length)))
     && (base === id || fnv1a(JSON.stringify([runId, parked[1]])) === parked[2])) base = parked[1];
@@ -1018,13 +1026,13 @@ section('a backlog file\'s id is the run\'s slug, the block\'s slug and a hash o
   ok(flat(slashed.prompt('develop')).includes(` to ${backlogFile('block-a')} only.`), 'the trailing slash the project-settings tool prints is dropped');
 }
 
-section('a block rebuilt from its run\'s backlog file keeps its base name and one hash at every park');
+section('a block rebuilt from a backlog file keeps its base name and one hash at every park');
 // A name that kept each park's run slug and hash would grow past 60 characters, and slug() would then cut the
 // block's own name out of the file, the branch and every entry id.
 {
   // A backlog file's block takes the file's id as its id and the file as its plan.
-  const parkOf = async (id, planPath = `${BACKLOG}/${id}.md`) => {
-    const out = (await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, plans: [{ id, planPath, mode: 'feature', gate: 'build-only' }] })).out;
+  const parkOf = async (id, planPath = `${BACKLOG}/${id}.md`, title = undefined) => {
+    const out = (await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, plans: [{ id, title, planPath, mode: 'feature', gate: 'build-only' }] })).out;
     return out.parked[0] ?? {};
   };
   const pairName = (base, id) => `t-${base}-${fnv1a(JSON.stringify(['t', id]))}`;
@@ -1063,6 +1071,42 @@ section('a block rebuilt from its run\'s backlog file keeps its base name and on
     'a rebuild of that block strips only the layer its park added, since the tail is no pair hash');
   eq((await parkOf(twoDeep, BUS)).backlogFile, `${BACKLOG}/${pairName(twoDeep, twoDeep)}.md`,
     'a block id shaped like a file id keeps its slug when its plan is not its backlog file');
+
+  // Most rebuilds run under a new runId, so only the header title names the run whose park wrapped the id.
+  const oldRun = backlogFileId('tradeoffs', 'old');
+  const oldTitle = writerTitle('tradeoffs', 'old');
+  eq(backlogFileId(oldRun, 't', true, oldTitle), pairName('tradeoffs', oldRun), 'the test copy strips the layer the header title verifies');
+  eq((await parkOf(oldRun, undefined, oldTitle)).backlogFile, `${BACKLOG}/${pairName('tradeoffs', oldRun)}.md`,
+    'a block rebuilt from another run\'s backlog file strips the writer run\'s slug and hash its header names');
+  const midRun = backlogFileId(oldRun, 'mid', true, oldTitle);
+  eq((await parkOf(midRun, undefined, writerTitle(oldRun, 'mid'))).backlogFile, `${BACKLOG}/${pairName('tradeoffs', midRun)}.md`,
+    'a block parked under three runIds keeps its base name');
+  const spaced = backlogFileId('blk-a', 'judgment-review').replace(/-[0-9a-f]{8}$/, `-${fnv1a(JSON.stringify(['Judgment Review', 'blk-a']))}`);
+  eq((await parkOf(spaced, undefined, writerTitle('blk-a', 'Judgment Review'))).backlogFile,
+    `${BACKLOG}/${pairName('blk-a', spaced)}.md`, 'a writer runId that is not its own slug is slugged before the strip');
+  const dashed = backlogFileId('blk-a', 'a-b').replace(/-[0-9a-f]{8}$/, `-${fnv1a(JSON.stringify(['a — b', 'blk-a']))}`);
+  eq((await parkOf(dashed, undefined, writerTitle('blk-a', 'a - b'))).backlogFile, `${BACKLOG}/${pairName(dashed, dashed)}.md`,
+    'a writer runId the title parser rewrites, such as a spaced em dash, verifies no hash and strips nothing');
+  eq((await parkOf(oldRun, undefined, writerTitle('other', 'old'))).backlogFile, `${BACKLOG}/${pairName(oldRun, oldRun)}.md`,
+    'a header title whose writer block does not rebuild the id strips nothing');
+  eq((await parkOf(oldRun, BUS, oldTitle)).backlogFile, `${BACKLOG}/${pairName(oldRun, oldRun)}.md`,
+    'a writer title on a block whose plan is not its backlog file strips nothing');
+
+  const member = backlogFileId('member', 'old');
+  const memberRow = (title) => ({ id: member, title, planPath: `${BACKLOG}/${member}.md`, issues: [`${member}-1`] });
+  const packedRun = await run(GREEN_RUN, { ...ONE_BLOCK, plans: [{ id: `${member}-plus-1`, mode: 'fix', gate: 'green', status: 'todo',
+    blocks: [memberRow(writerTitle('member', 'old')), { id: 'other-fix', planPath: BUS, issues: ['other-fix-1'] }] }] });
+  ok(flat(packedRun.prompt('develop')).includes(`→ ${BACKLOG}/${pairName('member', member)}.md (block "${member}")`),
+    'a pass member strips its own header title\'s layer');
+}
+
+section('the engine\'s and this test\'s copies of WRITER_TITLE equal plan-edit\'s');
+{
+  const writerTitleOf = (rel) => readFileSync(join(REPO_ROOT, rel), 'utf8').match(/^const WRITER_TITLE += (\/.+\/);$/m)?.[1] ?? null;
+  const reference = writerTitleOf('tools/plan-edit.mjs');
+  ok(reference !== null, 'plan-edit.mjs holds WRITER_TITLE');
+  eq(writerTitleOf(ENGINE), reference, 'the engine holds plan-edit\'s WRITER_TITLE');
+  eq(String(WRITER_TITLE), reference, 'the test copy backlogFileId reads holds plan-edit\'s WRITER_TITLE');
 }
 
 section('a launch without an absolute backlog folder outside the target repo throws, naming the command that prints one');

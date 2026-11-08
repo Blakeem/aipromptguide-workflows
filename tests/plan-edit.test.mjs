@@ -880,8 +880,8 @@ section('every args failure writes no file, and names what to do');
 // ---------------------------------------------------------------------------------------------
 
 /** A one-block fix file whose entries name `files` ({ path, loc }), each ACTIONABLE unless `decision` says. */
-function inventory(dir, name, entries) {
-  const lines = [`## Plan: ${name} - findings`, 'mode: fix', 'gate: green', ''];
+function inventory(dir, name, entries, title = 'findings') {
+  const lines = [`## Plan: ${name} - ${title}`, 'mode: fix', 'gate: green', ''];
   for (const e of entries) {
     lines.push(`### [${e.id}] ${e.id}`, `- file: ${e.file}:1`, ...(e.loc ? [`- loc: ${e.loc}`] : []),
       `- decision: ${e.decision ?? 'ACTIONABLE'}`, ...(e.status ? [`- status: ${e.status}`] : []),
@@ -896,13 +896,14 @@ section('--pack groups small fix blocks into passes under the line cap, neighbou
   const dir = tmpDir();
   const a = inventory(dir, 'a', [{ id: 'a-1', file: 'src/core/x.js', loc: 1000 }]);
   const b = inventory(dir, 'b', [{ id: 'b-1', file: 'src/web/y.js', loc: 3000 }]);
-  const c = inventory(dir, 'c', [{ id: 'c-1', file: 'src/core/z.js', loc: 1500 }, { id: 'c-2', file: 'src/core/x.js', loc: 1000 }]);
+  const c = inventory(dir, 'c', [{ id: 'c-1', file: 'src/core/z.js', loc: 1500 }, { id: 'c-2', file: 'src/core/x.js', loc: 1000 }], 'backlog from block x of run r');
   const { out, notes, err } = packed(configWith([]), dir, 3000, a, b, c);
   ok(!err, `it succeeds: ${err ?? ''}`);
   const plans = JSON.parse(out).plans;
   eq(plans.map((r) => r.id).join(','), 'a-plus-1,b', 'the two core blocks share a pass that sits where its first member did, the web block stays alone');
   eq(plans[0].blocks.map((m) => `${m.id}:${m.issues.join('+')}`).join(','), 'a:a-1,c:c-1+c-2', 'each member keeps its own issue ids');
   ok(plans[0].blocks.every((m) => m.planPath.endsWith(`${m.id}.md`)) && plans[0].mode === 'fix' && plans[0].gate === 'green', 'and its own plan file');
+  eq(plans[0].blocks.map((m) => `${m.id}:${m.title}`).join(','), 'a:findings,c:backlog from block x of run r', 'and its own header title, which names a backlog file\'s writer run');
   ok(/packed a, c into a-plus-1 \(2500 lines\)/.test(notes), `a shared file counts once: ${notes.trim()}`);
 }
 
