@@ -32,8 +32,17 @@ const BLOCKS = [onBus({ id: 'block-a', mode: 'feature', gate: 'build-only' }),
 const BACKLOG = 'E:/r/backlog/repo-0a1b2c3d';
 // A copy of the engine's hash, so a change to the backlog file names that later runs share fails here. A file's
 // id ends in the hash of its raw [runId, block id] pair, which holds for a runId and block id that are slugs.
+// A block built from its own backlog file loses each layer of the run slug and a hash that a park added, and the
+// outer layer strips on its shape alone, so a file of a run whose slug extends the run slug loses it too.
 const fnv1a = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(16).padStart(8, '0'); };
-const backlogFileId = (id, runId = 't') => `${runId}-${id}-${fnv1a(JSON.stringify([runId, id]))}`;
+const backlogFileId = (id, runId = 't', fromBacklog = false) => {
+  const runPrefix = `${runId}-`;
+  let base = id;
+  let parked = null;
+  while (fromBacklog && base.startsWith(runPrefix) && (parked = /^(.+)-([0-9a-f]{8})$/.exec(base.slice(runPrefix.length)))
+    && (base === id || fnv1a(JSON.stringify([runId, parked[1]])) === parked[2])) base = parked[1];
+  return `${runId}-${base}-${fnv1a(JSON.stringify([runId, id]))}`;
+};
 const backlogFile = (id, runId) => `${BACKLOG}/${backlogFileId(id, runId)}.md`;
 // A copy of the engine's rule, so a change to the one rule every backlog writer applies fails here.
 const DECISION_RULE = `Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.`;
@@ -1007,6 +1016,53 @@ section('a backlog file\'s id is the run\'s slug, the block\'s slug and a hash o
 
   const slashed = await run(GREEN_RUN, { ...ONE_BLOCK, backlogDir: `${BACKLOG}/` });
   ok(flat(slashed.prompt('develop')).includes(` to ${backlogFile('block-a')} only.`), 'the trailing slash the project-settings tool prints is dropped');
+}
+
+section('a block rebuilt from its run\'s backlog file keeps its base name and one hash at every park');
+// A name that kept each park's run slug and hash would grow past 60 characters, and slug() would then cut the
+// block's own name out of the file, the branch and every entry id.
+{
+  // A backlog file's block takes the file's id as its id and the file as its plan.
+  const parkOf = async (id, planPath = `${BACKLOG}/${id}.md`) => {
+    const out = (await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, plans: [{ id, planPath, mode: 'feature', gate: 'build-only' }] })).out;
+    return out.parked[0] ?? {};
+  };
+  const pairName = (base, id) => `t-${base}-${fnv1a(JSON.stringify(['t', id]))}`;
+  // The name rule before the strip, which wrote the chains that runs before this rule left.
+  const oldFileId = (id) => pairName(id, id);
+  const twoDeep = oldFileId(oldFileId('tradeoffs'));
+  eq(backlogFileId(twoDeep, 't', true), pairName('tradeoffs', twoDeep), 'the test copy strips each run slug and hash an earlier park added');
+  const deep = await parkOf(twoDeep);
+  eq(deep.backlogFile, `${BACKLOG}/${pairName('tradeoffs', twoDeep)}.md`, 'a block id two parks deep writes the base name and the hash of its raw id');
+  eq(deep.branch, `aipg-unfinished/${pairName('tradeoffs', twoDeep)}`, 'and its branch takes the same name');
+  eq((await parkOf(twoDeep, `${BACKLOG}/${twoDeep}.md`.toLowerCase().replace(/\//g, '\\'))).backlogFile, deep.backlogFile,
+    'a plan path in another drive-letter case and with backslashes still names the block\'s backlog file');
+
+  const rebuilt = backlogFileId(backlogFileId('tradeoffs'), 't', true);
+  eq(rebuilt, pairName('tradeoffs', backlogFileId('tradeoffs')), 'a park of a rebuilt block writes one run slug and one hash');
+  eq((await parkOf(rebuilt)).backlogFile, `${BACKLOG}/${pairName('tradeoffs', rebuilt)}.md`, 'and the next park of it keeps the base name too');
+
+  const foreign = backlogFileId('tradeoffs', 'other');
+  eq(backlogFileId(foreign, 't', true), pairName(foreign, foreign), 'the test copy keeps another run\'s file id whole');
+  eq((await parkOf(foreign)).backlogFile, `${BACKLOG}/${pairName(foreign, foreign)}.md`, 'a block id from another run\'s backlog file keeps its slug');
+  // The outer layer's hash covers an id the name does not store, so the shape alone cannot tell the runs apart.
+  const extended = backlogFileId('tradeoffs', 't-x');
+  eq(backlogFileId(extended, 't', true), pairName('x-tradeoffs', extended), 'the test copy strips the run slug from a run whose slug extends it');
+  eq((await parkOf(extended)).backlogFile, `${BACKLOG}/${pairName('x-tradeoffs', extended)}.md`,
+    'a block id from the backlog file of a run whose slug extends the run slug loses the run slug once');
+
+  const unhashed = 't-review-docs';
+  eq((await parkOf(unhashed)).backlogFile, `${BACKLOG}/${pairName(unhashed, unhashed)}.md`,
+    'a block id that starts with the run slug but ends in no hash keeps its slug');
+
+  const dated = 't-migrate-20261107';
+  eq((await parkOf(dated, BUS)).backlogFile, `${BACKLOG}/${pairName(dated, dated)}.md`,
+    'a plan block whose id ends in 8 hex characters keeps them, since no park added them');
+  const datedPark = backlogFileId(dated);
+  eq((await parkOf(datedPark)).backlogFile, `${BACKLOG}/${pairName(dated, datedPark)}.md`,
+    'a rebuild of that block strips only the layer its park added, since the tail is no pair hash');
+  eq((await parkOf(twoDeep, BUS)).backlogFile, `${BACKLOG}/${pairName(twoDeep, twoDeep)}.md`,
+    'a block id shaped like a file id keeps its slug when its plan is not its backlog file');
 }
 
 section('a launch without an absolute backlog folder outside the target repo throws, naming the command that prints one');

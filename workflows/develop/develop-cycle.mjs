@@ -480,8 +480,26 @@ const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;                 // final whole-g
 // project shares the folder, and two (runId, block id) pairs can slug and join alike, such as run "a" with
 // block "b-c" and run "a-b" with block "c", so the name ends in a hash of the raw pair.
 const RUN_SLUG       = slug(RUN_ID) || `run-${fnv1a(String(RUN_ID))}`;
-// The file's block id, and its entries' id prefix.
-const backlogId      = (id) => `${RUN_SLUG}-${slug(id)}-${fnv1a(JSON.stringify([String(RUN_ID), String(id)]))}`;
+// A block built from its own backlog file takes that file's id as its id.
+const BACKLOG_BUILT_IDS = new Set(ALL_PLANS.flatMap((p) => p.blocks ?? [p])
+  .filter((b) => pathKey(b.planPath) === pathKey(`${BACKLOG_DIR}/${b.id}.md`)).map((b) => b.id));
+// Stripping each layer of this run's slug and a hash that a park added keeps the block's own name in the slug,
+// which slug() would otherwise cut away. The outer layer's hash covers an id no name stores, so it strips on its
+// shape, as does a file of a run whose slug extends this run's slug. A park before this rule wrapped the raw id,
+// so an inner layer is a park's only when its hash is the pair hash of the part it wraps. A tail such as
+// "-20261107" stays.
+const baseBlockId    = (id) => {
+  const runPrefix = `${RUN_SLUG}-`;
+  const raw = String(id);
+  let base = raw;
+  let parked = null;
+  if (!BACKLOG_BUILT_IDS.has(raw)) return raw;
+  while (base.startsWith(runPrefix) && (parked = /^(.+)-([0-9a-f]{8})$/.exec(base.slice(runPrefix.length)))
+    && (base === raw || fnv1a(JSON.stringify([String(RUN_ID), parked[1]])) === parked[2])) base = parked[1];
+  return base;
+};
+// The file's block id, and its entries' id prefix. The pair hash takes the raw id, so each park gets its own file.
+const backlogId      = (id) => `${RUN_SLUG}-${slug(baseBlockId(id))}-${fnv1a(JSON.stringify([String(RUN_ID), String(id)]))}`;
 const backlogFile    = (id) => `${BACKLOG_DIR}/${backlogId(id)}.md`;
 // A parked block's work, one commit per park, kept in the repo so it outlives the run worktree. A backlog id
 // is a kebab slug, so the name is a valid ref name.

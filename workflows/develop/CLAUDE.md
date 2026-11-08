@@ -1191,10 +1191,19 @@ there, `<file id>.md`, created with the first entry. `<file id>` is
 `<run slug>-<block slug>-<pair hash>`:
 - `<run slug>` is the runId through the engine's `slug()`, or `run-` and the engine's `fnv1a()` hash of
   the runId when that slug is empty, as for a runId with no ASCII letter or digit.
-- `<block slug>` is the block id through `slug()`. It equals the block id for an id of 60 characters or
-  fewer.
-- `<pair hash>` is the `fnv1a()` hash of the JSON array `[runId, block id]`. It keeps two runs apart
-  whose slugs join alike, such as run `a` with block `b-c` and run `a-b` with block `c`.
+- `<block slug>` is the block id's base through `slug()`. A block whose row's `planPath` is
+  `<backlogDir>/<block id>.md` is built from its own backlog file. For such a block, while the raw block
+  id starts with `<run slug>-` and ends with `-` and 8 lowercase hex characters, with a non-empty part
+  between, that part replaces it, so the block keeps its own name at every park. Past the first layer, a
+  layer is stripped only when its 8 characters are the `fnv1a()` hash of `[runId, <that part>]`, the hash
+  a park before this rule wrapped it in, so a tail such as `-20261107` stays. A run of `swarm-1107` gives
+  block `swarm-1107-swarm-1107-tradeoffs-4619df6d-ffc36509` the block slug `tradeoffs`. The first layer's
+  hash covers an id no name stores, so it strips on its shape, and a file of run `t-x` built by run `t`
+  loses its `t-` too. Any other block id is its own base, and its block slug equals the block id when the
+  id has 60 characters or fewer.
+- `<pair hash>` is the `fnv1a()` hash of the JSON array `[runId, block id]`, with the raw block id. It
+  keeps two runs apart whose slugs join alike, such as run `a` with block `b-c` and run `a-b` with block
+  `c`, and gives each park of a rebuilt block its own file and branch.
 
 Each file is a fix-mode plan file. Its header is
 `## Plan: <file id> - backlog from block <block id> of run <runId>`, then `mode: fix`, `gate: green`
