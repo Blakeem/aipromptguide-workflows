@@ -12,7 +12,7 @@ flowchart TD
   a1["plan-critic · opus<br/>Critique"]
   a2["plan-editor · opus<br/>Fold"]
   t1(["converged (one clean round: no gaps at or above the floor, no questions)"])
-  t2(["needs-answers (the critic raised questions only the operator can settle)"])
+  t2(["needs-answers (the critic or the editor raised questions only the operator can settle)"])
   t3(["dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md)"])
   t4(["rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)"])
   t5(["BLOCKED (the critic did not confirm writing its critique file, which every round writes - the round has no record)"])
@@ -59,6 +59,7 @@ flowchart TD
   a1 --> t9
   a1 --> x16
   a2 -.->|"a fold, then a clean round · gaps remain at the round budget (×4)"| a1
+  a2 --> t2
   a2 --> t3
   a2 --> t4
   a2 --> t6
@@ -70,15 +71,15 @@ flowchart TD
 
 | Phase | What happens |
 |---|---|
-| Critique | A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-&lt;round&gt;.md every round (gaps with file:line evidence, questions, and an FYI section only in a round with no gaps and no questions, or "No gaps." in a round with nothing) and returns counts plus a wrote_file attestation and a relayed_request flag, nothing else. |
-| Fold | Runs only when the round returned at-or-above-floor gaps and no questions. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, and re-runs the plan-block tool to prove the file still parses. |
+| Critique | A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-&lt;round&gt;.md every round (gaps with file:line evidence and the kind of text each is in, questions, and an FYI section only in a round with no gaps and no questions, or "No gaps." in a round with nothing) and returns counts plus a wrote_file attestation and a relayed_request flag, nothing else. |
+| Fold | Runs only when the round returned at-or-above-floor gaps and no questions. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, removing wrong method text rather than correcting it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, sends a requirement gap that is the user's choice to NEEDS-USER.md, and re-runs the plan-block tool to prove the file still parses. |
 
 ## Terminal states
 
 | Terminal | Reached when | Source |
 |---|---|---|
 | converged (one clean round: no gaps at or above the floor, no questions) | the first critic finds nothing · a fold, then a clean round | derived |
-| needs-answers (the critic raised questions only the operator can settle) | the critic raises a question | derived |
+| needs-answers (the critic or the editor raised questions only the operator can settle) | the critic raises a question · the editor finds a requirement gap is the user's choice | derived |
 | dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md) | the editor escalates a contested dismissal | derived |
 | rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged) | gaps remain at the round budget | derived |
 | BLOCKED (the critic did not confirm writing its critique file, which every round writes - the round has no record) | the critic reports findings it did not write · the critic reports a clean round it did not write | derived |
@@ -101,8 +102,8 @@ flowchart TD
 | throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 148) |
 | throw: Missing args.blockTool | blockTool is missing or blank | throw (line 165) |
 | throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 193) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 434) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 480) |
 
 ## Coverage
 
-28 scenarios · 2/2 roles · 16/16 throw sites · 9/9 halt statuses · 25 terminal states.
+29 scenarios · 2/2 roles · 16/16 throw sites · 9/9 halt statuses · 25 terminal states.

@@ -88,12 +88,19 @@ export default {
       respond: { 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK },
     },
     {
-      // An ordering error or a gap in a closed block: the minimal-fold editor has no legal edit for
-      // either, so the run ends for the operator to restructure.
+      // No question is the minimal-fold editor's to fold, so the run ends for the operator to settle it
+      // with the user.
       name: 'questions for the operator',
       when: 'the critic raises a question',
       args: base,
       respond: { 'plan-critic': QUESTIONS },
+    },
+    {
+      // The editor's own question is a second route into the same terminal, which no coverage check sees.
+      name: 'the editor leaves a gap to the user',
+      when: 'the editor finds a requirement gap is the user\'s choice',
+      args: base,
+      respond: { 'plan-critic': GAPS, 'plan-editor': { ...FOLD_OK, questions: 1 } },
     },
     {
       // Its own terminal: the ruling is recorded in DISMISSED-PLAN.md, not by restructuring the plan.

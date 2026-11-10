@@ -535,7 +535,7 @@ section('every README that counts the principles states the count WORKFLOW-PRINC
 // The count is written out in words in two READMEs, so adding a principle without them drifts silently.
 {
   const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
-    'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'];
+    'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'twenty-one'];
   const doc = readFileSync(join(REPO_ROOT, 'principles/WORKFLOW-PRINCIPLES.md'), 'utf8');
   const principlesStart = doc.indexOf('\n## Principles\n');
   const scopeStart = doc.indexOf('\n## Scope\n');
@@ -546,8 +546,8 @@ section('every README that counts the principles states the count WORKFLOW-PRINC
   const expected = NUMBER_WORDS[headingCount];
   ok(!!expected, `WORKFLOW-PRINCIPLES.md holds ${headingCount} principle headings, a count this test can spell`);
   const COUNT_SITES = [
-    ['principles/README.md', /holds the (\w+) principles/],
-    ['README.md', /\(principles\/\)\*\*, the (\w+)\s/],
+    ['principles/README.md', /holds the ([\w-]+) principles/],
+    ['README.md', /\(principles\/\)\*\*, the ([\w-]+)\s/],
   ];
   for (const [rel, pattern] of COUNT_SITES) {
     const stated = readFileSync(join(REPO_ROOT, rel), 'utf8').match(pattern)?.[1];

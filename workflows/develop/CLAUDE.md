@@ -31,7 +31,8 @@ steps 39 to 44.
    Output: each block it informs records the repo's pattern, the chosen method and their sources.
 5. (for a fix-mode file from debug's review) Triage it as `workflows/audit/CLAUDE.md`, kind defects, says
    (§2 step 1). Output: each issue file triaged, with its developer model set.
-6. (for a plan file you write) Author it at `<root>/plans/<runId>/` (§2 step 1, §3). Output: the plan file.
+6. (for a plan file you write) Author it at `<root>/plans/<runId>/` (§1, §2 step 1, §3). Output: the plan
+   file, whose blocks hold requirement text and only the method text §1 lets a block hold.
 7. (for a plan file you write) Fit each block inside its round-1 context size, splitting a block by §1's
    rule (§1). Output: every block inside §1's context size.
 8. (for a plan file you write) Refine the plan once, relaunching only a terminal that is not `converged`
@@ -180,14 +181,14 @@ block's acceptance criteria or fix entries, so name each doc change a block owes
 Generated files, such as a flow map regenerated from an engine a block changes, belong to that
 block. Locate code in a block body by section title or grep pattern, not line number, since earlier
 blocks shift lines. Make each block self-contained. Every agent reads only its own block, so a path
-or instruction stated only in the file preamble or another block never reaches it. A block states
-the goal, the user's decisions, and the choices that must agree across blocks or with the repo that
-a developer working one block cannot see, such as names, data shapes, file locations and which
-existing pattern to follow. Everything else is the developer's call. Split work into blocks whose
-code is complete on its own, such as a new key together with the code that reads it. Never split by
-layer, where an earlier block adds code only a later block uses. That block's blind reviewer flags
-the half-built behavior as incomplete, and the developer cannot dismiss it with a reason the code
-shows.
+or instruction stated only in the file preamble or another block never reaches it. A block holds
+requirement text and leaves method text to the developer, by the two kinds and the per-sentence test
+of `../../principles/WORKFLOW-PRINCIPLES.md` #21. Method text enters a block only with the source or
+probe §2 step 1's research found for it, apart from a fix entry's `**Fix:**` line, which stays a hint.
+Split work into blocks whose code is complete on its own, such as a new key together with the code that
+reads it. Never split by layer, where an earlier block adds code only a later block uses. That block's
+blind reviewer flags the half-built behavior as incomplete, and the developer cannot dismiss it with a
+reason the code shows.
 
 ## 2. The flow
 
@@ -200,8 +201,10 @@ shows.
    send a research subagent. Each block it informs records, in that block, what the repo already does
    (its file and a section title or grep pattern, never a line number, per §1), the library or method
    chosen with its source, and each command or API behavior the block prescribes with its source or a
-   probe. Routine work in an existing repo pattern skips this. A large open question goes to the
-   investigate or docs workflow first.
+   probe. These records are the requirement text and the sourced method text that §1 lets a block hold
+   (`../../principles/WORKFLOW-PRINCIPLES.md` #21). Routine work in an existing repo pattern skips this,
+   and its method stays out of the block, since the developer writes it anyway. A large open question
+   goes to the investigate or docs workflow first.
 
    **Name the input's sender.** A block that touches a network, an authentication path or a shared
    resource names who sends its input and what limits that input.

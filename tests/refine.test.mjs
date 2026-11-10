@@ -31,7 +31,7 @@ const FOLD_OK   = { wrote_file: true, folded: 2, declined: 0, plan_parses: true 
 // Every terminal state is its own fact, so each is asserted verbatim rather than by a substring: folding
 // any pair of them together is how an unconverged plan gets handed to a build engine as a finished one.
 const CONVERGED     = 'converged (one clean round: no gaps at or above the floor, no questions)';
-const NEEDS_ANSWERS = 'needs-answers (the critic raised questions only the operator can settle)';
+const NEEDS_ANSWERS = 'needs-answers (the critic or the editor raised questions only the operator can settle)';
 const CONTESTED     = 'dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md)';
 const EXHAUSTED     = 'rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)';
 const EDITOR_DEAD   = 'BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file)';
@@ -126,8 +126,8 @@ section('the critic writes the FYI section only in a round with no gap and no qu
   const at = ['One subsection per block that has below-floor findings, headed by the block id.', '"File preamble":', '"Outside the plan":'].map((s) => fyi.indexOf(s));
   ok(at.every((i) => i > 0) && at.every((i, n) => n === 0 || i > at[n - 1]),
     'the subsections run per block, then File preamble, then Outside the plan');
-  ok(fyi.includes('A below-floor item names its class, its evidence and one suggested change.'),
-    'a below-floor item names its class, its evidence and one suggested change');
+  ok(fyi.includes('A below-floor item names its class, its evidence and one suggested change, or each correction when SCOPE RULE 5 makes it an FYI item.'),
+    'a below-floor item names its class, its evidence and one suggested change, or each correction that SCOPE RULE 5 leaves');
   ok(fyi.includes('"File preamble": a finding in plan text above the first block, other than the file keys, at any grade, since no developer reads that text. A file-key finding below the floor goes here too.'),
     'a finding in plan text above the first block, other than the file keys, goes in File preamble at any grade, and so does a file-key finding below the floor');
   ok(!/"Preamble"/.test(p), 'no subsection is named bare Preamble, which the block metadata paragraph already uses for a block\'s key run');
@@ -227,10 +227,10 @@ section('the critic judges only whether the plan\'s text is correct, and a lean 
   const neverGap = p.indexOf('WHAT THE PLAN DOES NOT SAY IS NEVER A GAP. A missing step, test, wiring point, edge case, file, doc update or detail is the developer\'s call, and develop\'s own reviews catch what it misses. A lean block that states its requirements and leaves the how to the developer passes.');
   ok(neverGap > at[3] && neverGap < p.indexOf('IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE'),
     'the never-a-gap paragraph sits after the class list and before the out-of-scope paragraph');
-  ok(p.includes('Every gap\'s change corrects or removes the wrong text. It never adds a requirement, step, file, test or detail the plan does not already state.'),
-    'a gap\'s change corrects or removes text and never adds to the plan');
-  ok(p.includes('never adds a requirement, step, file, test or detail the plan does not already state. A clause that makes a stated sentence true is a correction, and a new obligation is an addition.'),
-    'the critic bar calls a clause that makes a stated sentence true a correction and a new obligation an addition, as the editor guard does');
+  ok(p.includes('Every gap\'s change corrects or removes the wrong text, as A GAP\'S CHANGE BY KIND below says. It never adds a requirement, step, file, test or detail the plan does not already state.'),
+    'a gap\'s change corrects or removes text by its kind and never adds to the plan');
+  ok(p.includes('never adds a requirement, step, file, test or detail the plan does not already state. In requirement text, a clause that makes a stated sentence true is a correction, and a new obligation is an addition.'),
+    'the critic bar calls a clause that makes a stated requirement sentence true a correction and a new obligation an addition, as the editor guard does');
   ok(p.includes('A command, flag, or library, tool or API behavior the block prescribes counts too. Confirm each one the repo does not already use the same way, against the dependency\'s own docs or source, or a probe in a temporary directory outside the repo and the state dir. A confirmed prescription needs no source cited in the plan.'),
     'a prescribed command or dependency behavior is confirmed against its docs, source or a probe');
   ok(p.includes('You write only your critique file E:/r/runs/t-refine/plan-critique-1.md, E:/r/runs/t-refine/NEEDS-USER.md, and a probe\'s files in a temporary directory outside the target repo and the state dir E:/r/runs/t-refine.'),
@@ -318,8 +318,8 @@ section('the editor checks every gap against the plan and the repo before it fol
     const guard = p.slice(guardAt, procedureAt);
     ok(guard.includes('Never add a requirement, step, file, test or detail the plan does not already state, even when a gap\'s change asks for one.'),
       `${r}: the guard forbids adding to the plan even when a gap's change asks for it`);
-    ok(guard.includes('A clause that makes a stated sentence true is a correction, and a new obligation is an addition.'),
-      `${r}: the guard calls a clause that makes a stated sentence true a correction and a new obligation an addition`);
+    ok(guard.includes('In requirement text, a clause that makes a stated sentence true is a correction, and a new obligation is an addition. Never add METHOD TEXT.'),
+      `${r}: the guard calls a clause that makes a stated requirement sentence true a correction, and forbids adding method text`);
     ok(guard.includes('not an extra step you think a block needs, and not a criterion you would have phrased differently.'),
       `${r}: the guard's list of changes the editor may not make ends on the criterion`);
     ok(!/FYI/i.test(p), `${r}: the editor prompt never mentions an FYI section, since no round the editor reads holds one`);
@@ -336,10 +336,10 @@ section('the editor checks every gap against the plan and the repo before it fol
       'Confirm the gap names text the plan states, never text it lacks.',
       'Re-run every probe whose output decides a WRONG PRESCRIPTION gap, and any other probe the critic ran when you doubt its result.',
       `Put a probe's files in a temporary directory outside the target repo and the state dir ${STATE}.`,
-      'Treat the gap\'s change as a hint. Write the correction that closes the confirmed defect: it corrects, removes or moves text the plan states, and adds nothing the plan does not already state.',
+      'Treat the gap\'s change as a hint, and confirm which kind of text the gap is in. Write the correction that closes the confirmed defect: it corrects, removes or moves text the plan states, and adds nothing the plan does not already state.',
       'Confirm every path, symbol and quote your new text introduces against the repo.',
       'Find every plan line that states the same fact, and count a line your correction would make false as named by the gap.',
-      'DECLINE a gap only when its defect is not confirmed, or when no correction, as opposed to an addition, closes it. Its reason names which.',
+      'DECLINE a gap only when its defect is not confirmed, when no correction, as opposed to an addition, closes it, or when its only closing edit adds METHOD TEXT. Its reason names which.',
       `A gap prefixed "CONTESTS DISMISSAL:" is never declined here and goes to ${STATE}/NEEDS-USER.md under the contested-dismissal step.`]) {
       ok(check.includes(c), `${r}: the CHECK step says "${c.slice(0, 60)}"`);
     }
@@ -354,8 +354,50 @@ section('the editor checks every gap against the plan and the repo before it fol
   }
 }
 
+section('both roles sort plan text into requirement text and method text, and a method gap closes by removal');
+// A run launched from another project loads no guide, so each prompt must carry principles #21's rule itself.
+{
+  const { byLabel } = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK });
+  const critic = byLabel('plan-critic')[0].prompt.replace(/\s+/g, ' ');
+  const editor = byLabel('plan-editor')[0].prompt.replace(/\s+/g, ' ');
+  const kinds = [
+    'THE TWO KINDS OF PLAN TEXT. A plan block states the end goal, the requirements and the user\'s decisions, and leaves the method to the developer. Every plan sentence is one of two kinds:',
+    '- REQUIREMENT TEXT: the goal, a user decision, an acceptance criterion, text the block gives the developer to write word for word, a choice that must agree across blocks or with the repo and that a developer working one block cannot see (a name, a data shape, a file location, which existing pattern to follow), and a tool, dependency, command or API that the user chose or that research for the plan chose.',
+    '- METHOD TEXT: every other statement of how the developer builds the block, such as a step order, an internal structure, an algorithm or code.',
+    'A block\'s preamble `key: value` lines, such as `gate` and `test_selector`, are REQUIREMENT TEXT.',
+  ];
+  for (const k of kinds) {
+    ok(critic.includes(k), `the critic prompt defines "${k.slice(0, 50)}"`);
+    ok(editor.includes(k), `the editor prompt defines "${k.slice(0, 50)}"`);
+  }
+  ok(critic.includes('Per gap: the block id, which of the four classes it is, which kind of text it is in (REQUIREMENT TEXT or METHOD TEXT), its grade,'),
+    'each gap in the critique file names the kind of text it is in');
+  ok(critic.includes('- A gap in METHOD TEXT: the change removes the wrong text. When no other plan line states the requirement the removed text served, the change cuts the text back to that requirement. The change never states a corrected method.'),
+    'the critic closes a gap in method text by removing it, never by a corrected method');
+  ok(critic.includes('- A gap in REQUIREMENT TEXT: the change corrects the text in place, to the one correct text the repo, the plan or a file the plan cites settles.'),
+    'the critic corrects a gap in requirement text in place');
+  ok(critic.includes('SCOPE RULE 5 - a gap in REQUIREMENT TEXT at or above the floor whose evidence leaves more than one correction, where the corrections differ in user-visible behavior, stored data or a public contract, is reported as a QUESTION, never as a gap, since the choice between them is the user\'s.')
+    && critic.includes('SCOPE RULE 3 - a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class, unless SCOPE RULE 5 makes it a question.'),
+    'a requirement gap whose corrections differ for the user is a question, and SCOPE RULE 3 yields to it');
+  ok(critic.includes('The question names each correction. One below the floor is an FYI item that names each correction.'),
+    'a below-floor requirement gap whose corrections differ for the user is an FYI item, so it never ends the run');
+  ok(editor.includes('Close a gap in METHOD TEXT by removing the wrong text. When no other plan line states the requirement the removed text served, cut the text back to that requirement. Never state a corrected method. Correct a gap in REQUIREMENT TEXT in place, to the one correct text the repo, the plan or a file the plan cites settles.'),
+    'the editor removes wrong method text and corrects requirement text in place');
+  ok(editor.includes('when its only closing edit adds METHOD TEXT'),
+    'the editor declines a gap whose only closing edit adds method text');
+  ok(critic.includes('A sentence the REQUIREMENT TEXT list does not plainly name is REQUIREMENT TEXT when, without it, a developer who reads only this block and the repo would build something the user or another block rejects, since it then carries a user decision or a choice that developer cannot see. Any other such sentence is METHOD TEXT.')
+    && editor.includes('Any other such sentence is METHOD TEXT.'),
+    'both roles sort a sentence the list does not name by principle #21\'s one test');
+  ok(editor.includes(`A gap in REQUIREMENT TEXT whose evidence leaves more than one correction that differ in user-visible behavior, stored data or a public contract is the user's choice, so neither fold nor decline it. Append a full self-contained entry to ${STATE}/NEEDS-USER.md that opens with the line \`## r1 editor\` and names each correction, and count it in questions.`),
+    'the editor sends a requirement gap that is the user\'s choice to NEEDS-USER.md, never to the ledger');
+  for (const [name, p] of [['critic', critic], ['editor', editor]]) {
+    ok(!p.includes('. A clause that makes a stated sentence true is a correction'),
+      `the ${name} prompt no longer calls an unqualified clause a correction, which would let a method sentence grow`);
+  }
+}
+
 // ---------------------------------------------------------------------------------------------
-// Questions — the exit the minimal-fold editor has no legal edit for
+// Questions — the exit that is never the minimal-fold editor's to fold
 // ---------------------------------------------------------------------------------------------
 section('questions end the run on any round, and the editor never sees them');
 {
@@ -364,9 +406,9 @@ section('questions end the run on any round, and the editor never sees them');
   eq(out.questions, 1, 'the count is handed back');
   ok(!labels.some((l) => l.startsWith('plan-editor')), 'nothing was folded');
   handBack(out, true, [
-    `Read the QUESTIONS section of ${STATE}/plan-critique-1.md and the new entries headed "## r1 critic" at the end of ${STATE}/NEEDS-USER.md, settle the questions with the user and restructure E:/plans/bus.md, where new blocks take fresh kebab ids. Then relaunch.`,
+    `Read the QUESTIONS section of ${STATE}/plan-critique-1.md and the new entries headed "## r1 critic" at the end of ${STATE}/NEEDS-USER.md, settle the questions with the user and restructure or correct E:/plans/bus.md by the answers, where new blocks take fresh kebab ids. Record an answer that keeps the plan text by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${STATE}/DISMISSED-PLAN.md. Then relaunch.`,
     RELAUNCH,
-    'A replay returns the cached critic and halts the same way.',
+    'A replay returns the cached agents and halts the same way.',
   ], 'needs-answers');
   // A relaunch from a user turn relays that message to every agent, and the engine sees it only after the critic's round.
   ok(String(out.nextStep ?? '').includes(`To relaunch, ${LAUNCH}.`), 'the relaunch names the notification-turn launch path');
@@ -381,6 +423,24 @@ section('questions end the run on any round, and the editor never sees them');
     && q2.includes('opens with the line \`## r2 critic\`.'),
     'each round\'s critic heads its NEEDS-USER entries with its own round');
   eq(byLabel('plan-editor').length, 1, 'the round-1 fold ran; the round-2 question spawned no second editor');
+}
+
+section('an editor that leaves a requirement gap to the user ends the run needs-answers on its own round');
+// On the last round no later critic would read the gap, and on an earlier one a critic could fold or skip it.
+{
+  const { out, byLabel } = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': { ...FOLD_OK, questions: 1 } });
+  eq(out.status, NEEDS_ANSWERS, 'status');
+  eq(out.rounds, 1, 'on the round the editor raised it');
+  eq(out.questions, 1, 'the editor\'s count is handed back');
+  eq(byLabel('plan-critic').length, 1, 'and no second critic ran to report a clean round over the open question');
+  handBack(out, true, [
+    `Read the new entries headed "## r1 editor" at the end of ${STATE}/NEEDS-USER.md, settle the questions with the user`,
+    RELAUNCH,
+  ], 'needs-answers');
+  ok(!String(out.nextStep ?? '').includes('QUESTIONS section'), 'nextStep sends the operator to no QUESTIONS section the critic left empty');
+
+  const { out: last } = await run({ 'plan-critic': GAPS, 'plan-editor': { ...FOLD_OK, questions: 1 } }, { ...baseArgs, maxRounds: 1 });
+  eq(last.status, NEEDS_ANSWERS, 'the editor\'s question on the last round ends needs-answers, not rounds-exhausted');
 }
 
 section('an editor that escalates a contested dismissal ends the run dismissal-contested, not converged');

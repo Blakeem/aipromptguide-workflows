@@ -35,7 +35,7 @@ keep their products apart, so an enhancement never enters the fix inventory. For
 Investigate fits when the answer is already out there and the work is **finding it and proving it
 fits**. The tell is whether missing a requirement is a trade-off or disqualifying.
 
-All seven share the design rules in **[principles/](principles/)**, the twenty
+All seven share the design rules in **[principles/](principles/)**, the twenty-one
 [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file bus, no busy work).
 
 **The Flow column is a diagram of what a run does.** It shows every agent, gate, loop and terminal

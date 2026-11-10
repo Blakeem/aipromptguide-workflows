@@ -14,9 +14,11 @@ Two agents take turns, up to `maxRounds`.
    line evidence, to a critique file for that round. A round that finds nothing writes `No gaps.` to
    that file.
 2. An **editor** checks each gap against the plan and the code. It takes the critic's change as a hint
-   and writes its own correction, the smallest edit that closes the defect. It declines a gap only when
-   the defect is not real or only an addition would close it. It records the reason in
-   `DISMISSED-PLAN.md`. Then it checks that the plan still parses.
+   and writes its own correction, the smallest edit that closes the defect. It removes wrong method
+   text, which says how to build, and never rewrites it. It corrects wrong requirement text in place.
+   It declines a gap only when the defect is not real or only an addition or new method text would
+   close it, and records the reason in `DISMISSED-PLAN.md`. When the correction is your choice to make,
+   it asks you and the run ends. Then it checks that the plan still parses.
 
 A plan review that keeps adding detail never ends. Four rules make this one finish.
 
@@ -39,10 +41,11 @@ A plan review that keeps adding detail never ends. Four rules make this one fini
   the floor. An `Outside the plan` subsection holds defects that no plan text holds. They sit in files
   the critic read to judge the plan. Items are numbered F1, F2 and so on. You can add an item to a block
   before you approve.
-- `needs-answers` means the critic raised something only you can decide, such as a block order. Read
-  `NEEDS-USER.md`, change the plan, and run refine again. The file keeps the entries of earlier runs,
-  so the newest entries are at its end. Each entry opens with its round and the agent that wrote it,
-  such as `## r2 critic`, and `nextStep` names the round of the new entries.
+- `needs-answers` means the critic or the editor raised something only you can decide, such as a block
+  order. Read `NEEDS-USER.md`, change the plan, and run refine again. When you keep the plan text, add
+  your ruling to `DISMISSED-PLAN.md` as a `USER-RULED:` line instead. `NEEDS-USER.md` keeps the entries
+  of earlier runs, so the newest entries are at its end. Each entry opens with its round and the agent
+  that wrote it, such as `## r2 critic`, and `nextStep` names the round of the new entries.
 - `dismissal-contested` means the critic contested a gap the editor had declined, and the editor passed
   it to you. Read the newest entries at the end of `NEEDS-USER.md`. Fold the gap into the plan, or add
   your ruling to `DISMISSED-PLAN.md` as a `USER-RULED:` line, which no later critic contests. Then run

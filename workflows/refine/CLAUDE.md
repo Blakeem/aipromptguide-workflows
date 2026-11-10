@@ -46,11 +46,12 @@ condition in parentheses runs only under it.
    step 7 once that run ends (§3, the return's `nextStep`). Output: the replay's Workflow run id.
 10. (when `status` is `rounds-exhausted`) Read `lastCritique` and decide its gaps with the user (§2 step 2,
     the return's `nextStep`). Output: the user's decision on each gap.
-11. (when `status` is `needs-answers`) Read the QUESTIONS section of `lastCritique` and the new entries at
-    the end of `NEEDS-USER.md` under the heading `nextStep` names, and settle them with the user (§2 step
-    2, §4, the return's `nextStep`). Output: the user's answers.
-12. (after step 11) Restructure the plan file by the user's answers, giving each new block a fresh kebab id
-    (§2 step 2, the return's `nextStep`). Output: the restructured plan file.
+11. (when `status` is `needs-answers`) Read the new entries at the end of `NEEDS-USER.md` under the
+    heading `nextStep` names, and the QUESTIONS section of `lastCritique` when `nextStep` names it, and
+    settle them with the user (§2 step 2, §4, the return's `nextStep`). Output: the user's answers.
+12. (after step 11) Restructure or correct the plan file by the user's answers, giving each new block a
+    fresh kebab id, and record an answer that keeps the plan text as a `USER-RULED:` line in
+    `DISMISSED-PLAN.md` (§2 step 2, the return's `nextStep`). Output: the changed plan file and ledger.
 13. (when `status` is `dismissal-contested`) Read the new entries at the end of `NEEDS-USER.md` under the
     heading `nextStep` names, and record the user's ruling by folding the gap into the plan file or by
     appending `<block id> - <gap gist> - USER-RULED: <reason>` to `DISMISSED-PLAN.md` (§1, §2 step 2, §4,
@@ -90,9 +91,12 @@ Four things together — remove any one and the plan grows every round instead o
   dependency's docs or source or a probe in a temporary directory outside the repo and the stateDir.
   What the plan does not say is never a gap: a missing step, test, wiring point, edge case, file or
   detail is the developer's call, so a lean block passes. A gap's change corrects or removes the wrong
-  text and never adds a requirement, step, file, test or detail the plan does not already state. A
-  clause that makes a stated sentence true is a correction, and a new obligation is an addition.
-  Improvements, alternatives, and style are excluded unconditionally.
+  text and never adds a requirement, step, file, test or detail the plan does not already state. In
+  requirement text, a clause that makes a stated sentence true is a correction, and a new obligation is
+  an addition. Improvements, alternatives, and style are excluded unconditionally.
+  The bar sorts plan text into requirement text and method text, and each gap names its kind and
+  closes by that kind's rule (`../../principles/WORKFLOW-PRINCIPLES.md` #21). Both prompts carry the
+  two kinds, since a run launched from another project loads no guide.
 - **The severity floor** (`critiqueSeverity`: `blocking | major | minor`, default `major`).
   The critic grades a gap by what the built code would do. A crash, lost or corrupted data, or wrong
   output on an input the repo or the plan accepts is major, and so is a contradiction about what to
@@ -103,13 +107,14 @@ Four things together — remove any one and the plan grows every round instead o
   FYI section of the converged round only, beside the defects outside the plan, and the user reads
   that section with the plan. `belowFloor` returns the section's item count.
 - **The dismissal ledger** (`DISMISSED-PLAN.md`). A declined gap stays declined. The critic skips
-  settled items and may contest one once. It never contests a line marked `USER-RULED:`, which records
-  the user's own ruling.
+  settled items and may contest one once. It never contests a line marked `USER-RULED:`,
+  which records the user's own ruling.
 - **The minimal-fold editor.** It confirms each gap's defect against the plan and the repo first, and
-  treats the critic's change as a hint. It writes the correction that closes the confirmed defect, and
-  declines a gap only when the defect is not confirmed or no correction, as opposed to an addition,
-  closes it. It changes NOTHING a gap does not name, and re-validates the file through the plan-block
-  tool after its last edit.
+  treats the critic's change as a hint. It writes the correction that closes the confirmed defect by its
+  kind of text, and declines a gap only when the defect is not confirmed, when no correction, as opposed
+  to an addition, closes it, or when its only closing edit adds method text. A requirement gap whose
+  corrections differ for the user goes to `NEEDS-USER.md` and ends the run `needs-answers`. It changes
+  NOTHING a gap does not name, and re-validates the file through the plan-block tool after its last edit.
 
 ## 2. The flow
 
@@ -120,9 +125,11 @@ Four things together — remove any one and the plan grows every round instead o
    `nextStep`, which names the files to read and the relaunch or replay for each terminal. The
    `status` token says what the state means:
    - `converged` — one clean round: no gaps at or above the floor, and no questions.
-   - `needs-answers` — the critic raised things only the user can settle: a dependency-ordering error
-     whose fix restructures blocks, a gap in a closed block (any status but `todo`), or a defect in a
-     file key (`goal`, `ordered`, `suite`, `sweep`) at or above the floor.
+   - `needs-answers` — the critic or the editor raised things only the user can settle: a
+     dependency-ordering error whose fix restructures blocks, a gap in a closed block (any status but
+     `todo`), a defect in a file key (`goal`, `ordered`, `suite`, `sweep`) at or above the floor, or a
+     gap in requirement text at or above the floor whose corrections differ in user-visible behavior,
+     stored data or a public contract (§1).
    - `dismissal-contested` — the critic contested a declined gap, and the editor escalated it to
      `NEEDS-USER.md`.
    - `rounds-exhausted` — the last round's gaps were folded but never re-verified, so the plan is not
@@ -144,24 +151,25 @@ own single refine run. One develop launch takes both files when their file keys 
 ## 3. Roles
 
 - **Critic** (opus, read-only on the repo) — writes `plan-critique-<round>.md` (gaps with file:line
-  evidence, no evidence no gap; questions). In a round with no gap and no question, the converged
-  round, it writes the FYI section when it has items, and writes "No gaps." when it has none. That section
-  has one subsection per block with below-floor findings, then `File preamble` (plan text above the
-  first block, other than the file keys, at any grade, plus a file-key finding below the floor), then
-  `Outside the plan` (defects no plan text holds, in files the critic read to judge the plan, at every
-  floor). Its items are numbered F1, F2 across the section. No editor reads it, and the user reads it
-  with the plan. Returns counts plus a `wrote_file` attestation and a `relayed_request` flag, nothing
-  else — content crosses through the file. The critic writes its file every round, so `wrote_file` false
-  halts (`critique-unwritten`) whatever the counts, and `relayed_request` true halts
-  (`relayed-request`). A DEAD critic **throws** — zero gaps from a dead agent would be byte-identical to
-  convergence.
+  evidence and the kind of text each is in, no evidence no gap; questions). In a round with no gap and
+  no question, the converged round, it writes the FYI section when it has items, and writes "No gaps."
+  when it has none. That section has one subsection per block with below-floor findings, then
+  `File preamble` (plan text above the first block, other than the file keys, at any grade, plus a
+  file-key finding below the floor), then `Outside the plan` (defects no plan text holds, in files the
+  critic read to judge the plan, at every floor). Its items are numbered F1, F2 across the section. No
+  editor reads it, and the user reads it with the plan. Returns counts plus a `wrote_file` attestation
+  and a `relayed_request` flag, nothing else — content crosses through the file. The critic writes its
+  file every round, so `wrote_file` false halts (`critique-unwritten`) whatever the counts, and
+  `relayed_request` true halts (`relayed-request`). A DEAD critic **throws** — zero gaps from a dead
+  agent would be byte-identical to convergence.
 - **Editor** (opus) — runs only on a round with countable gaps and no questions. Checks each gap
   against the plan and the repo first, as §1 says. Folds, declines to the ledger, then re-runs
   `node '<blockTool>' '<planPath>' --list` and attests `plan_parses`.
   Halts: dead editor (`agent-dead` — the critique file survives, but the plan may be partly edited),
   folded gaps with `wrote_file` false (`fold-unattested`), `plan_parses` false (`plan-broken`),
   `needs_user` true (`dismissal-contested`, since it escalated a contested dismissal to
-  `NEEDS-USER.md`).
+  `NEEDS-USER.md`), `questions` above 0 (`needs-answers`, since it sent a requirement gap that is the
+  user's choice to `NEEDS-USER.md`).
 
 ## 4. State files
 

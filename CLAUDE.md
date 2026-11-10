@@ -19,14 +19,14 @@ plan mode + approval *before* the engine runs):
 | Run several engine runs **in parallel** — one batch, one worktree per chain, landed into an integration branch | `docs/worktree-batches.md` (`tools/wt.mjs`) |
 
 Right-size first: trivial one-liner/rename → just edit, no workflow. Then by intent. **Build** → author a
-plan file (one `feature` block per bounded change, `section` blocks for one goal spanning many files),
-refine it, approve it, develop it. Find production defects → audit's defects kind, then develop its
-fix-mode files. **Audit for enhancements** (what a working system could do better; human triages) →
-audit's enhancements kind; **diverge** (creative options,
-human judges) → brainstorm; **converge** (AI concludes among options it generates) → decide; **search**
-(the answer already exists; find it and prove it meets fixed criteria) → investigate; **provision** (copy +
-curate the docs to build against) → docs. The last five are generative/read-only: no code, no staging, no
-commit (they honor only the core principles — see WORKFLOW-PRINCIPLES.md "Scope").
+plan file (one `feature` block per bounded change, `section` blocks for one goal spanning many files,
+each written to `principles/WORKFLOW-PRINCIPLES.md` #21), refine it, approve it, develop it. Find
+production defects → audit's defects kind, then develop its fix-mode files. **Audit for enhancements**
+(what a working system could do better; human triages) → audit's enhancements kind; **diverge**
+(creative options, human judges) → brainstorm; **converge** (AI concludes among options it generates) →
+decide; **search** (the answer already exists; find it and prove it meets fixed criteria) → investigate;
+**provision** (copy + curate the docs to build against) → docs. The last five are generative/read-only:
+no code, no staging, no commit (they honor only the core principles — see WORKFLOW-PRINCIPLES.md "Scope").
 
 **Defect vs. enhancement is the sharpest split here.** audit's two kinds share one engine and keep their
 products apart: a defects run ends in a closed issue inventory that develop's fix mode builds, an

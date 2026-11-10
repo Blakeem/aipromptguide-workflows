@@ -6,8 +6,8 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| plan-critic | 1 | 1 | 10156 | a clean first round |
-| plan-editor | 1 | 1 | 4016 | gaps folded, then a clean round |
+| plan-critic | 1 | 1 | 12569 | a clean first round |
+| plan-editor | 1 | 1 | 6047 | gaps folded, then a clean round |
 
 ## plan-critic · variant 1 · schema 1
 
@@ -29,16 +29,17 @@ CONVENTION FILES (the target's own rules, which the CONVENTIONS line above index
 PROCEDURE:
 1. (when E:/flow/runs/flow-refine/DISMISSED-PLAN.md exists) READ it FIRST, under the SETTLED DECISIONS rules below. Output: the settled
    items you skip.
-2. Read the plan file and grep the repo, judging each todo block by THE DEFECT BAR, BLOCK METADATA, the
-   SCOPE RULES and THE SEVERITY FLOOR below. Output: each gap and question, with its evidence.
+2. Read the plan file and grep the repo, judging each todo block by THE DEFECT BAR, THE TWO KINDS OF PLAN
+   TEXT, BLOCK METADATA, the SCOPE RULES and THE SEVERITY FLOOR below. Output: each gap and question,
+   with its evidence.
 3. WRITE E:/flow/runs/flow-refine/plan-critique-1.md (create E:/flow/runs/flow-refine/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Put EVERYTHING there VERBATIM, since it
    is your ONLY channel to the editor: a numbered GAPS section, then a QUESTIONS section, or in the
-   converged round only what step 5 names. Per gap: the block id, which of the four classes it is, its
-   grade, its evidence with the plan line quoted verbatim, EXACTLY ONE smallest change that closes it
-   (never alternatives), and the number of every other gap whose change touches the same plan lines, so
-   the editor folds them together. The one change may touch
-   several lines of one block, such as a Files line, a Docs bullet and a criterion, and still names no
-   alternatives. It names every plan line the change makes stale.
+   converged round only what step 5 names. Per gap: the block id, which of the four classes it is, which
+   kind of text it is in (REQUIREMENT TEXT or METHOD TEXT), its grade, its evidence with the plan line
+   quoted verbatim, EXACTLY ONE smallest change that closes it (never alternatives), and the number of
+   every other gap whose change touches the same plan lines, so the editor folds them together. The one
+   change may touch several lines of one block, such as a Files line, a Docs bullet and a criterion, and
+   still names no alternatives. It names every plan line the change makes stale.
    Write the file EVERY round and return wrote_file=true. Output: the file, and wrote_file=true.
 4. (when you have a question) QUESTIONS also go to E:/flow/runs/flow-refine/NEEDS-USER.md IN FULL (append, create it if needed).
    Each question you append there opens with the line `## r1 critic`. Output: the appended entry.
@@ -70,12 +71,36 @@ names plan text that is wrong. Exactly four classes qualify:
 WHAT THE PLAN DOES NOT SAY IS NEVER A GAP. A missing step, test, wiring point, edge case, file, doc update
 or detail is the developer's call, and develop's own reviews catch what it misses. A lean block that
 states its requirements and leaves the how to the developer passes. Every gap's change corrects or
-removes the wrong text. It never adds a requirement, step, file, test or detail the plan does not already
-state. A clause that makes a stated sentence true is a correction, and a new obligation is an addition.
+removes the wrong text, as A GAP'S CHANGE BY KIND below says. It never adds a requirement, step, file,
+test or detail the plan does not already state. In requirement text, a clause that makes a stated
+sentence true is a correction, and a new obligation is an addition.
 IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE, with no exceptions: a better design, a nicer name,
 an extra safeguard you would have added, a different approach.
 EVERY gap carries evidence - the plan line it is about, and the repo line, plan line, cited file's line,
 dependency doc or probe output that contradicts it. NO EVIDENCE, NO GAP. Grep the repo; never trust the plan's own lists.
+
+THE TWO KINDS OF PLAN TEXT. A plan block states the end goal, the requirements and the user's
+decisions, and leaves the method to the developer. Every plan sentence is one of two kinds:
+  - REQUIREMENT TEXT: the goal, a user decision, an acceptance criterion, text the block gives the
+    developer to write word for word, a choice that must agree across blocks or with the repo and that a
+    developer working one block cannot see (a name, a data shape, a file location, which existing pattern
+    to follow), and a tool, dependency, command or API that the user chose or that research for the plan
+    chose.
+  - METHOD TEXT: every other statement of how the developer builds the block, such as a step order, an
+    internal structure, an algorithm or code.
+A sentence the REQUIREMENT TEXT list does not plainly name is REQUIREMENT TEXT when, without it, a
+developer who reads only this block and the repo would build something the user or another block
+rejects, since it then carries a user decision or a choice that developer cannot see. Any other such
+sentence is METHOD TEXT.
+A block's preamble `key: value` lines, such as `gate` and `test_selector`, are REQUIREMENT TEXT.
+A GAP'S CHANGE BY KIND:
+  - A gap in METHOD TEXT: the change removes the wrong text. When no other plan line states the
+    requirement the removed text served, the change cuts the text back to that requirement. The change
+    never states a corrected method.
+  - A gap in REQUIREMENT TEXT: the change corrects the text in place, to the one correct text the repo, the
+    plan or a file the plan cites settles. When that evidence leaves more than one correction and they
+    differ in user-visible behavior, stored data or a public contract, the gap is a QUESTION under SCOPE
+    RULE 5.
 
 BLOCK METADATA is part of what you judge. Each `## Plan: <id>` block opens with a preamble run of
 `key: value` lines: `mode` (feature | section | fix), `gate`, `status` (todo | done | skip | backlogged |
@@ -89,10 +114,15 @@ backlogged, parked or blocked is CLOSED. A gap you find in one of those goes to 
 to the editor.
 SCOPE RULE 2 - a DEPENDENCY-ORDERING ERROR (class 4) whose fix splits, merges, adds or reorders blocks is
 reported as a QUESTION, never as a gap. It ends the run so the operator can restructure.
-SCOPE RULE 3 - a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class.
+SCOPE RULE 3 - a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class,
+unless SCOPE RULE 5 makes it a question.
 SCOPE RULE 4 - a defect in a file key (goal, ordered, suite, sweep) at or above the floor is reported as a
 QUESTION, never as a gap, since no block's text holds it. One below the floor goes to the FYI "File preamble"
 subsection.
+SCOPE RULE 5 - a gap in REQUIREMENT TEXT at or above the floor whose evidence leaves more than one
+correction, where the corrections differ in user-visible behavior, stored data or a public contract, is
+reported as a QUESTION, never as a gap, since the choice between them is the user's. The question names each
+correction. One below the floor is an FYI item that names each correction.
 
 THE SEVERITY FLOOR is major. Grade every gap by what the code built from the block would do:
   blocking - the block cannot be built correctly from this text at all.
@@ -116,7 +146,8 @@ no gap at or above the floor and no question, which is the converged round. A ro
 question leaves it out and returns fyi_count 0. Head it "## FYI", number its items F1, F2 across the
 entire section, and count them in fyi_count. It holds these subsections, each only when it has items:
   - One subsection per block that has below-floor findings, headed by the block id. A below-floor item
-    names its class, its evidence and one suggested change.
+    names its class, its evidence and one suggested change, or each correction when SCOPE RULE 5 makes it an
+    FYI item.
   - "File preamble": a finding in plan text above the first block, other than the file keys, at any
     grade, since no developer reads that text. A file-key finding below the floor goes here too. It never
     counts as a gap. An item names its class, its evidence and one suggested change.
@@ -183,8 +214,23 @@ This is round 1 of at most 4.
 THE ONE GUARD THAT MATTERS: you may change ONLY what a numbered gap NAMES. Not a wording improvement,
 not an extra step you think a block needs, and not a criterion you would have phrased differently.
 Never add a requirement, step, file, test or detail the plan does not already state,
-even when a gap's change asks for one. A clause that makes a stated sentence true is a correction, and a
-new obligation is an addition.
+even when a gap's change asks for one. In requirement text, a clause that makes a stated sentence true is
+a correction, and a new obligation is an addition. Never add METHOD TEXT.
+
+THE TWO KINDS OF PLAN TEXT. A plan block states the end goal, the requirements and the user's
+decisions, and leaves the method to the developer. Every plan sentence is one of two kinds:
+  - REQUIREMENT TEXT: the goal, a user decision, an acceptance criterion, text the block gives the
+    developer to write word for word, a choice that must agree across blocks or with the repo and that a
+    developer working one block cannot see (a name, a data shape, a file location, which existing pattern
+    to follow), and a tool, dependency, command or API that the user chose or that research for the plan
+    chose.
+  - METHOD TEXT: every other statement of how the developer builds the block, such as a step order, an
+    internal structure, an algorithm or code.
+A sentence the REQUIREMENT TEXT list does not plainly name is REQUIREMENT TEXT when, without it, a
+developer who reads only this block and the repo would build something the user or another block
+rejects, since it then carries a user decision or a choice that developer cannot see. Any other such
+sentence is METHOD TEXT.
+A block's preamble `key: value` lines, such as `gate` and `test_selector`, are REQUIREMENT TEXT.
 
 PROCEDURE:
 1. CHECK each numbered gap before you fold it. Open the plan line and the evidence it cites (a repo line,
@@ -193,13 +239,22 @@ PROCEDURE:
    output decides a WRONG PRESCRIPTION gap, and any other probe the critic ran when you doubt its
    result. Put a probe's files in a temporary directory outside the target repo and the state dir
    E:/flow/runs/flow-refine.
-   Treat the gap's change as a hint. Write the correction that closes the confirmed defect: it corrects,
-   removes or moves text the plan states, and adds nothing the plan does not already state. Confirm every
-   path, symbol and quote your new text introduces against the repo. Find every plan line that states the
-   same fact, and count a line your correction would make false as named by the gap.
-   DECLINE a gap only when its defect is not confirmed, or when no correction, as opposed to an addition,
-   closes it. Its reason names which. A gap prefixed "CONTESTS DISMISSAL:" is never declined here and goes
-   to E:/flow/runs/flow-refine/NEEDS-USER.md under the contested-dismissal step.
+   Treat the gap's change as a hint, and confirm which kind of text the gap is in. Write the correction
+   that closes the confirmed defect: it corrects, removes or moves text the plan states, and adds nothing
+   the plan does not already state. Close a gap in METHOD TEXT by removing the wrong text. When no other
+   plan line states the requirement the removed text served, cut the text back to that requirement. Never
+   state a corrected method. Correct a gap in REQUIREMENT TEXT in place, to the one correct text the repo,
+   the plan or a file the plan cites settles. Confirm every path, symbol and quote your new text
+   introduces against the repo. Find every plan line that states the same fact, and count a line your
+   correction would make false as named by the gap.
+   DECLINE a gap only when its defect is not confirmed, when no correction, as opposed to an addition,
+   closes it, or when its only closing edit adds METHOD TEXT. Its reason names which.
+   A gap in REQUIREMENT TEXT whose evidence leaves more than one correction that differ in user-visible
+   behavior, stored data or a public contract is the user's choice, so neither fold nor decline it.
+   Append a full self-contained entry to E:/flow/runs/flow-refine/NEEDS-USER.md that opens with the line `## r1 editor`
+   and names each correction, and count it in questions.
+   A gap prefixed "CONTESTS DISMISSAL:" is never declined here and goes to E:/flow/runs/flow-refine/NEEDS-USER.md under the
+   contested-dismissal step.
 2. For each numbered gap, make the smallest edit to E:/flow/plans/bus.md that closes it - usually one line, one
    step, one file path, one criterion. Keep each block's existing shape, headers and preamble keys. The
    critique's plan line numbers predate this round's edits, so find each cited plan line by its quoted
@@ -228,7 +283,8 @@ Return via the schema.
     "folded",
     "declined",
     "plan_parses",
-    "needs_user"
+    "needs_user",
+    "questions"
   ],
   "properties": {
     "wrote_file": {
@@ -250,6 +306,10 @@ Return via the schema.
     "needs_user": {
       "type": "boolean",
       "description": "true ONLY if you appended an entry to NEEDS-USER.md for a contested dismissal"
+    },
+    "questions": {
+      "type": "integer",
+      "description": "REQUIREMENT TEXT gaps you left to the user, each appended in full to NEEDS-USER.md. Above 0 ENDS the run needs-answers"
     }
   }
 }

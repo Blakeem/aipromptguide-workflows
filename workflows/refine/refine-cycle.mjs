@@ -1,10 +1,10 @@
 export const meta = {
   name: 'refine-cycle',
-  description: 'Converging plan review, file-bus design: a read-only CRITIC judges every todo block of ONE plan file against the REAL repo under a fixed DEFECT BAR (it judges only whether the plan\'s text is correct, and what the plan does not say is never a gap - improvements, alternatives and style are excluded unconditionally), grades each gap against a severity FLOOR, and writes its findings verbatim to plan-critique-<round>.md; a minimal-fold EDITOR then checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it and changes NOTHING a gap does not name, declining to DISMISSED-PLAN.md and re-validating the file through the plan-block tool. The loop ends on ONE clean round. The harness routes only counts, paths and an explicit halt kind.',
-  whenToUse: 'Converge a plan file BEFORE develop-cycle builds from it: the plan is authored, and you want its gaps closed until a critic finds none. It is built to converge: a refine loop without its defect bar, floor, dismissal ledger and minimal-fold editor, run five times on one plan, keeps adding code and detail and never stops. Questions (a dependency-ordering error whose fix splits, merges, adds or reorders blocks, a gap in a closed block, which is a block with any status but todo, or a defect in a file key at or above the floor) END the run needs-answers for the operator to restructure, because the editor has no legal edit for any of them. Nothing here builds, stages or commits.',
+  description: 'Converging plan review, file-bus design: a read-only CRITIC judges every todo block of ONE plan file against the REAL repo under a fixed DEFECT BAR (it judges only whether the plan\'s text is correct, and what the plan does not say is never a gap - improvements, alternatives and style are excluded unconditionally), grades each gap against a severity FLOOR, names whether each gap is in requirement text or method text, and writes its findings verbatim to plan-critique-<round>.md; a minimal-fold EDITOR then checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it (a gap in method text closes by removing text, never by a corrected method, and a gap in requirement text is corrected in place) and changes NOTHING a gap does not name, declining to DISMISSED-PLAN.md and re-validating the file through the plan-block tool. The loop ends on ONE clean round. The harness routes only counts, paths and an explicit halt kind.',
+  whenToUse: 'Converge a plan file BEFORE develop-cycle builds from it: the plan is authored, and you want its gaps closed until a critic finds none. It is built to converge: a refine loop without its defect bar, floor, dismissal ledger and minimal-fold editor, run five times on one plan, keeps adding code and detail and never stops. Questions (a dependency-ordering error whose fix splits, merges, adds or reorders blocks, a gap in a closed block, which is a block with any status but todo, a defect in a file key at or above the floor, or a gap in requirement text at or above the floor whose corrections differ in user-visible behavior, stored data or a public contract) END the run needs-answers for the operator to settle with the user, because none of them is the editor\'s to fold. Nothing here builds, stages or commits.',
   phases: [
-    { title: 'Critique', detail: 'A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-<round>.md every round (gaps with file:line evidence, questions, and an FYI section only in a round with no gaps and no questions, or "No gaps." in a round with nothing) and returns counts plus a wrote_file attestation and a relayed_request flag, nothing else.' },
-    { title: 'Fold', detail: 'Runs only when the round returned at-or-above-floor gaps and no questions. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, and re-runs the plan-block tool to prove the file still parses.' },
+    { title: 'Critique', detail: 'A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-<round>.md every round (gaps with file:line evidence and the kind of text each is in, questions, and an FYI section only in a round with no gaps and no questions, or "No gaps." in a round with nothing) and returns counts plus a wrote_file attestation and a relayed_request flag, nothing else.' },
+    { title: 'Fold', detail: 'Runs only when the round returned at-or-above-floor gaps and no questions. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, removing wrong method text rather than correcting it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, sends a requirement gap that is the user\'s choice to NEEDS-USER.md, and re-runs the plan-block tool to prove the file still parses.' },
   ],
 };
 
@@ -213,13 +213,14 @@ const CRITIC_SCHEMA = {
 
 const EDITOR_SCHEMA = {
   type: 'object',
-  required: ['wrote_file', 'folded', 'declined', 'plan_parses', 'needs_user'],
+  required: ['wrote_file', 'folded', 'declined', 'plan_parses', 'needs_user', 'questions'],
   properties: {
     wrote_file:  { type: 'boolean', description: 'true if you actually wrote your edits to the plan file. Reporting folded gaps with false HALTS the run - the fold would exist nowhere' },
     folded:      { type: 'integer', description: 'numbered gaps you closed with an edit to the plan file' },
     declined:    { type: 'integer', description: 'gaps you declined to DISMISSED-PLAN.md' },
     plan_parses: { type: 'boolean', description: 'true ONLY if the plan-block --list command you ran AFTER your edits exited 0' },
     needs_user:  { type: 'boolean', description: 'true ONLY if you appended an entry to NEEDS-USER.md for a contested dismissal' },
+    questions:   { type: 'integer', description: 'REQUIREMENT TEXT gaps you left to the user, each appended in full to NEEDS-USER.md. Above 0 ENDS the run needs-answers' },
   },
 };
 
@@ -241,6 +242,21 @@ const WROTE_NOTE = 'A write the tool rejected has not written the file, so repor
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
 // A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
 const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
+// A run launched from another project loads no guide, so each role's prompt carries principles #21's two kinds.
+const TEXT_KINDS = `THE TWO KINDS OF PLAN TEXT. A plan block states the end goal, the requirements and the user's
+decisions, and leaves the method to the developer. Every plan sentence is one of two kinds:
+  - REQUIREMENT TEXT: the goal, a user decision, an acceptance criterion, text the block gives the
+    developer to write word for word, a choice that must agree across blocks or with the repo and that a
+    developer working one block cannot see (a name, a data shape, a file location, which existing pattern
+    to follow), and a tool, dependency, command or API that the user chose or that research for the plan
+    chose.
+  - METHOD TEXT: every other statement of how the developer builds the block, such as a step order, an
+    internal structure, an algorithm or code.
+A sentence the REQUIREMENT TEXT list does not plainly name is REQUIREMENT TEXT when, without it, a
+developer who reads only this block and the repo would build something the user or another block
+rejects, since it then carries a user decision or a choice that developer cannot see. Any other such
+sentence is METHOD TEXT.
+A block's preamble \`key: value\` lines, such as \`gate\` and \`test_selector\`, are REQUIREMENT TEXT.`;
 
 // =============================================================================
 // Role prompts
@@ -255,16 +271,17 @@ ${ENV}
 PROCEDURE:
 1. (when ${DISMISSED} exists) READ it FIRST, under the SETTLED DECISIONS rules below. Output: the settled
    items you skip.
-2. Read the plan file and grep the repo, judging each todo block by THE DEFECT BAR, BLOCK METADATA, the
-   SCOPE RULES and THE SEVERITY FLOOR below. Output: each gap and question, with its evidence.
+2. Read the plan file and grep the repo, judging each todo block by THE DEFECT BAR, THE TWO KINDS OF PLAN
+   TEXT, BLOCK METADATA, the SCOPE RULES and THE SEVERITY FLOOR below. Output: each gap and question,
+   with its evidence.
 3. WRITE ${critiqueFile(round)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Put EVERYTHING there VERBATIM, since it
    is your ONLY channel to the editor: a numbered GAPS section, then a QUESTIONS section, or in the
-   converged round only what step 5 names. Per gap: the block id, which of the four classes it is, its
-   grade, its evidence with the plan line quoted verbatim, EXACTLY ONE smallest change that closes it
-   (never alternatives), and the number of every other gap whose change touches the same plan lines, so
-   the editor folds them together. The one change may touch
-   several lines of one block, such as a Files line, a Docs bullet and a criterion, and still names no
-   alternatives. It names every plan line the change makes stale.
+   converged round only what step 5 names. Per gap: the block id, which of the four classes it is, which
+   kind of text it is in (REQUIREMENT TEXT or METHOD TEXT), its grade, its evidence with the plan line
+   quoted verbatim, EXACTLY ONE smallest change that closes it (never alternatives), and the number of
+   every other gap whose change touches the same plan lines, so the editor folds them together. The one
+   change may touch several lines of one block, such as a Files line, a Docs bullet and a criterion, and
+   still names no alternatives. It names every plan line the change makes stale.
    Write the file EVERY round and return wrote_file=true. Output: the file, and wrote_file=true.
 4. (when you have a question) QUESTIONS also go to ${NEEDS_USER} IN FULL (append, create it if needed).
    Each question you append there opens with the line \`## r${round} critic\`. Output: the appended entry.
@@ -296,12 +313,23 @@ names plan text that is wrong. Exactly four classes qualify:
 WHAT THE PLAN DOES NOT SAY IS NEVER A GAP. A missing step, test, wiring point, edge case, file, doc update
 or detail is the developer's call, and develop's own reviews catch what it misses. A lean block that
 states its requirements and leaves the how to the developer passes. Every gap's change corrects or
-removes the wrong text. It never adds a requirement, step, file, test or detail the plan does not already
-state. A clause that makes a stated sentence true is a correction, and a new obligation is an addition.
+removes the wrong text, as A GAP'S CHANGE BY KIND below says. It never adds a requirement, step, file,
+test or detail the plan does not already state. In requirement text, a clause that makes a stated
+sentence true is a correction, and a new obligation is an addition.
 IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE, with no exceptions: a better design, a nicer name,
 an extra safeguard you would have added, a different approach.
 EVERY gap carries evidence - the plan line it is about, and the repo line, plan line, cited file's line,
 dependency doc or probe output that contradicts it. NO EVIDENCE, NO GAP. Grep the repo; never trust the plan's own lists.
+
+${TEXT_KINDS}
+A GAP'S CHANGE BY KIND:
+  - A gap in METHOD TEXT: the change removes the wrong text. When no other plan line states the
+    requirement the removed text served, the change cuts the text back to that requirement. The change
+    never states a corrected method.
+  - A gap in REQUIREMENT TEXT: the change corrects the text in place, to the one correct text the repo, the
+    plan or a file the plan cites settles. When that evidence leaves more than one correction and they
+    differ in user-visible behavior, stored data or a public contract, the gap is a QUESTION under SCOPE
+    RULE 5.
 
 BLOCK METADATA is part of what you judge. Each \`## Plan: <id>\` block opens with a preamble run of
 \`key: value\` lines: \`mode\` (feature | section | fix), \`gate\`, \`status\` (todo | done | skip | backlogged |
@@ -315,10 +343,15 @@ backlogged, parked or blocked is CLOSED. A gap you find in one of those goes to 
 to the editor.
 SCOPE RULE 2 - a DEPENDENCY-ORDERING ERROR (class 4) whose fix splits, merges, adds or reorders blocks is
 reported as a QUESTION, never as a gap. It ends the run so the operator can restructure.
-SCOPE RULE 3 - a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class.
+SCOPE RULE 3 - a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class,
+unless SCOPE RULE 5 makes it a question.
 SCOPE RULE 4 - a defect in a file key (goal, ordered, suite, sweep) at or above the floor is reported as a
 QUESTION, never as a gap, since no block's text holds it. One below the floor goes to the FYI "File preamble"
 subsection.
+SCOPE RULE 5 - a gap in REQUIREMENT TEXT at or above the floor whose evidence leaves more than one
+correction, where the corrections differ in user-visible behavior, stored data or a public contract, is
+reported as a QUESTION, never as a gap, since the choice between them is the user's. The question names each
+correction. One below the floor is an FYI item that names each correction.
 
 THE SEVERITY FLOOR is ${SEVERITY}. Grade every gap by what the code built from the block would do:
   blocking - the block cannot be built correctly from this text at all.
@@ -344,7 +377,8 @@ no gap at or above the floor and no question, which is the converged round. A ro
 question leaves it out and returns fyi_count 0. Head it "## FYI", number its items F1, F2 across the
 entire section, and count them in fyi_count. It holds these subsections, each only when it has items:
 ${BELOW.length ? `  - One subsection per block that has below-floor findings, headed by the block id. A below-floor item
-    names its class, its evidence and one suggested change.
+    names its class, its evidence and one suggested change, or each correction when SCOPE RULE 5 makes it an
+    FYI item.
 ` : ''}  - "File preamble": a finding in plan text above the first block, other than the file keys, at any
     grade, since no developer reads that text. A file-key finding below the floor goes here too. It never
     counts as a gap. An item names its class, its evidence and one suggested change.
@@ -365,8 +399,10 @@ This is round ${round} of at most ${MAX_ROUNDS}.
 THE ONE GUARD THAT MATTERS: you may change ONLY what a numbered gap NAMES. Not a wording improvement,
 not an extra step you think a block needs, and not a criterion you would have phrased differently.
 Never add a requirement, step, file, test or detail the plan does not already state,
-even when a gap's change asks for one. A clause that makes a stated sentence true is a correction, and a
-new obligation is an addition.
+even when a gap's change asks for one. In requirement text, a clause that makes a stated sentence true is
+a correction, and a new obligation is an addition. Never add METHOD TEXT.
+
+${TEXT_KINDS}
 
 PROCEDURE:
 1. CHECK each numbered gap before you fold it. Open the plan line and the evidence it cites (a repo line,
@@ -375,13 +411,22 @@ PROCEDURE:
    output decides a WRONG PRESCRIPTION gap, and any other probe the critic ran when you doubt its
    result. Put a probe's files in a temporary directory outside the target repo and the state dir
    ${STATE_DIR}.
-   Treat the gap's change as a hint. Write the correction that closes the confirmed defect: it corrects,
-   removes or moves text the plan states, and adds nothing the plan does not already state. Confirm every
-   path, symbol and quote your new text introduces against the repo. Find every plan line that states the
-   same fact, and count a line your correction would make false as named by the gap.
-   DECLINE a gap only when its defect is not confirmed, or when no correction, as opposed to an addition,
-   closes it. Its reason names which. A gap prefixed "CONTESTS DISMISSAL:" is never declined here and goes
-   to ${NEEDS_USER} under the contested-dismissal step.
+   Treat the gap's change as a hint, and confirm which kind of text the gap is in. Write the correction
+   that closes the confirmed defect: it corrects, removes or moves text the plan states, and adds nothing
+   the plan does not already state. Close a gap in METHOD TEXT by removing the wrong text. When no other
+   plan line states the requirement the removed text served, cut the text back to that requirement. Never
+   state a corrected method. Correct a gap in REQUIREMENT TEXT in place, to the one correct text the repo,
+   the plan or a file the plan cites settles. Confirm every path, symbol and quote your new text
+   introduces against the repo. Find every plan line that states the same fact, and count a line your
+   correction would make false as named by the gap.
+   DECLINE a gap only when its defect is not confirmed, when no correction, as opposed to an addition,
+   closes it, or when its only closing edit adds METHOD TEXT. Its reason names which.
+   A gap in REQUIREMENT TEXT whose evidence leaves more than one correction that differ in user-visible
+   behavior, stored data or a public contract is the user's choice, so neither fold nor decline it.
+   Append a full self-contained entry to ${NEEDS_USER} that opens with the line \`## r${round} editor\`
+   and names each correction, and count it in questions.
+   A gap prefixed "CONTESTS DISMISSAL:" is never declined here and goes to ${NEEDS_USER} under the
+   contested-dismissal step.
 2. For each numbered gap, make the smallest edit to ${PLAN_PATH} that closes it - usually one line, one
    step, one file path, one criterion. Keep each block's existing shape, headers and preamble keys. The
    critique's plan line numbers predate this round's edits, so find each cited plan line by its quoted
@@ -414,6 +459,7 @@ let haltKind = 'rounds';        // the default terminal state: the loop fell thr
 let haltReason = '';            // stays empty on converged and rounds-exhausted, which are not halts
 let openGaps = 0;               // the LAST round's at-or-above-floor gap count
 let questions = 0;              // the LAST round's question count
+let questionsBy = 'critic';     // the role whose questions ended the run needs-answers
 let belowFloor = 0;             // the LAST round's FYI count
 let dismissedCount = 0;         // gaps the editor declined across the whole run
 let lastCritique = '';          // the last critique file a critic CONFIRMED writing - never one nothing wrote
@@ -455,13 +501,14 @@ while (round < MAX_ROUNDS) {
   }
   log(`  r${round}: ${openGaps} gap(s) at or above ${SEVERITY}, ${belowFloor} FYI item(s), ${questions} question(s)`);
 
-  // Questions END the run, since the minimal-fold editor has no legal edit for any of them: an ordering
-  // error changes the block STRUCTURE and the operator's derived plans array, and a gap in a closed block
-  // or a defect in a file key lies outside every todo block.
+  // Questions END the run, since none is the minimal-fold editor's to fold: an ordering error changes the
+  // block STRUCTURE and the operator's derived plans array, a gap in a closed block or a defect in a file
+  // key lies outside every todo block, and a requirement gap whose corrections differ for the user is the
+  // user's choice.
   if (questions > 0) {
     haltKind = 'needs-answers';
-    haltReason = `The critic raised ${questions} question(s) for the operator in round ${round} (see ${critiqueFile(round)} and ${NEEDS_USER}), and the editor has no legal edit for these.`;
-    log(`  ✋ r${round}: ${questions} question(s) for the operator (see ${NEEDS_USER}) - the editor has no legal edit for these; halting`);
+    haltReason = `The critic raised ${questions} question(s) for the operator in round ${round} (see ${critiqueFile(round)} and ${NEEDS_USER}), and none of these is the editor's to fold.`;
+    log(`  ✋ r${round}: ${questions} question(s) for the operator (see ${NEEDS_USER}) - none is the editor's to fold; halting`);
     break;
   }
   // ONE CLEAN ROUND and done. A critic that ran, read the ledger, and found nothing at or above the floor
@@ -487,6 +534,7 @@ while (round < MAX_ROUNDS) {
   }
   const folded   = Math.max(0, Number(fold.folded) || 0);
   const declined = Math.max(0, Number(fold.declined) || 0);
+  questions = Math.max(0, Number(fold.questions) || 0);
   dismissedCount += declined;
   log(`  r${round}: folded ${folded}, declined ${declined} (ledger: ${DISMISSED})`);
 
@@ -516,6 +564,14 @@ while (round < MAX_ROUNDS) {
     log(`  ✋ r${round}: editor escalated a contested dismissal to the operator (see ${NEEDS_USER}); halting`);
     break;
   }
+  // The editor's questions end the run as the critic's do, since a later round could fold or skip the gap.
+  if (questions > 0) {
+    questionsBy = 'editor';
+    haltKind = 'needs-answers';
+    haltReason = `The editor left ${questions} requirement gap(s) to the user in round ${round} (see ${NEEDS_USER}), since their corrections differ in user-visible behavior, stored data or a public contract.`;
+    log(`  ✋ r${round}: editor left ${questions} requirement gap(s) to the user (see ${NEEDS_USER}); halting`);
+    break;
+  }
   if (round >= MAX_ROUNDS) {
     log(`  ⚠ r${round}: round budget spent with ${openGaps} gap(s) folded but never re-critiqued (see ${lastCritique})`);
     break;                       // haltKind stays 'rounds'
@@ -523,12 +579,12 @@ while (round < MAX_ROUNDS) {
   log(`  ↻ r${round}: fold complete → next critic re-reads ${PLAN_PATH} and ${DISMISSED}`);
 }
 
-// Each terminal state gets its OWN string. "The plan converged", "the operator must restructure it" and
+// Each terminal state gets its OWN string. "The plan converged", "the user must answer questions" and
 // "the budget ran out with gaps still open" are three different facts, and folding any pair of them
 // together is how an unconverged plan gets handed to a build engine as a finished one.
 const HALT_STATUS = {
   'converged':          'converged (one clean round: no gaps at or above the floor, no questions)',
-  'needs-answers':      'needs-answers (the critic raised questions only the operator can settle)',
+  'needs-answers':      'needs-answers (the critic or the editor raised questions only the operator can settle)',
   'dismissal-contested': 'dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md)',
   'rounds':             'rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)',
   'agent-dead':         'BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file)',
@@ -547,12 +603,14 @@ log(`refine: ${status} after ${round} round(s) - ${openGaps} open gap(s), ${ques
 // same way. agent-dead replays because its editor never returned, so only the fold runs again.
 const listCmd  = `node '${BLOCK_TOOL}' '${PLAN_PATH}' --list`;
 const relaunch = `A relaunch takes the same args and runId and no resumeFromRunId, which keeps the stateDir and its ledger ${DISMISSED}. To relaunch, ${LAUNCH}.`;
+// An editor runs only after a critic with no questions, so its questions live only in NEEDS-USER.md.
+const critiqueQuestions = questionsBy === 'critic' ? `the QUESTIONS section of ${lastCritique} and ` : '';
 const NEXT_STEP = {
   'converged': `Audit ${DISMISSED} before trusting the converge, since each declined gap is a judgment call.`
     + (belowFloor > 0 ? ` Show the user the FYI section of ${lastCritique} with the plan, since no editor folded its ${belowFloor} item(s). The user can add an item to a block before approving.` : '')
     + ` Then build the plan through the develop guide's §0, which takes the user's approval of ${PLAN_PATH} at its step 12, once its steps 10 and 11 give the approval summary's values: continue at develop §0 step 9 when develop §0 step 8 started this refine run, or else work develop §0 from its step 1.`,
   'rounds': `The last round's gaps were folded but no critic re-read them. Read ${lastCritique}, decide with the user, then relaunch to confirm, raising maxRounds if needed. ${relaunch}`,
-  'needs-answers': `Read the QUESTIONS section of ${lastCritique} and the new entries headed "## r${round} critic" at the end of ${NEEDS_USER}, settle the questions with the user and restructure ${PLAN_PATH}, where new blocks take fresh kebab ids. Then relaunch. ${relaunch} A replay returns the cached critic and halts the same way.`,
+  'needs-answers': `Read ${critiqueQuestions}the new entries headed "## r${round} ${questionsBy}" at the end of ${NEEDS_USER}, settle the questions with the user and restructure or correct ${PLAN_PATH} by the answers, where new blocks take fresh kebab ids. Record an answer that keeps the plan text by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${DISMISSED}. Then relaunch. ${relaunch} A replay returns the cached agents and halts the same way.`,
   'dismissal-contested': `Read the new entries headed "## r${round} editor" at the end of ${NEEDS_USER} and record the user's ruling, by folding the gap into ${PLAN_PATH} or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${DISMISSED}. Then relaunch. ${relaunch}`,
   'agent-dead': `Run ${listCmd} first, since the editor may have partly edited the plan. Then replay with the same args and runId plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${critiqueFile(round)} runs again. To replay, ${LAUNCH}. A relaunch without resumeFromRunId restarts at round 1.`,
   'critique-unwritten': `Relaunch to redo the round. ${relaunch}`,

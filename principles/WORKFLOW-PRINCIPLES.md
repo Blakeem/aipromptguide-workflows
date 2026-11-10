@@ -391,17 +391,53 @@ little context. A step that is still missed, or whose miss costs a run, moves in
 checks it (#3), and leaves the list once that check enforces it. Anything carried between runs follows #4
 instead. It rides a step the operator runs anyway and never becomes a numbered step of its own.
 
+### 21. A plan states requirements and leaves the method to the developer
+A plan block states the end goal, the requirements and the user's decisions. It leaves the method to the
+developer. Every plan sentence is one of two kinds:
+- **Requirement text.** The goal, a user decision, an acceptance criterion, text the block gives the
+  developer to write word for word, a choice that must agree across blocks or with the repo and that a
+  developer working one block cannot see (a name, a data shape, a file location, which existing pattern to
+  follow), and a tool, dependency, command or API that the user chose or that research for the plan chose.
+- **Method text.** Every other statement of how the developer builds the block, such as a step order, an
+  internal structure, an algorithm or code.
+
+A block's preamble `key: value` lines, such as `gate` and `test_selector`, are requirement text.
+
+A requirement may name a tool, and the tool then fixes part of the method. Code, a command or a prescribed
+method in method text enters a block only with its source or probe, from research into what the developer's
+model does not already know. Routine method stays out, since the developer writes it anyway. A fix entry's
+`**Fix:**` line is the one exception. It stays without a source, since #18 makes it a hint the developer
+checks and departs from without an amendment.
+
+The plan author asks one question of a sentence the requirement list does not plainly name: without this
+sentence, would a developer who reads only this block and the repo build something the user or another
+block rejects? A yes means the sentence carries a user decision or a choice that developer cannot see, so it
+is requirement text. A no makes it method text, which stays only with its source or probe.
+
+Each plan sentence has a cost. The developer departs from a plan sentence only through a plan
+amendment (#18), refine must prove each sentence against the repo, and a correction that elaborates a
+sentence gives the next critic more to prove. So refine corrects plan text by kind:
+- A gap in method text closes by removing the wrong text. When no other plan line states the requirement
+  the removed text served, the change cuts the text back to that requirement. The change never states a
+  corrected method.
+- A gap in requirement text is corrected in place when the repo, the plan or a file the plan cites settles
+  the one correct text. When the evidence leaves more than one correction and they differ in user-visible
+  behavior, stored data or a public contract, a gap at or above refine's severity floor is a question for
+  the user and ends the run `needs-answers`.
+
 ---
 
 ## Scope
 
-Principles #1 to #4, #6, #8, and #11 to #20 are core, and every workflow honors them. The rest are build-loop
+Principles #1 to #4, #6, #8, and #11 to #20 are core, and every workflow honors them. #21 applies to the
+workflows that build from a plan file or converge one, which are develop and refine. The rest are build-loop
 rules and apply only where they fit.
 
 - **Build loops** produce code (develop, plus audit's defects kind that feeds it). They honor every principle,
   including the staged escalating review (#5), developer-owned escalation (#7), and one staging at the
-  end (#9). In develop, the developer's risk judgment decides which rounds get a blind review (#5), and
-  each blind review reports every finding at every tier.
+  end (#9), apart from #21 in audit's defects kind. In develop,
+  the developer's risk judgment decides which rounds get a blind review (#5), and each blind review
+  reports every finding at every tier.
 - **Generative and read-only workflows** do creative divergence, information provisioning, or read-only
   auditing (brainstorm, docs, audit's enhancements kind). They write no code, stage nothing, and never
   commit, so #7 and #9 don't apply. The user is the judge, and there is no AI review gate unless the
@@ -426,7 +462,8 @@ rules and apply only where they fit.
     a fixed defect floor. The critic judges only whether the plan's text is correct, so what the plan
     does not say never counts. Its editor checks each gap against the plan and the repo before folding
     it, and declines one that fails the check. The editor changes only the plan file, and only what a
-    gap names.
+    gap names. It closes each gap by its kind of text, and declines a gap whose only closing edit adds
+    method text (#21).
   - **Search** (investigate) converges on coverage, an evidenced claim that nothing qualifying was left
     unsearched, which an adversarial critic may contest. Candidates are found round by round instead of
     generated up front. The ledger of what already failed makes each round diverge instead of circling.
@@ -564,3 +601,6 @@ Use these as yes/no checks when reviewing any workflow.
       inside the step it limits, or stand as a step of its own when it limits every step? Is every choice
       labeled with its questions, the evidence to cite and its default, and does no background paragraph
       hold a required action? (#20)
+- [ ] Does every plan block hold requirement text and leave routine method to the developer, with each
+      prescribed method other than a fix entry's `**Fix:**` line carrying its source or probe? Does plan
+      review close a gap in method text by removing text, never by stating a corrected method? (#21)
