@@ -2,10 +2,10 @@
 
 `refine-cycle.mjs` converges **ONE plan file** before develop-cycle builds from it: a read-only
 **critic** judges every todo block against the real repo under a fixed defect bar, and a minimal-fold
-**editor** folds each verified gap into the file, alternating up to `maxRounds`. The loop ends on ONE
-clean round. It replaces feature-cycle `phase:"refine"`, which does not converge (run five times on
-one plan it keeps adding detail and never stops). Nothing here builds, stages, or commits. Built to
-`../../principles/WORKFLOW-PRINCIPLES.md`.
+**editor** folds each verified gap into the file, alternating for up to `maxRounds` critic rounds. The
+loop ends on ONE clean round, and a launch that spends its budget ends on a critic. It replaces
+feature-cycle `phase:"refine"`, which does not converge (run five times on one plan it keeps adding detail
+and never stops). Nothing here builds, stages, or commits. Built to `../../principles/WORKFLOW-PRINCIPLES.md`.
 
 ## 0. Checklist
 
@@ -14,8 +14,9 @@ condition in parentheses runs only under it.
 
 ### Before the run
 
-1. Choose the `runId` and `root` args, keeping the plan's earlier `runId` on a relaunch (§2 step 1, §4,
-   §5). Output: a value for each.
+1. Choose the `runId`, `root` and `priorRounds` args, keeping the plan's earlier `runId` on a relaunch
+   and passing `priorRounds: 0` on a plan's first launch and the value §5 names on a relaunch (§2 step 1,
+   §4, §5). Output: a value for each.
 2. Author the plan file in the plan-bus format at `<root>/plans/<runId>/`, outside every repo (§2 step 1).
    Output: the plan file.
 3. Choose the other args: `planPath` (that file), `target.repo` and, when wanted, `critiqueSeverity`,
@@ -35,17 +36,20 @@ condition in parentheses runs only under it.
 ### After the run
 
 7. (when the run threw because the plan critic returned nothing) Replay through steps 5 and 6 with the same
-   args and `runId` plus the Workflow tool's `resumeFromRunId`. Stop this pass of the list there, and work
-   it again from step 7 once that run ends (§3, the thrown error's message). Output: the replay's Workflow
-   run id.
+   args and `runId`, `priorRounds` included, plus the Workflow tool's `resumeFromRunId`. Stop this pass of
+   the list there, and work it again from step 7 once that run ends (§3, the thrown error's message).
+   Output: the replay's Workflow run id.
 8. (when `status` names the plan editor returning nothing) Run `node '<blockTool>' '<planPath>' --list`,
    since the editor may have partly edited the plan (§3, the return's `nextStep`). Output: the block list
    it prints.
-9. (after step 8) Replay through steps 5 and 6 with the same args and `runId` plus the Workflow tool's
-   `resumeFromRunId`, so only the fold runs again. Stop this pass of the list there, and work it again from
-   step 7 once that run ends (§3, the return's `nextStep`). Output: the replay's Workflow run id.
-10. (when `status` is `rounds-exhausted`) Read `lastCritique` and decide its gaps with the user (§2 step 2,
-    the return's `nextStep`). Output: the user's decision on each gap.
+9. (after step 8) Replay through steps 5 and 6 with the same args and `runId`, `priorRounds` included,
+   plus the Workflow tool's `resumeFromRunId`, so only the fold runs again. Stop this pass of the list
+   there, and work it again from step 7 once that run ends (§3, the return's `nextStep`). Output: the
+   replay's Workflow run id.
+10. (when `status` is `rounds-exhausted`) Show the user the gaps of `lastCritique`, which are open in the
+    plan, and have the user rule each one: a relaunch folds it, a `USER-RULED:` line in `DISMISSED-PLAN.md`
+    declines it, or the user edits the plan (§2 step 2, the return's `nextStep`). Output: the user's ruling
+    on each gap.
 11. (when `status` is `needs-answers`) Read the new entries at the end of `NEEDS-USER.md` under the
     heading `nextStep` names, and the QUESTIONS section of `lastCritique` when `nextStep` names it, and
     settle them with the user (§2 step 2, §4, the return's `nextStep`). Output: the user's answers.
@@ -60,9 +64,10 @@ condition in parentheses runs only under it.
     `nextStep`). Output: the plan file's state, checked.
 15. (when `status` names a plan file that no longer parses) Repair the plan file by hand until
     `node '<blockTool>' '<planPath>' --list` exits 0 (§3, the return's `nextStep`). Output: that exit 0.
-16. (when `status` is not `converged`) Relaunch through steps 5 and 6 with the same args and `runId` and no
-    `resumeFromRunId`, raising `maxRounds` after `rounds-exhausted` when needed. Stop this pass of the list
-    there, and work it again from step 7 once that run ends (§2 step 2, §2 step 3, §4, the return's
+16. (when `status` is not `converged`) Relaunch through steps 5 and 6 with the same args and `runId`, the
+    `priorRounds` value `nextStep` names and no `resumeFromRunId`, after `rounds-exhausted` once the user
+    has ruled on every gap, raising `maxRounds` from 1 when `nextStep` names it. Stop this pass of the list
+    there, and work it again from step 7 once that run ends (§2 step 2, §2 step 3, §4, §5, the return's
     `nextStep`). Output: the relaunch's Workflow run id.
 17. (when the plan converged) Audit `DISMISSED-PLAN.md`, since each declined gap is a judgment call (§1,
     the return's `nextStep`). Output: each declined gap checked.
@@ -107,8 +112,8 @@ Four things together — remove any one and the plan grows every round instead o
   FYI section of the converged round only, beside the defects outside the plan, and the user reads
   that section with the plan. `belowFloor` returns the section's item count.
 - **The dismissal ledger** (`DISMISSED-PLAN.md`). A declined gap stays declined. The critic skips
-  settled items and may contest one once. It never contests a line marked `USER-RULED:`,
-  which records the user's own ruling.
+  settled items and may contest one once. It never contests a line marked `USER-RULED:`, which records
+  the user's own ruling.
 - **The minimal-fold editor.** It confirms each gap's defect against the plan and the repo first, and
   treats the critic's change as a hint. It writes the correction that closes the confirmed defect by its
   kind of text, and declines a gap only when the defect is not confirmed, when no correction, as opposed
@@ -132,16 +137,17 @@ Four things together — remove any one and the plan grows every round instead o
      stored data or a public contract (§1).
    - `dismissal-contested` — the critic contested a declined gap, and the editor escalated it to
      `NEEDS-USER.md`.
-   - `rounds-exhausted` — the last round's gaps were folded but never re-verified, so the plan is not
-     converged.
+   - `rounds-exhausted` — the confirm round, the last of `maxRounds` critic rounds, found gaps. No
+     editor follows that round, so its gaps are open in the plan, and the plan is not converged. The
+     operator shows them to the user and relaunches once the user has ruled on every gap.
    - `BLOCKED (...)` — one of the halts §3 names, with its cause in `haltReason`. A critic that reports a
      relayed user request halts the run as `relayed-request` before any editor. The cause is a launch
      inside a user turn, so relaunch from a notification turn.
 3. **Run refine once per plan.** A `converged` plan goes to the user for approval, never back into
    refine. A relaunch of a converged plan tends to find new detail to fold, so repeated relaunches keep
    growing the plan. Relaunch only to finish a terminal that is not `converged`: after the user settles
-   `needs-answers` or `dismissal-contested`, after `rounds-exhausted`, or after the repair a `BLOCKED`
-   halt names.
+   `needs-answers` or `dismissal-contested`, after the user rules on every gap of `rounds-exhausted`, or
+   after the repair a `BLOCKED` halt names.
 
 The critic judges only blocks whose `status` is `todo` (or absent), so a relaunch never re-judges a
 block develop already built. Blocks added after a plan converged go in a new plan file, which gets its
@@ -162,9 +168,10 @@ own single refine run. One develop launch takes both files when their file keys 
   file every round, so `wrote_file` false halts (`critique-unwritten`) whatever the counts, and
   `relayed_request` true halts (`relayed-request`). A DEAD critic **throws** — zero gaps from a dead
   agent would be byte-identical to convergence.
-- **Editor** (opus) — runs only on a round with countable gaps and no questions. Checks each gap
-  against the plan and the repo first, as §1 says. Folds, declines to the ledger, then re-runs
-  `node '<blockTool>' '<planPath>' --list` and attests `plan_parses`.
+- **Editor** (opus) — runs only on a round with countable gaps and no questions, and never on the
+  confirm round, a launch's last. Checks each gap against the plan and the repo first, as §1 says.
+  Folds, declines to the ledger, then re-runs `node '<blockTool>' '<planPath>' --list` and attests
+  `plan_parses`.
   Halts: dead editor (`agent-dead` — the critique file survives, but the plan may be partly edited),
   folded gaps with `wrote_file` false (`fold-unattested`), `plan_parses` false (`plan-broken`),
   `needs_user` true (`dismissal-contested`, since it escalated a contested dismissal to
@@ -178,7 +185,9 @@ reusing one runId across a phase's runs would otherwise land critique files (whi
 content) in the exact directory develop's blind reviewer treats as its world's parent. Files:
 `plan-critique-<round>.md` per round · `DISMISSED-PLAN.md` · `NEEDS-USER.md`. Every relaunch of one
 plan keeps the same runId and stateDir and never clears it, since `DISMISSED-PLAN.md` and its
-`USER-RULED:` lines are what stop the next critic re-raising declined gaps. `NEEDS-USER.md` is
+`USER-RULED:` lines are what stop the next critic re-raising declined gaps. Round numbers continue across
+the launches of one stateDir through the `priorRounds` arg, so no launch writes a critique file path an
+earlier launch used, and every round of every launch keeps its file. `NEEDS-USER.md` is
 cumulative across relaunches of one stateDir, so entries from earlier halts were already settled. Each
 entry opens with `## r<round> critic` or `## r<round> editor`, and `nextStep` names the round whose
 entries at the end of the file are new.
@@ -191,12 +200,17 @@ Full schema + defaults: the Config block atop `refine-cycle.mjs` (the canonical 
   critic greps it) · `blockTool` (the absolute path of the `plan-block.mjs` the pre-launch command
   runs. The editor re-validates through it, and the `plan-broken` log line and `nextStep` name it.
   **Throws** when missing or blank, and the message names the pre-launch command. Pre-allowlist
-  `Bash(node '<blockTool>':*)`).
+  `Bash(node '<blockTool>':*)`) · `priorRounds` (0 on a plan's first launch, else the value the last
+  launch's `nextStep` or thrown error names, or with neither at hand, such as in a new session or after a
+  launch of the engine before `priorRounds` existed, the highest `<round>` among the
+  `plan-critique-<round>.md` files in the stateDir. The first critic writes round `priorRounds` + 1.
+  **Throws** when missing, and on a value that is not a number of 0 or more).
 - **Optional:** `critiqueSeverity` (`blocking|major|minor`, default `major`; illegal values
-  **throw**) · `maxRounds` (default 4, 1–50, garbage **throws**) · `conventions` (the target's CLAUDE.md
-  distilled, an index into `conventionFiles`) · `conventionFiles` (the paths of the target's CLAUDE.md
-  files, each absolute or relative to `target.repo`, which the critic and the editor read in full. A
-  value that is not an array of non-empty paths **throws**) · `reference` ·
+  **throw**) · `maxRounds` (one launch's critic rounds, the last a confirm round that no editor follows,
+  so `maxRounds: 1` runs one critic and no editor. Default 4, 1–50, garbage **throws**) · `conventions`
+  (the target's CLAUDE.md distilled, an index into `conventionFiles`) · `conventionFiles` (the paths of
+  the target's CLAUDE.md files, each absolute or relative to `target.repo`, which the critic and the
+  editor read in full. A value that is not an array of non-empty paths **throws**) · `reference` ·
   `models`/`efforts`/`agentTypes` (`models` and `efforts` map a role key to a value. The role keys
   are `critic` and `editor`. A model is `opus | sonnet | haiku | fable` and an effort is
   `low | medium | high | xhigh | max`. Both roles default to opus, and every role defaults to
@@ -214,7 +228,8 @@ Full schema + defaults: the Config block atop `refine-cycle.mjs` (the canonical 
   `node <survey's folder>/survey.mjs <dir>` and report the themes of the `SURVEY.md` it writes to the user.
 - **Return:** `status` · `halted` (true on `needs-answers`, `dismissal-contested` and every
   `BLOCKED` halt) · `haltReason` (empty when `halted` is false) · `nextStep` (§2) · `failed` (always
-  empty: both roles are solo, so a dead critic throws and a dead editor halts) · `rounds` ·
-  `openGaps`/`questions` (the LAST round's counts — on `rounds-exhausted` they are
-  folded-but-unverified) · `belowFloor` (the LAST round's FYI item count, written only in a converged
-  round) · `dismissedCount` · `lastCritique` · `planPath` · `stateDir`.
+  empty: both roles are solo, so a dead critic throws and a dead editor halts) · `rounds` (this launch's
+  critic rounds) · `openGaps`/`questions` (the LAST round's counts — on `rounds-exhausted` they are the
+  confirm round's, open in the plan) · `belowFloor` (the LAST round's FYI item count, written only in a
+  converged round) · `dismissedCount` · `lastCritique` (the last critique file this launch's critic
+  confirmed writing) · `planPath` · `stateDir`.

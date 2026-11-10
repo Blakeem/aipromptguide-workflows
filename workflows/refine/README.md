@@ -8,7 +8,9 @@ never writes code.
 
 ## How it works
 
-Two agents take turns, up to `maxRounds`.
+Two agents take turns for up to `maxRounds` critic rounds. The last round is a confirm round. Its critic
+runs and no editor follows, so a run that spends its budget ends on a critic. Each run numbers its
+rounds after the last run's, so every critique file is kept.
 
 1. A **critic** reads the repo and judges each `todo` block. It writes every gap it finds, with file and
    line evidence, to a critique file for that round. A round that finds nothing writes `No gaps.` to
@@ -50,8 +52,9 @@ A plan review that keeps adding detail never ends. Four rules make this one fini
   it to you. Read the newest entries at the end of `NEEDS-USER.md`. Fold the gap into the plan, or add
   your ruling to `DISMISSED-PLAN.md` as a `USER-RULED:` line, which no later critic contests. Then run
   refine again.
-- `rounds-exhausted` means the last round's gaps were folded but not checked again. Run refine again to
-  confirm.
+- `rounds-exhausted` means the confirm round still found gaps. They are open in the plan, and the last
+  critique file lists them. Rule on each gap: leave it for the next run to fold, add a `USER-RULED:` line
+  to `DISMISSED-PLAN.md` to decline it, or edit the plan yourself. Then run refine again.
 - A `BLOCKED` result names what stopped it and how to repair it.
 
 ## How to use it

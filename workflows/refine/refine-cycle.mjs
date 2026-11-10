@@ -1,10 +1,10 @@
 export const meta = {
   name: 'refine-cycle',
-  description: 'Converging plan review, file-bus design: a read-only CRITIC judges every todo block of ONE plan file against the REAL repo under a fixed DEFECT BAR (it judges only whether the plan\'s text is correct, and what the plan does not say is never a gap - improvements, alternatives and style are excluded unconditionally), grades each gap against a severity FLOOR, names whether each gap is in requirement text or method text, and writes its findings verbatim to plan-critique-<round>.md; a minimal-fold EDITOR then checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it (a gap in method text closes by removing text, never by a corrected method, and a gap in requirement text is corrected in place) and changes NOTHING a gap does not name, declining to DISMISSED-PLAN.md and re-validating the file through the plan-block tool. The loop ends on ONE clean round. The harness routes only counts, paths and an explicit halt kind.',
+  description: 'Converging plan review, file-bus design: a read-only CRITIC judges every todo block of ONE plan file against the REAL repo under a fixed DEFECT BAR (it judges only whether the plan\'s text is correct, and what the plan does not say is never a gap - improvements, alternatives and style are excluded unconditionally), grades each gap against a severity FLOOR, names whether each gap is in requirement text or method text, and writes its findings verbatim to plan-critique-<round>.md; a minimal-fold EDITOR then checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it (a gap in method text closes by removing text, never by a corrected method, and a gap in requirement text is corrected in place) and changes NOTHING a gap does not name, declining to DISMISSED-PLAN.md and re-validating the file through the plan-block tool. The loop ends on ONE clean round. maxRounds counts one launch\'s critic rounds, and its last is a confirm round that no editor follows, so a launch that spends its budget ends on a critic. Round numbers continue across the launches of one stateDir through the required priorRounds arg, so no launch overwrites an earlier critique file. The harness routes only counts, paths and an explicit halt kind.',
   whenToUse: 'Converge a plan file BEFORE develop-cycle builds from it: the plan is authored, and you want its gaps closed until a critic finds none. It is built to converge: a refine loop without its defect bar, floor, dismissal ledger and minimal-fold editor, run five times on one plan, keeps adding code and detail and never stops. Questions (a dependency-ordering error whose fix splits, merges, adds or reorders blocks, a gap in a closed block, which is a block with any status but todo, a defect in a file key at or above the floor, or a gap in requirement text at or above the floor whose corrections differ in user-visible behavior, stored data or a public contract) END the run needs-answers for the operator to settle with the user, because none of them is the editor\'s to fold. Nothing here builds, stages or commits.',
   phases: [
     { title: 'Critique', detail: 'A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-<round>.md every round (gaps with file:line evidence and the kind of text each is in, questions, and an FYI section only in a round with no gaps and no questions, or "No gaps." in a round with nothing) and returns counts plus a wrote_file attestation and a relayed_request flag, nothing else.' },
-    { title: 'Fold', detail: 'Runs only when the round returned at-or-above-floor gaps and no questions. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, removing wrong method text rather than correcting it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, sends a requirement gap that is the user\'s choice to NEEDS-USER.md, and re-runs the plan-block tool to prove the file still parses.' },
+    { title: 'Fold', detail: 'Runs only when the round returned at-or-above-floor gaps and no questions, and never in the launch\'s confirm round, its last. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, removing wrong method text rather than correcting it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, sends a requirement gap that is the user\'s choice to NEEDS-USER.md, and re-runs the plan-block tool to prove the file still parses.' },
   ],
 };
 
@@ -29,7 +29,7 @@ try {
   throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
 }
 if (!A || !A.runId) {
-  throw new Error('args must include at least { runId, root, planPath, blockTool, target:{repo} }; got typeof=' + (typeof args));
+  throw new Error('args must include at least { runId, root, planPath, blockTool, priorRounds, target:{repo} }; got typeof=' + (typeof args));
 }
 // `root` is REQUIRED setup the main agent supplies (#4 - no in-engine "find my cwd" agent). It is the
 // absolute path the run-state dir hangs off, normally the workflow tool's own directory.
@@ -59,11 +59,19 @@ const CONVENTIONS = A.conventions ?? '(none supplied - infer from the surroundin
 const num = (v, name, min, dflt, max = 1_000_000) => {
   if (v === undefined || v === null) return dflt;
   if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) {
-    throw new Error(`Invalid numeric arg: args.${name} must be a number between ${min} and ${max}; got ${JSON.stringify(v)}. It is not coerced - a bound that absorbs garbage runs zero rounds and reports the plan as converged.`);
+    throw new Error(`Invalid numeric arg: args.${name} must be a number between ${min} and ${max}; got ${JSON.stringify(v)}. It is not coerced - an arg that absorbs garbage runs zero rounds, or misnumbers the rounds and can overwrite an earlier launch's critique files, and the run reports either as an ordinary exit.`);
   }
   return Math.floor(v);
 };
-const MAX_ROUNDS  = num(A.maxRounds, 'maxRounds', 1, 4, 50);    // critic -> editor rounds before rounds-exhausted
+const MAX_ROUNDS  = num(A.maxRounds, 'maxRounds', 1, 4, 50);    // this launch's critic rounds, the last a confirm round no editor follows
+
+// A relaunch continues the round numbers that name the critique files. The engine reads no files, so the
+// operator passes the count, and a default would let a forgotten one overwrite an earlier launch's critiques.
+if (A.priorRounds == null) {
+  throw new Error('args.priorRounds is required: pass 0 on a plan\'s first launch, else the value the last launch\'s nextStep or thrown error names, or with neither at hand the highest <round> among the plan-critique-<round>.md files in the stateDir.');
+}
+const PRIOR_ROUNDS = num(A.priorRounds, 'priorRounds', 0, 0);
+const LAST_ROUND   = PRIOR_ROUNDS + MAX_ROUNDS;
 
 // THE SEVERITY FLOOR - which grades COUNT as gaps. Below-floor findings are written only in the converged
 // round (an FYI section of the critique file) and are excluded from gap_count, so they neither drive a fold
@@ -394,7 +402,7 @@ const editorPrompt = (round, critiquePath) => `
 You are the PLAN EDITOR. Fold this round's gaps into the plan file.
 ${ENV}
 THE GAPS TO FOLD (read it verbatim): ${critiquePath}
-This is round ${round} of at most ${MAX_ROUNDS}.
+This is round ${round} of at most ${LAST_ROUND}.
 
 THE ONE GUARD THAT MATTERS: you may change ONLY what a numbered gap NAMES. Not a wording improvement,
 not an extra step you think a block needs, and not a criterion you would have phrased differently.
@@ -447,24 +455,25 @@ ${WROTE_NOTE} ${FILE_WRITE_NOTE}
 Return via the schema.`;
 
 // =============================================================================
-// THE LOOP - [critique -> (fold, when there are gaps and no questions)] x maxRounds.
-// It STARTS and ENDS with the critic: the editor only ever folds what a round produced, and the run only
-// ends clean when a critic that ran found nothing. haltKind is set at EVERY terminal site and mapped once
-// below; nothing sniffs prose (tests/CLAUDE.md §3).
+// THE LOOP - [critique -> (fold, when there are gaps and no questions)] x maxRounds, numbered from
+// priorRounds + 1. It STARTS with the critic: the editor only ever folds what a round produced, the last
+// round is a confirm round that no editor follows, so a launch that spends its budget ends on a critic, and
+// the run only ends clean when a critic that ran found nothing. haltKind is set at EVERY terminal site and
+// mapped once below; nothing sniffs prose (tests/CLAUDE.md §3).
 // =============================================================================
-log(`refine: converging ${PLAN_PATH} against ${REPO} [floor=${SEVERITY}, maxRounds=${MAX_ROUNDS}] → ${STATE_DIR}`);
+log(`refine: converging ${PLAN_PATH} against ${REPO} [floor=${SEVERITY}, maxRounds=${MAX_ROUNDS}, priorRounds=${PRIOR_ROUNDS}] → ${STATE_DIR}`);
 
-let round = 0;
-let haltKind = 'rounds';        // the default terminal state: the loop fell through its round budget
+let round = PRIOR_ROUNDS;
+let haltKind = 'rounds';        // the default terminal state: the confirm round found gaps
 let haltReason = '';            // stays empty on converged and rounds-exhausted, which are not halts
 let openGaps = 0;               // the LAST round's at-or-above-floor gap count
 let questions = 0;              // the LAST round's question count
 let questionsBy = 'critic';     // the role whose questions ended the run needs-answers
 let belowFloor = 0;             // the LAST round's FYI count
 let dismissedCount = 0;         // gaps the editor declined across the whole run
-let lastCritique = '';          // the last critique file a critic CONFIRMED writing - never one nothing wrote
+let lastCritique = '';          // the last critique file this launch's critic CONFIRMED writing - never one nothing wrote
 
-while (round < MAX_ROUNDS) {
+while (round < LAST_ROUND) {
   round++;
 
   // ---- CRITIQUE (read-only, non-blind) ---------------------------------------
@@ -477,7 +486,7 @@ while (round < MAX_ROUNDS) {
   // fires on a NULL return specifically - never on a missing count - because an agent that returns an
   // empty object still ran, and the required-args baseline contract feeds every engine exactly that and
   // expects a return, not a throw (decide-cycle's guard is the pattern).
-  if (!crit) throw new Error(`Plan critic returned nothing in round ${round} (agent skipped or died) - that is NOT a clean plan. Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache. To re-invoke, ${LAUNCH}.`);
+  if (!crit) throw new Error(`Plan critic returned nothing in round ${round} (agent skipped or died) - that is NOT a clean plan. Replay with the same args and runId, priorRounds: ${PRIOR_ROUNDS} included, plus the Workflow tool's resumeFromRunId, so the cached agents return and the critic of round ${round} runs again. To replay, ${LAUNCH}.`);
   // A run launched inside a user turn relays that message to every agent, so the critic stops it before any editor.
   if (crit.relayed_request === true) {
     haltKind = 'relayed-request';
@@ -517,6 +526,12 @@ while (round < MAX_ROUNDS) {
     haltKind = 'converged';
     log(`  ✓ r${round}: no gaps at or above ${SEVERITY} and no questions - the plan has converged`);
     break;
+  }
+  // The confirm round's gaps stay open in the plan for the user to rule on, since a fold after it would
+  // end the launch on text no critic read.
+  if (round >= LAST_ROUND) {
+    log(`  ⚠ r${round}: the confirm round found ${openGaps} gap(s), left open in ${PLAN_PATH} (see ${lastCritique})`);
+    break;                       // haltKind stays 'rounds'
   }
 
   // ---- FOLD (minimal edit, gaps only) ----------------------------------------
@@ -572,21 +587,17 @@ while (round < MAX_ROUNDS) {
     log(`  ✋ r${round}: editor left ${questions} requirement gap(s) to the user (see ${NEEDS_USER}); halting`);
     break;
   }
-  if (round >= MAX_ROUNDS) {
-    log(`  ⚠ r${round}: round budget spent with ${openGaps} gap(s) folded but never re-critiqued (see ${lastCritique})`);
-    break;                       // haltKind stays 'rounds'
-  }
   log(`  ↻ r${round}: fold complete → next critic re-reads ${PLAN_PATH} and ${DISMISSED}`);
 }
 
 // Each terminal state gets its OWN string. "The plan converged", "the user must answer questions" and
-// "the budget ran out with gaps still open" are three different facts, and folding any pair of them
+// "the confirm round found gaps still open" are three different facts, and folding any pair of them
 // together is how an unconverged plan gets handed to a build engine as a finished one.
 const HALT_STATUS = {
   'converged':          'converged (one clean round: no gaps at or above the floor, no questions)',
   'needs-answers':      'needs-answers (the critic or the editor raised questions only the operator can settle)',
   'dismissal-contested': 'dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md)',
-  'rounds':             'rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)',
+  'rounds':             'rounds-exhausted (the confirm round at the round budget found gaps, left open in the plan - the plan is NOT converged)',
   'agent-dead':         'BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file)',
   'critique-unwritten': 'BLOCKED (the critic did not confirm writing its critique file, which every round writes - the round has no record)',
   'fold-unattested':    'BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere)',
@@ -597,22 +608,26 @@ const HALT_STATUS = {
 // terminal state is precisely the collapse this table exists to prevent.
 const status = HALT_STATUS[haltKind] || `halted (unmapped terminal state "${haltKind}" - engine bug)`;
 const halted = haltKind !== 'converged' && haltKind !== 'rounds';
-log(`refine: ${status} after ${round} round(s) - ${openGaps} open gap(s), ${questions} question(s), ${dismissedCount} declined`);
+const launchRounds = round - PRIOR_ROUNDS;
+log(`refine: ${status} after ${launchRounds} round(s), through round ${round} - ${openGaps} open gap(s), ${questions} question(s), ${dismissedCount} declined`);
 
 // Every terminal but agent-dead relaunches, since a replay would return the same cached agents and halt the
 // same way. agent-dead replays because its editor never returned, so only the fold runs again.
+// A relaunch numbers its rounds after this launch's last, whose critic may have written its file unconfirmed.
 const listCmd  = `node '${BLOCK_TOOL}' '${PLAN_PATH}' --list`;
-const relaunch = `A relaunch takes the same args and runId and no resumeFromRunId, which keeps the stateDir and its ledger ${DISMISSED}. To relaunch, ${LAUNCH}.`;
+const relaunch = `A relaunch takes the same args and runId with priorRounds: ${round}, and no resumeFromRunId, which keeps the stateDir and its ledger ${DISMISSED}. To relaunch, ${LAUNCH}.`;
+// A launch with maxRounds 1 runs only its confirm round, so the same args would never reach an editor.
+const foldingRelaunch = MAX_ROUNDS > 1 ? 'a relaunch folds it' : 'a relaunch with maxRounds 2 or more in place of 1 folds it';
 // An editor runs only after a critic with no questions, so its questions live only in NEEDS-USER.md.
 const critiqueQuestions = questionsBy === 'critic' ? `the QUESTIONS section of ${lastCritique} and ` : '';
 const NEXT_STEP = {
   'converged': `Audit ${DISMISSED} before trusting the converge, since each declined gap is a judgment call.`
     + (belowFloor > 0 ? ` Show the user the FYI section of ${lastCritique} with the plan, since no editor folded its ${belowFloor} item(s). The user can add an item to a block before approving.` : '')
     + ` Then build the plan through the develop guide's §0, which takes the user's approval of ${PLAN_PATH} at its step 12, once its steps 10 and 11 give the approval summary's values: continue at develop §0 step 9 when develop §0 step 8 started this refine run, or else work develop §0 from its step 1.`,
-  'rounds': `The last round's gaps were folded but no critic re-read them. Read ${lastCritique}, decide with the user, then relaunch to confirm, raising maxRounds if needed. ${relaunch}`,
+  'rounds': `The confirm round's critic found ${openGaps} gap(s), and no editor folded them, so they are open in ${PLAN_PATH}. Show the user ${lastCritique} and relaunch only on the user's ruling. The user rules each gap one of three ways: ${foldingRelaunch}, a "<block id> - <gap gist> - USER-RULED: <reason>" line appended to ${DISMISSED} declines it, or the user edits the plan. ${relaunch}`,
   'needs-answers': `Read ${critiqueQuestions}the new entries headed "## r${round} ${questionsBy}" at the end of ${NEEDS_USER}, settle the questions with the user and restructure or correct ${PLAN_PATH} by the answers, where new blocks take fresh kebab ids. Record an answer that keeps the plan text by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${DISMISSED}. Then relaunch. ${relaunch} A replay returns the cached agents and halts the same way.`,
   'dismissal-contested': `Read the new entries headed "## r${round} editor" at the end of ${NEEDS_USER} and record the user's ruling, by folding the gap into ${PLAN_PATH} or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${DISMISSED}. Then relaunch. ${relaunch}`,
-  'agent-dead': `Run ${listCmd} first, since the editor may have partly edited the plan. Then replay with the same args and runId plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${critiqueFile(round)} runs again. To replay, ${LAUNCH}. A relaunch without resumeFromRunId restarts at round 1.`,
+  'agent-dead': `Run ${listCmd} first, since the editor may have partly edited the plan. Then replay with the same args and runId, priorRounds: ${PRIOR_ROUNDS} included, plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${critiqueFile(round)} runs again. To replay, ${LAUNCH}. A relaunch without resumeFromRunId takes priorRounds: ${round} instead and runs a critic before any fold.`,
   'critique-unwritten': `Relaunch to redo the round. ${relaunch}`,
   'fold-unattested': `Inspect ${PLAN_PATH}, then relaunch. ${relaunch}`,
   'relayed-request': relaunch,
@@ -626,17 +641,15 @@ return {
   halted,
   haltReason: halted ? haltReason : '',
   runId: RUN_ID,
-  rounds: round,
-  // The LAST round's counts. On rounds-exhausted these are the gaps the critic found and the editor then
-  // folded WITHOUT a further critic seeing the result - open in the only sense that matters: unverified.
+  rounds: launchRounds,
+  // The LAST round's counts. On rounds-exhausted these are the confirm round's gaps, which no editor folded.
   openGaps,
   questions,
   belowFloor,
   dismissedCount,
-  // Named only where a critic CONFIRMED writing it. `round > 0` is the house gate - a field derived from
-  // the DEFAULT haltKind must not name a file no agent wrote - and the write attestation is the other
-  // half, since a critique-unwritten round leaves the previous round's file as the last one written.
-  lastCritique: round > 0 ? lastCritique : '',
+  // Set only on a write this launch's critic confirmed, since a critique-unwritten round leaves the previous
+  // round's file as the last one written.
+  lastCritique,
   planPath: PLAN_PATH,
   stateDir: STATE_DIR,
   // Both roles are solo: a dead critic throws and a dead editor halts agent-dead, so nothing auxiliary fails.

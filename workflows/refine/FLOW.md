@@ -14,28 +14,29 @@ flowchart TD
   t1(["converged (one clean round: no gaps at or above the floor, no questions)"])
   t2(["needs-answers (the critic or the editor raised questions only the operator can settle)"])
   t3(["dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md)"])
-  t4(["rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)"])
+  t4(["rounds-exhausted (the confirm round at the round budget found gaps, left open in the plan - the plan is NOT converged)"])
   t5(["BLOCKED (the critic did not confirm writing its critique file, which every round writes - the round has no record)"])
   t6(["BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere)"])
   t7(["BLOCKED (the folded plan file no longer parses - every later consumer reads it)"])
   t8(["BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file)"])
   t9(["BLOCKED (the run was launched inside a user turn, so the harness relayed that message to every agent)"])
   x1[/"throw: Invalid args JSON"/]
-  x2[/"throw: args must include at least { runId, root, planPath, blockTool, target:{repo} }"/]
+  x2[/"throw: args must include at least { runId, root, planPath, blockTool, priorRounds, target:{repo} }"/]
   x3[/"throw: args.root is required"/]
   x4[/"throw: args.planPath is required"/]
   x5[/"throw: args.target.repo is required"/]
   x6[/"throw: Invalid numeric arg"/]
-  x7[/"throw: Invalid severity floor"/]
-  x8[/"throw: Invalid role map"/]
-  x9[/"throw: Unknown role key in a role map"/]
-  x10[/"throw: Illegal role value in a role map"/]
-  x11[/"throw: Invalid agentTypes arg"/]
-  x12[/"throw: Invalid notes arg"/]
-  x13[/"throw: Invalid args.conventionFiles"/]
-  x14[/"throw: Missing args.blockTool"/]
-  x15[/"throw: args.notes.dir is inside the target repo"/]
-  x16[/"throw: Plan critic returned nothing in round ..."/]
+  x7[/"throw: args.priorRounds is required"/]
+  x8[/"throw: Invalid severity floor"/]
+  x9[/"throw: Invalid role map"/]
+  x10[/"throw: Unknown role key in a role map"/]
+  x11[/"throw: Illegal role value in a role map"/]
+  x12[/"throw: Invalid agentTypes arg"/]
+  x13[/"throw: Invalid notes arg"/]
+  x14[/"throw: Invalid args.conventionFiles"/]
+  x15[/"throw: Missing args.blockTool"/]
+  x16[/"throw: args.notes.dir is inside the target repo"/]
+  x17[/"throw: Plan critic returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -52,16 +53,17 @@ flowchart TD
   S0 --> x13
   S0 --> x14
   S0 --> x15
+  S0 --> x16
   a1 --> a2
   a1 --> t1
   a1 --> t2
+  a1 --> t4
   a1 --> t5
   a1 --> t9
-  a1 --> x16
-  a2 -.->|"a fold, then a clean round · gaps remain at the round budget (×4)"| a1
+  a1 --> x17
+  a2 -.->|"a fold, then a clean round · the confirm round finds gaps (×4)"| a1
   a2 --> t2
   a2 --> t3
-  a2 --> t4
   a2 --> t6
   a2 --> t7
   a2 --> t8
@@ -72,7 +74,7 @@ flowchart TD
 | Phase | What happens |
 |---|---|
 | Critique | A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-&lt;round&gt;.md every round (gaps with file:line evidence and the kind of text each is in, questions, and an FYI section only in a round with no gaps and no questions, or "No gaps." in a round with nothing) and returns counts plus a wrote_file attestation and a relayed_request flag, nothing else. |
-| Fold | Runs only when the round returned at-or-above-floor gaps and no questions. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, removing wrong method text rather than correcting it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, sends a requirement gap that is the user's choice to NEEDS-USER.md, and re-runs the plan-block tool to prove the file still parses. |
+| Fold | Runs only when the round returned at-or-above-floor gaps and no questions, and never in the launch's confirm round, its last. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, removing wrong method text rather than correcting it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, sends a requirement gap that is the user's choice to NEEDS-USER.md, and re-runs the plan-block tool to prove the file still parses. |
 
 ## Terminal states
 
@@ -81,29 +83,30 @@ flowchart TD
 | converged (one clean round: no gaps at or above the floor, no questions) | the first critic finds nothing · a fold, then a clean round | derived |
 | needs-answers (the critic or the editor raised questions only the operator can settle) | the critic raises a question · the editor finds a requirement gap is the user's choice | derived |
 | dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md) | the editor escalates a contested dismissal | derived |
-| rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged) | gaps remain at the round budget | derived |
+| rounds-exhausted (the confirm round at the round budget found gaps, left open in the plan - the plan is NOT converged) | the confirm round finds gaps | derived |
 | BLOCKED (the critic did not confirm writing its critique file, which every round writes - the round has no record) | the critic reports findings it did not write · the critic reports a clean round it did not write | derived |
 | BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere) | the editor reports folds it did not write | derived |
 | BLOCKED (the folded plan file no longer parses - every later consumer reads it) | the plan file stops parsing after the fold | derived |
 | BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file) | the plan editor dies | derived |
 | BLOCKED (the run was launched inside a user turn, so the harness relayed that message to every agent) | the plan critic reports a user request relayed into its context | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 29) |
-| throw: args must include at least { runId, root, planPath, blockTool, target:{repo} } | args.runId is missing | throw (line 32) |
+| throw: args must include at least { runId, root, planPath, blockTool, priorRounds, target:{repo} } | args.runId is missing | throw (line 32) |
 | throw: args.root is required | args.root is missing | throw (line 37) |
 | throw: args.planPath is required | args.planPath is missing | throw (line 43) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 49) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 62) |
-| throw: Invalid severity floor | critiqueSeverity is outside blocking \| major \| minor | throw (line 73) |
-| throw: Invalid role map | models is an array in place of an object | throw (line 91) |
-| throw: Unknown role key in a role map | models carries a key outside critic \| editor | throw (line 96) |
-| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 99) |
-| throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside critic \| editor, or maps one to a blank name | throw (line 113) |
-| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 130) |
-| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 148) |
-| throw: Missing args.blockTool | blockTool is missing or blank | throw (line 165) |
-| throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 193) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 480) |
+| throw: args.priorRounds is required | args.priorRounds is missing | throw (line 71) |
+| throw: Invalid severity floor | critiqueSeverity is outside blocking \| major \| minor | throw (line 81) |
+| throw: Invalid role map | models is an array in place of an object | throw (line 99) |
+| throw: Unknown role key in a role map | models carries a key outside critic \| editor | throw (line 104) |
+| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 107) |
+| throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside critic \| editor, or maps one to a blank name | throw (line 121) |
+| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 138) |
+| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 156) |
+| throw: Missing args.blockTool | blockTool is missing or blank | throw (line 173) |
+| throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 201) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 489) |
 
 ## Coverage
 
-29 scenarios · 2/2 roles · 16/16 throw sites · 9/9 halt statuses · 25 terminal states.
+30 scenarios · 2/2 roles · 17/17 throw sites · 9/9 halt statuses · 26 terminal states.

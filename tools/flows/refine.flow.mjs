@@ -22,7 +22,7 @@ const TARGET = { repo: 'E:/repo', lang: 'JavaScript', framework: 'none' };
 // planPath resolves against `root`, i.e. OUTSIDE the target repo — which is what keeps the plan and the
 // critique files away from develop-cycle's blind reviewer. A path inside the repo only warns, so it would
 // draw the identical map and prove nothing.
-const base = { runId: 'flow', root: 'E:/flow', target: TARGET, planPath: 'plans/bus.md', blockTool: 'E:/flow/tools/plan-block.mjs', conventionFiles: ['CLAUDE.md'] };
+const base = { runId: 'flow', root: 'E:/flow', target: TARGET, planPath: 'plans/bus.md', blockTool: 'E:/flow/tools/plan-block.mjs', conventionFiles: ['CLAUDE.md'], priorRounds: 0 };
 
 // Critic returns. Counts plus one attestation are the WHOLE control plane: every gap, grade and citation
 // crosses to the editor through the critique file, which the harness never sees.
@@ -53,8 +53,11 @@ export default {
     { name: 'no plan file', when: 'args.planPath is missing', args: { runId: 'flow', root: 'E:/flow', target: TARGET } },
     { name: 'no target repo', when: 'args.target.repo is missing', args: { runId: 'flow', root: 'E:/flow', planPath: 'plans/bus.md' } },
     // One throw site serves every numeric bound. Without it `round < NaN` is false on the first test, the
-    // loop never runs, and the engine reports `converged` on a plan no critic ever read.
+    // loop never runs, and the engine reports `rounds-exhausted` after zero rounds.
     { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
+    // The critique files are numbered by round, so a relaunch that restarted at round 1 would overwrite an
+    // earlier launch's critiques.
+    { name: 'no priorRounds', when: 'args.priorRounds is missing', args: { ...base, priorRounds: undefined } },
     // The floor decides which gaps COUNT and which are demoted to the critique file's FYI section, so a
     // coerced value silently changes what "clean" means.
     { name: 'severity floor is not a known grade', when: 'critiqueSeverity is outside blocking | major | minor', args: { ...base, critiqueSeverity: 'nit' } },
@@ -114,7 +117,7 @@ export default {
       // Its `when` is kept short for the same arrow: an UNMARKED back edge carries its conditions nowhere
       // else, so a condition the label budget drops is a condition the map loses entirely.
       name: 'the round budget runs out',
-      when: 'gaps remain at the round budget',
+      when: 'the confirm round finds gaps',
       args: base,
       respond: { 'plan-critic': GAPS, 'plan-editor': FOLD_OK },
     },

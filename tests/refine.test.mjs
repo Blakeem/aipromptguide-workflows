@@ -17,7 +17,7 @@ const ENGINE = 'workflows/refine/refine-cycle.mjs';
 
 // planPath resolves OUTSIDE the target repo, which is what keeps the plan and the critique files away
 // from develop-cycle's blind reviewer. A path inside the repo only warns, so it would prove nothing here.
-const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, planPath: 'E:/plans/bus.md', blockTool: 'E:/r/tools/plan-block.mjs' };
+const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, planPath: 'E:/plans/bus.md', blockTool: 'E:/r/tools/plan-block.mjs', priorRounds: 0 };
 const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, respond, budget });
 
 // The same healthy returns as tools/flows/refine.flow.mjs, with the editor's `declined` pinned to 0 so
@@ -33,7 +33,7 @@ const FOLD_OK   = { wrote_file: true, folded: 2, declined: 0, plan_parses: true 
 const CONVERGED     = 'converged (one clean round: no gaps at or above the floor, no questions)';
 const NEEDS_ANSWERS = 'needs-answers (the critic or the editor raised questions only the operator can settle)';
 const CONTESTED     = 'dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md)';
-const EXHAUSTED     = 'rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)';
+const EXHAUSTED     = 'rounds-exhausted (the confirm round at the round budget found gaps, left open in the plan - the plan is NOT converged)';
 const EDITOR_DEAD   = 'BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file)';
 const NO_CRITIQUE   = 'BLOCKED (the critic did not confirm writing its critique file, which every round writes - the round has no record)';
 const NO_FOLD       = 'BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere)';
@@ -43,7 +43,9 @@ const PLAN_BROKEN   = 'BLOCKED (the folded plan file no longer parses - every la
 // baseArgs' real paths.
 const STATE    = 'E:/r/runs/t-refine';
 const LIST     = `node 'E:/r/tools/plan-block.mjs' 'E:/plans/bus.md' --list`;
-const RELAUNCH = `A relaunch takes the same args and runId and no resumeFromRunId, which keeps the stateDir and its ledger ${STATE}/DISMISSED-PLAN.md.`;
+// A relaunch numbers its rounds after the last round of the launch it follows.
+const relaunchAfter = (round) => `A relaunch takes the same args and runId with priorRounds: ${round}, and no resumeFromRunId, which keeps the stateDir and its ledger ${STATE}/DISMISSED-PLAN.md.`;
+const RELAUNCH = relaunchAfter(1);
 const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
 const DEVELOP_CLAUSE = 'Then build the plan through the develop guide\'s §0, which takes the user\'s approval of E:/plans/bus.md at its step 12, once its steps 10 and 11 give the approval summary\'s values: continue at develop §0 step 9 when develop §0 step 8 started this refine run, or else work develop §0 from its step 1.';
 const handBack = (out, halted, clauses, where) => {
@@ -308,7 +310,7 @@ section('a gapped round then a clean one converges on round 2, with exactly one 
 section('the editor checks every gap against the plan and the repo before it folds one, in every round');
 {
   const { byLabel } = await run(
-    { 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, { ...baseArgs, maxRounds: 2 });
+    { 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, { ...baseArgs, maxRounds: 3 });
   const prompts = byLabel('plan-editor').map((c) => c.prompt.replace(/\s+/g, ' '));
   eq(prompts.length, 2, 'two editor rounds ran');
   for (const [n, p] of prompts.entries()) {
@@ -426,7 +428,7 @@ section('questions end the run on any round, and the editor never sees them');
 }
 
 section('an editor that leaves a requirement gap to the user ends the run needs-answers on its own round');
-// On the last round no later critic would read the gap, and on an earlier one a critic could fold or skip it.
+// A later round could fold the gap or let its critic skip it, without the user's ruling.
 {
   const { out, byLabel } = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': { ...FOLD_OK, questions: 1 } });
   eq(out.status, NEEDS_ANSWERS, 'status');
@@ -439,8 +441,9 @@ section('an editor that leaves a requirement gap to the user ends the run needs-
   ], 'needs-answers');
   ok(!String(out.nextStep ?? '').includes('QUESTIONS section'), 'nextStep sends the operator to no QUESTIONS section the critic left empty');
 
-  const { out: last } = await run({ 'plan-critic': GAPS, 'plan-editor': { ...FOLD_OK, questions: 1 } }, { ...baseArgs, maxRounds: 1 });
-  eq(last.status, NEEDS_ANSWERS, 'the editor\'s question on the last round ends needs-answers, not rounds-exhausted');
+  const { out: last, byLabel: lastBy } = await run({ 'plan-critic': GAPS, 'plan-editor': { ...FOLD_OK, questions: 1 } }, { ...baseArgs, maxRounds: 2 });
+  eq(last.status, NEEDS_ANSWERS, 'the editor\'s question before the confirm round ends needs-answers, not rounds-exhausted');
+  eq(lastBy('plan-critic').length, 1, 'and the confirm round\'s critic never runs');
 }
 
 section('an editor that escalates a contested dismissal ends the run dismissal-contested, not converged');
@@ -482,22 +485,75 @@ section('a gap in a closed block arrives as a question, never as a gap to fold')
 // ---------------------------------------------------------------------------------------------
 // The round budget
 // ---------------------------------------------------------------------------------------------
-section('the round budget runs out carrying the LAST round\'s gaps and critique file');
+section('the round budget ends on a confirm round whose gaps stay open for the user');
+// A fold after the last critic would end the launch on text no critic read.
 {
-  const { out, byLabel } = await run(
-    { 'plan-critic': { ...GAPS, gap_count: 3 }, 'plan-editor': FOLD_OK }, { ...baseArgs, maxRounds: 2 });
-  eq(byLabel('plan-critic').length, 2, 'the loop spun to the bound');
-  eq(byLabel('plan-editor').length, 2, 'folding on every round');
+  const { out, byLabel } = await run({
+    'plan-critic': GAPS, 'plan-critic r3': { ...GAPS, gap_count: 3 }, 'plan-editor': FOLD_OK,
+  }, { ...baseArgs, maxRounds: 3 });
+  eq(byLabel('plan-critic').length, 3, 'the loop ran maxRounds critics');
+  eq(byLabel('plan-editor').length, 2, 'and maxRounds minus 1 editors, none after the confirm round');
   eq(out.status, EXHAUSTED, 'status');
-  eq(out.rounds, 2, 'rounds');
-  eq(out.openGaps, 3, 'the last round\'s gaps — folded, but never re-critiqued');
-  eq(out.lastCritique, 'E:/r/runs/t-refine/plan-critique-2.md',
-    'and the file named is the last round\'s, under the -refine state dir that keeps it out of develop\'s');
+  eq(out.rounds, 3, 'rounds');
+  eq(out.openGaps, 3, 'the confirm round\'s gaps, which no editor folded');
+  eq(out.lastCritique, 'E:/r/runs/t-refine/plan-critique-3.md',
+    'and the file named is the confirm round\'s, under the -refine state dir that keeps it out of develop\'s');
   handBack(out, false, [
-    'The last round\'s gaps were folded but no critic re-read them.',
-    `Read ${STATE}/plan-critique-2.md, decide with the user, then relaunch to confirm, raising maxRounds if needed.`,
-    RELAUNCH,
+    `The confirm round's critic found 3 gap(s), and no editor folded them, so they are open in E:/plans/bus.md. Show the user ${STATE}/plan-critique-3.md and relaunch only on the user's ruling.`,
+    `The user rules each gap one of three ways: a relaunch folds it, a "<block id> - <gap gist> - USER-RULED: <reason>" line appended to ${STATE}/DISMISSED-PLAN.md declines it, or the user edits the plan.`,
+    relaunchAfter(3),
   ], 'rounds-exhausted');
+  ok(!String(out.nextStep ?? '').includes('raising maxRounds'), 'and with maxRounds above 1, nextStep sends the operator to no bigger budget');
+}
+
+section('a launch with maxRounds 1 runs one critic and no editor');
+{
+  const { out, labels } = await run({ 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, { ...baseArgs, maxRounds: 1 });
+  eq(labels.filter((l) => l.startsWith('plan-critic')).length, 1, 'one critic ran');
+  ok(!labels.some((l) => l.startsWith('plan-editor')), 'and no editor, since its one round is the confirm round');
+  eq(out.status, EXHAUSTED, 'its gaps end the launch rounds-exhausted');
+  eq(out.openGaps, 2, 'with the confirm round\'s gap count');
+  ok(String(out.nextStep ?? '').includes('The user rules each gap one of three ways: a relaunch with maxRounds 2 or more in place of 1 folds it, a "'),
+    'and nextStep names the bigger budget a folding relaunch needs, since the same args run no editor');
+}
+
+section('a relaunch continues the round numbers, so it writes no earlier launch\'s critique file');
+{
+  const { out, byLabel, logs } = await run({
+    'plan-critic': GAPS, 'plan-critic r6': CLEAN, 'plan-editor': FOLD_OK,
+  }, { ...baseArgs, priorRounds: 4 });
+  const critics = byLabel('plan-critic');
+  eq(critics.map((c) => c.label).join(), 'plan-critic r5,plan-critic r6', 'the rounds are numbered 5 and 6');
+  ok(critics[0].prompt.includes(`You write only your critique file ${STATE}/plan-critique-5.md,`),
+    'the first critic writes plan-critique-5.md');
+  const prompts = [...critics, ...byLabel('plan-editor')].map((c) => c.prompt);
+  ok(prompts.every((p) => !/plan-critique-[0-4]\.md/.test(p)),
+    'no prompt of the launch names a critique file numbered 4 or lower');
+  ok(String(byLabel('plan-editor')[0]?.prompt ?? '').includes(`THE GAPS TO FOLD (read it verbatim): ${STATE}/plan-critique-5.md`),
+    'the editor folds round 5\'s file');
+  eq(out.status, CONVERGED, 'status');
+  eq(out.rounds, 2, 'rounds counts this launch\'s critic rounds, not the round number');
+  eq(out.lastCritique, `${STATE}/plan-critique-6.md`, 'and lastCritique names this launch\'s last confirmed file');
+  ok(logs.some((l) => l.includes('priorRounds=4')), 'the launch line names the priorRounds value');
+
+  const { out: spent, byLabel: spentBy } = await run({ 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, { ...baseArgs, priorRounds: 4, maxRounds: 2 });
+  eq(spentBy('plan-critic').map((c) => c.label).join(), 'plan-critic r5,plan-critic r6', 'a relaunch\'s budget counts its own rounds');
+  eq(spent.status, EXHAUSTED, 'and round 6 is its confirm round');
+  ok(String(spent.nextStep ?? '').includes(relaunchAfter(6)), 'and its relaunch names priorRounds 6');
+}
+
+section('a launch without a valid priorRounds throws, naming the arg');
+{
+  const { priorRounds: _, ...NO_PRIOR } = baseArgs;
+  for (const args of [NO_PRIOR, { ...baseArgs, priorRounds: null }]) {
+    const msg = await throwsWith(ENGINE, { args });
+    ok(msg.startsWith('args.priorRounds is required: pass 0 on a plan\'s first launch, else the value the last launch\'s nextStep or thrown error names, or with neither at hand the highest <round> among the plan-critique-<round>.md files in the stateDir.'),
+      `a missing priorRounds throws naming the arg: ${msg.slice(0, 50)}`);
+  }
+  for (const bad of ['2', -1, NaN, false, [], {}]) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, priorRounds: bad } });
+    ok(/^Invalid numeric arg: args\.priorRounds/.test(msg), `priorRounds ${JSON.stringify(bad)} throws: ${msg.slice(0, 50)}`);
+  }
 }
 
 section('conventionFiles reach the critic and the editor, and a bad value throws');
@@ -541,7 +597,11 @@ section('a dead critic throws on every round — zero gaps from an agent that di
   const r1 = await throwsWith(ENGINE, { args: baseArgs, respond: { 'plan-critic': null } });
   ok(/Plan critic returned nothing in round 1/.test(r1) && /resumeFromRunId/.test(r1),
     `round 1 throws with the resume hint: ${r1.slice(0, 50)}`);
-  ok(r1.includes(`To re-invoke, ${LAUNCH}.`), 'and names the notification-turn launch path');
+  ok(r1.includes(`To replay, ${LAUNCH}.`), 'and names the notification-turn launch path');
+  const resumed = await throwsWith(ENGINE, { args: { ...baseArgs, priorRounds: 4 }, respond: { 'plan-critic': null } });
+  ok(resumed.includes('Plan critic returned nothing in round 5')
+    && resumed.includes('Replay with the same args and runId, priorRounds: 4 included, plus the Workflow tool\'s resumeFromRunId, so the cached agents return and the critic of round 5 runs again.'),
+    `the replay names this launch's priorRounds value: ${resumed.slice(0, 50)}`);
 
   const r2 = await throwsWith(ENGINE, {
     args: baseArgs,
@@ -560,10 +620,15 @@ section('a dead editor halts instead, because the round\'s critique file survive
   ok(out.lastCritique.endsWith('plan-critique-1.md'), 'the file a relaunch resumes the fold from is named');
   handBack(out, true, [
     `Run ${LIST} first, since the editor may have partly edited the plan.`,
-    `Then replay with the same args and runId plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${STATE}/plan-critique-1.md runs again.`,
+    `Then replay with the same args and runId, priorRounds: 0 included, plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${STATE}/plan-critique-1.md runs again.`,
     `To replay, ${LAUNCH}.`,
-    'A relaunch without resumeFromRunId restarts at round 1.',
+    'A relaunch without resumeFromRunId takes priorRounds: 1 instead and runs a critic before any fold.',
   ], 'agent-dead');
+  const { out: resumed } = await run({ 'plan-critic': GAPS, 'plan-editor': null }, { ...baseArgs, priorRounds: 4 });
+  handBack(resumed, true, [
+    `Then replay with the same args and runId, priorRounds: 4 included, plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${STATE}/plan-critique-5.md runs again.`,
+    'A relaunch without resumeFromRunId takes priorRounds: 5 instead and runs a critic before any fold.',
+  ], 'agent-dead after priorRounds 4');
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -579,6 +644,12 @@ section('a critic that reports findings it never wrote halts before the editor')
 
   const { out: asked } = await run({ 'plan-critic': { wrote_file: false, gap_count: 0, question_count: 1 } });
   eq(asked.status, NO_CRITIQUE, 'an unwritten QUESTION halts the same way, ahead of the needs-answers branch');
+}
+
+section('a relayed user request relaunches with the next round number');
+{
+  const { out } = await run({ 'plan-critic': { ...GAPS, relayed_request: true } }, { ...baseArgs, priorRounds: 2 });
+  ok(String(out.nextStep ?? '').includes(relaunchAfter(3)), 'the relaunch names priorRounds 3, after the critic of round 3');
 }
 
 section('a critic that reports a clean round it never wrote halts instead of converging');
@@ -647,8 +718,8 @@ section('dismissedCount sums the editor\'s declines across every round, not just
     'plan-editor r1': { ...FOLD_OK, declined: 1 },
     'plan-editor r2': { ...FOLD_OK, declined: 2 },
     'plan-editor r3': { ...FOLD_OK, declined: 4 },
-  }, { ...baseArgs, maxRounds: 3 });
-  eq(out.rounds, 3, 'three rounds folded');
+  }, { ...baseArgs, maxRounds: 4 });
+  eq(out.rounds, 4, 'three rounds folded before the confirm round');
   eq(out.dismissedCount, 7, 'and the total is their sum');
 }
 
@@ -703,6 +774,7 @@ section('a payload the loop cannot trust throws instead of running a round');
     ['planPath', { ...baseArgs, planPath: undefined }],
     ['target.repo', { ...baseArgs, target: {} }],
     ['critiqueSeverity', { ...baseArgs, critiqueSeverity: 'nit' }],
+    ['priorRounds', { ...baseArgs, priorRounds: undefined }],
   ];
   for (const [name, args] of BAD) {
     const { terminal, calls } = await runTrace(ENGINE, { args, respond: { 'plan-critic': CLEAN } });
@@ -713,13 +785,13 @@ section('a payload the loop cannot trust throws instead of running a round');
 
 await pinRoleMaps({
   engine: ENGINE, name: 'refine', defaults: { critic: 'opus', editor: 'opus' },
-  runs: [{ args: { ...baseArgs, maxRounds: 1 }, respond: { 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, labels: { critic: 'plan-critic', editor: 'plan-editor' } }],
+  runs: [{ args: { ...baseArgs, maxRounds: 2 }, respond: { 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, labels: { critic: 'plan-critic', editor: 'plan-editor' } }],
 });
 
 // A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite one the agent has not read.
 section("every prompt that writes a file says to Read an earlier launch's file first, and a rejected write is not a write");
 {
-  const { prompt } = await run({ 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, { ...baseArgs, maxRounds: 1 });
+  const { prompt } = await run({ 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, { ...baseArgs, maxRounds: 2 });
   const sites = [
     ["the critic's critique file", prompt('plan-critic'), 1, 1],
     ["the editor's plan edits", prompt('plan-editor'), 0, 1],

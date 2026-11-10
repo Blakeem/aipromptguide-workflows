@@ -41,7 +41,7 @@ const TESTBED     = A.testbed ?? '';                        // OPTIONAL: how age
 const num = (v, name, min, dflt, max = 1_000_000) => {
   if (v === undefined || v === null) return dflt;
   if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) {
-    throw new Error(`Invalid numeric arg: args.${name} must be a number between ${min} and ${max}; got ${JSON.stringify(v)}. It is not coerced — a bound that absorbs garbage produces a zero-round run and reports it as an ordinary round-budget exit.`);
+    throw new Error(`Invalid numeric arg: args.${name} must be a number between ${min} and ${max}; got ${JSON.stringify(v)}. It is not coerced — an arg that absorbs garbage produces a zero-round run, misnumbered rounds that can overwrite earlier reviews, or a disabled budget stop, and the run reports each as an ordinary exit.`);
   }
   return Math.floor(v);
 };
