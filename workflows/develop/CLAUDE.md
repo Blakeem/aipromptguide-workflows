@@ -616,13 +616,13 @@ The roles:
   under `scratch/`, which the agent then reads. A gate that may outlast that timeout runs through
   the shell tool's background option, never a shell `&`, since a job started with `&` may stop when
   its tool call returns. It writes its exit code to a file beside the log, and the agent waits for that
-  file with one bounded loop that ends inside the timeout, then reads the log once. Acceptance,
-  the sweep and park run their gates the same way. A fix block's later round, and every
-  later round's pulled entries, start from the statuses the developer last reported, which the prompt
-  lists. A phase with nothing to do for its round's changes is skipped. It
-  routes each finding by the code zone it lies in, as §4 sets. It logs every finding it routes and does
-  not fix, so none is dropped silently. A dismissal names one place or the class of places it covers,
-  and its reason holds for every place it names. The reason states a fact it checked that round, the
+  file with one bounded loop that ends inside the timeout, then reads the log once. When two gate
+  commands are the same command, one run and its log serve both. Acceptance, the sweep and park run their
+  gates the same way. A fix block's later round, and every later round's pulled entries, start from the
+  statuses the developer last reported, which the prompt lists. A phase with nothing to do for its round's
+  changes is skipped. It routes each finding by the code zone it lies in, as §4 sets. It logs every finding it
+  routes and does not fix, so none is dropped silently. A dismissal names one place or the class of places it
+  covers, and its reason holds for every place it names. The reason states a fact it checked that round, the
   file and line it read or the command it ran and its output. The reason never cites the plan, apart
   from one form, `SKIPPED: SPEC: <file:line>`, for a decline whose reason is that the plan prescribes
   the code at that file:line, that the block's text excludes it, or that another block of the plan owns
@@ -803,8 +803,8 @@ The roles:
   says which route its work then takes. Fix mode takes only gate `green`, so the park of a `red-baseline`
   block, or of a `build-only` block in a run with no test gate, also syncs `blocked`, whatever halt parked it.
   Its entry is `NEEDS_USER`, and its `**Fix:**` says to set the entry `stale` and the block back to `todo`,
-  which rebuilds the block under its own gate once any halt that holds the park is resolved. A round file that
-  an agent's prompt does not name may come from an earlier launch of the block, so the agent ignores it.
+  which rebuilds the block under its own gate once any halt that holds the park is resolved. An agent ignores
+  a round file of its block that its prompt does not name, whichever round or launch wrote it.
 - **Sweep** (opus) — runs only when `sweep: goal-coverage` AND every non-skip block is done
   (launch-status `done` plus this run's accepted ids). Re-greps the surface from `goal`, runs the
   full gates, writes `SWEEP.md`, where each gap's follow-up block gives a fix direction it checked
@@ -848,11 +848,13 @@ scope `.`, and a name the round only stopped using takes none. The tool finds no
 a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each
 of those takes a search the tool does not ask for. A changed or removed rule phrase, message or name is
 searched by its old wording, and by its new wording too when other text must repeat it, since a copy that
-still holds the old wording matches no search of the new one. A changed field, return value, file format or
-output that other code or prompts read needs a search that finds those readers. A change that adds, removes or
-renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose
-that lists that agent's return fields, such as "returns", "only" and "nothing else". A round that changed
-nothing writes no section. The blind review runs in a
+still holds the old wording matches no search of the new one. Each such search holds the name, value or
+phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number
+or punctuation, since a copy with other neighbouring text matches no search that holds it. A changed field,
+return value, file format or output that other code or prompts read needs a search that finds those readers. A
+change that adds, removes or renames a field of an agent's return schema also needs a search that finds each
+sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing
+else". A round that changed nothing writes no section. The blind review runs in a
 block's first round with a satisfied gate in a launch, a fix block that restored a parked block's branch
 included. A later round
 gets one when a round since the block's last blind review returned `review_needed` true or no boolean, or an
@@ -877,15 +879,14 @@ those rounds. It runs `tools/risk-check.mjs` on that round's file with the tree 
 name the round removed or renamed, and one for a name the round only stopped using is no gap. Each changed
 name or phrase in that round's hunks that a line outside them holds needs a line, and each hit marked
 `unaffected` must still agree with the change.
-Acceptance also searches each changed or removed rule phrase, message or name by its old wording, and by
-its new wording too when other text must repeat it, whatever its line names. A round whose hunks add,
-remove or rename a field of an agent's return schema also needs a line that lists each sentence that
-lists that agent's return fields. A missing file, a missing snapshot line in an audited round's file or
-in its base file, a change the file does not judge low risk, an answer the hunks contradict, a changed
-name or phrase with no sweep line, an `unaffected` hit that disagrees with the change, and a hit that
-the tool's rerun of the line's search or the old-wording search above finds, that the line
-leaves out, and that needs a change the diff did not make or disagrees with the change are each a gap,
-and the verdict returns `risk_misclassified` true, which sends the next round to a blind review.
+Acceptance also searches each changed or removed rule phrase, message or name by the developer's search rule
+above, whatever its line names. A round whose hunks add, remove or rename a field of an agent's return schema
+also needs a line that lists each sentence that lists that agent's return fields. A missing file, a missing
+snapshot line in an audited round's file or in its base file, a change the file does not judge low risk, an
+answer the hunks contradict, a changed name or phrase with no sweep line, an `unaffected` hit that disagrees
+with the change, and a hit that the tool's rerun of the line's search or the old-wording search above finds,
+that the line leaves out, and that needs a change the diff did not make or disagrees with the change are each
+a gap, and the verdict returns `risk_misclassified` true, which sends the next round to a blind review.
 Acceptance names each left-out hit it judges unaffected in its risk-audit result, and that hit is no
 gap. A verdict that returns `risk_misclassified` false drops the rounds it audited, so the next
 acceptance audits only the rounds after them.

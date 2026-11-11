@@ -442,7 +442,7 @@ section('acceptance audits the risk file of each round since the block\'s last b
   const d1 = flat(r.prompt('develop block-a r1'));
   const q1 = flat(r.prompt('quality block-a r1'));
   ok(d1.includes("again until it prints ok. Add a sweep search for each function, constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name,")
-    && d1.includes("Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it. A changed field, return value, file format or output that other code or prompts read needs a search that finds those readers.")
+    && d1.includes("Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A changed field, return value, file format or output that other code or prompts read needs a search that finds those readers.")
     && !d1.includes('marked `updated` or `unaffected`') && !d1.includes('"No changes."'),
     'CLASSIFY has the developer add a sweep search for each changed name a line outside its hunks holds, says how the tool lists dropped names, and leaves the file format to the risk tool');
   // The risk tool holds the risk file format and reruns each search, so neither prompt restates the format or reruns a search by hand.
@@ -463,16 +463,17 @@ section('acceptance audits the risk file of each round since the block\'s last b
   'a missing sweep line or an unaffected hit that disagrees is a gap in the latest audited round, and a reviewed round has no sweep to audit');
   ok(d1.includes("that the sweep of the latest such round lists each changed name or phrase of that round's hunks that a line outside them holds, leaves no `uncovered:` line of the risk tool for a name that round removed or renamed, and each hit it marks unaffected still agrees with the change and a rerun of each line's search finds no hit the line leaves out that the change left wrong"),
     'the developer is told the acceptance check on the sweep');
-  ok(d1.includes("that a search of each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it finds no hit the sweep leaves out that the change left wrong, and that the tree it stages"),
-    'the developer is told acceptance also searches a changed rule by its old wording');
-  ok(a3.includes("Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, whatever its line names."),
-    "the acceptance sweep check searches the old wording of a changed rule, which a rerun of the line's own search misses");
+  const searchRule = 'by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation';
+  ok(d1.includes(`that a search of each changed or removed rule phrase, message or name ${searchRule} finds no hit the sweep leaves out that the change left wrong, and that the tree it stages`),
+    'the developer is told acceptance also searches a changed rule by its old wording, alone');
+  ok(a3.includes(`Also search each changed or removed rule phrase, message or name ${searchRule}, whatever its line names.`),
+    "the acceptance sweep check searches the old wording of a changed rule alone, which a rerun of the line's own search misses");
   ok(flat(a3).includes('Read against the change each hit marked `unaffected`, each hit the tool prints as `left out:` and each hit that search finds that the line leaves out.'),
     'the acceptance sweep check reads a left-out hit of the risk tool and of the old-wording search against the change');
   const engineText = readFileSync(join(REPO_ROOT, ENGINE), 'utf8');
-  ok(engineText.includes('(a changed or removed one by its old wording, and by its new wording too when other text must repeat it)'),
+  ok(engineText.includes('(a changed or removed one by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text such as a citation, a section number or punctuation)'),
     'the Develop meta states the same search wording as the developer prompt');
-  ok(engineText.includes("own search of a changed or removed name or phrase by its old wording, and by its new wording too when other text must repeat it, finds no hit the change left wrong")
+  ok(engineText.includes("own search of a changed or removed name or phrase by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, finds no hit the change left wrong")
     && !engineText.includes('Sweep section lists each changed name or phrase, searches'),
     'the Acceptance meta credits the old-wording search to acceptance, never to the Sweep section');
   // A changed return schema is searched for the prose that lists the agent's return fields, which a search for the changed names misses.
@@ -1941,9 +1942,9 @@ section('a developer escalation parks first, then stops an ordered run');
   ok(/NO work was saved for: block-a/.test(out.nextStep), 'nextStep lists it as an empty park');
 }
 
-section('an agent ignores a round file of an earlier launch');
+section('an agent ignores a round file its prompt does not name');
 {
-  const note = 'A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.';
+  const note = 'Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.';
   const { prompts } = await run(GREEN_RUN, ONE_BLOCK).then((r) => ({ prompts: ['develop', 'quality', 'acceptance'].map((l) => flat(r.prompt(l))) }));
   ok(prompts.every((text) => text.includes(`A round with no blind review has no blind review file. ${note}`)),
     'the round note of every role tells the agent to ignore a round file it is not named');
@@ -3477,8 +3478,8 @@ section('fix acceptance and the sweep return decisions only, never a prose field
   ok(sweepText.includes('Also grep every guide and README in the repo, including those of other components, for each file name, '
     + 'phrase or behavior the goal moves or renames.'),
     'the sweep greps every guide and README for what the goal moves or renames');
-  ok(sweepText.includes('Run each distinct gate command once (build and test may be the same command) and record the real outcome.'),
-    'the sweep runs each distinct gate command once');
+  ok(sweepText.includes('Run the gates and record the real outcome.') && !sweepText.includes('Run each distinct gate command'),
+    'the sweep leaves the one-run rule for a shared gate command to the gate-run rule');
   ok(sweepText.includes(`Before step 1, READ ${STATE}/DECISIONS.md and every ${STATE}/AMENDED-<id>.md (list ${STATE}/ to find them), each only if it exists. An escalated default in ${STATE}/DECISIONS.md records a choice routed to the user and the default the developer took, and you hold it as acceptance holds it. Unless the reason it gives is false, a goal hit it covers is no gap. Every other line and amendment records a developer's claim, which excuses a goal hit only once you confirm it against the code.`)
     && sweepText.indexOf('Before step 1, READ') < sweepText.indexOf('PROCEDURE') && !sweepText.includes('never a gap'),
     'the sweep reads the decisions and amendments before step 1, holds an escalated default, and confirms each other claim before it excuses a goal hit');
@@ -3864,7 +3865,7 @@ section('every develop prompt states its round and why a later stage can lack a 
 // had sent that round back.
 {
   const maxRounds = 3;
-  const why = "Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.";
+  const why = "Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.";
   const plan = await run({ develop: DEV_OK, quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS) }, { ...baseArgs, maxRounds });
   const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: firstRound(FIX_GAP, FIX_PASS) }, { ...FIX_ONE, maxRounds });
   for (const [mode, id, r] of [['feature', 'block-a', plan], ['section', 'block-b', plan], ['fix', 'fix-a', fix]]) {
@@ -4832,7 +4833,7 @@ section('every backlog writer appends through the entry tool, which keeps an exi
 section('every gate run keeps its entire output in a log under scratch');
 {
   // A background run may not wake a subagent, so the rule names one bounded wait on an exit-code file.
-  const gateRun = (name) => `Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to ${STATE}/scratch/gate-${name}-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell \`&\`, since a job started with \`&\` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to ${STATE}/scratch/gate-${name}-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.`;
+  const gateRun = (name) => `Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to ${STATE}/scratch/gate-${name}-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell \`&\`, since a job started with \`&\` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to ${STATE}/scratch/gate-${name}-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.`;
   const feat = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, { ...ONE_BLOCK, sweep: 'goal-coverage', goal: 'g' });
   const park = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 });
   const sites = [

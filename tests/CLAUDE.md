@@ -250,10 +250,13 @@ against (halt); an unreachable feature does not (flag).
   code and the run passes silently. Export the staged version with
   `git -C <repo> checkout-index -a --prefix=<scratch>/`. It is the old code when the index holds earlier
   accepted work and your change is unstaged. Export the committed version with
-  `git -C <repo> archive HEAD | tar -x -C <scratch>` only when your own change is staged. Copy the new
-  test files over the export and run `node <scratch>/tests/run.mjs <filter>`. For an absence assertion,
-  also copy the changed code files over the export and apply the mutant to those copies. Never swap
-  files in the working tree for a red run.
+  `git -C <repo> archive HEAD | tar -x -C <scratch>` only when your own change is staged. In a later round of
+  one develop block, export the tree the round's prompt passes to the risk tool as `--base` with
+  `git -C <repo> archive <tree id> | tar -x -C <scratch>`. That tree is the earlier round's snapshot, or the
+  index tree when that round returned none, which lacks the earlier rounds' work. Copy the new test files
+  over the export and run `node <scratch>/tests/run.mjs <filter>`. For an absence assertion, also copy the
+  changed code files over the export and apply the mutant to those copies. Never swap files in the working
+  tree for a red run.
 - **Edit engine template text with the Edit tool or a script file written by the Write tool**, never
   through a Bash command, as `FILE_WRITE_NOTE` in develop-cycle.mjs tells agents. Agents that edited files
   through a Bash command or a script it carried lost backslashes, in single quotes too, so the exact-match
