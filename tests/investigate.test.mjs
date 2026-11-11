@@ -88,8 +88,10 @@ section('phase:"refine" stops at its critic and writes nothing');
   const { out: sound } = await run({ 'criteria-critic': { gaps: [], questions: [], unfalsifiable: [] } }, { ...baseArgs, phase: 'refine' });
   for (const [what, step] of [['a question', out.nextStep], ['an unfalsifiable criterion', quiet.nextStep], ['sound criteria', sound.nextStep]]) {
     const s = String(step ?? '');
-    ok(s.includes('run_in_background') && s.includes('the turn its notification starts') && s.includes('with phase:"run", this SAME runId and priorRounds: 0'),
+    ok(s.includes('run_in_background') && s.includes('the turn its notification starts') && s.includes('with phase:"run", this SAME runId and priorRounds: 0 for a new search'),
       `after ${what}, the run launch names the notification-turn path: ${s.slice(-200)}`);
+    ok(/priorRounds: 0 for a new search, or, to continue an earlier search, the value its last run's nextStep names, the value its last run took when it threw, or with neither at hand the highest <N> among the acceptance-review-r<N>\.md files in the stateDir, 0 when there are none\./.test(s),
+      `after ${what}, the run launch names the priorRounds of a continued search: ${s.slice(-200)}`);
   }
 }
 
@@ -600,6 +602,8 @@ section('priorRounds continues the round numbers of a resumed search');
 {
   const msg = await throwsWith(ENGINE, { args: { runId: 't', root: 'E:/r', planPath: baseArgs.planPath } });
   ok(/args\.priorRounds is required/.test(msg), `a run without priorRounds throws: ${msg.slice(0, 50)}`);
+  ok(/pass 0 for a new search, or, to continue an earlier search, the value its last run's nextStep names, the value its last run took when it threw, or with neither at hand the highest <N> among the acceptance-review-r<N>\.md files in the stateDir, 0 when there are none\./.test(msg),
+    `the throw names the thrown-run value and the fallback when neither is at hand: ${msg.slice(-80)}`);
   ok(/Invalid numeric arg: args\.priorRounds/.test(await throwsWith(ENGINE, { args: { ...baseArgs, priorRounds: '2' } })),
     'a priorRounds that only coerces to a number throws too');
   const { calls: refine } = await run({ 'criteria-critic': { gaps: [], questions: [], unfalsifiable: [] } },

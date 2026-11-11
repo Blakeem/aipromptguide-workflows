@@ -23,7 +23,8 @@ condition in parentheses runs only under it.
 2. Author the criteria file in `EnterPlanMode` in the shape of §4, asking the user with `AskUserQuestion`
    about anything ambiguous (§2 step 1, §4). Output: the criteria file.
 3. Get the user's approval of the criteria with `ExitPlanMode` (§2 step 2). Output: the user's approval.
-4. Choose the `runId` and `root` args, one `runId` for both phases (§2, §3, §9). Output: a value for each.
+4. Choose the `runId` and `root` args, one `runId` for both phases, keeping the earlier search's `runId` to
+   continue it (§2, §3, §9). Output: a value for each.
 5. Set `planPath` to the criteria file's absolute path (§3). Output: the `planPath` value.
 6. (when the answer must fit existing code) Set `target.repo` to that repo's absolute path (§3). Output:
    the `target.repo` value.
@@ -65,8 +66,8 @@ condition in parentheses runs only under it.
     `CLAUDE.md`, "Launch from a notification turn"). Output: the index checked, and that tool call is the
     last one of this turn.
 18. In the turn the notification starts, call Workflow with `phase: "run"`, the same args and `runId` as
-    step 11, and `priorRounds: 0` (§2 step 5, §9, root `CLAUDE.md`, "Launch from a notification turn").
-    Output: the Workflow run id (`wf_...`).
+    step 11, and `priorRounds: 0` for a new search or the value §9 names to continue an earlier one (§2
+    step 5, §9, root `CLAUDE.md`, "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
 
 ### After the run
 
@@ -164,7 +165,7 @@ Pick a `runId`; reuse it for every phase. `Workflow` loads by path: `scriptPath`
    **writes nothing**.
 4. **Fold the findings in.** Follow the refine return's `nextStep`. It names the questions to relay, the
    criteria fixes to fold in and the run launch.
-5. **`phase:"run"`** (same `runId` + `planPath`, `priorRounds: 0`). It loops investigator ⇄ critic and
+5. **`phase:"run"`** (same `runId` + `planPath`, `priorRounds` per §9). It loops investigator ⇄ critic and
    returns the qualifying options, the determination, and which terminal state it reached.
 6. **Present** per §7.
 
@@ -381,7 +382,8 @@ its first round. Its critic runs unless that round's investigator stops the run 
 rewrites the review file and re-judges any verdict line that names the round. A resumed run's first
 critic re-judges every option file and re-opens every ledger line the current criteria no longer
 disqualify, so a criteria edit between runs reaches every earlier verdict, and `options` then holds the
-files it upheld.
+files it upheld. A relaunch with neither a `nextStep` nor a thrown error at hand takes the `priorRounds`
+value §9 names.
 
 The run can also stop by **throwing**: any of the three agents returned nothing. Re-invoke with the same
 args, `priorRounds` included, and pass the `Workflow` tool's `resumeFromRunId` to replay completed agents
@@ -392,8 +394,10 @@ from cache.
 Full schema + defaults: the Config block atop `investigate-cycle.mjs` (the canonical source). Pass `args`
 inline.
 - **Required:** `runId` · `root` (§3) · `planPath` (absolute path to the criteria file) ·
-  `priorRounds` on `phase:"run"` (0 for a new search, the value the last
-  return's `nextStep` names on a resume, §8).
+  `priorRounds` on `phase:"run"` (0 for a new search, the value the last return's `nextStep` names on a
+  resume (§8), the value the last run took when it threw, or with neither a `nextStep` nor a thrown error
+  at hand, such as in a new session, the highest `<N>` among the `acceptance-review-r<N>.md` files in the
+  stateDir, 0 when there are none).
 - **Optional:** `phase` (`refine` | `run`, default `run`, and any other value **throws**) ·
   `sources` (starting avenues — §3) · `context`
   (domain facts) · `testbed` (how to check a candidate empirically) · `target.repo` (absolute, read-only) ·

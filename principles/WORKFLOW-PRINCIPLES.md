@@ -407,7 +407,7 @@ A requirement may name a tool, and the tool then fixes part of the method. Code,
 method in method text enters a block only with its source or probe, from research into what the developer's
 model does not already know. Routine method stays out, since the developer writes it anyway. A fix entry's
 `**Fix:**` line is the one exception. It stays without a source, since #18 makes it a hint the developer
-checks and departs from without an amendment.
+checks.
 
 The plan author asks one question of a sentence the requirement list does not plainly name: without this
 sentence, would a developer who reads only this block and the repo build something the user or another
@@ -434,10 +434,9 @@ workflows that build from a plan file or converge one, which are develop and ref
 rules and apply only where they fit.
 
 - **Build loops** produce code (develop, plus audit's defects kind that feeds it). They honor every principle,
-  including the staged escalating review (#5), developer-owned escalation (#7), and one staging at the
-  end (#9), apart from #21 in audit's defects kind. In develop,
-  the developer's risk judgment decides which rounds get a blind review (#5), and each blind review
-  reports every finding at every tier.
+  including the staged escalating review (#5), developer-owned escalation (#7), and one staging at the end
+  (#9), apart from #21 in audit's defects kind. In develop, the developer's risk judgment decides which rounds
+  get a blind review (#5), and each blind review reports every finding at every tier.
 - **Generative and read-only workflows** do creative divergence, information provisioning, or read-only
   auditing (brainstorm, docs, audit's enhancements kind). They write no code, stage nothing, and never
   commit, so #7 and #9 don't apply. The user is the judge, and there is no AI review gate unless the

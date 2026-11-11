@@ -135,8 +135,9 @@ const CRITERIA_REF = `the criteria at ${PLAN_PATH} (read them verbatim: the fixe
 // A resumed search continues the round numbers that name the review files and SEARCHED.md's r<N> lines.
 // The engine reads no files, so the operator passes the count, and a default would let a forgotten one
 // overwrite the earlier rounds' reviews.
+const PRIOR_ROUNDS_RULE = `0 for a new search, or, to continue an earlier search, the value its last run's nextStep names, the value its last run took when it threw, or with neither at hand the highest <N> among the acceptance-review-r<N>.md files in the stateDir, 0 when there are none`;
 if (PHASE === 'run' && A.priorRounds == null) {
-  throw new Error('args.priorRounds is required for phase:"run": pass 0 for a new search, or the value the last run\'s nextStep names to continue it.');
+  throw new Error(`args.priorRounds is required for phase:"run": pass ${PRIOR_ROUNDS_RULE}.`);
 }
 const PRIOR_ROUNDS = num(A.priorRounds, 'priorRounds', 0, 0);
 const LAST_ROUND   = PRIOR_ROUNDS + MAX_ROUNDS;
@@ -545,6 +546,8 @@ if (PHASE === 'refine') {
   const gapCheck = gaps.length
     ? 'Check each gap against the criteria file before you fold it: confirm its quoted evidence line is there and says what the gap claims, or, for an `absent:` gap, that the section is missing, and treat its suggestion as a hint, never as text to paste. '
     : '';
+  // A new session continuing an earlier search runs this phase first, and a bare 0 would overwrite its reviews.
+  const runPriorRounds = `priorRounds: ${PRIOR_ROUNDS_RULE}`;
   return {
     phase: 'refine',
     runId: RUN_ID,
@@ -554,12 +557,12 @@ if (PHASE === 'refine') {
     notes: critique.notes || '',
     failed: [],
     nextStep: questions.length
-      ? `Relay the questions to the user (AskUserQuestion). ${gapCheck}Fold the answers${gaps.length ? ' + the confirmed gap fixes' : ''}${unfalsifiable.length ? ' + the unfalsifiable fixes' : ''} into the criteria (planPath)${unfalsifiable.length ? ', REPLACING every unfalsifiable criterion with one that evidence can settle' : ''}, then ${LAUNCH}, with phase:"run", this SAME runId and priorRounds: 0.${unfalsifiable.length ? ' A criterion nothing can decide never converges.' : ''}`
+      ? `Relay the questions to the user (AskUserQuestion). ${gapCheck}Fold the answers${gaps.length ? ' + the confirmed gap fixes' : ''}${unfalsifiable.length ? ' + the unfalsifiable fixes' : ''} into the criteria (planPath)${unfalsifiable.length ? ', REPLACING every unfalsifiable criterion with one that evidence can settle' : ''}, then ${LAUNCH}, with phase:"run", this SAME runId and ${runPriorRounds}.${unfalsifiable.length ? ' A criterion nothing can decide never converges.' : ''}`
       : (gaps.length || unfalsifiable.length)
         ? `${gaps.length
           ? `${gapCheck}Fold the confirmed gap fixes into the criteria (planPath)${unfalsifiable.length ? ' and REPLACE every unfalsifiable criterion with one that evidence can settle' : ''}`
-          : 'REPLACE every unfalsifiable criterion in the criteria (planPath) with one that evidence can settle'}, then ${LAUNCH}, with phase:"run", this SAME runId and priorRounds: 0.${unfalsifiable.length ? ' A criterion nothing can decide never converges.' : ''}`
-        : `Criteria are sound — ${LAUNCH}, with phase:"run", this SAME runId and priorRounds: 0.`,
+          : 'REPLACE every unfalsifiable criterion in the criteria (planPath) with one that evidence can settle'}, then ${LAUNCH}, with phase:"run", this SAME runId and ${runPriorRounds}.${unfalsifiable.length ? ' A criterion nothing can decide never converges.' : ''}`
+        : `Criteria are sound — ${LAUNCH}, with phase:"run", this SAME runId and ${runPriorRounds}.`,
   };
 }
 
