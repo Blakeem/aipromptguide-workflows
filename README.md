@@ -165,6 +165,9 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-11-11
 
+- **Landing or dropping a develop run trashes its `scratch/` folder.** `tools/wt.mjs close` and `clean`
+  take `--state-dir <abs>`, and move that run's `scratch/` folder to the trash after the worktree. The
+  folder holds gate logs and repo exports, and no command removed it before.
 - **A `close --stage` run again skips a gate that already passed.** A close can stop after it staged the
   work, such as on a refused trash. The next run finds the work staged and runs no gate. A run whose
   `--into` branch moved still rebases and gates.
