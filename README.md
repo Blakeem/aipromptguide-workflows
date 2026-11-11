@@ -165,6 +165,21 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-11-10
 
+- **A refused trash names its cause.** On Windows, `tools/trash.mjs` names three measured causes beside the
+  shell's report. A tree holds a path of 260 or more characters, a process holds the folder, or the delete
+  is denied. The item stays in place.
+- **A refused worktree trash names the action that clears it.** `wt.mjs close` and `clean` name the action
+  for each cause, such as `git worktree move` to a shorter path. The operator clears the cause and runs the
+  same command again. No refusal suggests moving the folder by hand.
+- **The Windows trash helper reports a long target path correctly.** On a volume with no 8.3 short names, a
+  target path of 260 or more characters was refused as a path that names another item. The refusal now
+  names the long path.
+- **One gate run covers both develop gates.** When `gates.build` and `gates.test` are the same command, an
+  agent runs it once.
+- **A develop sweep search holds the changed name or phrase alone.** A search that kept a citation or
+  punctuation beside the phrase missed the copies whose neighbouring text differed.
+- **A develop agent ignores every round file its prompt does not name.** The rule used to name only the
+  files of an earlier launch.
 - **Principle #21 says what a plan block holds.** A block states the end goal, the requirements and the
   user's decisions. The developer chooses the method. A requirement may name a tool.
 - **Refine removes wrong method text.** The critic marks each gap as requirement text or method text. The
