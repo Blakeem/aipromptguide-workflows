@@ -97,9 +97,10 @@ Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the 
 ## Reviewing the result
 
 `runs/<runId>/` holds each option the investigator qualified, with its per-criterion evidence
-(`options/<id>.md`), the full record of what was ruled out and why (`DISQUALIFIED.md`), the ground each
-round covered and what it would try next (`SEARCHED.md`), the critic's round-by-round findings
-(`acceptance-review-rN.md`), and the conclusion (`DETERMINATION.md`). The critic writes its verdict as
+(`options/<id>.md`), the full record of what was ruled out and why (`DISQUALIFIED.md`) and the ground each
+round covered and what it would try next (`SEARCHED.md`). Each launch of the search writes the critic's
+round-by-round findings (`acceptance-review-rN.md`) and the conclusion (`DETERMINATION.md`) in its own
+`launch-<n>/` folder, so a later launch never replaces them. The critic writes its verdict as
 the first line of each option file it judges, then corrects `DETERMINATION.md` to match those verdicts.
 The file of an option the critic disqualified stays in
 `options/`. The run's `options` result lists the options whose verdict reads upheld, earlier runs included. It

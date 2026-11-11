@@ -111,7 +111,10 @@ read. An agent that ignores the refusal still returns `wrote_file: true`, and th
 reads the earlier launch's text as the new round's. Every engine holds `REPLACE_NOTE` and
 `WROTE_NOTE` once. refine writes its records in a launch folder that no other launch writes, so its
 `REPLACE_NOTE` names a file an interrupted attempt of the same launch left, and its test passes that note
-to `pinWriteNotes`. `REPLACE_NOTE` sits at each site that replaces a file in full, apart from develop's risk
+to `pinWriteNotes`. investigate keeps `REPLACE_NOTE` for its option files in the stateDir, and its review
+and determination sites in the launch folder carry `REVIEW_REPLACE_NOTE` and `DETERMINATION_REPLACE_NOTE`,
+since an earlier round of the same launch may also have written the determination. A Read-first note
+sits at each site that replaces a file in full, apart from develop's risk
 file, whose read step says `risk-check.mjs` leaves an existing file in place, since the tool writes none.
 `WROTE_NOTE` sits once in each prompt whose return attests a file the agent writes with the Write tool.
 One return falls outside that rule and carries no `WROTE_NOTE`: docs' `files_cleaned`, an in-place Edit count.

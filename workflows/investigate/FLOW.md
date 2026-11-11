@@ -31,12 +31,14 @@ flowchart TD
   x8[/"throw: Illegal role value in a role map"/]
   x9[/"throw: Invalid agentTypes arg"/]
   x10[/"throw: Invalid notes arg"/]
-  x11[/"throw: args.planPath is required"/]
-  x12[/"throw: args.priorRounds is required for phase:#quot;run#quot;"/]
-  x13[/"throw: A user request was relayed into the context of the ... ahead of its task"/]
-  x14[/"throw: Criteria critic returned nothing"/]
-  x15[/"throw: Investigator returned nothing in round ..."/]
-  x16[/"throw: Acceptance critic returned nothing in round ..."/]
+  x11[/"throw: Missing args.launchDir"/]
+  x12[/"throw: Invalid args.launchDir"/]
+  x13[/"throw: args.planPath is required"/]
+  x14[/"throw: args.priorRounds is required for phase:#quot;run#quot;"/]
+  x15[/"throw: A user request was relayed into the context of the ... ahead of its task"/]
+  x16[/"throw: Criteria critic returned nothing"/]
+  x17[/"throw: Investigator returned nothing in round ..."/]
+  x18[/"throw: Acceptance critic returned nothing in round ..."/]
   S0 --> a1
   S0 --> a2
   S0 --> t7
@@ -52,16 +54,18 @@ flowchart TD
   S0 --> x10
   S0 --> x11
   S0 --> x12
+  S0 --> x13
+  S0 --> x14
   a1 --> t1
-  a1 --> x13
-  a1 --> x14
+  a1 --> x15
+  a1 --> x16
   a2 -.->|"L1 ×4"| a2
   a2 --> a3
   a2 --> t6
   a2 --> t8
   a2 --> t9
-  a2 --> x13
   a2 --> x15
+  a2 --> x17
   a3 -.->|"the critic contests the coverage claim · +5 more (×5)"| a2
   a3 --> t2
   a3 --> t3
@@ -70,7 +74,7 @@ flowchart TD
   a3 --> t6
   a3 --> t8
   a3 --> t9
-  a3 --> x16
+  a3 --> x18
 ```
 
 ## Phases
@@ -110,13 +114,15 @@ flowchart TD
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 74) |
 | throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside criteria \| investigate \| critique, or maps one to a blank name | throw (line 88) |
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 105) |
-| throw: args.planPath is required | args carry no planPath | throw (line 130) |
-| throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 140) |
-| throw: A user request was relayed into the context of the ... ahead of its task | phase:"refine" and the criteria critic reports a user request relayed into its context · the investigator reports a user request relayed into its context | throw (line 247) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 540) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 625) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 658) |
+| throw: Missing args.launchDir | phase:"run" and args.launchDir is missing or blank | throw (line 123) |
+| throw: Invalid args.launchDir | args.launchDir is not a launch-&lt;n&gt; folder directly inside the stateDir | throw (line 139) |
+| throw: args.planPath is required | args carry no planPath | throw (line 155) |
+| throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 165) |
+| throw: A user request was relayed into the context of the ... ahead of its task | phase:"refine" and the criteria critic reports a user request relayed into its context · the investigator reports a user request relayed into its context | throw (line 276) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 576) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 667) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 700) |
 
 ## Coverage
 
-35 scenarios · 3/3 roles · 16/16 throw sites · 8/8 halt statuses · 25 terminal states.
+37 scenarios · 3/3 roles · 18/18 throw sites · 8/8 halt statuses · 27 terminal states.

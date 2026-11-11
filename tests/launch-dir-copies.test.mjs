@@ -8,6 +8,7 @@ import { REPO_ROOT, section, ok } from './harness.mjs';
 // The first engine's copy is the reference. Each engine that moves its records into a launch folder joins the list.
 const ENGINES = [
   'workflows/refine/refine-cycle.mjs',
+  'workflows/investigate/investigate-cycle.mjs',
 ];
 
 /** The launchDirOf function of one engine's source, or null when it lacks one. */

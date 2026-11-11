@@ -5,13 +5,14 @@
 // Coverage aimed at here: all eight terminal states (they are eight different FACTS — folding any pair is
 // how a stopped search gets reported as a finished one), the critic gate in BOTH directions (skipped over
 // a later round with no option or flag to check, forced open on the last round because a determination is due and on
-// a run's first round), a contested claim of EACH kind buying another round, and each of the fifteen throw sites.
+// a run's first round), a contested claim of EACH kind buying another round, and each of the eighteen throw sites.
 
 const base = {
   runId: 'flow',
   root: 'E:/flow',
   planPath: 'E:/flow/plans/flow/criteria.md',
   priorRounds: 0,
+  launchDir: 'E:/flow/runs/flow/launch-1',
 };
 
 // An EMPTY round: nothing found, nothing ruled out, nothing claimed. It STALLS the run, so only the
@@ -202,6 +203,10 @@ export default {
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'no planPath', when: 'args carry no planPath', args: { runId: 'flow', root: 'E:/flow' } },
     { name: 'no priorRounds', when: 'phase:"run" without priorRounds', args: { runId: 'flow', root: 'E:/flow', planPath: base.planPath } },
+    // Each run-phase launch writes its reviews and determination in its own launch folder, so a launch without
+    // one, or with a folder outside the stateDir, would write where another launch did.
+    { name: 'no launch folder', when: 'phase:"run" and args.launchDir is missing or blank', args: { ...base, launchDir: undefined } },
+    { name: 'launch folder outside the stateDir', when: 'args.launchDir is not a launch-<n> folder directly inside the stateDir', args: { ...base, launchDir: 'E:/flow/runs/other/launch-1' } },
     // A run launched inside a user turn relays that message to every agent, and the first agent says so.
     { name: 'a user request is relayed to the criteria critic', when: 'phase:"refine" and the criteria critic reports a user request relayed into its context', args: { ...base, phase: 'refine' }, respond: { 'criteria-critic': { gaps: [], questions: [], unfalsifiable: [], relayed_request: true } } },
     { name: 'a user request is relayed to the investigator', when: 'the investigator reports a user request relayed into its context', args: base, respond: { investigate: { ...INV, relayed_request: true } } },

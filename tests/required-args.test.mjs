@@ -137,9 +137,9 @@ const SWEEP = [
   },
   {
     engine: 'workflows/investigate/investigate-cycle.mjs',
-    baseArgs: { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/criteria.md', priorRounds: 0 },
+    baseArgs: { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/criteria.md', priorRounds: 0, launchDir: 'E:/r/runs/t/launch-1' },
     respond: {},
-    required: ['runId', 'root', 'planPath', 'priorRounds'],
+    required: ['runId', 'root', 'planPath', 'priorRounds', 'launchDir'],
   },
 ];
 

@@ -31,8 +31,8 @@ section('the ordinary-Node scripts pass node --check (the harness contract does 
 // risk-check.mjs by every develop developer and acceptance, so
 // their syntax is a run-time dependency too. wt.mjs
 // is run by the operator around a batch of runs, and a syntax error there strands live worktrees.
-// plan-edit.mjs is the operator's only write path into an approved plan file, and launch.mjs is refine's
-// pre-launch command, so a syntax error there stops every refine launch. trash.mjs is the removal
+// plan-edit.mjs is the operator's only write path into an approved plan file, and launch.mjs is the pre-launch
+// command of refine and of investigate's run phase, so a syntax error there stops every such launch. trash.mjs is the removal
 // path that never hard-deletes, so a syntax error there leaves a caller no safe way to remove a folder.
 for (const rel of ['workflows/audit/gen-units.mjs', 'tools/plan-block.mjs', 'tools/plan-pull.mjs', 'tools/plan-entry.mjs', 'tools/risk-check.mjs', 'tools/plan-edit.mjs', 'tools/launch.mjs', 'tools/gen-flows.mjs', 'tools/wt.mjs', 'tools/trash.mjs']) {
   let err = '';

@@ -62,32 +62,36 @@ condition in parentheses runs only under it.
     `nextStep`). Output: the edited criteria file.
 17. Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to,
     holds no line on this run's plan or goal, and when one does, remove the line and launch from a new
-    session. Then run step 10's pre-launch command with run_in_background, then end the turn (§2, root
-    `CLAUDE.md`, "Launch from a notification turn"). Output: the index checked, and that tool call is the
-    last one of this turn.
+    session. Then run `node <launch.mjs> reserve <stateDir> --keep options` with run_in_background, where
+    `<launch.mjs>` is `tools/launch.mjs` of this checkout and `<stateDir>` is the absolute stateDir, or on a
+    replay run step 10's pre-launch command, which reserves no launch folder. Then end the turn (§2, §10,
+    root `CLAUDE.md`, "Launch from a notification turn"). Output: the index checked, and that tool call is
+    the last one of this turn.
 18. In the turn the notification starts, call Workflow with `phase: "run"`, the same args and `runId` as
-    step 11, and `priorRounds: 0` for a new search or the value §9 names to continue an earlier one (§2
-    step 5, §9, root `CLAUDE.md`, "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
+    step 11, `launchDir` set to the folder the reserve command printed, or on a replay to the replayed
+    launch's `launchDir`, and `priorRounds: 0` for a new search or the value §9 names to continue an
+    earlier one (§2 step 5, §9, root `CLAUDE.md`, "Launch from a notification turn"). Output: the Workflow
+    run id (`wf_...`).
 
 ### After the run
 
-19. (when the run threw because an agent returned nothing) Re-invoke through steps 17 and 18 with the args
-    of the run that threw, its `priorRounds` included, plus the Workflow tool's `resumeFromRunId`. Stop
-    this pass of the list there, and work it again from step 19 once that run ends (§8). Output: the
-    resumed run's Workflow run id.
+19. (when the run threw because an agent returned nothing) Replay through steps 17 and 18 with the args of
+    the run that threw, its `priorRounds` and `launchDir` included, plus the Workflow tool's
+    `resumeFromRunId`. Stop this pass of the list there, and work it again from step 19 once that run ends
+    (§8). Output: the resumed run's Workflow run id.
 20. (when the run threw on a relayed user request) Relaunch through steps 17 and 18 with the args of the run
-    that threw, its `priorRounds` included, and no `resumeFromRunId`. Stop this pass of the list there, and
-    work it again from step 19 once that run ends (§2, root `CLAUDE.md`, "Launch from a notification turn").
-    Output: the relaunch's Workflow run id.
+    that threw, its `priorRounds` included, a newly reserved `launchDir` and no `resumeFromRunId`. Stop this
+    pass of the list there, and work it again from step 19 once that run ends (§2, root `CLAUDE.md`,
+    "Launch from a notification turn"). Output: the relaunch's Workflow run id.
 21. (when `status` is `BLOCKED (needs user input)`) Read the new entries at the end of `NEEDS-USER.md`
     under the headings `nextStep` names, and resolve them with the user, usually by editing the criteria
     file (§8, §10). Output: each new entry resolved.
 22. (when `status` is `BLOCKED (an agent did not confirm writing its files)`) Check the files `haltReason`
     names (§8). Output: each file's state, checked.
-23. (when `halted` is true) Re-invoke through steps 17 and 18 with the same args and `runId`, no
-    `resumeFromRunId` and, in place of `priorRounds: 0`, the `priorRounds` value `nextStep` names. Stop this
-    pass of the list there, and work it again from step 19 once that run ends (§3, §8). Output: the
-    relaunch's Workflow run id.
+23. (when `halted` is true) Re-invoke through steps 17 and 18 with the same args and `runId`, a newly
+    reserved `launchDir`, no `resumeFromRunId` and, in place of `priorRounds: 0`, the `priorRounds` value
+    `nextStep` names. Stop this pass of the list there, and work it again from step 19 once that run ends
+    (§3, §8). Output: the relaunch's Workflow run id.
 24. Lead with the terminal state `status` names, and present no state but `exhaustive` as a finished search
     (§6, §7). Output: the terminal state, told to the user first.
 25. (when `options` is null) Read the verdict line atop each file in `options/` (§6, the return's
@@ -165,8 +169,9 @@ Pick a `runId`; reuse it for every phase. `Workflow` loads by path: `scriptPath`
    **writes nothing**.
 4. **Fold the findings in.** Follow the refine return's `nextStep`. It names the questions to relay, the
    criteria fixes to fold in and the run launch.
-5. **`phase:"run"`** (same `runId` + `planPath`, `priorRounds` per §9). It loops investigator ⇄ critic and
-   returns the qualifying options, the determination, and which terminal state it reached.
+5. **`phase:"run"`** (same `runId` + `planPath`, `priorRounds` per §9, `launchDir` from the reserve
+   command of §0 step 17). It loops investigator ⇄ critic and returns the qualifying options, the
+   determination, and which terminal state it reached.
 6. **Present** per §7.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
@@ -366,28 +371,32 @@ since a malformed determination is not an open search.
 
 ## 8. Resume
 
-Preserve `runs/<runId>/` and re-invoke `phase:"run"` with the same args and `priorRounds` set to the
-value the last return's `nextStep` names. After an unattested write, or an investigator's escalation
-after round 1, that value is `rounds - 1`, so the halted round re-runs and its investigator re-reads any
-review it was handed. After a critic's escalation it is `rounds`, since that critic wrote the round's
-review. After an investigator's escalation in round 1 it is `rounds` too: round 1 was handed no review
-and its critic always runs, so the relaunch loses nothing and its first critic re-judges as below. The
-round numbers then continue, so the earlier review files and `r<N>` lines stay intact and the first
-investigator reads the last run's review. `maxRounds` counts only the new run's
+Preserve `runs/<runId>/` and re-invoke `phase:"run"` with the same args, a newly reserved `launchDir` and
+`priorRounds` set to the value the last return's `nextStep` names. After an unattested write, or an
+investigator's escalation after round 1, that value is `rounds - 1`, so the halted round re-runs and its
+investigator re-reads any review it was handed. After a critic's escalation it is `rounds`, since that
+critic wrote the round's review. After an investigator's escalation in round 1 it is `rounds` too: round 1
+was handed no review and its critic always runs, so the relaunch loses nothing and its first critic
+re-judges as below. The round numbers then continue, and each launch writes its reviews in its own launch
+folder (§10), so the earlier review files and `r<N>` lines stay intact. The first investigator reads the
+last run's review in the highest-numbered launch folder that holds it, or directly in the stateDir when an
+engine from before launch folders wrote it. `maxRounds` counts only the new run's
 rounds. The ledger means the search **continues** rather than restarting. A fresh investigator reads
 what is already closed and does not re-walk it. The halts to resolve first are a `needs_user`
 escalation, an unattested write (check the files `haltReason` names), and a token-budget stop (nothing
 to resolve there, just re-invoke). After a critic's unattested write, the relaunch re-runs that round as
 its first round. Its critic runs unless that round's investigator stops the run first. That critic
-rewrites the review file and re-judges any verdict line that names the round. A resumed run's first
+writes the round's review in the new launch folder, beside the halted launch's copy, and re-judges any
+verdict line that names the round. A resumed run's first
 critic re-judges every option file and re-opens every ledger line the current criteria no longer
 disqualify, so a criteria edit between runs reaches every earlier verdict, and `options` then holds the
 files it upheld. A relaunch with neither a `nextStep` nor a thrown error at hand takes the `priorRounds`
 value §9 names.
 
 The run can also stop by **throwing**: any of the three agents returned nothing. Re-invoke with the same
-args, `priorRounds` included, and pass the `Workflow` tool's `resumeFromRunId` to replay completed agents
-from cache.
+args, `priorRounds` and `launchDir` included, and pass the `Workflow` tool's `resumeFromRunId` to replay
+completed agents from cache. A replay reserves no launch folder, so it meets only the files its
+interrupted attempt left in its own.
 
 ## 9. Args reference
 
@@ -397,7 +406,11 @@ inline.
   `priorRounds` on `phase:"run"` (0 for a new search, the value the last return's `nextStep` names on a
   resume (§8), the value the last run took when it threw, or with neither a `nextStep` nor a thrown error
   at hand, such as in a new session, the highest `<N>` among the `acceptance-review-r<N>.md` files in the
-  stateDir, 0 when there are none).
+  stateDir and in its launch folders, 0 when there are none) · `launchDir` on `phase:"run"` (the absolute
+  path of the `launch-<n>` folder that `node <launch.mjs> reserve <stateDir> --keep options` prints, newly
+  reserved for every launch but a replay, which passes the replayed launch's own. The engine **throws** when
+  it is missing or blank, and when it is not a folder named `launch-<n>` directly inside the stateDir.
+  `phase:"refine"` writes no file and takes none).
 - **Optional:** `phase` (`refine` | `run`, default `run`, and any other value **throws**) ·
   `sources` (starting avenues — §3) · `context`
   (domain facts) · `testbed` (how to check a candidate empirically) · `target.repo` (absolute, read-only) ·
@@ -441,21 +454,28 @@ inline.
   search terms used and what it yielded, and exactly one `r<N> NEXT:` line per round naming the most
   promising unswept avenue and the confidence in it. The ledger closes candidates; this closes ground, and
   it is what a resumed run reads to avoid re-running the last round's searches.
-- `acceptance-review-rN.md` — the critic's findings for round N: per-option verdicts, its rulings on the
-  new ledger lines and flags, near-miss corrections, any contested termination claim, and the
-  corrections it made to the determination and any defect left in it. A run's first round
+- `launch-<n>/` — one folder per run-phase launch, which the pre-launch command `node <launch.mjs> reserve
+  <stateDir> --keep options` creates one past the highest `launch-<n>` in the stateDir and prints as
+  `launchDir`. Its `kept/options/` holds the option files as they were before that launch. A launch writes
+  its `acceptance-review-rN.md` and `DETERMINATION.md` only in its own launch folder, so no launch replaces
+  a review or a determination an earlier launch wrote, and a replay meets only the files its interrupted
+  attempt left. The files above stay in the stateDir across launches. Files that an engine from before
+  launch folders left directly in the stateDir stay where they are.
+- `launch-<n>/acceptance-review-rN.md` — the critic's findings for round N: per-option verdicts, its
+  rulings on the new ledger lines and flags, near-miss corrections, any contested termination claim, and
+  the corrections it made to the determination and any defect left in it. A run's first round
   writes one unless its investigator stops the run first. A later round that runs no critic writes none,
   and the next critic checks its ledger lines. When the run stalls before that critic, the stall's log
   line and `nextStep` name those lines as unchecked.
-- `DETERMINATION.md` — the run's product file, in the fixed shape of §6, linking to `options/<id>.md`
-  rather than restating them (#11). Written on a terminating round **and** on the last round the budget
-  allows (labelled a partial result when that round claims no termination). **The return names it
-  only where the run ENDED in one of those two
+- `launch-<n>/DETERMINATION.md` — the run's product file, in the fixed shape of §6, linking to
+  `options/<id>.md` rather than restating them (#11). Written on a terminating round **and** on the last
+  round the budget allows (labelled a partial result when that round claims no termination). **The return
+  names it only where the run ENDED in one of those two
   states** — which is narrower than where one was written: a run that claims termination in round 1, gets
   contested, then stops on the token budget has a real (stale) determination on disk that `determination`
   does not name, and so does a last round that escalated instead of concluding. That gap is deliberate,
-  and it errs the safe way: the field never names a file nothing wrote. When a run halts, look in
-  `stateDir` before assuming there is nothing there.
+  and it errs the safe way: the field never names a file nothing wrote. When a run halts, look in its
+  launch folder before assuming there is nothing there.
 - `NEEDS-USER.md` — escalations; on a verified no-solution, which criterion the user might relax. It is
   cumulative across relaunches. Each entry opens with `## r<round> investigator` or `## r<round> critic`,
   and a needs-user `nextStep` names the heading of the new entries. A critic halt on a `no_solution` round

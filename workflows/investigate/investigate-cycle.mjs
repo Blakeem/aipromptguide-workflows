@@ -1,6 +1,6 @@
 export const meta = {
   name: 'investigate-cycle',
-  description: 'Bounded exhaustive search, lean/file-bus design: ONE investigator per round hunts for an EXISTING answer that meets fixed PASS/FAIL criteria — writing each qualifier to options/<id>.md and every reject to an append-only DISQUALIFIED.md ledger it re-reads at the top of every round, so each round diverges from what already failed instead of circling — and an adversarial NON-BLIND critic verifies each new option against every criterion (and every citation against its source) before it counts. The loop ends when the investigator can EVIDENCE that no avenues remain and the critic agrees, not when the first answer works. Running out of rounds, running out of tokens, proving that nothing can qualify, stopping on critic-verified SATURATION (diminishing returns — the search stays OPEN, not closed) and STALLING on a round that added nothing at all are DIFFERENT terminal states and are never folded together. The harness only routes ids, paths + verdicts; every finding lives in files.',
+  description: 'Bounded exhaustive search, lean/file-bus design: ONE investigator per round hunts for an EXISTING answer that meets fixed PASS/FAIL criteria — writing each qualifier to options/<id>.md and every reject to an append-only DISQUALIFIED.md ledger it re-reads at the top of every round, so each round diverges from what already failed instead of circling — and an adversarial NON-BLIND critic verifies each new option against every criterion (and every citation against its source) before it counts. The loop ends when the investigator can EVIDENCE that no avenues remain and the critic agrees, not when the first answer works. Running out of rounds, running out of tokens, proving that nothing can qualify, stopping on critic-verified SATURATION (diminishing returns — the search stays OPEN, not closed) and STALLING on a round that added nothing at all are DIFFERENT terminal states and are never folded together. Each run-phase launch writes its round reviews and DETERMINATION.md in its own launch folder, the required launchDir arg that tools/launch.mjs reserves in the stateDir, so no launch replaces a review or a determination an earlier launch wrote. The harness only routes ids, paths + verdicts; every finding lives in files.',
   whenToUse: 'Find an answer that likely ALREADY EXISTS and qualify it against fixed pass/fail criteria — a library, tool, API, config, technique or precedent that must satisfy every constraint, plus the evidence that nothing better was left unsearched. The main agent authors the CRITERIA (the question, the pass/fail criteria, the evidence standard, the search space) in PLAN MODE, approves them with the user, runs MANDATORY phase:"refine" (an independent criteria critic returns gaps + blocking questions + criteria no evidence could settle), folds the answers back into the criteria file, then runs phase:"run" with the same runId. Use decide-cycle instead when no established answer exists and the real work is WEIGHING trade-offs among approaches the AI generates; brainstorm-cycle for creative variations a human picks between; to BUILD what the determination names, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.',
   phases: [
     { title: 'Refine', detail: 'MANDATORY first pass (refine phase only): an independent criteria critic reads the criteria and returns gaps, each quoting the criteria line it rests on or naming the section the criteria lack, blocking questions, and any criterion no evidence could settle either way. Writes nothing.' },
@@ -41,7 +41,7 @@ const TESTBED     = A.testbed ?? '';                        // OPTIONAL: how age
 const num = (v, name, min, dflt, max = 1_000_000) => {
   if (v === undefined || v === null) return dflt;
   if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) {
-    throw new Error(`Invalid numeric arg: args.${name} must be a number between ${min} and ${max}; got ${JSON.stringify(v)}. It is not coerced — an arg that absorbs garbage produces a zero-round run, misnumbered rounds that can overwrite earlier reviews, or a disabled budget stop, and the run reports each as an ordinary exit.`);
+    throw new Error(`Invalid numeric arg: args.${name} must be a number between ${min} and ${max}; got ${JSON.stringify(v)}. It is not coerced — an arg that absorbs garbage produces a zero-round run, misnumbered rounds that misorder the verdict lines and ledger tags, or a disabled budget stop, and the run reports each as an ordinary exit.`);
   }
   return Math.floor(v);
 };
@@ -115,11 +115,36 @@ const callAgent = (prompt, opts) => agent(NOTES
 
 const REPO        = TARGET.repo ? abs(TARGET.repo) : '';
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}`);
+// Copy of the launch folder check each engine with a launch folder holds, since an engine cannot import: a test pins the copies equal.
+// A launch writes its records only in the folder `tools/launch.mjs reserve` made for it, so no launch writes
+// where another did. Static lead clauses: gen-flows labels each throw node from them.
+const launchDirOf = (value, stateDir) => {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new Error(`Missing args.launchDir: pass the launchDir that the reserve command of the workflow guide's pre-launch step prints, a newly reserved one for every launch but a replay, which passes the replayed launch's own with resumeFromRunId. Got ${JSON.stringify(value)}.`);
+  }
+  const dir = value.trim().replace(/\\/g, '/').replace(/\/+$/, '');
+  // reserve may get another spelling of the stateDir, so both sides drop `.`, `..` and repeated slashes. Windows folds case in a drive or UNC path.
+  const key = (p) => {
+    const lead = /^(?:[a-zA-Z]:\/|\/\/|\/)?/.exec(p)[0];
+    const segments = [];
+    for (const segment of p.slice(lead.length).split('/')) {
+      if (segment === '..') segments.pop();
+      else if (segment && segment !== '.') segments.push(segment);
+    }
+    const path = `${lead}${segments.join('/')}`;
+    return lead.length > 1 ? path.toLowerCase() : path;
+  };
+  const cut = dir.lastIndexOf('/');
+  if (cut < 0 || key(dir.slice(0, cut)) !== key(stateDir) || !/^launch-[1-9]\d*$/.test(dir.slice(cut + 1))) {
+    throw new Error(`Invalid args.launchDir: it must be a folder named launch-<n> directly inside the stateDir ${stateDir}, as \`node <launch.mjs> reserve <stateDir>\` prints it. Got ${JSON.stringify(value)}.`);
+  }
+  return dir;
+};
+// The search's memory stays in the stateDir across launches. Each run-phase launch writes its reviews and its
+// determination in its own launch folder, defined with the run phase below.
 const OPTIONS_DIR = `${STATE_DIR}/options`;                 // one file per option written (a disqualified one's file stays)
 const LEDGER      = `${STATE_DIR}/DISQUALIFIED.md`;         // append-only search memory (both roles write it)
 const SEARCHED    = `${STATE_DIR}/SEARCHED.md`;             // append-only avenue log: swept ground + what is next
-const DETERMINATION = `${STATE_DIR}/DETERMINATION.md`;      // the cross-option comparison + coverage evidence
-const reviewFile  = (r) => `${STATE_DIR}/acceptance-review-r${r}.md`;
 const NEEDS_USER  = `${STATE_DIR}/NEEDS-USER.md`;           // user-only escalations (may halt the run)
 
 // Criteria: the FIXED pass/fail rubric, read verbatim (#2/#11) by the investigator AND the critic. The
@@ -132,10 +157,10 @@ if (typeof A.planPath !== 'string' || !A.planPath.trim()) {
 const PLAN_PATH   = abs(A.planPath);
 const CRITERIA_REF = `the criteria at ${PLAN_PATH} (read them verbatim: the fixed pass/fail rubric)`;
 
-// A resumed search continues the round numbers that name the review files and SEARCHED.md's r<N> lines.
-// The engine reads no files, so the operator passes the count, and a default would let a forgotten one
-// overwrite the earlier rounds' reviews.
-const PRIOR_ROUNDS_RULE = `0 for a new search, or, to continue an earlier search, the value its last run's nextStep names, the value its last run took when it threw, or with neither at hand the highest <N> among the acceptance-review-r<N>.md files in the stateDir, 0 when there are none`;
+// A resumed search continues the round numbers that order the verdict lines, the ledger tags and SEARCHED.md's
+// r<N> lines across launches. The engine reads no files, so the operator passes the count, and a default would
+// let a forgotten one restart them under the earlier rounds' numbers.
+const PRIOR_ROUNDS_RULE = `0 for a new search, or, to continue an earlier search, the value its last run's nextStep names, the value its last run took when it threw, or with neither at hand the highest <N> among the acceptance-review-r<N>.md files in the stateDir and in its launch folders, 0 when there are none`;
 if (PHASE === 'run' && A.priorRounds == null) {
   throw new Error(`args.priorRounds is required for phase:"run": pass ${PRIOR_ROUNDS_RULE}.`);
 }
@@ -241,16 +266,24 @@ const CRITERIA_SCHEMA = {
 
 // A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
 const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
+// A new run-phase launch reserves its launch folder and keeps the option files as they were before it.
+const RUN_LAUNCH = `${LAUNCH}. That pre-launch command is node <launch.mjs> reserve '${STATE_DIR}' --keep options, and launchDir is the folder it prints`;
+// A replay keeps its launch's folder, so its pre-launch command is the refine phase's, which reserves none.
+const REPLAY = `${LAUNCH}. A replay keeps its launchDir, so that pre-launch command is ${REPO ? `git -C '${REPO}' status --short` : 'node --version'}, which reserves no launch folder`;
 // A run launched inside a user turn relays that message to every agent, so the first agent of the launch stops it.
-const haltIfRelayed = (role, relayed) => {
+const haltIfRelayed = (role, relayed, relaunch) => {
   if (relayed === true) {
-    throw new Error(`A user request was relayed into the context of the ${role} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}.`);
+    throw new Error(`A user request was relayed into the context of the ${role} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${relaunch}.`);
   }
 };
 
-// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite
-// a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
+// A relaunch with the same runId finds the earlier launch's option files, and the Write tool refuses to
+// overwrite a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
 const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
+// A launch folder holds no earlier launch's file, so only a replay, or for the determination an earlier round
+// of the same launch, meets one there.
+const REVIEW_REPLACE_NOTE = 'The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content.';
+const DETERMINATION_REPLACE_NOTE = 'The file exists before you write it only when an earlier round of this launch or an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content.';
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 // Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
@@ -310,11 +343,14 @@ PROCEDURE:
     : ''} Output: the closed candidates and swept avenues this round avoids.
 3. ${round === 1
     ? `Round 1 has no review.`
-    : reviewPath
+    : resumedRound(round) || reviewPath
       ? `${resumedRound(round)
-        ? `This search resumes after round ${PRIOR_ROUNDS}. If ${reviewPath} does not exist, that round ran
-   no critic, and this round's critic checks its ledger lines. Change the avenue rather than repeat it. If
-   it exists, READ it`
+        ? `This search resumes after round ${PRIOR_ROUNDS}, whose review is acceptance-review-r${PRIOR_ROUNDS}.md
+   in an earlier launch's folder ${STATE_DIR}/launch-<n>/, or directly in ${STATE_DIR}/ when an engine
+   from before launch folders wrote it. The review is the copy in the highest-numbered launch folder that
+   holds one, or, when no launch folder holds one, the copy directly in ${STATE_DIR}/. If no copy exists,
+   that round ran no critic, and this round's critic checks its ledger lines. Change the avenue rather
+   than repeat it. If a copy exists, READ it`
         : `The critic reviewed the last round. READ ${reviewPath}`} and answer EVERY point it raises. A
    disqualified option needs a DIFFERENT candidate, not a re-argued one. A candidate the review re-opens is
    the exception: re-propose it. A contested exhaustion claim names an avenue you did not sweep: sweep it.
@@ -371,7 +407,7 @@ PROCEDURE:
       : ''}
 10. THE DETERMINATION — write ${DETERMINATION} on a terminating round${round >= LAST_ROUND
       ? `, AND on this one: round ${round} is this run's LAST, so it gets written whatever you conclude`
-      : ''}. ${REPLACE_NOTE} LINK to each
+      : ''}. ${DETERMINATION_REPLACE_NOTE} LINK to each
    ${OPTIONS_DIR}/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads \`verdict: upheld\`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -494,7 +530,7 @@ ${det
    determination_defects.`
     : `6. No determination was DUE this round, so do not judge the run on one. Ignore any ${DETERMINATION}
    on disk: it is not this round's output. Set determination_defects to 0.`}
-WRITE ${reviewFile(round)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Per option, write which criteria hold and which
+WRITE ${reviewFile(round)} (create ${LAUNCH_DIR}/ if needed). ${REVIEW_REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.${det ? ` Then each correction you made to ${DETERMINATION} and each defect left in it.` : ''}
@@ -538,7 +574,7 @@ if (PHASE === 'refine') {
     schema: CRITERIA_SCHEMA, phase: 'Refine', label: 'criteria-critic',
   }));
   if (!critique) throw new Error(`Criteria critic returned nothing (agent skipped or died) — that is NOT a clean bill of health for the criteria. Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache. To re-invoke, ${LAUNCH}.`);
-  haltIfRelayed('criteria critic', critique.relayed_request);
+  haltIfRelayed('criteria critic', critique.relayed_request, LAUNCH);
   const gaps = Array.isArray(critique.gaps) ? critique.gaps : [];
   const questions = Array.isArray(critique.questions) ? critique.questions : [];
   const unfalsifiable = Array.isArray(critique.unfalsifiable) ? critique.unfalsifiable : [];
@@ -546,8 +582,8 @@ if (PHASE === 'refine') {
   const gapCheck = gaps.length
     ? 'Check each gap against the criteria file before you fold it: confirm its quoted evidence line is there and says what the gap claims, or, for an `absent:` gap, that the section is missing, and treat its suggestion as a hint, never as text to paste. '
     : '';
-  // A new session continuing an earlier search runs this phase first, and a bare 0 would overwrite its reviews.
-  const runPriorRounds = `priorRounds: ${PRIOR_ROUNDS_RULE}`;
+  // A new session continuing an earlier search runs this phase first, and a bare 0 would restart its round numbers.
+  const runLaunch = `launch phase:"run" with this SAME runId, a newly reserved launchDir and priorRounds: ${PRIOR_ROUNDS_RULE}. To launch, ${RUN_LAUNCH}.`;
   return {
     phase: 'refine',
     runId: RUN_ID,
@@ -557,19 +593,25 @@ if (PHASE === 'refine') {
     notes: critique.notes || '',
     failed: [],
     nextStep: questions.length
-      ? `Relay the questions to the user (AskUserQuestion). ${gapCheck}Fold the answers${gaps.length ? ' + the confirmed gap fixes' : ''}${unfalsifiable.length ? ' + the unfalsifiable fixes' : ''} into the criteria (planPath)${unfalsifiable.length ? ', REPLACING every unfalsifiable criterion with one that evidence can settle' : ''}, then ${LAUNCH}, with phase:"run", this SAME runId and ${runPriorRounds}.${unfalsifiable.length ? ' A criterion nothing can decide never converges.' : ''}`
+      ? `Relay the questions to the user (AskUserQuestion). ${gapCheck}Fold the answers${gaps.length ? ' + the confirmed gap fixes' : ''}${unfalsifiable.length ? ' + the unfalsifiable fixes' : ''} into the criteria (planPath)${unfalsifiable.length ? ', REPLACING every unfalsifiable criterion with one that evidence can settle' : ''}, then ${runLaunch}${unfalsifiable.length ? ' A criterion nothing can decide never converges.' : ''}`
       : (gaps.length || unfalsifiable.length)
         ? `${gaps.length
           ? `${gapCheck}Fold the confirmed gap fixes into the criteria (planPath)${unfalsifiable.length ? ' and REPLACE every unfalsifiable criterion with one that evidence can settle' : ''}`
-          : 'REPLACE every unfalsifiable criterion in the criteria (planPath) with one that evidence can settle'}, then ${LAUNCH}, with phase:"run", this SAME runId and ${runPriorRounds}.${unfalsifiable.length ? ' A criterion nothing can decide never converges.' : ''}`
-        : `Criteria are sound — ${LAUNCH}, with phase:"run", this SAME runId and ${runPriorRounds}.`,
+          : 'REPLACE every unfalsifiable criterion in the criteria (planPath) with one that evidence can settle'}, then ${runLaunch}${unfalsifiable.length ? ' A criterion nothing can decide never converges.' : ''}`
+        : `Criteria are sound — ${runLaunch}`,
   };
 }
 
 // =============================================================================
 // PHASE: run
 // =============================================================================
-log(`investigate: searching for an answer that meets the criteria → ${OPTIONS_DIR} [maxRounds=${MAX_ROUNDS}${PRIOR_ROUNDS ? `, resuming after r${PRIOR_ROUNDS}` : ''}]`);
+// Only the run phase writes files, so only it takes a launch folder: a relaunch that runs a halted round
+// again writes that round's review beside, never over, the review an earlier launch wrote.
+const LAUNCH_DIR  = launchDirOf(A.launchDir, STATE_DIR);
+const DETERMINATION = `${LAUNCH_DIR}/DETERMINATION.md`;     // the cross-option comparison + coverage evidence
+const reviewFile  = (r) => `${LAUNCH_DIR}/acceptance-review-r${r}.md`;
+const NEW_LAUNCH_DIR = `a newly reserved launchDir in place of ${LAUNCH_DIR}`;
+log(`investigate: searching for an answer that meets the criteria → ${OPTIONS_DIR}, records in ${LAUNCH_DIR} [maxRounds=${MAX_ROUNDS}${PRIOR_ROUNDS ? `, resuming after r${PRIOR_ROUNDS}` : ''}]`);
 
 let round = PRIOR_ROUNDS;
 let haltKind = 'rounds';        // the default terminal state: the loop fell through its round budget
@@ -607,7 +649,7 @@ while (round < LAST_ROUND) {
   // half-written. The ledger IS the resume state, so a clean stop costs nothing to continue from.
   if (budget.total && budget.remaining() < MIN_ROUND_BUDGET) {
     haltKind = 'budget';
-    haltReason = `Stopped before round ${round + 1}: ~${Math.round(budget.remaining() / 1000)}k tokens remain (< minRoundBudget). Re-invoke phase:"run" with the same args and priorRounds: ${round} — ${LEDGER} carries the search's memory, so the next round resumes where this one stopped instead of re-walking closed avenues. To re-invoke, ${LAUNCH}.`;
+    haltReason = `Stopped before round ${round + 1}: ~${Math.round(budget.remaining() / 1000)}k tokens remain (< minRoundBudget). Re-invoke phase:"run" with the same args, ${NEW_LAUNCH_DIR} and priorRounds: ${round} — ${LEDGER} carries the search's memory, so the next round resumes where this one stopped instead of re-walking closed avenues. To re-invoke, ${RUN_LAUNCH}.`;
     log(`⏸ ${haltReason}`);
     break;
   }
@@ -615,15 +657,15 @@ while (round < LAST_ROUND) {
 
   // ---- INVESTIGATE ---------------------------------------------------------
   phase('Investigate');
-  // A resumed first round is pointed at the last invocation's review, which no critic of this run wrote.
-  const lastReview = resumedRound(round) ? reviewFile(PRIOR_ROUNDS) : critRound === round - 1 ? reviewPath : '';
+  // A resumed first round's prompt says where the last launch's review lies, since no critic of this launch wrote it.
+  const lastReview = critRound === round - 1 ? reviewPath : '';
   const inv = await callAgent(investigatePrompt(round, lastReview), roleOpts('investigate', {
     schema: INVESTIGATE_SCHEMA, phase: 'Investigate', label: `investigate r${round}`,
   }));
   // A dead investigator must NEVER read as "found nothing, swept everything" — that is exactly the shape
   // of an exhausted search, and it would be reported as a proof of absence.
-  if (!inv) throw new Error(`Investigator returned nothing in round ${round} (agent skipped or died) — that is NOT an exhausted search. Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache. To re-invoke, ${LAUNCH}.`);
-  haltIfRelayed('investigator', inv.relayed_request);
+  if (!inv) throw new Error(`Investigator returned nothing in round ${round} (agent skipped or died) — that is NOT an exhausted search. Replay with the same args and runId, launchDir ${LAUNCH_DIR} included, plus the Workflow tool's resumeFromRunId, so the cached agents return and the investigator of round ${round} runs again. To replay, ${REPLAY}.`);
+  haltIfRelayed('investigator', inv.relayed_request, `${RUN_LAUNCH}. Pass that newly reserved launchDir in place of ${LAUNCH_DIR}`);
   const ids = [...new Set(idList(inv.option_ids))];
   const added = ids.length;
   const invDisq = toCount(inv.disqualified_added);
@@ -655,7 +697,7 @@ while (round < LAST_ROUND) {
     crit = await callAgent(critiquePrompt(round, ids, claimKind, det, critRound + 1), roleOpts('critique', {
       schema: CRITIQUE_SCHEMA, phase: 'Critique', label: `critique r${round}`,
     }));
-    if (!crit) throw new Error(`Acceptance critic returned nothing in round ${round} (agent skipped or died) — its options and any termination claim are therefore UNVERIFIED. Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache. To re-invoke, ${LAUNCH}.`);
+    if (!crit) throw new Error(`Acceptance critic returned nothing in round ${round} (agent skipped or died) — its options and any termination claim are therefore UNVERIFIED. Replay with the same args and runId, launchDir ${LAUNCH_DIR} included, plus the Workflow tool's resumeFromRunId, so the cached agents return and the critic of round ${round} runs again. To replay, ${REPLAY}.`);
     // The next investigator, and a contest's cited avenue, live only in that file.
     if (crit.wrote_file !== true) {
       haltKind = 'write-unattested';
@@ -833,24 +875,24 @@ return {
   determinationDefects,
   needsUserFile: haltKind === 'needs-user' ? NEEDS_USER : '',
   failed: [], // every agent runs solo, and one that returns nothing throws instead
-  searchTrail: `${LEDGER} is the full list of what was ruled out and why (lines marked NEAR-MISS: failed exactly one criterion); ${SEARCHED} is the avenue log — which ground each round swept, with the terms used, and the most promising avenue it left unswept; options/<id>.md hold each option the investigator qualified, with its evidence (a critic-disqualified option's file stays on disk, so \`optionFiles\` lists the verified ones); acceptance-review-rN.md in ${STATE_DIR}/ shows each round the critic judged.`,
+  searchTrail: `${LEDGER} is the full list of what was ruled out and why (lines marked NEAR-MISS: failed exactly one criterion); ${SEARCHED} is the avenue log — which ground each round swept, with the terms used, and the most promising avenue it left unswept; options/<id>.md hold each option the investigator qualified, with its evidence (a critic-disqualified option's file stays on disk, so \`optionFiles\` lists the verified ones); acceptance-review-rN.md in ${LAUNCH_DIR}/ shows each round this launch's critic judged, and the launch-<n> folders of ${STATE_DIR}/ hold each earlier launch's reviews.`,
   nextStep: halted
     ? (haltKind === 'needs-user'
-      ? `Run halted — ${haltReason} Read the new entries headed ${entryHeadings} at the end of ${NEEDS_USER}, resolve them with the user (usually by editing the criteria), then re-invoke phase:"run" with the same runId and priorRounds: ${rerunEscalated ? round - 1 : round} — the ledger means the search resumes rather than restarts.${rerunEscalated ? ` Round ${round} re-runs from its start, so its investigator re-reads any review it was handed.` : ''} To re-invoke, ${LAUNCH}.`
+      ? `Run halted — ${haltReason} Read the new entries headed ${entryHeadings} at the end of ${NEEDS_USER}, resolve them with the user (usually by editing the criteria), then re-invoke phase:"run" with the same runId, ${NEW_LAUNCH_DIR} and priorRounds: ${rerunEscalated ? round - 1 : round} — the ledger means the search resumes rather than restarts.${rerunEscalated ? ` Round ${round} re-runs from its start, so its investigator re-reads any review it was handed.` : ''} To re-invoke, ${RUN_LAUNCH}.`
       : haltKind === 'write-unattested'
-        ? `Run halted — ${haltReason} Check those files, then relaunch phase:"run" as a FRESH run with the same runId, priorRounds: ${round - 1} and no resumeFromRunId: a resume replays the cached return and halts the same way. No determination is named, since no file behind it was attested. To relaunch, ${LAUNCH}.`
+        ? `Run halted — ${haltReason} Check those files, then relaunch phase:"run" as a FRESH run with the same runId, ${NEW_LAUNCH_DIR}, priorRounds: ${round - 1} and no resumeFromRunId: a resume replays the cached return and halts the same way. No determination is named, since no file behind it was attested. To relaunch, ${RUN_LAUNCH}.`
         : `Run stopped on budget — ${haltReason}`)
     : haltKind === 'exhausted'
       ? `The search is CLOSED: the critic agreed it is exhaustive. Present the determination: relay ${DETERMINATION} (the options, the comparison, which to pick when, the near misses, the coverage evidence) and let the user read each options/<id>.md for the per-criterion evidence, plus ${LEDGER} for what was ruled out. The return's ${setPhrase()}. The options are UNRANKED by design — present the trade-offs and let the user choose; to rank them, run decide-cycle over this option set, not a re-run here. ${determinationNote} To build what it names, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.`
       : haltKind === 'saturated'
-        ? `The search STOPPED on diminishing returns and the critic agreed the collapse is real — it is OPEN, not closed, so never present it as exhaustive or complete. Relay ${DETERMINATION} and lead with its WHERE NEXT section. ${verifiedIds === null ? `The return's \`options\` is null: the verified set is unknown, so read the verdict line atop each file in ${OPTIONS_DIR}/.` : `The return's \`options\` is the verified set of ${verifiedIds.length} option(s), and each is a valid answer, but nothing was proved to be all of them.`} ${determinationNote} Include the determination's NEAR MISSES section when it lists any — each failed exactly one criterion. Offer ${LEDGER} for what was ruled out and why. To continue, pick an avenue WHERE NEXT names and re-invoke phase:"run" with the same runId and priorRounds: ${round} — ${SEARCHED} and ${LEDGER} carry the memory, so the next round starts from swept ground rather than re-walking it — or make the premise/criteria change it proposes. To re-invoke, ${LAUNCH}. Re-running unchanged buys another round over the same worked-out ground, which is what this stop is telling you.`
+        ? `The search STOPPED on diminishing returns and the critic agreed the collapse is real — it is OPEN, not closed, so never present it as exhaustive or complete. Relay ${DETERMINATION} and lead with its WHERE NEXT section. ${verifiedIds === null ? `The return's \`options\` is null: the verified set is unknown, so read the verdict line atop each file in ${OPTIONS_DIR}/.` : `The return's \`options\` is the verified set of ${verifiedIds.length} option(s), and each is a valid answer, but nothing was proved to be all of them.`} ${determinationNote} Include the determination's NEAR MISSES section when it lists any — each failed exactly one criterion. Offer ${LEDGER} for what was ruled out and why. To continue, pick an avenue WHERE NEXT names and re-invoke phase:"run" with the same runId, ${NEW_LAUNCH_DIR} and priorRounds: ${round} — ${SEARCHED} and ${LEDGER} carry the memory, so the next round starts from swept ground rather than re-walking it — or make the premise/criteria change it proposes. To re-invoke, ${RUN_LAUNCH}. Re-running unchanged buys another round over the same worked-out ground, which is what this stop is telling you.`
         : haltKind === 'stalled'
           ? `Round ${round}'s investigator added NOTHING — no option, no ledger line, no claim — so the run stopped rather than buy another round of the same. ${stallCritic
             ? `In that round ${stallCritic}.`
-            : `No critic ran in round ${round}, and the return's ${setPhrase()}.`} No ${DETERMINATION} was written, so there is no product file to relay. Read the \`r<N> NEXT:\` lines in ${SEARCHED} (the avenues the search itself named as unswept) and ${LEDGER} (what is already closed${stallUnchecked ? `, apart from the lines tagged ${stallUnchecked}, which no critic checked and a re-invoke's first critic checks` : ''}), and say plainly that the search found nothing new this invocation. Then either re-invoke phase:"run" with the same runId and priorRounds: ${round} to continue from that memory, or change the criteria/premise — an unchanged re-run starts from the same empty round. To re-invoke, ${LAUNCH}.`
+            : `No critic ran in round ${round}, and the return's ${setPhrase()}.`} No ${DETERMINATION} was written, so there is no product file to relay. Read the \`r<N> NEXT:\` lines in ${SEARCHED} (the avenues the search itself named as unswept) and ${LEDGER} (what is already closed${stallUnchecked ? `, apart from the lines tagged ${stallUnchecked}, which no critic checked and a re-invoke's first critic checks` : ''}), and say plainly that the search found nothing new this invocation. Then either re-invoke phase:"run" with the same runId, ${NEW_LAUNCH_DIR} and priorRounds: ${round} to continue from that memory, or change the criteria/premise — an unchanged re-run starts from the same empty round. To re-invoke, ${RUN_LAUNCH}.`
           : haltKind === 'no-solution'
             ? `NOTHING qualifies, and the critic verified that: this is a real answer, not a failure. Relay ${DETERMINATION} + ${LEDGER} and take the criterion it names to the user: relaxing one criterion is the only thing that changes this answer. ${determinationNote} Lead with the determination's NEAR MISSES section when it lists any — each failed exactly one criterion, so they are what relaxing a criterion would make available, and some may be worth doing on their own merits even though they do not qualify. Do NOT re-run unchanged — the same criteria produce the same dead end.`
             : `The round budget ran out with the search still open — ${optionCount()} option(s) qualified so far but NOTHING was proved exhaustive, so do not present this as a complete answer. ${lastClaimRejected
               ? `${DETERMINATION} asserts the ${lastClaimRejected} claim the critic did NOT accept (see ${reviewPath}): it is NOT labelled partial and may lack WHERE NEXT, so label it a PARTIAL result and add that review's open avenue before relaying it`
-              : `${DETERMINATION} was written as a PARTIAL result (it says so at the top)`} — relay it with that caveat and its NEAR MISSES section, alongside ${LEDGER} and the latest ${reviewPath || 'round review'}. ${determinationNote} Then either re-invoke with the same runId and priorRounds: ${round} to continue from the ledger, or accept the partial result. To re-invoke, ${LAUNCH}.`,
+              : `${DETERMINATION} was written as a PARTIAL result (it says so at the top)`} — relay it with that caveat and its NEAR MISSES section, alongside ${LEDGER} and the latest ${reviewPath || 'round review'}. ${determinationNote} Then either re-invoke with the same runId, ${NEW_LAUNCH_DIR} and priorRounds: ${round} to continue from the ledger, or accept the partial result. To re-invoke, ${RUN_LAUNCH}.`,
 };

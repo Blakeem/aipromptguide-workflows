@@ -11,7 +11,10 @@ import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs
 
 const ENGINE = 'workflows/investigate/investigate-cycle.mjs';
 
-const baseArgs = { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/criteria.md', priorRounds: 0 };
+const LDIR = 'E:/r/runs/t/launch-1';
+const baseArgs = { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/criteria.md', priorRounds: 0, launchDir: LDIR };
+const RUN_LAUNCH = "start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts. That pre-launch command is node <launch.mjs> reserve 'E:/r/runs/t' --keep options, and launchDir is the folder it prints";
+const REPLAY = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts. A replay keeps its launchDir, so that pre-launch command is node --version, which reserves no launch folder';
 const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, respond, budget });
 
 // An EMPTY round: nothing found, nothing ruled out, nothing claimed. Spread over it to script the
@@ -66,7 +69,7 @@ section('phase:"refine" stops at its critic and writes nothing');
   eq(out.gaps.length, 1, 'gaps come back on the return');
   eq(out.questions.length, 1, 'questions too');
   eq(out.unfalsifiable.length, 1, 'and the unfalsifiable criteria — this phase\'s distinctive finding');
-  ok(!JSON.stringify(out).includes('runs/'), 'the return names no written file — refine writes nothing');
+  ok(!/runs\/[^\s'"]*\.md/.test(JSON.stringify(out)), 'the return names no written file — refine writes nothing');
   ok(/AskUserQuestion/.test(out.nextStep) && /phase:"run"/.test(out.nextStep),
     'nextStep relays the blocking questions first, then routes back into the criteria file');
   ok(out.nextStep.includes('REPLACING every unfalsifiable criterion with one that evidence can settle')
@@ -88,9 +91,11 @@ section('phase:"refine" stops at its critic and writes nothing');
   const { out: sound } = await run({ 'criteria-critic': { gaps: [], questions: [], unfalsifiable: [] } }, { ...baseArgs, phase: 'refine' });
   for (const [what, step] of [['a question', out.nextStep], ['an unfalsifiable criterion', quiet.nextStep], ['sound criteria', sound.nextStep]]) {
     const s = String(step ?? '');
-    ok(s.includes('run_in_background') && s.includes('the turn its notification starts') && s.includes('with phase:"run", this SAME runId and priorRounds: 0 for a new search'),
-      `after ${what}, the run launch names the notification-turn path: ${s.slice(-200)}`);
-    ok(/priorRounds: 0 for a new search, or, to continue an earlier search, the value its last run's nextStep names, the value its last run took when it threw, or with neither at hand the highest <N> among the acceptance-review-r<N>\.md files in the stateDir, 0 when there are none\./.test(s),
+    ok(s.includes('launch phase:"run" with this SAME runId, a newly reserved launchDir and priorRounds: 0 for a new search'),
+      `after ${what}, the run launch takes a newly reserved launchDir: ${s.slice(-200)}`);
+    ok(s.includes(`To launch, ${RUN_LAUNCH}.`),
+      `after ${what}, the run launch names the notification-turn path and the reserve command: ${s.slice(-200)}`);
+    ok(/priorRounds: 0 for a new search, or, to continue an earlier search, the value its last run's nextStep names, the value its last run took when it threw, or with neither at hand the highest <N> among the acceptance-review-r<N>\.md files in the stateDir and in its launch folders, 0 when there are none\./.test(s),
       `after ${what}, the run launch names the priorRounds of a continued search: ${s.slice(-200)}`);
   }
 }
@@ -175,6 +180,9 @@ section('an agreed saturation claim is a STOPPED search with its own terminal, n
   ok(!/ANSWER may still link an option the critic disqualified/.test(out.nextStep),
     'no disqualified-option warning: the critic corrects ANSWER to its verdicts, and a failed correction counts as a defect');
   ok(out.nextStep.includes('Offer E:/r/runs/t/DISQUALIFIED.md for what was ruled out and why.'), 'nextStep offers the ledger as an artifact');
+  ok(out.nextStep.includes(`re-invoke phase:"run" with the same runId, a newly reserved launchDir in place of ${LDIR} and priorRounds: 1`)
+    && out.nextStep.includes(`To re-invoke, ${RUN_LAUNCH}.`),
+    'a continuation reserves a new launch folder');
 }
 
 section('a contested saturation claim buys another round');
@@ -247,6 +255,9 @@ section('a round that adds NOTHING stalls the run rather than buying another emp
     'and offers the two real continuations: resume from the memory, or change the question');
   ok(logs.some((l) => /added NOTHING/.test(l)), 'and the round is called out in the log');
   ok(!/no critic checked/.test(out.nextStep), 'round 1\'s critic checked every line, so no line is named unchecked (guard)');
+  ok(out.nextStep.includes(`re-invoke phase:"run" with the same runId, a newly reserved launchDir in place of ${LDIR} and priorRounds: 2`)
+    && out.nextStep.includes(`To re-invoke, ${RUN_LAUNCH}.`),
+    'a re-invoke reserves a new launch folder');
 
   // A critic-less learning round before the stall leaves ledger lines no critic checked.
   const late = await run({ 'investigate': (label) => (/r[12]$/.test(label) ? LEARN : INV), 'critique': CRIT }, { ...baseArgs, maxRounds: 5 });
@@ -314,6 +325,9 @@ section('an escalation names the priorRounds that re-runs any round no critic an
   ok(/priorRounds: 1\b/.test(byInv.nextStep) && !/priorRounds: 2\b/.test(byInv.nextStep),
     `an investigator escalation in round 2 resumes after round 1: ${byInv.nextStep.slice(0, 220)}`);
   ok(/Round 2 re-runs from its start/.test(byInv.nextStep), 'and says round 2 re-runs');
+  ok(byInv.nextStep.includes(`re-invoke phase:"run" with the same runId, a newly reserved launchDir in place of ${LDIR} and priorRounds: 1`)
+    && byInv.nextStep.includes(`To re-invoke, ${RUN_LAUNCH}.`),
+    'the resume reserves a new launch folder, so round 2\'s rerun never writes into launch-1');
 
   const { out: byCrit } = await run({
     'investigate': (label) => (/r1$/.test(label) ? LEARN : { ...INV, option_ids: ['o'] }),
@@ -602,7 +616,7 @@ section('priorRounds continues the round numbers of a resumed search');
 {
   const msg = await throwsWith(ENGINE, { args: { runId: 't', root: 'E:/r', planPath: baseArgs.planPath } });
   ok(/args\.priorRounds is required/.test(msg), `a run without priorRounds throws: ${msg.slice(0, 50)}`);
-  ok(/pass 0 for a new search, or, to continue an earlier search, the value its last run's nextStep names, the value its last run took when it threw, or with neither at hand the highest <N> among the acceptance-review-r<N>\.md files in the stateDir, 0 when there are none\./.test(msg),
+  ok(/pass 0 for a new search, or, to continue an earlier search, the value its last run's nextStep names, the value its last run took when it threw, or with neither at hand the highest <N> among the acceptance-review-r<N>\.md files in the stateDir and in its launch folders, 0 when there are none\./.test(msg),
     `the throw names the thrown-run value and the fallback when neither is at hand: ${msg.slice(-80)}`);
   ok(/Invalid numeric arg: args\.priorRounds/.test(await throwsWith(ENGINE, { args: { ...baseArgs, priorRounds: '2' } })),
     'a priorRounds that only coerces to a number throws too');
@@ -619,7 +633,7 @@ section('priorRounds continues the round numbers of a resumed search');
   const [p3, p4] = byLabel('investigate').map((c) => c.prompt);
   ok(/resumes after round 2/.test(p3) && p3.includes('acceptance-review-r2.md') && /round 3 of at most 4/.test(p3),
     'the first resumed investigator is pointed at the last run\'s review');
-  ok(p4.includes('acceptance-review-r3.md') && !/resumes after/.test(p4) && /round 4 is this run's LAST/.test(p4),
+  ok(p4.includes(`${LDIR}/acceptance-review-r3.md`) && !/resumes after/.test(p4) && /round 4 is this run's LAST/.test(p4),
     'the next round reads this run\'s review and owes the determination');
   const [f3, f4] = [p3, p4].map((p) => p.replace(/\s+/g, ' '));
   ok(f3.includes('that round ran no critic, and this round\'s critic checks its ledger lines. Change the avenue'),
@@ -640,12 +654,78 @@ section('priorRounds continues the round numbers of a resumed search');
   eq(stopped.determination, '', 'and names no determination, since no round of this run wrote one');
 }
 
+section('a run-phase launch writes its reviews and determination in its own launch folder');
+// A relaunch that runs a halted round again, and each launch that ends a search, would otherwise replace the
+// review or the determination an earlier launch wrote.
+{
+  const { launchDir: _, ...NO_LAUNCH } = baseArgs;
+  for (const args of [NO_LAUNCH, { ...baseArgs, launchDir: null }, { ...baseArgs, launchDir: ' ' }, { ...baseArgs, launchDir: 3 }]) {
+    const msg = await throwsWith(ENGINE, { args });
+    ok(msg.startsWith('Missing args.launchDir: pass the launchDir that the reserve command of the workflow guide\'s pre-launch step prints'),
+      `a run with launchDir ${JSON.stringify(args.launchDir)} throws naming the arg: ${msg.slice(0, 50)}`);
+  }
+  for (const [launchDir, what] of [
+    ['E:/r/runs/other/launch-1', 'a launch folder of another stateDir'],
+    ['E:/r/runs/t/launch-1/x', 'a folder below a launch folder'],
+    ['E:/r/runs/t/launch-0', 'launch-0, since launches count from 1'],
+    ['E:/r/runs/t', 'the stateDir itself'],
+  ]) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, launchDir } });
+    ok(msg.startsWith('Invalid args.launchDir: it must be a folder named launch-<n> directly inside the stateDir E:/r/runs/t'),
+      `${what} throws: ${msg.slice(0, 70)}`);
+  }
+  const { calls: refine } = await run({ 'criteria-critic': { gaps: [], questions: [], unfalsifiable: [] } }, { ...NO_LAUNCH, phase: 'refine' });
+  eq(refine.length, 1, 'a refine-phase launch writes nothing and runs without a launchDir');
+  const { out: spelled } = await run({ 'investigate': { ...INV, option_ids: ['o'] }, 'critique': CRIT },
+    { ...baseArgs, launchDir: 'e:\\R\\runs\\t\\launch-3\\', maxRounds: 1 });
+  eq(String(spelled.reviewFile).toLowerCase(), 'e:/r/runs/t/launch-3/acceptance-review-r1.md', 'a Windows spelling of a launch folder is accepted');
+
+  const L2 = 'E:/r/runs/t/launch-2';
+  const { out, calls, prompt } = await run({
+    'investigate': (label) => (/r5$/.test(label) ? { ...INV, option_ids: ['opt-a'], claim: 'exhausted' } : { ...INV, option_ids: ['opt-a'] }),
+    'critique': (label) => (/r5$/.test(label) ? { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'], contests_claim: true } : { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'] }),
+  }, { ...baseArgs, priorRounds: 3, launchDir: L2, maxRounds: 3 });
+  ok(prompt('critique r4').includes(`WRITE ${L2}/acceptance-review-r4.md (create ${L2}/ if needed).`),
+    'the critic of round 4 writes its review in launch-2');
+  const p4 = prompt('investigate r4').replace(/\s+/g, ' ');
+  ok(p4.includes('This search resumes after round 3, whose review is acceptance-review-r3.md in an earlier launch\'s folder E:/r/runs/t/launch-<n>/, or directly in E:/r/runs/t/ when an engine from before launch folders wrote it.'),
+    `the resumed investigator is told where the review of round 3 lies: ${p4.slice(p4.indexOf('3. '), p4.indexOf('3. ') + 200)}`);
+  ok(p4.includes('The review is the copy in the highest-numbered launch folder that holds one, or, when no launch folder holds one, the copy directly in E:/r/runs/t/.'),
+    'and which copy wins when more than one launch folder holds it');
+  ok(prompt('investigate r5').includes(`READ ${L2}/acceptance-review-r4.md`), 'the next investigator reads this launch\'s review');
+  const written = calls.flatMap((c) => c.prompt.match(/E:\/r\/runs\/t\/[^\s`'"()]*?(?:acceptance-review-r\d+|DETERMINATION)\.md/g) ?? []);
+  ok(written.length > 0 && written.every((p) => p.startsWith(`${L2}/`)),
+    `every review and determination a prompt of the launch names lies in launch-2: ${[...new Set(written)].join(', ')}`);
+  eq(out.determination, `${L2}/DETERMINATION.md`, 'the return names the determination in launch-2');
+  eq(out.reviewFile, `${L2}/acceptance-review-r6.md`, 'and the latest review in launch-2');
+  ok(String(out.nextStep ?? '').includes(`re-invoke with the same runId, a newly reserved launchDir in place of ${L2} and priorRounds: 6`)
+    && String(out.nextStep ?? '').includes(`To re-invoke, ${RUN_LAUNCH}.`),
+    'a relaunch reserves a new launch folder');
+  ok(String(out.searchTrail ?? '').includes(`acceptance-review-rN.md in ${L2}/ shows each round this launch's critic judged, and the launch-<n> folders of E:/r/runs/t/ hold each earlier launch's reviews.`),
+    'the search trail names this launch\'s reviews and the earlier launches\' folders');
+
+  for (const [respond, what] of [
+    [{ 'investigate': null }, 'Investigator returned nothing in round 1'],
+    [{ 'investigate': { ...INV, option_ids: ['o'] }, 'critique': null }, 'Acceptance critic returned nothing in round 1'],
+  ]) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, launchDir: L2 }, respond });
+    ok(msg.startsWith(what) && msg.includes(`Replay with the same args and runId, launchDir ${L2} included, plus the Workflow tool's resumeFromRunId`)
+      && msg.endsWith(`To replay, ${REPLAY}.`), `"${what}" replays with the same launchDir: ${msg.slice(-120)}`);
+  }
+  const repoMsg = await throwsWith(ENGINE, { args: { ...baseArgs, target: { repo: 'E:/repo' } }, respond: { 'investigate': null } });
+  ok(repoMsg.includes("A replay keeps its launchDir, so that pre-launch command is git -C 'E:/repo' status --short, which reserves no launch folder."),
+    'a run with a target repo replays through its git status pre-launch command');
+  const relayed = await throwsWith(ENGINE, { args: baseArgs, respond: { 'investigate': { ...INV, relayed_request: true } } });
+  ok(relayed.endsWith(`${RUN_LAUNCH}. Pass that newly reserved launchDir in place of ${LDIR}.`),
+    `a relayed request relaunches in a new launch folder: ${relayed.slice(-120)}`);
+}
+
 section('the token budget stops cleanly between rounds');
 {
   const { out, calls } = await run({}, baseArgs, { total: 400_000, spent: () => 0, remaining: () => 40_000 });
   eq(calls.length, 0, 'stopped before spawning anything');
   eq(out.status, 'stopped on token budget (rounds remain, and the ledgers carry the search)', 'status');
-  ok(/same args and priorRounds: 0/.test(out.haltReason) && /DISQUALIFIED\.md/.test(out.haltReason),
+  ok(out.haltReason.includes(`same args, a newly reserved launchDir in place of ${LDIR} and priorRounds: 0`) && /DISQUALIFIED\.md/.test(out.haltReason),
     'halt reason carries the resume hint and names the ledger the resume reads');
 }
 
@@ -942,7 +1022,8 @@ section('an investigator that did not attest its files halts before any critic s
   ok(/investigator did not confirm writing its files in round 1: .*options\/, .*DISQUALIFIED\.md, .*SEARCHED\.md and .*DETERMINATION\.md/.test(out.haltReason),
     `the reason names every owed file: ${out.haltReason}`);
   eq(out.determination, '', 'no determination is named');
-  ok(/FRESH run with the same runId, priorRounds: 0 and no resumeFromRunId/.test(out.nextStep), 'nextStep relaunches so the halted round re-runs');
+  ok(out.nextStep.includes(`FRESH run with the same runId, a newly reserved launchDir in place of ${LDIR}, priorRounds: 0 and no resumeFromRunId`),
+    'nextStep relaunches in a new launch folder so the halted round re-runs');
 
   const { out: escalated } = await run({ 'investigate': { ...INV, wrote_files: false, needs_user: true }, 'critique': CRIT });
   eq(escalated.status, 'BLOCKED (needs user input)', 'an escalation keeps its own terminal');
@@ -959,7 +1040,7 @@ section('a critic that did not attest its review file halts before its verdict i
   eq(out.reviewFile, '', 'no review file is named');
   eq(out.determination, '', 'no determination is named');
   eq(out.options.length, 0, 'its upheld list was never applied');
-  ok(/critic did not confirm writing .*acceptance-review-r1\.md in round 1/.test(out.haltReason), 'the reason names the file');
+  ok(out.haltReason.includes(`critic did not confirm writing ${LDIR}/acceptance-review-r1.md in round 1`), 'the reason names the file in the launch folder');
 
   // The halted round's options and claim were never verified, so the relaunch must re-run it, not skip it.
   const { out: resumed } = await run({
@@ -967,7 +1048,7 @@ section('a critic that did not attest its review file halts before its verdict i
     'critique': { ...CRIT, wrote_file: false, upheld: ['o'], agree: true },
   }, { ...baseArgs, priorRounds: 2, maxRounds: 3 });
   eq(resumed.rounds, 3, 'the resumed run halted in r3');
-  ok(/FRESH run with the same runId, priorRounds: 2 and no resumeFromRunId/.test(resumed.nextStep),
+  ok(resumed.nextStep.includes(`FRESH run with the same runId, a newly reserved launchDir in place of ${LDIR}, priorRounds: 2 and no resumeFromRunId`),
     `nextStep names the priorRounds that re-runs r3: ${resumed.nextStep.slice(0, 160)}`);
 }
 
@@ -1174,16 +1255,22 @@ await pinRoleMaps({
   ],
 });
 
-// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite one the agent has not read.
-section("every prompt that writes a file says to Read an earlier launch's file first, and a rejected write is not a write");
+// A relaunch with the same runId finds the earlier launch's option files, and the Write tool refuses to overwrite one the
+// agent has not read. A launch folder holds a review or a determination only from a replay or an earlier round of the launch.
+section("every prompt that writes a file says when the file may already exist and to Read it first, and a rejected write is not a write");
 {
   const { prompt } = await run({ investigate: { ...INV, option_ids: ['opt-a'] }, critique: { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'] } });
-  const sites = [
-    ["the investigator's options and determination files", prompt('investigate r1'), 2, 1],
-    ["the critic's review file", prompt('critique r1'), 1, 1],
+  const REVIEW_NOTE = 'The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content.';
+  const DETERMINATION_NOTE = 'The file exists before you write it only when an earlier round of this launch or an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content.';
+  // [the note's count in the investigator's prompt, its count in the critic's prompt]
+  const sites = (investigator, critic) => [
+    ["the investigator's options and determination files", prompt('investigate r1'), investigator, 1],
+    ["the critic's review file", prompt('critique r1'), critic, 1],
   ];
-  pinWriteNotes(sites);
-  pinFileWriteNote(sites);
+  pinWriteNotes(sites(1, 0));
+  pinWriteNotes(sites(0, 1), REVIEW_NOTE);
+  pinWriteNotes(sites(1, 0), DETERMINATION_NOTE);
+  pinFileWriteNote(sites(1, 1));
   ok(prompt('investigate r1').replace(/\s+/g, ' ').includes('rewriting an unverified file (no verdict line, or one naming round 1 or later) for the same candidate'),
     'the options-file slug rule lets a relaunch rewrite an unverified file of the same candidate');
 }

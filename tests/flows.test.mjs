@@ -246,7 +246,7 @@ section('two scenarios dying at DIFFERENT rounds map to ONE throw node');
 {
   const g = await buildGraph(investigate);
   const throwNodes = g.terminals.filter((t) => t.source === 'throw');
-  eq(throwNodes.length, 16, 'sixteen throw sites, sixteen nodes');
+  eq(throwNodes.length, 18, 'eighteen throw sites, eighteen nodes');
   const dead = throwNodes.filter((t) => t.label.includes('Investigator returned nothing'));
   eq(dead.length, 1, 'the two dead-investigator scenarios share one node');
   eq(dead[0].scenarios.join(', '), 'dead investigator (round 1), dead investigator (round 3)', 'both are credited to it');
@@ -491,7 +491,7 @@ section('spec validation rejects what would produce a silently wrong map');
     engine: 'workflows/investigate/investigate-cycle.mjs',
     out: 'x.md',
     title: 'v',
-    scenarios: [{ name: 'n', when: 'w', args: { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/criteria.md', priorRounds: 0, maxRounds: 1 }, terminal: 'all good' }],
+    scenarios: [{ name: 'n', when: 'w', args: { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/criteria.md', priorRounds: 0, launchDir: 'E:/r/runs/t/launch-1', maxRounds: 1 }, terminal: 'all good' }],
   }));
   ok(/never override derived truth/.test(contradiction), 'a declared terminal contradicting a non-empty out.status');
 }

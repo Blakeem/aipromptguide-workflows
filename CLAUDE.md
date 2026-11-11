@@ -54,11 +54,12 @@ So run the workflow's pre-launch command with `run_in_background`, and call the 
 its notification starts. A notification that arrives inside a tool result does not start a new turn, so end
 the turn after starting the pre-launch command. The pre-launch command is `plan-edit.mjs args` for develop,
 `launch.mjs reserve <stateDir> --keep <planPath>` for refine (`plan-block.mjs <planPath> --list` on a
-replay), and `git -C <target.repo> status --short` for the rest (`node --version` when the run has no
-`target.repo`). Agents receive the auto-memory index the session loaded at its start, so a line already
-loaded stays in every run of that session. A `MEMORY.md` index line holds settled facts and pointers, and
-neither it nor a topic file it points to holds the plan or goal of work a run is building, since every agent
-of the run reads that index (`principles/WORKFLOW-PRINCIPLES.md` #3).
+replay), `launch.mjs reserve <stateDir> --keep options` for investigate's run phase, and
+`git -C <target.repo> status --short` for the rest, investigate's replays included (`node --version` when
+the run has no `target.repo`). Agents receive the auto-memory index the session loaded at its start, so a
+line already loaded stays in every run of that session. A `MEMORY.md` index line holds settled facts and
+pointers, and neither it nor a topic file it points to holds the plan or goal of work a run is building,
+since every agent of the run reads that index (`principles/WORKFLOW-PRINCIPLES.md` #3).
 
 **Two paths, never the same directory:** `target.repo` = the project being worked on (the folder holding
 its `.git`); `root` = where run-state lands (`<root>/runs/<runId>/`), normally this checkout. Keeping

@@ -7,20 +7,20 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | criteria-critic | 1 | 1 | 1900 | refine the criteria |
-| investigate | 1 | 1 | 8370 | exhaustion agreed |
-| critique | 1 | 1 | 7760 | exhaustion agreed |
-| critique | 2 | 1 | 7773 | no solution verified |
-| investigate | 2 | 1 | 9469 | exhaustion contested |
-| investigate | 3 | 1 | 9834 | exhaustion contested |
-| critique | 3 | 1 | 8068 | saturation agreed |
-| critique | 4 | 1 | 5869 | stalled |
-| investigate | 4 | 1 | 9909 | resumed quiet first round |
-| critique | 5 | 1 | 6109 | resumed quiet first round |
-| investigate | 5 | 1 | 9247 | quiet rounds |
-| investigate | 6 | 1 | 9612 | quiet rounds |
-| critique | 6 | 1 | 7192 | quiet rounds |
-| critique | 7 | 1 | 8000 | resumed search |
-| critique | 8 | 1 | 5856 | investigator escalates |
+| investigate | 1 | 1 | 8463 | exhaustion agreed |
+| critique | 1 | 1 | 7867 | exhaustion agreed |
+| critique | 2 | 1 | 7880 | no solution verified |
+| investigate | 2 | 1 | 9580 | exhaustion contested |
+| investigate | 3 | 1 | 9945 | exhaustion contested |
+| critique | 3 | 1 | 8175 | saturation agreed |
+| critique | 4 | 1 | 5967 | stalled |
+| investigate | 4 | 1 | 10324 | resumed quiet first round |
+| critique | 5 | 1 | 6207 | resumed quiet first round |
+| investigate | 5 | 1 | 9349 | quiet rounds |
+| investigate | 6 | 1 | 9714 | quiet rounds |
+| critique | 6 | 1 | 7299 | quiet rounds |
+| critique | 7 | 1 | 8107 | resumed search |
+| critique | 8 | 1 | 5954 | investigator escalates |
 
 ## criteria-critic · variant 1 · schema 1
 
@@ -208,7 +208,7 @@ PROCEDURE:
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
      stronger fact than finding none. Say which criterion every candidate died on. Return
      claim=no_solution.
-10. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
+10. THE DETERMINATION — write E:/flow/runs/flow/launch-1/DETERMINATION.md on a terminating round. The file exists before you write it only when an earlier round of this launch or an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -363,7 +363,7 @@ CHECK:
    that source puts back in play. An UNCITED contest is not a contest. Set contests_claim=true only
    with that citation written into your review file. Set agree=true ONLY when you have genuinely tried
    and cannot: agreeing asserts nothing else is there.
-6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. The investigator wrote it before your
+6. THE DETERMINATION (E:/flow/runs/flow/launch-1/DETERMINATION.md), the run's product file. The investigator wrote it before your
    verdicts, so after your verdict writes and ledger appends, CORRECT these sections in place to match them.
    ANSWER links every option whose file reads `verdict: upheld` and no other. COMPARISON and WHICH TO PICK
    WHEN hold a row or line for each ANSWER option and no other, taken from its file. When ANSWER links
@@ -377,10 +377,10 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
-citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
+citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
 If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r1 critic`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
@@ -511,7 +511,7 @@ CHECK:
    that source puts back in play. An UNCITED contest is not a contest. Set contests_claim=true only
    with that citation written into your review file. Set agree=true ONLY when you have genuinely tried
    and cannot: agreeing asserts nothing else is there.
-6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. The investigator wrote it before your
+6. THE DETERMINATION (E:/flow/runs/flow/launch-1/DETERMINATION.md), the run's product file. The investigator wrote it before your
    verdicts, so after your verdict writes and ledger appends, CORRECT these sections in place to match them.
    ANSWER links every option whose file reads `verdict: upheld` and no other. COMPARISON and WHICH TO PICK
    WHEN hold a row or line for each ANSWER option and no other, taken from its file. When ANSWER links
@@ -525,10 +525,10 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
-citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
+citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
 If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r1 critic`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
@@ -633,7 +633,7 @@ SEARCH MEMORY — the three files step 2 reads:
 PROCEDURE:
 1. Read the criteria VERBATIM and list them NUMBERED. Every step below checks against that numbering.
 2. READ ALL THREE SEARCH MEMORY files before you search, under the rules that section states. Output: the closed candidates and swept avenues this round avoids.
-3. The critic reviewed the last round. READ E:/flow/runs/flow/acceptance-review-r1.md and answer EVERY point it raises. A
+3. The critic reviewed the last round. READ E:/flow/runs/flow/launch-1/acceptance-review-r1.md and answer EVERY point it raises. A
    disqualified option needs a DIFFERENT candidate, not a re-argued one. A candidate the review re-opens is
    the exception: re-propose it. A contested exhaustion claim names an avenue you did not sweep: sweep it.
    Output: each review point answered, and each contested avenue swept.
@@ -676,12 +676,12 @@ PROCEDURE:
    • saturated = DIMINISHING RETURNS. CHECK FOR it every round: before you finish, weigh what THIS round
      genuinely added against the r<N> trajectory in E:/flow/runs/flow/SEARCHED.md. Claim it when this round added nothing
      genuinely new, OR its yield collapsed to well under half the best round so far AND the best unswept
-     avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/DETERMINATION.md,
+     avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/launch-1/DETERMINATION.md,
      OPEN it with the words "stopped on saturation — the search is OPEN, not closed", give it the WHERE
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-10. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
+10. THE DETERMINATION — write E:/flow/runs/flow/launch-1/DETERMINATION.md on a terminating round. The file exists before you write it only when an earlier round of this launch or an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -810,7 +810,7 @@ SEARCH MEMORY — the three files step 2 reads:
 PROCEDURE:
 1. Read the criteria VERBATIM and list them NUMBERED. Every step below checks against that numbering.
 2. READ ALL THREE SEARCH MEMORY files before you search, under the rules that section states. Output: the closed candidates and swept avenues this round avoids.
-3. The critic reviewed the last round. READ E:/flow/runs/flow/acceptance-review-r4.md and answer EVERY point it raises. A
+3. The critic reviewed the last round. READ E:/flow/runs/flow/launch-1/acceptance-review-r4.md and answer EVERY point it raises. A
    disqualified option needs a DIFFERENT candidate, not a re-argued one. A candidate the review re-opens is
    the exception: re-propose it. A contested exhaustion claim names an avenue you did not sweep: sweep it.
    Output: each review point answered, and each contested avenue swept.
@@ -853,12 +853,12 @@ PROCEDURE:
    • saturated = DIMINISHING RETURNS. CHECK FOR it every round: before you finish, weigh what THIS round
      genuinely added against the r<N> trajectory in E:/flow/runs/flow/SEARCHED.md. Claim it when this round added nothing
      genuinely new, OR its yield collapsed to well under half the best round so far AND the best unswept
-     avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/DETERMINATION.md,
+     avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/launch-1/DETERMINATION.md,
      OPEN it with the words "stopped on saturation — the search is OPEN, not closed", give it the WHERE
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-10. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round, AND on this one: round 5 is this run's LAST, so it gets written whatever you conclude. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
+10. THE DETERMINATION — write E:/flow/runs/flow/launch-1/DETERMINATION.md on a terminating round, AND on this one: round 5 is this run's LAST, so it gets written whatever you conclude. The file exists before you write it only when an earlier round of this launch or an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -1019,7 +1019,7 @@ CHECK:
    An UNCITED contest is not a contest. Set contests_claim=true only with that citation written into
    your review file. Set agree=true to accept the stop: the run reports an OPEN, STOPPED search, never an
    exhaustive one.
-6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. The investigator wrote it before your
+6. THE DETERMINATION (E:/flow/runs/flow/launch-1/DETERMINATION.md), the run's product file. The investigator wrote it before your
    verdicts, so after your verdict writes and ledger appends, CORRECT these sections in place to match them.
    ANSWER links every option whose file reads `verdict: upheld` and no other. COMPARISON and WHICH TO PICK
    WHEN hold a row or line for each ANSWER option and no other, taken from its file. When ANSWER links
@@ -1033,10 +1033,10 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
-citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
+citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
 If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r1 critic`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
@@ -1161,9 +1161,9 @@ CHECK:
    fails a second criterion is mismarked: append a corrected `r1 crit` line naming the additional
    criterion. Append a corrected line for one of those lines that should carry the marker and does not.
 5. No termination was claimed this round: leave agree and contests_claim false.
-6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
+6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/launch-1/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.
@@ -1273,9 +1273,12 @@ SEARCH MEMORY — the three files step 2 reads:
 PROCEDURE:
 1. Read the criteria VERBATIM and list them NUMBERED. Every step below checks against that numbering.
 2. READ ALL THREE SEARCH MEMORY files before you search, under the rules that section states. Output: the closed candidates and swept avenues this round avoids.
-3. This search resumes after round 2. If E:/flow/runs/flow/acceptance-review-r2.md does not exist, that round ran
-   no critic, and this round's critic checks its ledger lines. Change the avenue rather than repeat it. If
-   it exists, READ it and answer EVERY point it raises. A
+3. This search resumes after round 2, whose review is acceptance-review-r2.md
+   in an earlier launch's folder E:/flow/runs/flow/launch-<n>/, or directly in E:/flow/runs/flow/ when an engine
+   from before launch folders wrote it. The review is the copy in the highest-numbered launch folder that
+   holds one, or, when no launch folder holds one, the copy directly in E:/flow/runs/flow/. If no copy exists,
+   that round ran no critic, and this round's critic checks its ledger lines. Change the avenue rather
+   than repeat it. If a copy exists, READ it and answer EVERY point it raises. A
    disqualified option needs a DIFFERENT candidate, not a re-argued one. A candidate the review re-opens is
    the exception: re-propose it. A contested exhaustion claim names an avenue you did not sweep: sweep it.
    Output: each review point answered, and each contested avenue swept.
@@ -1319,12 +1322,12 @@ PROCEDURE:
    • saturated = DIMINISHING RETURNS. CHECK FOR it every round: before you finish, weigh what THIS round
      genuinely added against the r<N> trajectory in E:/flow/runs/flow/SEARCHED.md. Claim it when this round added nothing
      genuinely new, OR its yield collapsed to well under half the best round so far AND the best unswept
-     avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/DETERMINATION.md,
+     avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/launch-1/DETERMINATION.md,
      OPEN it with the words "stopped on saturation — the search is OPEN, not closed", give it the WHERE
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-10. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
+10. THE DETERMINATION — write E:/flow/runs/flow/launch-1/DETERMINATION.md on a terminating round. The file exists before you write it only when an earlier round of this launch or an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -1475,9 +1478,9 @@ CHECK:
    fails a second criterion is mismarked: append a corrected `r3 crit` line naming the additional
    criterion. Append a corrected line for one of those lines that should carry the marker and does not.
 5. No termination was claimed this round: leave agree and contests_claim false.
-6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
+6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/launch-1/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
-WRITE E:/flow/runs/flow/acceptance-review-r3.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r3.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.
@@ -1626,12 +1629,12 @@ PROCEDURE:
    • saturated = DIMINISHING RETURNS. CHECK FOR it every round: before you finish, weigh what THIS round
      genuinely added against the r<N> trajectory in E:/flow/runs/flow/SEARCHED.md. Claim it when this round added nothing
      genuinely new, OR its yield collapsed to well under half the best round so far AND the best unswept
-     avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/DETERMINATION.md,
+     avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/launch-1/DETERMINATION.md,
      OPEN it with the words "stopped on saturation — the search is OPEN, not closed", give it the WHERE
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-10. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
+10. THE DETERMINATION — write E:/flow/runs/flow/launch-1/DETERMINATION.md on a terminating round. The file exists before you write it only when an earlier round of this launch or an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -1801,12 +1804,12 @@ PROCEDURE:
    • saturated = DIMINISHING RETURNS. CHECK FOR it every round: before you finish, weigh what THIS round
      genuinely added against the r<N> trajectory in E:/flow/runs/flow/SEARCHED.md. Claim it when this round added nothing
      genuinely new, OR its yield collapsed to well under half the best round so far AND the best unswept
-     avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/DETERMINATION.md,
+     avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/launch-1/DETERMINATION.md,
      OPEN it with the words "stopped on saturation — the search is OPEN, not closed", give it the WHERE
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-10. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round, AND on this one: round 5 is this run's LAST, so it gets written whatever you conclude. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
+10. THE DETERMINATION — write E:/flow/runs/flow/launch-1/DETERMINATION.md on a terminating round, AND on this one: round 5 is this run's LAST, so it gets written whatever you conclude. The file exists before you write it only when an earlier round of this launch or an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -1958,7 +1961,7 @@ CHECK:
    fails a second criterion is mismarked: append a corrected `r5 crit` line naming the additional
    criterion. Append a corrected line for one of those lines that should carry the marker and does not.
 5. No termination was claimed this round: leave agree and contests_claim false.
-6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. The investigator wrote it before your
+6. THE DETERMINATION (E:/flow/runs/flow/launch-1/DETERMINATION.md), the run's product file. The investigator wrote it before your
    verdicts, so after your verdict writes and ledger appends, CORRECT these sections in place to match them.
    ANSWER links every option whose file reads `verdict: upheld` and no other. COMPARISON and WHICH TO PICK
    WHEN hold a row or line for each ANSWER option and no other, taken from its file. When ANSWER links
@@ -1972,10 +1975,10 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r5.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r5.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
-citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
+citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
 If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r5 critic`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
@@ -2108,7 +2111,7 @@ CHECK:
    that source puts back in play. An UNCITED contest is not a contest. Set contests_claim=true only
    with that citation written into your review file. Set agree=true ONLY when you have genuinely tried
    and cannot: agreeing asserts nothing else is there.
-6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. The investigator wrote it before your
+6. THE DETERMINATION (E:/flow/runs/flow/launch-1/DETERMINATION.md), the run's product file. The investigator wrote it before your
    verdicts, so after your verdict writes and ledger appends, CORRECT these sections in place to match them.
    ANSWER links every option whose file reads `verdict: upheld` and no other. COMPARISON and WHICH TO PICK
    WHEN hold a row or line for each ANSWER option and no other, taken from its file. When ANSWER links
@@ -2122,10 +2125,10 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r3.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r3.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
-citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/DETERMINATION.md and each defect left in it.
+citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
 If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r3 critic`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
@@ -2250,9 +2253,9 @@ CHECK:
    fails a second criterion is mismarked: append a corrected `r1 crit` line naming the additional
    criterion. Append a corrected line for one of those lines that should carry the marker and does not.
 5. No termination was claimed this round: leave agree and contests_claim false.
-6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
+6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/launch-1/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.
