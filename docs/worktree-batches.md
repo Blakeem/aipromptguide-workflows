@@ -38,8 +38,8 @@ at a time.
 2  prep  --repo <abs> --batch <name> --key <chain> [--provision "<cmd>"]   once per chain (concurrent-safe)
 3  run the engine, one run per chain, target.repo = the path prep printed
 4  land  --repo <abs> --batch <name> --key <chain> --gate "<cmd>" [--scope-file <p>] [--wait-ms N] [--stale-ms N]
-5  clean --repo <abs> --key <chain>          after that chain landed
-6  clean --repo <abs> --batch <name>         after ALL chains landed and were cleaned
+5  clean --repo <abs> --key <chain> [--state-dir <abs>]...    after that chain landed
+6  clean --repo <abs> --batch <name> [--state-dir <abs>]...   after ALL chains landed and were cleaned
 7  you merge aipg/int-<batch> where you want it (PR branch, develop, main) — and you commit
 ```
 
@@ -89,6 +89,17 @@ whose folder is gone is pruned. When it is also locked, run `git worktree unlock
 unlanded work, run the trash and prune commands that the refusal of `clean` prints. They also trash
 any submodule git directories.
 
+`clean` and `close` take `--state-dir <abs>`, which may repeat. Pass the state dir of each develop run
+that used the worktree, `<root>/runs/<runId>` unless the launch set the `stateDir` arg. Once the verb has
+done everything else, it moves the `scratch` folder directly inside each state dir to the trash, so a
+run's scratch folder lasts as long as its worktree. It changes no other entry of the state dir. A state
+dir with no `scratch` folder is skipped, and a relative one is a usage error that changes nothing. A
+refused or unconfirmed scratch trash is exit 40 and names its cause and the action that clears it, as
+for a worktree. For a path too long for the Recycle Bin, that action is a move of the folder to a
+shorter path and a trash of it there. For a `scratch` link, it is the removal of the link itself, which
+leaves the folder it points to in place. A scratch path that cannot be read is exit 40 too, naming the
+error. Running the same command again finishes the scratch trash and runs no second gate.
+
 ## One change in its own worktree
 
 `open` and `close` build one change in its own worktree, with no batch. Every develop run builds this
@@ -98,7 +109,7 @@ way, with its `runId` as the name (`workflows/develop/CLAUDE.md` §2 steps 4 and
 1  open  --repo <abs> --name <name> [--base <branch>] [--dir <abs>] [--provision "<cmd>"]
 2  run the engine, target.repo = the path open printed. Commit delivery commits each accepted block
    there, and stage delivery leaves it staged
-3  close --repo <abs> --name <name> [--into <branch>] --gate "<cmd>" [--stage]
+3  close --repo <abs> --name <name> [--into <branch>] --gate "<cmd>" [--stage] [--state-dir <abs>]...
 4  run the full suite in the main checkout (see "untracked files" below)
 ```
 

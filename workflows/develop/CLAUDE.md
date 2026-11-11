@@ -116,8 +116,9 @@ steps 39 to 44.
     `git -C <the user's checkout> config branch.aipg/<runId>.aipgbase`. When they differ, ask the user which
     branch takes the run, and in stage delivery, when no worktree has that branch checked out, take the
     user's choice between commit delivery and the user checking that branch out themselves, as §2 step 6
-    says. Then land the run with `node <wt.mjs> close`, passing `--into <that branch>` when they differed
-    (§2 step 6). Output: both branch names, the `--into` value or `none`, and close's exit code 0.
+    says. Then land the run with `node <wt.mjs> close`, passing `--state-dir <the run's stateDir>`, and
+    `--into <that branch>` when they differed (§2 step 6). Output: both branch names, the `--into` value or
+    `none`, and close's exit code 0.
 35. (once step 34 landed the run) Run the full gate in the user's checkout (§2 step 6). Output: the gate's
     result.
 36. (once step 34 landed the run) Confirm that the landed code still holds the change of each
@@ -349,14 +350,15 @@ reason the code shows.
    still blocked, so that the accepted blocks land. A parked block's branch is a branch of the repo,
    so it outlives the run worktree. Settle the run worktree first, since close refuses work no
    acceptance staged (§4). Then run
-   `node <wt.mjs> close --repo <the user's checkout> --name <runId> --gate "<gate>"`, adding
-   `--stage` in stage delivery (§4, "Choosing the delivery"). `<gate>` is the run's `gates.test`,
-   else its `gates.build`. close rebases the run onto the branch it was cut from when that branch
+   `node <wt.mjs> close --repo <the user's checkout> --name <runId> --gate "<gate>" --state-dir <stateDir>`,
+   adding `--stage` in stage delivery (§4, "Choosing the delivery"). `<gate>` is the run's `gates.test`,
+   else its `gates.build`. `<stateDir>` is the run's `stateDir`, `<root>/runs/<runId>` unless the launch
+   set that arg. close rebases the run onto the branch it was cut from when that branch
    moved, runs the gate on the combined tree, and then lands it. In commit delivery it fast-forwards
    that branch. In stage delivery it stages the run's change in the user's checkout and leaves the
    branch where it is. The user may have uncommitted work in their checkout, and close refuses only
-   a change at a path the landing writes. Then close removes the run worktree and deletes
-   `aipg/<runId>`. Branch on its exit code:
+   a change at a path the landing writes. Then close removes the run worktree, deletes
+   `aipg/<runId>` and moves the run's `scratch/` folder to the trash (§8). Branch on its exit code:
    - `0`: landed. Run the full gate in the user's checkout, since the run worktree held only the tracked
      files and the ignored files that provision copied. Report the result with the run's summary: each
      landed block, each backlog entry the run added with its severity, or its category when it has no
@@ -376,14 +378,14 @@ reason the code shows.
      in the run's summary, since no reviewer read the fix.
    - `40`: follow its one-line reason and run close again. When the reason names the user's
      uncommitted changes at paths the landing writes, ask the user to commit them or set them aside,
-     since that work is theirs. When the trash refused the run worktree, clear the cause the refusal
-     names with the action it names, such as a `git worktree move` to a shorter path or ending the
-     process that holds the folder, and run the same close again. A close run again after its landing
-     runs no second gate, unless in stage delivery the user's branch moved since or the user's checkout
-     no longer holds the run's work staged. Removing the folder another way deletes it permanently, so only
-     the user decides that. To drop a run instead, run
-     `node <wt.mjs> close --repo <the user's checkout> --name <runId> --discard`, then delete the
-     branch with the command it prints, once the user agrees to lose the accepted work.
+     since that work is theirs. When the trash refused the run worktree or the run's `scratch/` folder,
+     clear the cause the refusal names with the action it names, such as a `git worktree move` to a
+     shorter path or ending the process that holds the folder, and run the same close again. A close run
+     again after its landing runs no second gate, unless in stage delivery the user's branch moved since or
+     the user's checkout no longer holds the run's work staged. Removing the folder another way deletes it
+     permanently, so only the user decides that. To drop a run instead, run
+     `node <wt.mjs> close --repo <the user's checkout> --name <runId> --discard --state-dir <stateDir>`,
+     then delete the branch with the command it prints, once the user agrees to lose the accepted work.
 
 ## 3. Plan-file format
 
@@ -1066,7 +1068,8 @@ run's questions) · `question-<id>.md` (an unordered run's question for one bloc
 into its entry) · `DECISIONS.md` · `PULLED-<id>.md` (under `proactive`, the ids of the backlog
 entries the block's round-1 developer pulled, §4) · `commit-<id>.txt` (commit mode: the block's title, its
 commit's message) · `SWEEP.md` · `scratch/` (the agents' plan block copies, test logs and park's temporary
-index file, never in `gate/`). A parked block's work is on a branch of `target.repo` and its entry
+index file, never in `gate/`. It lasts as long as the run worktree, since the close that lands or drops the
+run moves it to the trash, §2 step 6). A parked block's work is on a branch of `target.repo` and its entry
 is in the backlog folder (§10), so neither is in the state dir. An `<id>` past 60 characters keeps
 its first 51 characters and a hash of the whole id, so two long ids that share a prefix get separate
 files.

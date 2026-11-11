@@ -10,11 +10,18 @@
 //   init  --repo <abs> --batch <name> [--base <branch>] [--dir <abs>]     once, BEFORE any fan-out
 //   prep  --repo <abs> --batch <name> --key <chain> [--provision "<cmd>"] once per chain, concurrent-safe
 //   land  --repo <abs> --batch <name> --key <chain> --gate "<cmd>"        once per chain, SERIALIZED
-//   clean --repo <abs> --key <chain>                                      after that chain has landed
-//   clean --repo <abs> --batch <name>                                     after the batch has landed
+//   clean --repo <abs> --key <chain> [--state-dir <abs>]...               after that chain has landed
+//   clean --repo <abs> --batch <name> [--state-dir <abs>]...              after the batch has landed
 //   open  --repo <abs> --name <n> [--base <branch>] [--dir <abs>] [--provision "<cmd>"]   one change, no batch
-//   close --repo <abs> --name <n> [--into <branch>] --gate "<cmd>" [--stage]   merge or stage that change, then remove it
-//   close --repo <abs> --name <n> --discard                               trash that change unmerged
+//   close --repo <abs> --name <n> [--into <branch>] --gate "<cmd>" [--stage] [--state-dir <abs>]...   merge or stage that change, then remove it
+//   close --repo <abs> --name <n> --discard [--state-dir <abs>]...        trash that change unmerged
+//
+// `--state-dir`, which may repeat, names the state dir of an engine run that used the worktree. Once `clean` or
+// `close` has done everything else, it moves the `scratch` folder directly inside each state dir to the trash, so a
+// develop run's scratch folder lasts as long as its worktree. It changes no other entry of the state dir. A state dir
+// with no `scratch` folder is skipped, and a relative one is a usage error that changes nothing. A refused or unknown
+// scratch trash, or a scratch path that cannot be read, exits 40 as a worktree trash does, and the same command run
+// again finishes it (see `trashScratch`).
 //
 // With no --dir, `init` and `open` put each worktree in `.claude/worktrees/` of the main worktree, or beside a bare repository, and first add that
 // folder to the repo's `info/exclude`, so `git status` in the checkout lists none. `--dir` names another parent folder instead.
@@ -107,11 +114,12 @@
 //       hook self-test failed or never exercised, provision red, a worktree being cleaned that is the
 //       main worktree, is locked, has another folder at its path or holds unlanded work, an unfinished
 //       operation, submodule git directories, the caller's working directory or the --repo path, a trash
-//       move that was refused or could not be confirmed, a worktree still registered after the prune, a
-//       batch cleaned while its chains are still registered, an empty index over a dirty tree, unaccepted
-//       work left beside a committed accept, a sync git refused up front, a command killed for flooding
-//       its output buffer, an init, prep or open whose worktree git created and then exited nonzero, such
-//       as on a failed post-checkout hook, an open or close given a branch name that matches a branch only
+//       move that was refused or could not be confirmed, a --state-dir scratch path that cannot be read, a
+//       worktree still registered after the prune, a batch cleaned while its chains are still registered, an
+//       empty index over a dirty tree, unaccepted work left beside a committed accept, a sync git refused up
+//       front, a command killed for flooding its output buffer, an init, prep or open whose worktree git
+//       created and then exited nonzero, such as on a failed post-checkout hook, an open or close given a
+//       branch name that matches a branch only
 //       in another case, an open whose base is no local branch or whose branch exists, a close whose --into
 //       is no local branch, a batch's branch or a symbolic ref, whose worktree is off its branch or gone with
 //       commits to merge, whose rebase would drop a merge commit of the branch, whose rebase or
@@ -132,7 +140,7 @@
 // Ordinary Node, not an engine: no harness globals, no deps, `node --check` applies.
 
 import { execFileSync } from 'node:child_process';
-import { appendFileSync, chmodSync, closeSync, mkdirSync, openSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
+import { appendFileSync, chmodSync, closeSync, lstatSync, mkdirSync, openSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { REFUSAL_CAUSES, TrashError, foldsCase, isWithin, realpathLoose, trash } from './trash.mjs';
@@ -1153,6 +1161,27 @@ const TRASH_CLEARING = {
   [REFUSAL_CAUSES.denied]: () => 'To clear the cause, end the process that holds the file open, or restore the right to delete the folder and its files',
 };
 const CLEAR_NAMED_CAUSE = () => 'To clear the cause, act on the reason the trash names';
+/** TRASH_CLEARING for a scratch folder, which no git command moves. */
+const SCRATCH_CLEARING = {
+  ...TRASH_CLEARING,
+  [REFUSAL_CAUSES.longPath]: () => `To clear the cause, move the folder to a shorter path and trash it there with node ${shellQuote(TRASH_SCRIPT)} <shorter path>`,
+};
+const SCRATCH_DIR = 'scratch';
+const SCRATCH_DONE = 'every step before the scratch trash is done';
+
+/**
+ * Moves `path` to the trash and returns the outcome, or exits 40 with the text `refusal(reason, causeId)` gives for a
+ * refused move or `unconfirmed(reason)` gives for an unknown one.
+ */
+function trashOrExit(path, refusal, unconfirmed) {
+  try {
+    return trash(path);
+  } catch (err) {
+    const state = err instanceof TrashError ? err.state : 'unknown';
+    const reason = err instanceof TrashError ? err.reason : err.message;
+    throw unsafe(state === 'refused' ? refusal(reason, err.causeId) : unconfirmed(reason));
+  }
+}
 
 /**
  * A refused move left every file in place and an unknown one may have moved part of it, so neither may prune.
@@ -1160,17 +1189,55 @@ const CLEAR_NAMED_CAUSE = () => 'To clear the cause, act on the reason the trash
  * one deletes the folder permanently.
  */
 function moveToTrash(repo, path) {
+  return trashOrExit(path,
+    (reason, causeId) => `the trash refused the worktree at ${path} (${reason}), so it stays registered and intact and nothing was pruned. If the cause cannot be cleared, removing the folder another way deletes it permanently and is the user's decision, and once the user has removed it, run ${pruneCommand(repo)}, then run this command again. ${(TRASH_CLEARING[causeId] ?? CLEAR_NAMED_CAUSE)(repo, path)}, then run this command again.`,
+    (reason) => `the trash could not confirm where the worktree at ${path} went (${reason}), so nothing was pruned. Check the trash for it, then run this command again.`);
+}
+
+/**
+ * The lstat of the scratch entry at `path`, or null when nothing is there, such as under a state dir that is a file.
+ * A read that fails otherwise exits 40, since every step before the scratch trash is done.
+ */
+function scratchStat(path) {
   try {
-    return trash(path);
+    return lstatSync(path, { throwIfNoEntry: false }) ?? null;
   } catch (err) {
-    const state = err instanceof TrashError ? err.state : 'unknown';
-    const reason = err instanceof TrashError ? err.reason : err.message;
-    if (state === 'refused') {
-      const clearing = (TRASH_CLEARING[err.causeId] ?? CLEAR_NAMED_CAUSE)(repo, path);
-      throw unsafe(`the trash refused the worktree at ${path} (${reason}), so it stays registered and intact and nothing was pruned. If the cause cannot be cleared, removing the folder another way deletes it permanently and is the user's decision, and once the user has removed it, run ${pruneCommand(repo)}, then run this command again. ${clearing}, then run this command again.`);
-    }
-    throw unsafe(`the trash could not confirm where the worktree at ${path} went (${reason}), so nothing was pruned. Check the trash for it, then run this command again.`);
+    if (err.code === 'ENOTDIR') return null;
+    throw unsafe(`${SCRATCH_DONE}, but reading the scratch folder at ${path} failed (${err.message}), so it stays in place. To clear the cause, act on that error, then run this command again.`);
   }
+}
+
+/** The exit-40 text for a refused trash of the scratch entry at `path`, whose lstat is `stat`. */
+function scratchRefusal(path, stat, reason, causeId) {
+  if (stat.isSymbolicLink()) {
+    return `${SCRATCH_DONE}, but the trash refused the scratch link at ${path} (${reason}), so it stays in place and the folder it points to was never read. To clear the cause, remove the link itself, which leaves the folder it points to in place, then run this command again.`;
+  }
+  return `${SCRATCH_DONE}, but the trash refused the scratch folder at ${path} (${reason}), so it stays in place. If the cause cannot be cleared, removing the folder another way deletes it permanently and is the user's decision, and once the user has removed it, run this command again. ${(SCRATCH_CLEARING[causeId] ?? CLEAR_NAMED_CAUSE)()}, then run this command again.`;
+}
+
+/**
+ * The last step of `clean` and `close`: moves the scratch folder of each of `stateDirs` to the trash. A state dir with
+ * no scratch folder is skipped, so the same command run again after a refusal finishes the folders left.
+ */
+function trashScratch(stateDirs) {
+  for (const stateDir of stateDirs) {
+    const path = join(stateDir, SCRATCH_DIR);
+    // lstat, so a link named scratch reaches the trash, which refuses it, and is never followed.
+    const stat = scratchStat(path);
+    if (!stat) {
+      process.stderr.write(`no ${SCRATCH_DIR} folder in ${stateDir}, so none went to the trash\n`);
+      continue;
+    }
+    const moved = trashOrExit(path,
+      (reason, causeId) => scratchRefusal(path, stat, reason, causeId),
+      (reason) => `${SCRATCH_DONE}, but the trash could not confirm where the scratch folder at ${path} went (${reason}). Check the trash for it, then run this command again.`);
+    process.stderr.write(`${movedText(path, moved)}\n`);
+  }
+}
+
+/** The stderr line for `path`, which `trashOrExit` or `moveToTrash` moved to the trash as `moved` says. */
+function movedText(path, moved) {
+  return `moved ${path} to the trash at ${moved.location}${moved.verified ? '' : ' (unverified, the trash is not readable)'}`;
 }
 
 /**
@@ -1256,7 +1323,7 @@ function removeWorktree(repo, entry, mainPath, opts = {}) {
       ? `an uncounted number of ignored files, whose names pass the ${LISTING_MAX_BUFFER / MIB} MiB listing cap`
       : `${ignored} ignored file${ignored === 1 ? '' : 's'}`;
     moved = moveToTrash(repo, path);
-    process.stderr.write(`moved ${path} to the trash at ${moved.location}${moved.verified ? '' : ' (unverified, the trash is not readable)'}, with ${ignoredText}\n`);
+    process.stderr.write(`${movedText(path, moved)}, with ${ignoredText}\n`);
     if (work) process.stderr.write(`discarded the uncommitted work it held: ${work}\n`);
     if (operation) process.stderr.write(`discarded ${operation[1]} in progress, whose state (${operation[0]}) the prune deletes${recovery}\n`);
   } else {
@@ -1334,8 +1401,11 @@ function clean(opt) {
   if (hasKey === hasBatch) {
     throw fail(`clean takes exactly one of --key <chain> or --batch <name> (${hasKey ? 'both were given' : 'neither was given'})`);
   }
-  if (hasKey) cleanChain(repo, requireName(opt, 'key'));
-  else cleanBatch(repo, requireName(opt, 'batch'));
+  const name = requireName(opt, hasKey ? 'key' : 'batch');
+  const stateDirs = requireStateDirs(opt);
+  if (hasKey) cleanChain(repo, name);
+  else cleanBatch(repo, name);
+  trashScratch(stateDirs);
 }
 
 // =============================================================================
@@ -2388,6 +2458,16 @@ function close(opt) {
   // Input
   const repo = requireRepo(opt);
   const name = requireSingleName(opt);
+  const stateDirs = requireStateDirs(opt);
+
+  // Process + Output
+  closeChange(repo, name, opt);
+  trashScratch(stateDirs);
+}
+
+/** `close` for the change `name` in `repo`: `closeDiscard` with --discard, else `closeInto` on the --into or recorded base. */
+function closeChange(repo, name, opt) {
+  // Input
   const branch = singleBranch(name);
   const discard = opt.discard === true;
   const stage = opt.stage === true;
@@ -2432,20 +2512,21 @@ const VERBS = {
   init: { fn: init, flags: ['repo', 'batch', 'base', 'dir'] },
   prep: { fn: prep, flags: ['repo', 'batch', 'key', 'provision'] },
   land: { fn: land, flags: ['repo', 'batch', 'key', 'gate', 'scope-file', 'wait-ms', 'stale-ms'] },
-  clean: { fn: clean, flags: ['repo', 'batch', 'key'] },
+  clean: { fn: clean, flags: ['repo', 'batch', 'key'], lists: ['state-dir'] },
   open: { fn: open, flags: ['repo', 'name', 'base', 'dir', 'provision'] },
-  close: { fn: close, flags: ['repo', 'name', 'into', 'gate'], switches: ['discard', 'stage'] },
+  close: { fn: close, flags: ['repo', 'name', 'into', 'gate'], switches: ['discard', 'stage'], lists: ['state-dir'] },
 };
 
 const USAGE = `usage:
   node tools/wt.mjs init  --repo <abs> --batch <name> [--base <branch>] [--dir <abs>]
   node tools/wt.mjs prep  --repo <abs> --batch <name> --key <chain> [--provision "<cmd>"]
   node tools/wt.mjs land  --repo <abs> --batch <name> --key <chain> --gate "<cmd>" [--scope-file <abs>] [--wait-ms <n>] [--stale-ms <n>]
-  node tools/wt.mjs clean --repo <abs> --key <chain>
-  node tools/wt.mjs clean --repo <abs> --batch <name>
+  node tools/wt.mjs clean --repo <abs> --key <chain> [--state-dir <abs>]...
+  node tools/wt.mjs clean --repo <abs> --batch <name> [--state-dir <abs>]...
   node tools/wt.mjs open  --repo <abs> --name <name> [--base <branch>] [--dir <abs>] [--provision "<cmd>"]
-  node tools/wt.mjs close --repo <abs> --name <name> [--into <branch>] --gate "<cmd>" [--stage]
-  node tools/wt.mjs close --repo <abs> --name <name> --discard`;
+  node tools/wt.mjs close --repo <abs> --name <name> [--into <branch>] --gate "<cmd>" [--stage] [--state-dir <abs>]...
+  node tools/wt.mjs close --repo <abs> --name <name> --discard [--state-dir <abs>]...
+--state-dir names an engine run's state dir, whose scratch folder clean and close move to the trash last.`;
 
 // A name becomes a ref segment AND a directory name, so a slash or a space would silently reshape both.
 const NAME_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
@@ -2476,10 +2557,19 @@ function requireSingleName(opt) {
   return name;
 }
 
-function requireAbsolute(opt, name) {
-  const value = requireValue(opt, name);
+function absolutePath(name, value) {
   if (!isAbsolute(value)) throw fail(`--${name} "${value}" must be an ABSOLUTE path`);
   return resolve(value);
+}
+
+function requireAbsolute(opt, name) {
+  return absolutePath(name, requireValue(opt, name));
+}
+
+/** Every `--state-dir` given, absolute and once each, or an empty array. */
+function requireStateDirs(opt) {
+  const dirs = (opt['state-dir'] ?? []).map((value) => absolutePath('state-dir', value));
+  return [...new Map(dirs.map((dir) => [caseKey(dir), dir])).values()];
 }
 
 function requireCommand(opt, name) {
@@ -2511,13 +2601,14 @@ function requireRepo(opt) {
  * `<verb> [--flag value]… [--switch]…`, validated. NOTHING is coerced: a bare `--batch` is an error, never
  * the string "true" quietly naming a branch (the defect gen-units.mjs's numeric flags were fixed for), and a
  * flag belonging to another verb is an error rather than a silently ignored argument. A switch such as
- * `--discard` takes no value and reads as `true`.
+ * `--discard` takes no value and reads as `true`. A list flag such as `--state-dir` may repeat and reads as the array
+ * of its values.
  */
 export function parseArgv(argv) {
   const [verb, ...rest] = argv;
   if (!verb || !Object.hasOwn(VERBS, verb)) throw fail(`${verb ? `unknown verb "${verb}"` : 'no verb given'} — ${USAGE}`);
 
-  const { flags, switches = [] } = VERBS[verb];
+  const { flags, switches = [], lists = [] } = VERBS[verb];
   const opt = {};
 
   for (let i = 0; i < rest.length; i++) {
@@ -2525,10 +2616,11 @@ export function parseArgv(argv) {
     if (!token.startsWith('--')) throw fail(`unexpected argument "${token}" — every value follows its own flag. ${USAGE}`);
 
     const name = token.slice(2);
-    if (!flags.includes(name) && !switches.includes(name)) {
-      throw fail(`unknown flag "--${name}" for ${verb} — it takes ${[...flags, ...switches].map((f) => `--${f}`).join(' ')}`);
+    const repeats = lists.includes(name);
+    if (!flags.includes(name) && !switches.includes(name) && !repeats) {
+      throw fail(`unknown flag "--${name}" for ${verb} — it takes ${[...flags, ...switches, ...lists].map((f) => `--${f}`).join(' ')}`);
     }
-    if (opt[name] !== undefined) throw fail(`--${name} was given twice`);
+    if (opt[name] !== undefined && !repeats) throw fail(`--${name} was given twice`);
     if (switches.includes(name)) {
       opt[name] = true;
       continue;
@@ -2536,7 +2628,7 @@ export function parseArgv(argv) {
 
     const value = rest[i + 1];
     if (value === undefined || value.startsWith('--')) throw fail(`--${name} needs a value`);
-    opt[name] = value;
+    opt[name] = repeats ? [...(opt[name] ?? []), value] : value;
     i++;
   }
   return { verb, opt };

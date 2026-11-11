@@ -4,6 +4,7 @@
 import { execFileSync } from 'node:child_process';
 import { renameSync } from 'node:fs';
 import { registerHooks } from 'node:module';
+import { basename } from 'node:path';
 import { TrashError, classifyWindows, trash as realTrash } from '../../tools/trash.mjs';
 
 // The local `trash` below shadows the star export of the same name.
@@ -48,7 +49,10 @@ const OUTCOMES = {
   },
 };
 
+/** With AIPG_TRASH_STUB_ONLY set, the stub acts only on a path of that base name, and every other path is trashed. */
 export function trash(path) {
+  const only = process.env.AIPG_TRASH_STUB_ONLY;
+  if (only && basename(path) !== only) return realTrash(path);
   const outcome = OUTCOMES[process.env.AIPG_TRASH_STUB];
   if (!outcome) throw new Error(`trash-stub: AIPG_TRASH_STUB must be one of ${Object.keys(OUTCOMES).join(', ')}`);
   return outcome(path);
