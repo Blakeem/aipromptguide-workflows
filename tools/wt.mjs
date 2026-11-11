@@ -133,7 +133,7 @@ import { execFileSync } from 'node:child_process';
 import { appendFileSync, chmodSync, closeSync, mkdirSync, openSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { TrashError, foldsCase, isWithin, realpathLoose, trash } from './trash.mjs';
+import { REFUSAL_CAUSES, TrashError, foldsCase, isWithin, realpathLoose, trash } from './trash.mjs';
 
 export const EXIT_OK = 0;
 export const EXIT_NOTHING = 10;
@@ -1144,7 +1144,18 @@ function ignoredFileCount(path) {
   return count;
 }
 
-/** A refused move left every file in place and an unknown one may have moved part of it, so neither may prune. */
+/** The action that clears each measured cause of a refused trash move, keyed by the TrashError's `causeId`. */
+const TRASH_CLEARING = {
+  [REFUSAL_CAUSES.longPath]: (repo, path) => `A shorter --dir given to open or init keeps later worktrees short. To clear the cause, move this worktree to a shorter path with git -C ${shellQuote(repo)} worktree move ${shellQuote(path)} <shorter path>`,
+  [REFUSAL_CAUSES.held]: () => 'The holder may be a process whose working directory is inside the folder, such as a test runner or a dev server. To clear the cause, end the holding process',
+};
+const CLEAR_NAMED_CAUSE = () => 'To clear the cause, act on the reason the trash names';
+
+/**
+ * A refused move left every file in place and an unknown one may have moved part of it, so neither may prune.
+ * A refusal ends on the clearing action and the rerun. It names another removal only as the user's decision, since
+ * one deletes the folder permanently.
+ */
 function moveToTrash(repo, path) {
   try {
     return trash(path);
@@ -1152,7 +1163,8 @@ function moveToTrash(repo, path) {
     const state = err instanceof TrashError ? err.state : 'unknown';
     const reason = err instanceof TrashError ? err.reason : err.message;
     if (state === 'refused') {
-      throw unsafe(`the trash refused the worktree at ${path} (${reason}), so it stays registered and intact and nothing was pruned. Clear that cause and run this command again, or move the folder elsewhere by hand and then run ${pruneCommand(repo)}.`);
+      const clearing = (TRASH_CLEARING[err.causeId] ?? CLEAR_NAMED_CAUSE)(repo, path);
+      throw unsafe(`the trash refused the worktree at ${path} (${reason}), so it stays registered and intact and nothing was pruned. If the cause cannot be cleared, removing the folder another way deletes it permanently and is the user's decision, and once the user has removed it, run ${pruneCommand(repo)}, then run this command again. ${clearing}, then run this command again.`);
     }
     throw unsafe(`the trash could not confirm where the worktree at ${path} went (${reason}), so nothing was pruned. Check the trash for it, then run this command again.`);
   }

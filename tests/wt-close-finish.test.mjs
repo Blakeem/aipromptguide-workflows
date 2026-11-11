@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import { section, ok, eq } from './harness.mjs';
 import { shellQuote } from '../tools/wt.mjs';
 import { foldsCase } from '../tools/trash.mjs';
-import { DATA_HOME, at, git, norm, firstLine, Q, rx, readOr, worktreePaths, sha, withFixture, trashedName, trashedAt, commitFile, gateCmd, GATE_GREEN, openIn, closeIn, discardIn, opened, ledgerGate, ledgerRuns, unchanged, hookIn, hasGit } from './wt-helpers.mjs';
+import { DATA_HOME, TRASH_STUB, wtStubbed, at, git, norm, firstLine, Q, rx, readOr, worktreePaths, sha, withFixture, trashedName, trashedAt, commitFile, gateCmd, GATE_GREEN, openIn, closeIn, discardIn, opened, ledgerGate, ledgerRuns, unchanged, hookIn, hasGit } from './wt-helpers.mjs';
 
 if (!hasGit) {
   console.log('  ! SKIPPED — git is not on PATH, and every check in this file drives a real repo');
@@ -83,6 +83,41 @@ await withFixture(({ root, repo }) => {
   eq(unmerged.code, 40, 'close of that branch exits 40');
   ok(/holds commits main lacks.*worktree add/.test(unmerged.stderr), `...naming how to check it out: ${firstLine(unmerged.stderr)}`);
   eq(sha(repo, 'refs/heads/aipg/lost'), lostTip, '...and keeps the branch');
+});
+
+section('a close whose trash refuses names the action that clears each measured cause, and a close after the worktree move it names finishes');
+await withFixture(({ root, repo }) => {
+  const ledger = join(root, 'gate-runs.txt');
+  const gate = ledgerGate(root, ledger);
+  const closeRefused = (name, outcome) => wtStubbed(TRASH_STUB, ['close', '--repo', repo, '--name', name, '--into', 'main', '--gate', gate], { AIPG_TRASH_STUB: outcome });
+  const unquoted = (s) => s.replace(/^["']|["']$/g, '');
+  const permanent = /removing the folder another way deletes it permanently and is the user's decision, and once the user has removed it, run git -C .* worktree prune, then run this command again\./;
+
+  const held = opened(repo, 'held');
+  const heldTip = commitFile(held, 'h.txt', 'held\n');
+  const heldRun = closeRefused('held', 'held');
+  eq(heldRun.code, 40, `a trash refused for a holding process exits 40 (${firstLine(heldRun.stderr)})`);
+  ok(/a process holds the folder or a file in it.*The holder may be a process whose working directory is inside the folder, such as a test runner or a dev server\. To clear the cause, end the holding process, then run this command again\.$/m.test(heldRun.stderr),
+    `...naming the holder and ending on its clearing action and the rerun: ${firstLine(heldRun.stderr)}`);
+  ok(permanent.test(heldRun.stderr) && !/by hand/.test(heldRun.stderr), '...and calling another removal permanent and the user\'s decision, never a step');
+  eq(sha(repo, 'refs/heads/main'), heldTip, '...after main took the gated commit');
+  ok(worktreePaths(repo).includes(norm(held)), '...with the worktree still registered');
+
+  const deep = opened(repo, 'deep');
+  commitFile(deep, 'd.txt', 'deep\n');
+  const deepRun = closeRefused('deep', 'longPath');
+  const move = /git -C (.+?) worktree move (.+?) <shorter path>, then run this command again\.$/m.exec(deepRun.stderr);
+  eq(deepRun.code, 40, `a trash refused for a long path exits 40 (${firstLine(deepRun.stderr)})`);
+  ok(/too long for this volume's Recycle Bin.*A shorter --dir given to open or init keeps later worktrees short\./.test(deepRun.stderr), `...naming the cause and --dir: ${firstLine(deepRun.stderr)}`);
+  eq(norm(unquoted(move?.[2] ?? '')), norm(deep), '...and ending on the worktree move of this worktree and the rerun');
+  ok(permanent.test(deepRun.stderr) && !/by hand/.test(deepRun.stderr), '...and calling another removal permanent and the user\'s decision, never a step');
+  const shorter = join(root, 'mv');
+  eq(git(repo, ['worktree', 'move', deep, shorter]).code, 0, 'the worktree moves to a shorter path');
+  const finished = closeIn(repo, 'deep', 'main', gate);
+  eq(finished.code, 0, `the same close run again exits 0 (${firstLine(finished.stderr)})`);
+  eq(ledgerRuns(ledger).length, 2, '...running no second gate for it');
+  ok(trashedName(root, shorter) !== '', '...moving the worktree from its new path to the trash');
+  eq(sha(repo, 'refs/heads/aipg/deep'), '', '...and deleting aipg/deep');
 });
 
 section('close keeps a branch that moved past the gated commit before its delete, and names the move, not --into');

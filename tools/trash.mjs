@@ -6,8 +6,10 @@
 //
 // Every call ends in one state. trashed: the item is in the trash at `location`. refused: nothing moved.
 // unknown: the tool cannot confirm where the item is. It may be partly or wholly in the trash, and part of it may
-// remain at its path. The export throws a TrashError whose `state` is refused or unknown. CLI exit: 0 every path
-// trashed, 2 any refused and none unknown, 3 any unknown, 1 a usage error before any path is touched.
+// remain at its path. The export throws a TrashError whose `state` is refused or unknown. A Windows refusal whose
+// report matches a measured cause, a path too long for the volume's Recycle Bin or a process that holds the folder,
+// names it in its reason and carries it as `causeId`, a value of REFUSAL_CAUSES. CLI exit: 0 every path trashed,
+// 2 any refused and none unknown, 3 any unknown, 1 a usage error before any path is touched.
 //
 // Backends: on Windows it runs trash-windows.ps1 (IFileOperation with a veto sink), on macOS it runs NSFileManager
 // through osascript, and on Linux and WSL it implements freedesktop.org Trash 1.0 here. None copies across devices
@@ -43,6 +45,14 @@ const PS_SCRIPT = fileURLToPath(new URL('./trash-windows.ps1', import.meta.url))
 const PS_TARGET_ENV = 'AIPG_TRASH_TARGET';
 const RECYCLE_INFO_VERSION = 2n;
 const RECYCLE_INFO_HEADER_BYTES = 28;
+// Measured on Windows 11 build 26200: a volume with no 8.3 short names refuses a tree that holds a path of this many
+// characters or more with this veto of trash-windows.ps1, and a volume with short names trashes it.
+const WINDOWS_MAX_PATH = 260;
+const SECOND_ITEM_VETO = 'a second item or a per-item fallback';
+// Measured on the same build: a process whose working directory is inside the folder gave 0x80270027, and a process
+// that held a file of the folder open gave 0x80270028. The held file once gave 0x80270021, which sherrors.h names
+// COPYENGINE_E_ACCESS_DENIED_SRC and which the folder's permissions also give, so it names no cause.
+const HELD_HRESULTS = new Set(['0x80270027', '0x80270028']);
 
 const OSASCRIPT = '/usr/bin/osascript';
 const NS_FEATURE_UNSUPPORTED = 3328;
@@ -73,13 +83,17 @@ const MAX_NAME_ATTEMPTS = 1000;
 const MAX_NAME_BYTES = 255;
 const O_NOFOLLOW = constants.O_NOFOLLOW ?? 0;   // undefined on Windows
 
+/** The measured causes of a refusal that a caller can name a clearing action for, as a TrashError's `causeId`. */
+export const REFUSAL_CAUSES = Object.freeze({ longPath: 'long-path', held: 'held' });
+
 export class TrashError extends Error {
-  constructor(state, target, reason) {
+  constructor(state, target, reason, causeId = null) {
     super(state === 'unknown' ? `${reason}, so check the trash for it: ${target}` : `${reason}: ${target}`);
     this.name = 'TrashError';
     this.state = state;
     this.target = target;
     this.reason = reason;
+    this.causeId = causeId;
   }
 }
 
@@ -174,7 +188,7 @@ export function spawnFailure(command, result) {
 }
 
 function settle(target, verdict) {
-  if (verdict.state !== 'trashed') throw new TrashError(verdict.state, target, verdict.reason);
+  if (verdict.state !== 'trashed') throw new TrashError(verdict.state, target, verdict.reason, verdict.causeId ?? null);
   return { state: 'trashed', target, location: verdict.location, verified: verdict.verified };
 }
 
@@ -245,24 +259,30 @@ export function preflight(rawPath, ctx, realpath = realpathSync.native) {
   if (holdsHomeTrash && usesXdgBackend(ctx)) throw refused(target, 'the path contains the home trash location');
 
   // Output
-  return { target, parentReal, name: path.basename(target), ino: stat.ino, dev: parentDev, homeReal, entries: tree.count };
+  return {
+    target, parentReal, name: path.basename(target), ino: stat.ino, dev: parentDev, homeReal, entries: tree.count, longestPath: tree.longestPath,
+  };
 }
 
-/** `{ count, holdsTrash }`: the entries of the tree at `root`, itself included, and whether one below it has a trash
- *  name. A directory entry reports a link as a link, so the walk never follows one. */
+/** `{ count, holdsTrash, longestPath }`: the entries of the tree at `root`, itself included, whether one below it has a
+ *  trash name, and the character count of its longest path. A directory entry reports a link as a link, so the walk
+ *  never follows one. */
 function surveyTree(root, foldCase) {
   let count = 1;
   let holdsTrash = false;
+  let longestPath = root.length;
   const pending = lstatSync(root).isDirectory() ? [root] : [];
   while (pending.length > 0) {
     const dir = pending.pop();
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const entryPath = path.join(dir, entry.name);
       count += 1;
       holdsTrash ||= isTrashName(entry.name, foldCase);
-      if (entry.isDirectory()) pending.push(path.join(dir, entry.name));
+      longestPath = Math.max(longestPath, entryPath.length);
+      if (entry.isDirectory()) pending.push(entryPath);
     }
   }
-  return { count, holdsTrash };
+  return { count, holdsTrash, longestPath };
 }
 
 /** Refuses before a helper runs, since the preflight's walk of a large tree takes time, and an item that replaced the
@@ -346,17 +366,39 @@ function windowsUnconfirmed({ target, preIno, countBefore, location, after }) {
   return 'the item left its path and its Recycle Bin entry matches it, but the helper did not report success';
 }
 
+/** `{ causeId, words }` for a refusal whose helper report matches a measured cause, or null. A long path names a
+ *  cause only beside the veto, since a volume with 8.3 short names trashes the same tree. */
+function windowsRefusalCause(outcome, longestPath) {
+  if (!outcome) return null;
+  if (HELD_HRESULTS.has(outcome.PerformHr) || HELD_HRESULTS.has(outcome.DeleteHr)) {
+    return { causeId: REFUSAL_CAUSES.held, words: 'a process holds the folder or a file in it' };
+  }
+  if (outcome.Veto === SECOND_ITEM_VETO && longestPath >= WINDOWS_MAX_PATH) {
+    return {
+      causeId: REFUSAL_CAUSES.longPath,
+      words: `the tree holds a path of ${longestPath} characters, too long for this volume's Recycle Bin, which takes paths under ${WINDOWS_MAX_PATH} characters`,
+    };
+  }
+  return null;
+}
+
 /** Pure. `outcome` is the helper's JSON or null, and `after` is the disk state windowsAfterState reads, where
- *  `targetIno` and `targetErrno` are probe() of the original path. */
-export function classifyWindows({ target, preIno, countBefore, outcome, failure, after }) {
+ *  `targetIno` and `targetErrno` are probe() of the original path. `longestPath` is the preflight's character count
+ *  of the longest path in the tree. */
+export function classifyWindows({ target, preIno, countBefore, longestPath = 0, outcome, failure, after }) {
   const location = recycledPathOf(outcome);
   const cause = windowsCause(outcome, failure);
   const confirmed = outcome?.Success === true && location !== null && after.targetErrno === 'ENOENT' && after.locationExists
     && after.locationCount === countBefore && typeof after.infoOriginal === 'string'
     && after.infoOriginal.toLowerCase() === target.toLowerCase();
+  let refusal = null;
   if (confirmed) return { state: 'trashed', location, verified: true };
   // Only the preflight item, whole at its path, proves nothing moved. A writer can refill the path with the same count.
-  if (after.targetIno === preIno && after.targetCount === countBefore) return { state: 'refused', reason: `not recycled (${cause})` };
+  if (after.targetIno === preIno && after.targetCount === countBefore) {
+    refusal = windowsRefusalCause(outcome, longestPath);
+    if (!refusal) return { state: 'refused', reason: `not recycled (${cause})`, causeId: null };
+    return { state: 'refused', reason: `not recycled because ${refusal.words} (${cause})`, causeId: refusal.causeId };
+  }
   return { state: 'unknown', reason: `${windowsUnconfirmed({ target, preIno, countBefore, location, after })} (${cause})` };
 }
 
@@ -379,12 +421,15 @@ export function runPowerShell(target, env, spawn = spawnSync) {
   return { stdout: '', failure: failures.join(', ') };
 }
 
-export function trashWindows(pre, ctx) {
+/** `runHelper` defaults to runPowerShell and takes a stub in tests. */
+export function trashWindows(pre, ctx, runHelper = runPowerShell) {
   assertStillInPlace(pre);
-  const run = runPowerShell(pre.target, ctx.env);
+  const run = runHelper(pre.target, ctx.env);
   const outcome = parseLastJsonLine(run.stdout);
   const after = windowsAfterState(pre.target, recycledPathOf(outcome));
-  const verdict = classifyWindows({ target: pre.target, preIno: pre.ino, countBefore: pre.entries, outcome, failure: run.failure, after });
+  const verdict = classifyWindows({
+    target: pre.target, preIno: pre.ino, countBefore: pre.entries, longestPath: pre.longestPath, outcome, failure: run.failure, after,
+  });
   return settle(pre.target, verdict);
 }
 

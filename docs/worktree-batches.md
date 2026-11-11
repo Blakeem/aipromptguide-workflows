@@ -75,6 +75,12 @@ A rebase or bisect detaches HEAD. So `clean` finds that worktree by the branch t
 as git does, and `clean --batch` counts it as a chain still registered.
 
 The trash can also refuse the move or fail to confirm it. Either case is exit 40 and prunes nothing.
+A refusal names its cause and the action that clears it. On Windows, a tree that holds a path too
+long for the volume's Recycle Bin clears with `git worktree move` to a shorter path, and a shorter
+`--dir` to `open` or `init` keeps later worktrees short. A folder that a process holds, such as the
+working directory of a test runner or a dev server, clears when that process ends. Clear the cause,
+then run the same command again. Removing the folder another way deletes it permanently and is the
+user's decision. After it, run `git worktree prune`, then the same command again.
 A worktree still registered after the prune is exit 40, and its folder has already left its path.
 Check its entry in `git worktree list --porcelain`, then run `clean` again. A registered worktree
 whose folder is gone is pruned. When it is also locked, run `git worktree unlock` first. To discard

@@ -8,10 +8,11 @@
 // subdirectory on another device, a 255-byte name and the recheck after the preflight without a second mount or a
 // racing process. The Windows backend's recheck runs with an empty PATH, so a regression finds no PowerShell host,
 // and the macOS backend's recheck runs on a removed item, so a regression gives osascript nothing to trash.
-// The cases that drive the real platform backend run only under AIPG_TRASH_LIVE=1. They trash temp directories, on
-// Windows one at a path of MAX_PATH or more, and on Windows one runs the helper against a name its shell parses as
-// another item.
-import { execFileSync, spawnSync } from 'node:child_process';
+// The cases that drive the real platform backend run only under AIPG_TRASH_LIVE=1. They trash temp directories. On
+// Windows one sits at a path of MAX_PATH or more on a volume with 8.3 short names, one holds such a path, which a volume
+// with no short names refuses, one is held by a child process's working directory, and one runs the helper against a
+// name its shell parses as another item.
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import {
   chmodSync, closeSync, existsSync, linkSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync,
   realpathSync, rmSync, symlinkSync, writeFileSync,
@@ -183,6 +184,28 @@ section('Windows backend: an item that changed after the preflight is refused be
     const err = thrown(() => trashWindows({ ...pre, ino: pre.ino + 1n }, { ...fixtureCtx(fx), env: { PATH: '' } }));
     ok(err instanceof TrashError && err.state === 'refused' && /changed after the preflight/.test(err.message), `the call is refused (got ${err ? err.message : 'no refusal'})`);
     eq(readOr(join(dir, 'sub', 'marker.txt')), 'x', 'the item is still in place with its contents');
+  } finally { rmSync(fx.root, { recursive: true, force: true }); }
+}
+
+section('Windows backend: a refusal carries its measured cause, with the longest path the preflight measured');
+{
+  const fx = makeFixture();
+  try {
+    const dir = join(fx.work, 'held');
+    makeTree(dir, 'h');
+    const pre = preflight(dir, fixtureCtx(fx));
+    // An empty PATH finds no PowerShell host, so a backend that ignores the stub recycles nothing.
+    const ctx = { ...fixtureCtx(fx), env: { PATH: '' } };
+    const helperRun = (outcome) => () => ({ stdout: `${JSON.stringify({ Success: false, Target: dir, ...outcome })}\n`, failure: 'pwsh.exe exited with code 2' });
+    eq(pre.longestPath, join(dir, 'sub', 'marker.txt').length, 'the preflight measures the longest path in the tree');
+    const held = thrown(() => trashWindows(pre, ctx, helperRun({ PerformHr: '0x80270027', DeleteHr: '0x80270027' })));
+    ok(held instanceof TrashError && held.state === 'refused' && held.causeId === 'held' && /a process holds the folder or a file in it/.test(held.message),
+      `a held folder is refused with the held cause (got ${held ? `${held.causeId}: ${held.message}` : 'no refusal'})`);
+    // A fabricated length stands in for a tree past MAX_PATH, which only a volume with no 8.3 short names refuses.
+    const long = thrown(() => trashWindows({ ...pre, longestPath: 286 }, ctx, helperRun({ Veto: 'a second item or a per-item fallback' })));
+    ok(long instanceof TrashError && long.state === 'refused' && long.causeId === 'long-path' && /a path of 286 characters/.test(long.message),
+      `a long tree is refused with the long path cause and its length (got ${long ? `${long.causeId}: ${long.message}` : 'no refusal'})`);
+    eq(readOr(join(dir, 'sub', 'marker.txt')), 'h', 'the item is still in place with its contents');
   } finally { rmSync(fx.root, { recursive: true, force: true }); }
 }
 
@@ -504,6 +527,33 @@ section('Windows classification: trashed, refused and unknown from fabricated he
   ok(/the shell reported no recycled item/.test(noItem.reason) && !/0x[0-7]/.test(noItem.reason), `a refusal with only success HRESULTs names none of them (got ${noItem.reason})`);
   const failedOp = classifyWindows({ ...base, outcome: { ...success, Success: false, RecycledPath: null, PerformHr: '0x80270000', DeleteHr: null, Aborted: true }, after: intact });
   eq(failedOp.reason, 'not recycled (operation 0x80270000, aborted)', 'a refusal names a failed operation HRESULT and the abort');
+  eq(failedOp.causeId ?? null, null, 'a refusal with no measured cause carries none');
+  const secondItem = { ...veto, Veto: 'a second item or a per-item fallback' };
+  const longTree = classifyWindows({ ...base, longestPath: 260, outcome: secondItem, after: intact });
+  eq(longTree.reason, 'not recycled because the tree holds a path of 260 characters, too long for this volume\'s Recycle Bin, which takes paths under 260 characters (a second item or a per-item fallback)',
+    'the second-item veto on a tree with a path of 260 characters names the long path and its length beside the veto');
+  eq(String(longTree.causeId), 'long-path', '...and carries the long path cause');
+  const shortTree = classifyWindows({ ...base, longestPath: 259, outcome: secondItem, after: intact });
+  eq(shortTree.reason, 'not recycled (a second item or a per-item fallback)', 'the same veto on a tree whose longest path is 259 characters reads as before');
+  eq(shortTree.causeId ?? null, null, '...and carries no cause');
+  const otherVeto = classifyWindows({ ...base, longestPath: 300, outcome: veto, after: intact });
+  ok(!/too long/.test(otherVeto.reason) && otherVeto.causeId === null, `another veto on a long tree names no long path (got ${otherVeto.reason})`);
+  eq(classifyWindows({ ...base, longestPath: 300, outcome: success, after: moved }).state, 'trashed', 'a long tree the shell recycles is trashed');
+  const grownLong = classifyWindows({ ...base, longestPath: 300, outcome: secondItem, after: { ...intact, targetCount: 6 } });
+  ok(grownLong.state === 'unknown' && !/too long/.test(grownLong.reason), `an unknown result on a long tree names no long path (got ${grownLong.reason})`);
+  const shellFailed = { ...success, Success: false, RecycledPath: null };
+  const heldDir = classifyWindows({ ...base, outcome: { ...shellFailed, PerformHr: '0x80270027', DeleteHr: '0x80270027' }, after: intact });
+  eq(heldDir.reason, 'not recycled because a process holds the folder or a file in it (operation 0x80270027, item 0x80270027)',
+    'the HRESULT of a working directory inside the folder names a holding process beside the report');
+  eq(String(heldDir.causeId), 'held', '...and carries the held cause');
+  const heldFile = classifyWindows({ ...base, longestPath: 300, outcome: { ...shellFailed, PerformHr: '0x80270028', DeleteHr: null }, after: intact });
+  ok(heldFile.causeId === 'held' && heldFile.reason.startsWith('not recycled because a process holds'), `the open-file HRESULT 0x80270028 names a holding process, ahead of a long path (got ${heldFile.reason})`);
+  // 0x80270021 is COPYENGINE_E_ACCESS_DENIED_SRC, which a folder whose permissions deny the delete also gives.
+  const denied = classifyWindows({ ...base, outcome: { ...shellFailed, PerformHr: '0x80270021', DeleteHr: '0x80270021' }, after: intact });
+  eq(denied.reason, 'not recycled (operation 0x80270021, item 0x80270021)', 'the access-denied HRESULT names no holding process and reads as before');
+  eq(denied.causeId ?? null, null, '...and carries no cause');
+  ok(readFileSync(join(REPO_ROOT, 'tools/trash-windows.ps1'), 'utf8').includes('Veto = "a second item or a per-item fallback"'),
+    'trash-windows.ps1 writes the veto text the long path cause matches');
   eq(classifyWindows({ ...base, outcome: null, failure: 'pwsh.exe was killed by SIGKILL', after: { ...intact, targetCount: 3 } }).state, 'unknown', 'a partial tree left at the path is unknown');
   eq(classifyWindows({ ...base, outcome: success, after: { ...intact, targetCount: null } }).state, 'unknown', 'an item at its path that cannot be counted is unknown');
   // A writer that recreates the path after the shell recycled the item can match its entry count.
@@ -708,7 +758,44 @@ if (process.env.AIPG_TRASH_LIVE === '1') {
   if (process.platform === 'win32') {
     section('live: the Windows backend trashes a path of MAX_PATH or more, which the shell under pwsh reports in its 8.3 form');
     const deep = makeFixture();
-    try { liveTrash(join(deep.work, 'x'.repeat(120), 'y'.repeat(120), 'aipg-trash-live')); } finally { rmSync(deep.root, { recursive: true, force: true }); }
+    try {
+      const probe = join(deep.work, 'LongProbeDirectoryName');
+      mkdirSync(probe);
+      if (basename(shortPath(probe)) === basename(probe)) console.log('    (skipped: this volume generates no short names, so the shell has no 8.3 form to report)');
+      else liveTrash(join(deep.work, 'x'.repeat(120), 'y'.repeat(120), 'aipg-trash-live'));
+    } finally { rmSync(deep.root, { recursive: true, force: true }); }
+    section('live: the Windows backend trashes a tree that holds a path of MAX_PATH or more, or refuses it in place with the long path cause where the volume has no 8.3 short names');
+    const holdsLong = makeFixture();
+    try {
+      const dir = join(holdsLong.work, 'aipg-trash-live');
+      const leaf = join(dir, 'x'.repeat(120), 'y'.repeat(120));
+      const longest = join(leaf, 'sub', 'marker.txt').length;
+      makeTree(leaf, 'live');
+      ok(longest >= 260, `the tree holds a path of ${longest} characters`);
+      const r = trashCli([dir], liveEnv);
+      if (r.code === 0) {
+        ok(!existsSync(dir) && existsSync(r.stdout.trim()), `the directory left its path for the reported location (${r.stdout.trim()})`);
+      } else {
+        eq(r.code, 2, `a refusal exits 2 (stderr: ${r.stderr.trim()})`);
+        ok(r.stderr.includes(`a path of ${longest} characters, too long for this volume's Recycle Bin`), `...naming the long path and its length (got ${r.stderr.trim()})`);
+        eq(readOr(join(leaf, 'sub', 'marker.txt')), 'live', '...with every file in place');
+      }
+    } finally { rmSync(holdsLong.root, { recursive: true, force: true }); }
+    section('live: the Windows backend refuses a folder that a process holds as its working directory, with every file in place');
+    const holder = makeFixture();
+    const heldDir = join(holder.work, 'held');
+    makeTree(heldDir, 'held');
+    const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 60000)'], { cwd: heldDir, stdio: 'ignore' });
+    try {
+      const r = trashCli([heldDir], liveEnv);
+      eq(r.code, 2, `the held folder is refused, exit 2 (stderr: ${r.stderr.trim()})`);
+      ok(/a process holds the folder or a file in it/.test(r.stderr), `...naming the holding process (got ${r.stderr.trim()})`);
+      eq(readOr(join(heldDir, 'sub', 'marker.txt')), 'held', '...with every file in place');
+    } finally {
+      child.kill();
+      await new Promise((done) => { if (child.exitCode !== null || child.signalCode !== null) done(); else child.once('exit', done); });
+      rmSync(holder.root, { recursive: true, force: true });
+    }
     section('live: the Windows helper refuses a path the shell parses as another item');
     const dotted = makeFixture();
     try {

@@ -1,9 +1,10 @@
 // Preloaded into a wt child with `node --import`, so tools/wt.mjs imports this module in place of
-// tools/trash.mjs. It acts out trash outcomes the real backends give only under a race.
+// tools/trash.mjs. It acts out trash outcomes the real backends give only under a race, on a volume with no 8.3
+// short names or under a process that holds the folder.
 import { execFileSync } from 'node:child_process';
 import { renameSync } from 'node:fs';
 import { registerHooks } from 'node:module';
-import { TrashError, trash as realTrash } from '../../tools/trash.mjs';
+import { TrashError, classifyWindows, trash as realTrash } from '../../tools/trash.mjs';
 
 // The local `trash` below shadows the star export of the same name.
 export * from '../../tools/trash.mjs';
@@ -15,12 +16,24 @@ registerHooks({
   },
 });
 
+/** Throws the Windows backend's refusal of a fabricated helper report on an item left whole at its path. */
+function refuseAsWindows(path, outcome, longestPath) {
+  const verdict = classifyWindows({
+    target: path, preIno: 1, countBefore: 1, longestPath, outcome: { Success: false, Target: path, ...outcome }, after: { targetIno: 1, targetCount: 1 },
+  });
+  throw new TrashError(verdict.state, path, verdict.reason, verdict.causeId);
+}
+
 const OUTCOMES = {
   // The folder leaves its path before the outcome is lost, so a prune after it would drop the registration.
   unknown(path) {
     renameSync(path, `${path}.partial`);
     throw new TrashError('unknown', path, 'the stub moved the folder aside and reports unknown');
   },
+  // The Windows backend's refusal of each measured cause, which a test can reach only on a volume with no 8.3 short
+  // names or under a process that holds the folder.
+  longPath: (path) => refuseAsWindows(path, { Veto: 'a second item or a per-item fallback' }, 286),
+  held: (path) => refuseAsWindows(path, { PerformHr: '0x80270027', DeleteHr: '0x80270027' }, 0),
   // A success report for a folder that never moved, which `git worktree prune` keeps registered.
   unmoved: (path) => ({ state: 'trashed', target: path, location: `${path}.nowhere`, verified: true }),
   // The folder moves to the trash, then the index of the repo named by AIPG_TRASH_STUB_REPO is emptied, as a user

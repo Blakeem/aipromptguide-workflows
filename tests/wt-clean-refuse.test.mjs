@@ -189,7 +189,10 @@ await withFixture(({ root, repo }) => {
   // A file where the trash needs its files/ directory makes the trash refuse before it moves anything.
   mkdirSync(join(root, DATA_HOME, 'Trash'), { recursive: true });
   writeFileSync(join(root, DATA_HOME, 'Trash', 'files'), 'not a directory\n');
-  refusedIntact(root, repo, 'alpha', chains.alpha, /the trash refused.*run this command again.*worktree prune/, 'a refused trash move');
+  const r = refusedIntact(root, repo, 'alpha', chains.alpha,
+    /the trash refused.*removing the folder another way deletes it permanently and is the user's decision.*worktree prune, then run this command again\. To clear the cause, act on the reason the trash names, then run this command again\.$/m,
+    'a refused trash move with no measured cause');
+  ok(!/by hand/.test(r?.stderr ?? 'by hand'), `...and names no removal by hand: ${firstLine(r?.stderr)}`);
 });
 
 section('clean REFUSES the main worktree when it is on a chain branch');
