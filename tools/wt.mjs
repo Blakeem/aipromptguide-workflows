@@ -1148,6 +1148,7 @@ function ignoredFileCount(path) {
 const TRASH_CLEARING = {
   [REFUSAL_CAUSES.longPath]: (repo, path) => `A shorter --dir given to open or init keeps later worktrees short. To clear the cause, move this worktree to a shorter path with git -C ${shellQuote(repo)} worktree move ${shellQuote(path)} <shorter path>`,
   [REFUSAL_CAUSES.held]: () => 'The holder may be a process whose working directory is inside the folder, such as a test runner or a dev server. To clear the cause, end the holding process',
+  [REFUSAL_CAUSES.denied]: () => 'To clear the cause, end the process that holds the file open, or restore the right to delete the folder and its files',
 };
 const CLEAR_NAMED_CAUSE = () => 'To clear the cause, act on the reason the trash names';
 

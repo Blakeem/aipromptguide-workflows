@@ -1,6 +1,6 @@
 // Preloaded into a wt child with `node --import`, so tools/wt.mjs imports this module in place of
 // tools/trash.mjs. It acts out trash outcomes the real backends give only under a race, on a volume with no 8.3
-// short names or under a process that holds the folder.
+// short names, under a process that holds the folder or under permissions that deny the delete.
 import { execFileSync } from 'node:child_process';
 import { renameSync } from 'node:fs';
 import { registerHooks } from 'node:module';
@@ -31,9 +31,10 @@ const OUTCOMES = {
     throw new TrashError('unknown', path, 'the stub moved the folder aside and reports unknown');
   },
   // The Windows backend's refusal of each measured cause, which a test can reach only on a volume with no 8.3 short
-  // names or under a process that holds the folder.
+  // names, under a process that holds the folder or under permissions that deny the delete.
   longPath: (path) => refuseAsWindows(path, { Veto: 'a second item or a per-item fallback' }, 286),
   held: (path) => refuseAsWindows(path, { PerformHr: '0x80270027', DeleteHr: '0x80270027' }, 0),
+  denied: (path) => refuseAsWindows(path, { PerformHr: '0x80270021', DeleteHr: '0x80270021' }, 0),
   // A success report for a folder that never moved, which `git worktree prune` keeps registered.
   unmoved: (path) => ({ state: 'trashed', target: path, location: `${path}.nowhere`, verified: true }),
   // The folder moves to the trash, then the index of the repo named by AIPG_TRASH_STUB_REPO is emptied, as a user

@@ -7,9 +7,9 @@
 // Every call ends in one state. trashed: the item is in the trash at `location`. refused: nothing moved.
 // unknown: the tool cannot confirm where the item is. It may be partly or wholly in the trash, and part of it may
 // remain at its path. The export throws a TrashError whose `state` is refused or unknown. A Windows refusal whose
-// report matches a measured cause, a path too long for the volume's Recycle Bin or a process that holds the folder,
-// names it in its reason and carries it as `causeId`, a value of REFUSAL_CAUSES. CLI exit: 0 every path trashed,
-// 2 any refused and none unknown, 3 any unknown, 1 a usage error before any path is touched.
+// report matches a measured cause, a path too long for the volume's Recycle Bin, a process that holds the folder or
+// a denied delete, names it in its reason and carries it as `causeId`, a value of REFUSAL_CAUSES. CLI exit: 0 every
+// path trashed, 2 any refused and none unknown, 3 any unknown, 1 a usage error before any path is touched.
 //
 // Backends: on Windows it runs trash-windows.ps1 (IFileOperation with a veto sink), on macOS it runs NSFileManager
 // through osascript, and on Linux and WSL it implements freedesktop.org Trash 1.0 here. None copies across devices
@@ -46,13 +46,17 @@ const PS_TARGET_ENV = 'AIPG_TRASH_TARGET';
 const RECYCLE_INFO_VERSION = 2n;
 const RECYCLE_INFO_HEADER_BYTES = 28;
 // Measured on Windows 11 build 26200: a volume with no 8.3 short names refuses a tree that holds a path of this many
-// characters or more with this veto of trash-windows.ps1, and a volume with short names trashes it.
+// characters or more with the second-item veto of trash-windows.ps1, and a volume with short names trashes it. A
+// target path of this many characters or more on that volume gets the no-recycling veto, which a volume with no
+// Recycle Bin also gives.
 const WINDOWS_MAX_PATH = 260;
 const SECOND_ITEM_VETO = 'a second item or a per-item fallback';
+const NO_RECYCLING_VETO = 'no recycling possible (the shell would delete permanently)';
 // Measured on the same build: a process whose working directory is inside the folder gave 0x80270027, and a process
 // that held a file of the folder open gave 0x80270028. The held file once gave 0x80270021, which sherrors.h names
-// COPYENGINE_E_ACCESS_DENIED_SRC and which the folder's permissions also give, so it names no cause.
+// COPYENGINE_E_ACCESS_DENIED_SRC and which the folder's permissions also give, so that code names both readings.
 const HELD_HRESULTS = new Set(['0x80270027', '0x80270028']);
+const DENIED_HRESULTS = new Set(['0x80270021']);
 
 const OSASCRIPT = '/usr/bin/osascript';
 const NS_FEATURE_UNSUPPORTED = 3328;
@@ -84,7 +88,7 @@ const MAX_NAME_BYTES = 255;
 const O_NOFOLLOW = constants.O_NOFOLLOW ?? 0;   // undefined on Windows
 
 /** The measured causes of a refusal that a caller can name a clearing action for, as a TrashError's `causeId`. */
-export const REFUSAL_CAUSES = Object.freeze({ longPath: 'long-path', held: 'held' });
+export const REFUSAL_CAUSES = Object.freeze({ longPath: 'long-path', held: 'held', denied: 'denied' });
 
 export class TrashError extends Error {
   constructor(state, target, reason, causeId = null) {
@@ -367,18 +371,18 @@ function windowsUnconfirmed({ target, preIno, countBefore, location, after }) {
 }
 
 /** `{ causeId, words }` for a refusal whose helper report matches a measured cause, or null. A long path names a
- *  cause only beside the veto, since a volume with 8.3 short names trashes the same tree. */
+ *  cause only beside a veto, since a volume with 8.3 short names trashes the same tree. */
 function windowsRefusalCause(outcome, longestPath) {
+  const tooLong = `the tree holds a path of ${longestPath} characters, too long for this volume's Recycle Bin, which takes paths under ${WINDOWS_MAX_PATH} characters`;
+  const hasHr = (codes) => codes.has(outcome.PerformHr) || codes.has(outcome.DeleteHr);
   if (!outcome) return null;
-  if (HELD_HRESULTS.has(outcome.PerformHr) || HELD_HRESULTS.has(outcome.DeleteHr)) {
-    return { causeId: REFUSAL_CAUSES.held, words: 'a process holds the folder or a file in it' };
+  if (hasHr(HELD_HRESULTS)) return { causeId: REFUSAL_CAUSES.held, words: 'a process holds the folder or a file in it' };
+  if (hasHr(DENIED_HRESULTS)) {
+    return { causeId: REFUSAL_CAUSES.denied, words: 'a process holds a file in it open without delete sharing, or permissions deny the delete' };
   }
-  if (outcome.Veto === SECOND_ITEM_VETO && longestPath >= WINDOWS_MAX_PATH) {
-    return {
-      causeId: REFUSAL_CAUSES.longPath,
-      words: `the tree holds a path of ${longestPath} characters, too long for this volume's Recycle Bin, which takes paths under ${WINDOWS_MAX_PATH} characters`,
-    };
-  }
+  if (longestPath < WINDOWS_MAX_PATH) return null;
+  if (outcome.Veto === SECOND_ITEM_VETO) return { causeId: REFUSAL_CAUSES.longPath, words: tooLong };
+  if (outcome.Veto === NO_RECYCLING_VETO) return { causeId: REFUSAL_CAUSES.longPath, words: `${tooLong}, or the volume has no Recycle Bin` };
   return null;
 }
 

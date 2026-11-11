@@ -103,6 +103,16 @@ await withFixture(({ root, repo }) => {
   eq(sha(repo, 'refs/heads/main'), heldTip, '...after main took the gated commit');
   ok(worktreePaths(repo).includes(norm(held)), '...with the worktree still registered');
 
+  const denied = opened(repo, 'denied');
+  const deniedTip = commitFile(denied, 'n.txt', 'denied\n');
+  const deniedRun = closeRefused('denied', 'denied');
+  eq(deniedRun.code, 40, `a trash refused for a denied delete exits 40 (${firstLine(deniedRun.stderr)})`);
+  ok(/open without delete sharing, or permissions deny the delete.*To clear the cause, end the process that holds the file open, or restore the right to delete the folder and its files, then run this command again\.$/m.test(deniedRun.stderr),
+    `...naming both readings and ending on their clearing action and the rerun: ${firstLine(deniedRun.stderr)}`);
+  ok(permanent.test(deniedRun.stderr) && !/by hand/.test(deniedRun.stderr), '...and calling another removal permanent and the user\'s decision, never a step');
+  eq(sha(repo, 'refs/heads/main'), deniedTip, '...after main took the gated commit');
+  ok(worktreePaths(repo).includes(norm(denied)), '...with the worktree still registered');
+
   const deep = opened(repo, 'deep');
   commitFile(deep, 'd.txt', 'deep\n');
   const deepRun = closeRefused('deep', 'longPath');
@@ -115,7 +125,7 @@ await withFixture(({ root, repo }) => {
   eq(git(repo, ['worktree', 'move', deep, shorter]).code, 0, 'the worktree moves to a shorter path');
   const finished = closeIn(repo, 'deep', 'main', gate);
   eq(finished.code, 0, `the same close run again exits 0 (${firstLine(finished.stderr)})`);
-  eq(ledgerRuns(ledger).length, 2, '...running no second gate for it');
+  eq(ledgerRuns(ledger).length, 3, '...running no second gate for it');
   ok(trashedName(root, shorter) !== '', '...moving the worktree from its new path to the trash');
   eq(sha(repo, 'refs/heads/aipg/deep'), '', '...and deleting aipg/deep');
 });

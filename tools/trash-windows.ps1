@@ -122,19 +122,25 @@ namespace AipgTrash
             return path;
         }
 
-        // The \\?\ form lets the expansion pass MAX_PATH whatever the host's long-path setting.
+        public static string StripLongPrefix(string path)
+        {
+            if (path == null) return null;
+            if (path.StartsWith(LONG_UNC_PREFIX, StringComparison.Ordinal)) return @"\\" + path.Substring(LONG_UNC_PREFIX.Length);
+            if (path.StartsWith(LONG_PREFIX, StringComparison.Ordinal)) return path.Substring(LONG_PREFIX.Length);
+            return path;
+        }
+
+        // The \\?\ form lets the expansion pass MAX_PATH whatever the host's long-path setting. Input: a path with no such prefix.
         public static string LongPathOf(string path)
         {
             StringBuilder buffer = new StringBuilder(MAX_LONG_PATH);
             string prefixed;
-            string expanded;
             uint length;
             if (path == null) return null;
             prefixed = path.StartsWith(@"\\", StringComparison.Ordinal) ? LONG_UNC_PREFIX + path.Substring(2) : LONG_PREFIX + path;
             length = GetLongPathNameW(prefixed, buffer, MAX_LONG_PATH);
             if (length == 0 || length >= MAX_LONG_PATH) return null;
-            expanded = buffer.ToString();
-            return expanded.StartsWith(LONG_UNC_PREFIX, StringComparison.Ordinal) ? @"\\" + expanded.Substring(LONG_UNC_PREFIX.Length) : expanded.Substring(LONG_PREFIX.Length);
+            return StripLongPrefix(buffer.ToString());
         }
     }
 
@@ -192,8 +198,9 @@ namespace AipgTrash
                 outcome.CreateHr = Hex(hr);
                 if (hr != 0) { outcome.Error = "SHCreateItemFromParsingName " + Hex(hr); return outcome; }
                 // The parser applies Win32 normalization, such as stripping a trailing dot or space, so it can name another item.
-                // A long-path-aware host reports a path of MAX_PATH or more in its 8.3 form, so the long form is compared too.
-                parsed = Native.PathOf(item);
+                // A path of MAX_PATH or more comes back with a \\?\ prefix on a volume with no 8.3 short names, and a
+                // long-path-aware host reports it in its 8.3 form elsewhere, so the prefix is stripped and the long form is compared too.
+                parsed = Native.StripLongPrefix(Native.PathOf(item));
                 parsedLong = Native.LongPathOf(parsed);
                 if (!string.Equals(parsed, target, StringComparison.OrdinalIgnoreCase) && !string.Equals(parsedLong, target, StringComparison.OrdinalIgnoreCase))
                 {
