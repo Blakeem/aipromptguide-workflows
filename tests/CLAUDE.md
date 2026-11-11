@@ -110,8 +110,8 @@ the paths the earlier launch used, and the Write tool refuses to overwrite a fil
 read. An agent that ignores the refusal still returns `wrote_file: true`, and the next stage's agent
 reads the earlier launch's text as the new round's. Every engine holds `REPLACE_NOTE` and
 `WROTE_NOTE` once. `REPLACE_NOTE` sits at each site that replaces a file in full, apart from develop's risk
-file, which `risk-check.mjs` writes or leaves in place before the developer writes it, so its read step says
-so. `WROTE_NOTE` sits once in each prompt whose return attests a file the agent writes with the Write tool.
+file, whose read step says `risk-check.mjs` leaves an existing file in place, since the tool writes none.
+`WROTE_NOTE` sits once in each prompt whose return attests a file the agent writes with the Write tool.
 One return falls outside that rule and carries no `WROTE_NOTE`: docs' `files_cleaned`, an in-place Edit count.
 develop's park carries one for its backlog entry, and its commit is attested by the `commit_sha` it returns.
 Two replace sites add a guard after `REPLACE_NOTE`: the investigator's options files and docs' gatherer

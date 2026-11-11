@@ -42,7 +42,9 @@
 // path the landing writes is refused. Only then does it remove the worktree the way `clean` does and delete
 // `aipg/<n>`. A refusal before the rebase changes nothing. Each later stop keeps the steps already done, such as
 // a rebased `aipg/<n>`, a moved `<into>` or a worktree in the trash. Running close again finishes the steps left
-// (see `closeInto`). `close --discard` trashes the worktree with its uncommitted work and keeps the branch.
+// (see `closeInto`). It runs no second gate on a commit it already merged, or with `--stage` on a commit whose
+// change it already staged while `<into>` stayed where it was. `close --discard` trashes the worktree with its
+// uncommitted work and keeps the branch.
 //
 // Every M-number in this file is a measurement label of the decide run `worktree-parallelism-1`
 // (2026-07-29).
@@ -2195,9 +2197,24 @@ function stagedAt(path, tip, paths) {
 }
 
 /**
+ * The worktree that has `into` checked out when its index already holds the change from `intoOld` to `tip`, or null.
+ * The work is staged only after its gate passed, so a close run again on the same tip skips the gate (`closeInto`).
+ * A refusal here returns null, so the gate runs first and `applyStaged` makes the same refusal after it.
+ */
+function stagedHolder(repo, into, intoOld, tip) {
+  try {
+    const holder = intoHolder(repo, into, 'stage the work on');
+    return holder && stagedAt(holder.path, tip, changedPaths(repo, intoOld, tip)) ? holder : null;
+  } catch (err) {
+    if (err.exitCode !== EXIT_UNSAFE) throw err;
+    return null;
+  }
+}
+
+/**
  * Step 7 of `close --stage`. Applies the changes from `intoOld` to `tip` to the index and files of the worktree that has
  * `into` checked out, and leaves `into` where it is, so the user reviews and commits them. A change already staged there
- * is not applied twice, which lets a close run again after a later stop finish.
+ * by an earlier close, before `into` gained a commit that made this close rebase, is not applied twice.
  */
 function applyStaged(repo, name, into, intoOld, tip) {
   // Input
@@ -2252,7 +2269,8 @@ function deleteIfStaged(repo, branch, into) {
  * will point at, then removes the worktree and deletes the branch. With `stage`, it stages the gated change in the
  * worktree that has `into` checked out instead, and `into` stays where it is. A refusal before the rebase changes
  * nothing but the carrier commit of step 3, which holds the staged work as it was. A close run again after a later
- * stop finishes the steps left, since steps 2 to 5 and 7 skip what is done.
+ * stop finishes the steps left, since steps 2 to 7 skip what is done. With stage, steps 6 and 7 are skipped when the
+ * rebase left the tip where it was and that worktree already holds its change staged.
  */
 function closeInto(repo, name, into, gate, stage = false) {
   // Input
@@ -2272,6 +2290,7 @@ function closeInto(repo, name, into, gate, stage = false) {
   let branchAt = '';
   let intoAt = '';
   let intoTarget = '';
+  let stagedIn = null;
 
   // Process
   // 1. `into` is a local branch other than the one being closed, no batch's branch, which close would move outside
@@ -2303,7 +2322,7 @@ function closeInto(repo, name, into, gate, stage = false) {
   if (present && head !== branchRef) throw offBranch(entry.path, shortBranch(head) || head, branch, exists);
 
   // 4. A branch `into` already contains needs no merge. 5 to 7: rebase when `into` has a commit the branch lacks,
-  // gate, fast-forward.
+  // gate, fast-forward, or with stage gate and stage the change unless the tip's change is already staged.
   before = commitOf(repo, branchRef);
   tip = before;
   if (contains(repo, intoRef, before)) {
@@ -2313,9 +2332,14 @@ function closeInto(repo, name, into, gate, stage = false) {
   } else {
     intoOld = commitOf(repo, intoRef);
     tip = rebaseOnto(entry.path, branch, into, intoOld, before);
-    gateTip(entry.path, branch, into, gate, tip, before);
-    if (stage) applyStaged(repo, name, into, intoOld, tip);
-    else fastForward(repo, name, into, intoOld, tip);
+    stagedIn = stage && tip === before ? stagedHolder(repo, into, intoOld, tip) : null;
+    if (stagedIn) {
+      process.stderr.write(`the worktree at ${stagedIn.path} already has the work of ${branch} staged, so no gate runs\n`);
+    } else {
+      gateTip(entry.path, branch, into, gate, tip, before);
+      if (stage) applyStaged(repo, name, into, intoOld, tip);
+      else fastForward(repo, name, into, intoOld, tip);
+    }
   }
 
   // 8. Removal, re-read in case the gate's run changed the registration, then the branch `into` contains or, with

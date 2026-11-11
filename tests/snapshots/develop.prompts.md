@@ -6,101 +6,101 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 33298 | every block accepts first time |
+| develop | 1 | 1 | 33438 | every block accepts first time |
 | quality | 1 | 1 | 8388 | every block accepts first time |
 | acceptance | 1 | 1 | 13566 | every block accepts first time |
-| develop | 2 | 1 | 33723 | every block accepts first time |
+| develop | 2 | 1 | 33863 | every block accepts first time |
 | acceptance | 2 | 2 | 13847 | every block accepts first time |
 | final-sweep | 1 | 1 | 4728 | every block accepts first time |
-| develop | 3 | 2 | 36692 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 3 | 14866 | a feature block accepts under the proactive policy |
+| develop | 3 | 2 | 37015 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 3 | 15049 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 4719 | a feature block accepts under the proactive policy |
-| develop | 4 | 3 | 32058 | quality flags the first round |
+| develop | 4 | 3 | 32198 | quality flags the first round |
 | acceptance | 4 | 1 | 13565 | quality flags the first round |
-| develop | 5 | 3 | 32428 | quality flags the first round |
+| develop | 5 | 3 | 32568 | quality flags the first round |
 | acceptance | 5 | 2 | 13846 | quality flags the first round |
-| develop | 6 | 3 | 32054 | acceptance finds gaps, then passes |
+| develop | 6 | 3 | 32194 | acceptance finds gaps, then passes |
 | acceptance | 6 | 1 | 13563 | acceptance finds gaps, then passes |
-| develop | 7 | 3 | 32424 | acceptance finds gaps, then passes |
+| develop | 7 | 3 | 32564 | acceptance finds gaps, then passes |
 | acceptance | 7 | 2 | 13844 | acceptance finds gaps, then passes |
 | acceptance | 8 | 1 | 18379 | a later round is judged low risk |
 | acceptance | 9 | 2 | 18660 | a later round is judged low risk |
 | quality | 2 | 1 | 9172 | the developer declines a finding |
 | acceptance | 10 | 1 | 15416 | the developer declines a finding |
-| develop | 8 | 3 | 30880 | the gate never goes green |
-| develop-closing | 1 | 1 | 32502 | the gate never goes green |
+| develop | 8 | 3 | 31020 | the gate never goes green |
+| develop-closing | 1 | 1 | 32642 | the gate never goes green |
 | quality | 3 | 1 | 8448 | the gate never goes green |
-| acceptance | 11 | 4 | 16767 | the gate never goes green |
-| park | 1 | 1 | 10494 | the gate never goes green |
-| develop | 9 | 3 | 31305 | the gate never goes green |
-| develop-closing | 2 | 1 | 32872 | the gate never goes green |
-| acceptance | 12 | 5 | 17048 | the gate never goes green |
+| acceptance | 11 | 4 | 16845 | the gate never goes green |
+| park | 1 | 1 | 10572 | the gate never goes green |
+| develop | 9 | 3 | 31445 | the gate never goes green |
+| develop-closing | 2 | 1 | 33012 | the gate never goes green |
+| acceptance | 12 | 5 | 17126 | the gate never goes green |
 | acceptance | 13 | 1 | 13618 | a parked block, and the run carries on |
 | acceptance | 14 | 1 | 13673 | a parked block, and the run carries on |
 | acceptance | 15 | 1 | 13728 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 33520 | a parked block, and the run carries on |
-| acceptance | 16 | 4 | 21798 | a parked block, and the run carries on |
-| develop | 10 | 1 | 33280 | an ordered run stops at a parked block |
+| develop-closing | 3 | 1 | 33660 | a parked block, and the run carries on |
+| acceptance | 16 | 4 | 21876 | a parked block, and the run carries on |
+| develop | 10 | 1 | 33420 | an ordered run stops at a parked block |
 | acceptance | 17 | 1 | 13560 | an ordered run stops at a parked block |
-| develop | 11 | 3 | 32036 | an ordered run stops at a parked block |
+| develop | 11 | 3 | 32176 | an ordered run stops at a parked block |
 | acceptance | 18 | 1 | 13557 | an ordered run stops at a parked block |
 | acceptance | 19 | 1 | 13612 | an ordered run stops at a parked block |
 | acceptance | 20 | 1 | 13667 | an ordered run stops at a parked block |
 | acceptance | 21 | 1 | 13722 | an ordered run stops at a parked block |
-| develop-closing | 4 | 1 | 33502 | an ordered run stops at a parked block |
-| acceptance | 22 | 4 | 21792 | an ordered run stops at a parked block |
-| park | 2 | 1 | 10506 | an ordered run stops at a parked block |
-| develop | 12 | 4 | 42382 | a fix block closes its issues |
-| acceptance | 23 | 6 | 21655 | a fix block closes its issues |
+| develop-closing | 4 | 1 | 33642 | an ordered run stops at a parked block |
+| acceptance | 22 | 4 | 21870 | an ordered run stops at a parked block |
+| park | 2 | 1 | 10584 | an ordered run stops at a parked block |
+| develop | 12 | 4 | 42705 | a fix block closes its issues |
+| acceptance | 23 | 6 | 21916 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 4719 | a fix block closes its issues |
-| develop | 13 | 5 | 45858 | a fix block closes its issues under the proactive policy |
-| acceptance | 24 | 7 | 23162 | a fix block closes its issues under the proactive policy |
-| develop | 14 | 4 | 36305 | a fix block that continues no park closes its issues |
-| acceptance | 25 | 6 | 18973 | a fix block that continues no park closes its issues |
-| develop | 15 | 5 | 42521 | a proactive fix block that continues no park closes its issues and a pulled entry |
-| acceptance | 26 | 7 | 22237 | a proactive fix block that continues no park closes its issues and a pulled entry |
-| acceptance | 27 | 7 | 19248 | a proactive fix block that continues no park and pulled nothing closes its issues |
-| acceptance | 28 | 7 | 23176 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 16 | 6 | 36705 | a proactive fix block starts round 2 from the statuses it last reported |
-| acceptance | 29 | 7 | 22975 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 17 | 4 | 42778 | a pass of two fix blocks closes its issues |
-| acceptance | 30 | 6 | 21940 | a pass of two fix blocks closes its issues |
+| develop | 13 | 5 | 46181 | a fix block closes its issues under the proactive policy |
+| acceptance | 24 | 7 | 23423 | a fix block closes its issues under the proactive policy |
+| develop | 14 | 4 | 36628 | a fix block that continues no park closes its issues |
+| acceptance | 25 | 6 | 19234 | a fix block that continues no park closes its issues |
+| develop | 15 | 5 | 42844 | a proactive fix block that continues no park closes its issues and a pulled entry |
+| acceptance | 26 | 7 | 22498 | a proactive fix block that continues no park closes its issues and a pulled entry |
+| acceptance | 27 | 7 | 19509 | a proactive fix block that continues no park and pulled nothing closes its issues |
+| acceptance | 28 | 7 | 23437 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 16 | 6 | 37028 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 29 | 7 | 23236 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 17 | 4 | 43101 | a pass of two fix blocks closes its issues |
+| acceptance | 30 | 6 | 22201 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 4749 | a pass of two fix blocks closes its issues |
-| acceptance | 31 | 6 | 21654 | every issue is already fixed |
-| develop | 18 | 4 | 42364 | an ordered run stops on a fix block that closes nothing |
-| park | 3 | 1 | 10809 | passed with a regression, not staged |
-| park | 4 | 1 | 10255 | acceptance stages a rejected block |
-| park | 5 | 1 | 10662 | the quality reviewer fails a block without its file |
-| park | 6 | 1 | 10662 | acceptance fails a block without its file |
-| park | 7 | 1 | 10600 | the developer staged its own work |
-| park | 8 | 1 | 10661 | the index changed outside acceptance |
-| park | 9 | 1 | 10692 | developer never got its block |
-| park | 10 | 1 | 10238 | acceptance never got its block |
-| park | 11 | 1 | 10528 | the developer dies |
-| park | 12 | 1 | 10183 | the quality reviewer dies |
-| park | 13 | 1 | 10561 | the acceptance verifier dies |
-| park | 14 | 1 | 10077 | developer escalates |
-| park | 15 | 1 | 10067 | developer escalates in an ordered run |
-| acceptance | 32 | 6 | 24108 | log line cap before the sweep |
-| acceptance | 33 | 4 | 21578 | a closing acceptance lands the block |
-| develop-closing | 5 | 1 | 33890 | a closing acceptance lands the block |
-| acceptance | 34 | 5 | 21859 | a closing acceptance lands the block |
-| acceptance | 35 | 4 | 16821 | a closing pass gets a blind review |
-| acceptance | 36 | 5 | 17102 | a closing pass gets a blind review |
-| acceptance | 37 | 4 | 21871 | a closing acceptance finds a blocking gap |
-| park | 16 | 1 | 10644 | a closing acceptance finds a blocking gap |
-| acceptance | 38 | 5 | 22152 | a closing acceptance finds a blocking gap |
-| park | 17 | 1 | 10644 | a closing acceptance finds a blocking gap |
-| develop | 19 | 7 | 33469 | every block commits first time |
+| acceptance | 31 | 6 | 21915 | every issue is already fixed |
+| develop | 18 | 4 | 42687 | an ordered run stops on a fix block that closes nothing |
+| park | 3 | 1 | 10887 | passed with a regression, not staged |
+| park | 4 | 1 | 10333 | acceptance stages a rejected block |
+| park | 5 | 1 | 10740 | the quality reviewer fails a block without its file |
+| park | 6 | 1 | 10740 | acceptance fails a block without its file |
+| park | 7 | 1 | 10678 | the developer staged its own work |
+| park | 8 | 1 | 10739 | the index changed outside acceptance |
+| park | 9 | 1 | 10770 | developer never got its block |
+| park | 10 | 1 | 10316 | acceptance never got its block |
+| park | 11 | 1 | 10606 | the developer dies |
+| park | 12 | 1 | 10261 | the quality reviewer dies |
+| park | 13 | 1 | 10639 | the acceptance verifier dies |
+| park | 14 | 1 | 10155 | developer escalates |
+| park | 15 | 1 | 10145 | developer escalates in an ordered run |
+| acceptance | 32 | 6 | 24369 | log line cap before the sweep |
+| acceptance | 33 | 4 | 21656 | a closing acceptance lands the block |
+| develop-closing | 5 | 1 | 34030 | a closing acceptance lands the block |
+| acceptance | 34 | 5 | 21937 | a closing acceptance lands the block |
+| acceptance | 35 | 4 | 16899 | a closing pass gets a blind review |
+| acceptance | 36 | 5 | 17180 | a closing pass gets a blind review |
+| acceptance | 37 | 4 | 21949 | a closing acceptance finds a blocking gap |
+| park | 16 | 1 | 10722 | a closing acceptance finds a blocking gap |
+| acceptance | 38 | 5 | 22230 | a closing acceptance finds a blocking gap |
+| park | 17 | 1 | 10722 | a closing acceptance finds a blocking gap |
+| develop | 19 | 7 | 33609 | every block commits first time |
 | quality | 4 | 1 | 8341 | every block commits first time |
 | acceptance | 39 | 8 | 15105 | every block commits first time |
-| develop | 20 | 7 | 33894 | every block commits first time |
+| develop | 20 | 7 | 34034 | every block commits first time |
 | acceptance | 40 | 9 | 15386 | every block commits first time |
 | final-sweep | 5 | 1 | 5040 | every block commits first time |
-| develop | 21 | 8 | 42584 | a fix block commits |
-| acceptance | 41 | 10 | 23411 | a fix block commits |
+| develop | 21 | 8 | 42907 | a fix block commits |
+| acceptance | 41 | 10 | 23672 | a fix block commits |
 | final-sweep | 6 | 1 | 4947 | a fix block commits |
-| park | 18 | 1 | 10261 | acceptance commits a rejected block |
+| park | 18 | 1 | 10339 | acceptance commits a rejected block |
 
 ## develop · variant 1 · schema 1
 
@@ -272,9 +272,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -360,7 +361,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -1048,9 +1049,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -1136,7 +1138,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -1654,7 +1656,7 @@ It writes nothing. It prints, as JSON, each ready backlog entry whose "- file:" 
 files, with the planPath of the file that holds it. When it exits non-zero or prints [], take no entry.
 For each entry it prints, read the entry in its planPath and check it against the CURRENT code as a fix
 block's VERIFY-FIRST does: confirm its defect still exists, or that it no longer applies, then read its
-**Fix:** line as a suggested fix and check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way.
+**Fix:** line as a suggested fix and check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ.
 TAKE an entry only when its fix sits in the files your block changes and fits your capacity: aim for a
 round-1 context of about 200k to 350k tokens, your block's own work included, and take none when your
 block alone fills that. For each entry you take:
@@ -1791,9 +1793,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -1879,7 +1882,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -2129,7 +2132,7 @@ block's round-1 developer took beside its block and built in the same unstaged d
 reported:
      (no pulled entry)
 Before you write your review file, judge each id the file lists as a fix block's acceptance judges an
-issue. Read its entry in E:/flow/backlog/repo-0a1b2c3d/<the id without its last "-<n>">.md. A FIXED claim holds only when
+issue. Read its entry in E:/flow/backlog/repo-0a1b2c3d/<the id without its last "-<n>">.md. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. A FIXED claim holds only when
 the diff closes the entry's root cause completely, on every sibling path, and its change causes no
 regression. A STALE claim holds only when you confirm the defect is absent from the current code. Return
 one pulled_check per listed id, with actually_fixed=true only when its claim holds. An entry reported
@@ -2545,9 +2548,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -2633,7 +2637,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -3139,9 +3143,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -3227,7 +3232,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -3732,9 +3737,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -3820,7 +3826,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -4326,9 +4332,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -4414,7 +4421,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -5761,9 +5768,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -5849,7 +5857,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -6160,9 +6168,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r6.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -6249,7 +6258,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -6681,7 +6690,7 @@ PROCEDURE:
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Append a gap only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
        node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
      its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
      Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -6850,7 +6859,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r6.md, then every other finding and gap in it, each copied verbatim> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -7053,9 +7062,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -7141,7 +7151,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -7456,9 +7466,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r6.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r6.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -7545,7 +7556,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -7844,7 +7855,7 @@ PROCEDURE:
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Append a gap only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
        node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
      its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
      Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -8719,9 +8730,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r6.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -8808,7 +8820,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -9140,7 +9152,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Append a gap only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
        node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
      its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
      Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -9409,9 +9421,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -9497,7 +9510,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -10019,9 +10032,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -10107,7 +10121,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -11241,9 +11255,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r6.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -11330,7 +11345,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -11662,7 +11677,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Append a gap only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
        node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
      its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
      Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -11831,7 +11846,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r6.md, then every other finding and gap in it, each copied verbatim> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -11898,7 +11913,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
-a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -12122,9 +12137,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -12210,7 +12226,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -12434,7 +12450,7 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -12538,7 +12554,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Append a harm only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
    its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
    Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -12805,7 +12821,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
-a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: proactive. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -13057,9 +13073,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -13145,7 +13162,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -13400,7 +13417,7 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -13520,7 +13537,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Append a harm only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
    its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
    Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -13732,7 +13749,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
-a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -13907,9 +13924,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -13995,7 +14013,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -14219,7 +14237,7 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -14304,7 +14322,7 @@ PROCEDURE:
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Append a harm only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
    its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
    Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -14491,7 +14509,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
-a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: proactive. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -14710,9 +14728,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -14798,7 +14817,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -15053,7 +15072,7 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -15168,7 +15187,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Append a harm only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
    its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
    Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -15377,7 +15396,7 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -15464,7 +15483,7 @@ PROCEDURE:
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Append a harm only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
    its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
    Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -15673,7 +15692,7 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -15793,7 +15812,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Append a harm only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
    its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
    Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -16005,7 +16024,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
-a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: proactive. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -16168,9 +16187,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r2.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -16256,7 +16276,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -16481,7 +16501,7 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -16601,7 +16621,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Append a harm only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
    its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
    Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -16814,7 +16834,7 @@ inside the target repo or E:/flow/runs/flow/gate/, and read those files, since t
 Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP.
 Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
-a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -17038,9 +17058,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-plus-1-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-plus-1-r1.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-plus-1-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -17128,7 +17149,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file '<that file>' --block '<that block id>' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check '<that file>'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -17354,7 +17375,7 @@ Run every one, each redirected to its own file under E:/flow/runs/flow/scratch/ 
 inside the target repo or E:/flow/runs/flow/gate/, and read those files, since the Bash display cuts long output.
 Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP.
 Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -17461,7 +17482,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Append a harm only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file '<that file>' --block '<that block id>' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
    its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check '<that file>'` and fix each problem it prints.
    Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -17730,7 +17751,7 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -17834,7 +17855,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Append a harm only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
    its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
    Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -18025,7 +18046,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
-a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -18249,9 +18270,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -18337,7 +18359,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -18618,7 +18640,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Halted: acceptance passed the block but flagged a regression and staged nothing, so its work must never be staged as it is.", then this halt reason, copied verbatim: Acceptance PASSED block block-a in round 1 but flagged a regression and staged nothing (see E:/flow/runs/flow/acceptance-review-block-a-r1.md). Its work was left UNSTAGED and is flagged as a regression, so never stage it as it is., then every finding and gap in E:/flow/runs/flow/acceptance-review-block-a-r1.md, copied verbatim> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -18743,7 +18765,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Halted: acceptance rejected the block but staged it anyway; inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage this block's files.", then this halt reason, copied verbatim: Acceptance REJECTED block block-a in round 1 but reported staged=true (see E:/flow/runs/flow/acceptance-review-block-a-r1.md), so work it failed may now sit in the accepted baseline. Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage this block's files before resuming.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -18868,7 +18890,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Quality reviewer for block block-a reported findings in round 1 but did not confirm writing E:/flow/runs/flow/gate/quality-review-block-a-r1.md, so there is no review file for the next stage to read. Check whether that file exists before resuming.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -18993,7 +19015,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Acceptance verifier for block block-a failed the block in round 1 but did not confirm writing E:/flow/runs/flow/acceptance-review-block-a-r1.md, so there is no review file for the next stage to read. Check whether that file exists before resuming.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -19118,7 +19140,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Halted: the staged index may hold work no reviewer read, since the developer did not confirm its work stayed unstaged or acceptance found the index changed outside acceptance; inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` for self-staged work.", then this halt reason, copied verbatim: Developer for block block-a did not confirm its work stayed UNSTAGED in round 1 (unstaged_confirmed=false). Neither reviewer reads what the staged index holds — the blind critic reads `git diff`, acceptance treats `git diff --staged` as the accepted baseline — so anything staged here would be reviewed by nobody and then inherited as known-good. Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` before resuming.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -19243,7 +19265,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Halted: the staged index may hold work no reviewer read, since the developer did not confirm its work stayed unstaged or acceptance found the index changed outside acceptance; inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` for self-staged work.", then this halt reason, copied verbatim: Acceptance for block block-a found in round 1 that the staged index no longer holds tree c0ffee0000000000000000000000000000000001, the tree id this run last recorded for the index, so work that no reviewer read may sit in the accepted baseline (see E:/flow/runs/flow/acceptance-review-block-a-r1.md). It still reported staged=true, so its own staging may sit there too. Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage what no acceptance staged before resuming.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -19368,7 +19390,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a' --ledger 'E:/flow/runs/flow/gate/DISMISSED-block-a.md' --amended 'E:/flow/runs/flow/AMENDED-block-a.md'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Halted: an agent could not obtain its plan.", then the cause: run `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'` yourself, and for each command write the line "Cause: <the command> exited <its exit code>: <the first line of its error output>", or "Cause: <the command> exited 0, so it reads the plan now" when it exits 0, then this halt reason, copied verbatim: Developer for block block-a could not obtain its plan (round 1). Its plan command was `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'`. Run it yourself. A non-zero exit names the cause (an id matching no "## Plan:" block, a pruned or mistyped plan file, or the command not permitted in this environment). Nothing was built from a guess.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -19494,7 +19516,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Halted: an agent could not obtain its plan.", then the cause: run `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'` yourself, and for each command write the line "Cause: <the command> exited <its exit code>: <the first line of its error output>", or "Cause: <the command> exited 0, so it reads the plan now" when it exits 0, then this halt reason, copied verbatim: Acceptance verifier for block block-a could not obtain its plan (round 1), so it had no criteria to judge. Its plan command was `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'`. Run it yourself. A non-zero exit names the cause.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -19619,7 +19641,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a' --ledger 'E:/flow/runs/flow/gate/DISMISSED-block-a.md' --amended 'E:/flow/runs/flow/AMENDED-block-a.md'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Developer for block block-a returned nothing in round 1 (agent skipped or died) — no work can be assumed either way. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -19745,7 +19767,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Quality reviewer for block block-a returned nothing in round 1 (agent skipped or died) — that is NOT a clean review. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -19870,7 +19892,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Acceptance verifier for block block-a returned nothing in round 1 (agent skipped or died) — that is NOT a gap verdict. It may have staged the block's files before it died: check `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001 --stat` for them before you pick the route the held-park rule gives this block. Any such work is in the branch's first parent, the staged index, so it is outside the park's branch diff, and that branch then does not hold all of the block's work. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -19995,7 +20017,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a' --ledger 'E:/flow/runs/flow/gate/DISMISSED-block-a.md' --amended 'E:/flow/runs/flow/AMENDED-block-a.md'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the latest `## Question: block-a r<n>` entry in E:/flow/runs/flow/question-block-a.md, copied verbatim> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -20121,7 +20143,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a' --ledger 'E:/flow/runs/flow/gate/DISMISSED-block-a.md' --amended 'E:/flow/runs/flow/AMENDED-block-a.md'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the latest `## Question: block-a r<n>` entry in E:/flow/runs/flow/NEEDS-USER.md, copied verbatim> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -20190,7 +20212,7 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -20294,7 +20316,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Append a harm only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
    its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
    Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -20837,7 +20859,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Append a gap only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
        node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
      its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
      Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -21098,9 +21120,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -21187,7 +21210,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -21518,7 +21541,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Append a gap only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
        node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
      its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
      Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -21752,7 +21775,7 @@ PROCEDURE:
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Append a gap only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
        node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
      its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
      Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -21989,7 +22012,7 @@ PROCEDURE:
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Append a gap only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
        node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
      its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
      Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -22258,7 +22281,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Append a gap only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
        node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
      its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
      Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -22427,7 +22450,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1."> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
@@ -22655,7 +22678,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Append a gap only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
        node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-     It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+     It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
      its **What:** placeholder with <the gap, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
      Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
      A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -22824,7 +22847,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-b-7d7451b3^1 aipg-unfinished/flow-block-b-7d7451b3` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-b-7d7451b3' --origin 'E:/flow/plans/bus.md#block-b'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-b-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1."> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
@@ -23050,9 +23073,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -23138,7 +23162,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -23869,9 +23893,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -23957,7 +23982,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -24471,7 +24496,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
-a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -24696,9 +24721,10 @@ CHECKLIST:
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
    Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -24784,7 +24810,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Append a defect only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
       node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-    It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
     its **What:** placeholder with <the defect, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
     Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
@@ -25013,7 +25039,7 @@ Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create i
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -25117,7 +25143,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Append a harm only when no entry there with "- status: open" or "- status: needs-attention" already holds it. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Write each entry with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md' --block 'block-c' --run 'flow' --file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>,
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>,
    its **What:** placeholder with <the harm, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md'` and fix each problem it prints.
    Its **What:** names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, or a fix that changes user-visible behavior. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
@@ -25480,7 +25506,7 @@ PROCEDURE:
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
-   It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with "unfinished: <block title>",
+   It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
    its **What:** placeholder with <the line "Halted: acceptance rejected the block but staged or committed it anyway; inspect `git -C E:/repo diff --cached` and `git -C E:/repo log -1`, then unstage this block's files or revert its commit with `git -C E:/repo revert <sha>`.", then this halt reason, copied verbatim: Acceptance REJECTED block block-a in round 1 but reported commit a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 (see E:/flow/runs/flow/acceptance-review-block-a-r1.md), so work it failed may now sit in the accepted baseline. Inspect `git -C E:/repo show --stat a1b2c3d4e5f60718293a4b5c6d7e8f9012345678` and revert it with `git -C E:/repo revert a1b2c3d4e5f60718293a4b5c6d7e8f9012345678` before resuming.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.

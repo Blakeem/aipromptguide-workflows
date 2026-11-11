@@ -69,11 +69,11 @@ one engine constant that renders how every agent runs that command, so no agent 
 around it.
 
 When a tool parses, counts or routes on a file an agent writes, that tool owns the file's format. It
-writes the file's skeleton, prints the shape each section allows and reads the file back by the same
+supplies the file's skeleton, prints the shape each section allows and reads the file back by the same
 grammar, so the format exists once, in the tool, and no prompt restates it. The agent fills in the
 content with its file tools and never passes content as command arguments, since a shell changes quotes
-and backticks. For example, `tools/risk-check.mjs` holds develop's risk file format. It writes a missing
-risk file's skeleton, prints the format and checks the file, and all three use the same heading and line
+and backticks. For example, `tools/risk-check.mjs` holds develop's risk file format. It prints a missing
+risk file's skeleton and the format and checks the file, and all three use the same heading and line
 constants, so the developer's prompt holds only the content rules. A file that only agents read, such as
 a ledger of one line per entry, keeps its format in the prompt that writes it, unless a defect shows it
 needs a tool.
@@ -540,7 +540,7 @@ Use these as yes/no checks when reviewing any workflow.
       remember? Is every tool or runtime limit an agent would hit that the tool or engine can lift
       fixed there? Is every limit no code can lift handled once per command, in one engine constant
       that renders how agents run that command, with no other workaround in a prompt? Does every file
-      format a tool parses, counts or routes on live in that tool, which writes the skeleton and
+      format a tool parses, counts or routes on live in that tool, which supplies the skeleton and
       prints the format, with no prompt restating it? (#4)
 - [ ] Must an unbiased code review pass before the plan-aware acceptance review runs, on a block's
       first build, on each change judged as needing review and on the next change after the acceptance

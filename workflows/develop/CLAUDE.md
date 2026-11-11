@@ -378,8 +378,10 @@ reason the code shows.
      uncommitted changes at paths the landing writes, ask the user to commit them or set them aside,
      since that work is theirs. When the trash refused the run worktree, clear the cause the refusal
      names with the action it names, such as a `git worktree move` to a shorter path or ending the
-     process that holds the folder, and run the same close again. Removing the folder another way
-     deletes it permanently, so only the user decides that. To drop a run instead, run
+     process that holds the folder, and run the same close again. A close run again after its landing
+     runs no second gate, unless in stage delivery the user's branch moved since or the user's checkout
+     no longer holds the run's work staged. Removing the folder another way deletes it permanently, so only
+     the user decides that. To drop a run instead, run
      `node <wt.mjs> close --repo <the user's checkout> --name <runId> --discard`, then delete the
      branch with the command it prints, once the user agrees to lose the accepted work.
 

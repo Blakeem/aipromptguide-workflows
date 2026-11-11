@@ -951,7 +951,7 @@ const entryCheck = (file) => `node '${ENTRY_TOOL}' check ${file}`;
 const entryNew = (file, blockId, flags) => `node '${ENTRY_TOOL}' new --file ${file} --block ${blockId} --run ${shq(RUN_ID)} ${flags}`;
 const entryIntro = 'with the entry tool, since the tool numbers the entry, writes the header of a missing file and sets a skip file to todo';
 // `fixText` is a fixed **Fix:** text the engine gives, rendered on its own line.
-const entryFill = (file, { title, what, fix, fixText = '' }, indent) => `${indent}It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with ${title},
+const entryFill = (file, { title, what, fix, fixText = '' }, indent) => `${indent}It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with ${title},
 ${indent}its **What:** placeholder with ${what} and its **Fix:** placeholder with ${fixText ? `this text:
 ${indent}  ${fixText}` : `${fix}.`}
 ${indent}Then run \`${entryCheck(file)}\` and fix each problem it prints.`;
@@ -1238,9 +1238,10 @@ const CLASSIFY_STEP = (id, round, base) => `CLASSIFY: judge the risk of each cha
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
 ${snapshotCommands(snapshotIndex(id, round))}
    ${SNAPSHOT_DELETE} Then run \`${riskCheckCommand(riskFile(id, round), '<that tree id>', base)}\`. This risk tool
-   holds the file's format. It writes a skeleton and prints the format when the file is missing. Otherwise it
+   holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
+   so write the file from that skeleton. Otherwise it
    names each problem in the file, such as a format error, a ${SNAPSHOT_LINE} line an earlier launch left, or a hit
-   a search finds that the file leaves out. The command leaves the file in place, so Read it, then replace its entire content. Then run the command
+   a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, ${SWEEP_NEED}. ${UNCOVERED_RULE} Search a changed or removed rule phrase, message or name ${SWEEP_SEARCH}. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
@@ -1366,6 +1367,10 @@ const PULLED_ENTRY_RULE = 'An entry of this block that carries a "- pulled:" lin
 // A lone fix block's file lists every entry, closed ones included. Only a pass carries an `issues` filter, and a
 // closed entry reported STALE would sync over its `fixed` status.
 const CLOSED_ENTRY_RULE = 'An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.';
+// The backlog triage records the user's decision as a line after the entry's **Fix:** line (guide §10 step 3).
+const TRIAGE_RULE = 'An entry\'s **Triage:** line, when it has one, holds the user\'s decision on that entry. It settles each choice the entry\'s **Fix:** line leaves open, and it wins where the two differ.';
+// A fix frame states the rule for every entry, so a pulled-entry text in a fix prompt leaves it out.
+const pulledTriage = (p) => (p.mode === 'fix' ? '' : ` ${TRIAGE_RULE}`);
 // The last line of a park entry whose branch holds pulled fixes. Only whoever closes that entry can close them.
 const pulledLine = (ids) => `Pulled: ${ids}, whose work this entry's branch holds. Once this entry is fixed and landed, set each of them fixed and remove its "- pulled:" line. Once this entry is skipped, or set stale while its block is rebuilt from todo, remove only that line.`;
 // Verify-first because entries come from a past snapshot. ACTIONABLE-only because the decision line is
@@ -1376,7 +1381,7 @@ const reportedLines = (pairs, none) => pairs.map(([id, status]) => `     - ${id}
 const fixDevelop = (p, round, { opening, ledgerNote, zones, staging, rework, launch, lastFix, classifyBase }) => `
 You are the FIXER. Resolve the verified issues in ${blockRef(p)}. Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own \`- decision:\` line,
-a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
+a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. ${TRIAGE_RULE} Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. ${PULLED_ENTRY_RULE} ${CLOSED_ENTRY_RULE} ${SCOPE_LINE.fix}.
 ${POLICY_LINE}
 ${ENV}
@@ -1548,7 +1553,7 @@ It writes nothing. It prints, as JSON, each ready backlog entry whose "- file:" 
 files, with the planPath of the file that holds it. When it exits non-zero or prints [], take no entry.
 For each entry it prints, read the entry in its planPath and check it against the CURRENT code as a fix
 block's VERIFY-FIRST does: confirm its defect still exists, or that it no longer applies, then read its
-**Fix:** line as a suggested fix and ${SUGGESTION_CHECK}
+**Fix:** line as a suggested fix and ${SUGGESTION_CHECK}${pulledTriage(p)}
 TAKE an entry only when its fix sits in the files your block changes and fits your capacity: aim for a
 round-1 context of about 200k to 350k tokens, your block's own work included, and take none when your
 block alone fills that. For each entry you take:
@@ -1586,7 +1591,7 @@ these actions in order:
      Output: the rewritten ${amendedFile(p.id)} and ${DECISIONS}.`;
 const pulledLaterNote = (p, lastPulled, none) => (none ? `PULLED ENTRIES. Round 1 took no backlog entry beside this block, so ${pulledFile(p.id)} lists none. Take no new entry, and report an empty pulled_results.` : `PULLED ENTRIES. ${pulledFile(p.id)}, when it exists, lists the backlog entries round 1 took beside
 this block. Take no new entry. Close a review gap on a pulled entry like any other gap, or revert that
-entry's change surgically and report it FAILED. ${PULLED_REPORT} Your earlier rounds last reported:
+entry's change surgically and report it FAILED.${pulledTriage(p)} ${PULLED_REPORT} Your earlier rounds last reported:
 ${reportedLines(lastPulled, 'no pulled entry')}
 Report each listed status again unless this round's work changes it.`);
 
@@ -1741,7 +1746,7 @@ ${snapshotCommands(snapshotIndex(id, round, 'acceptance'))}
    that developer handed on, which is a gap.`
   : `TREE CHECK. Round ${round}'s developer returned no snapshot, so this check has nothing to compare.`);
 // Only the latest audited round is checked, since an earlier round's sweep was read when that round was the latest.
-// The risk tool writes a skeleton for a missing file, so it runs only on a file that exists.
+// A missing file is a gap of its own, and the risk tool answers one with a skeleton to write, so it runs only on a file that exists.
 const sweepCheck = (id, riskRounds, riskSnapshots, indexTree) => {
   const latest = Math.max(...riskRounds);
   const file = riskFile(id, latest);
@@ -1903,7 +1908,7 @@ block's round-1 developer took beside its block and built in the same unstaged d
 reported:
 ${reportedLines(reported, 'no pulled entry')}
 Before you write your review file, judge each id the file lists as a fix block's acceptance judges an
-issue. Read its entry in ${BACKLOG_DIR}/<the id without its last "-<n>">.md. A FIXED claim holds only when
+issue. Read its entry in ${BACKLOG_DIR}/<the id without its last "-<n>">.md.${pulledTriage(p)} A FIXED claim holds only when
 the diff closes the entry's root cause completely, on every sibling path, and its change causes no
 regression. A STALE claim holds only when you confirm the defect is absent from the current code. Return
 one pulled_check per listed id, with actually_fixed=true only when its claim holds. An entry reported
@@ -1930,7 +1935,7 @@ const ACCEPTANCE_CHECK_RULE = `Any command that writes nothing in the repo, such
 const fixAcceptance = (p, round, { claimedFixed, claimedStale, reportedSkipped, reportedFailed, unreportedIssues, earlierReviews, riskRounds, riskSnapshots, closingRecorded, pulledReported, indexTree, absent }) => `
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks.
 ${reviewStatus(round)} Read ${blockRef(p)}. Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a \`- decision:\` line, a **Fix:**
-instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. ${PULLED_ENTRY_RULE} ${CLOSED_ENTRY_RULE}
+instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. ${TRIAGE_RULE} ${PULLED_ENTRY_RULE} ${CLOSED_ENTRY_RULE}
 ${ENV}
 BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
 ${ROUND_NOTE(round)}

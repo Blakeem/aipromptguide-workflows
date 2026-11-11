@@ -218,10 +218,71 @@ if (!fs.existsSync(marker)) { require('child_process').execFileSync('git', ['wor
   eq(git(repo, ['worktree', 'unlock', feat]).code, 0, 'unlock the feat worktree');
   const again = closeTo(repo, 'feat', lockOnce, ['--stage']);
   eq(again.code, 0, `close --stage run again exits 0 (${firstLine(again.stderr)})`);
-  ok(/already has the work of aipg\/feat staged/.test(again.stderr), '...saying the work is already staged');
+  ok(/already has the work of aipg\/feat staged, so no gate runs/.test(again.stderr), '...saying the work is already staged and no gate runs');
   eq(stagedNames(repo), 'f.txt', '...main\'s index holds the change');
   eq(git(repo, ['show', ':f.txt']).stdout, 'feature\n', '...once');
   eq(sha(repo, 'refs/heads/main'), mainAt, '...main is where it was');
+  eq(sha(repo, 'refs/heads/aipg/feat'), '', '...and the branch is deleted');
+});
+
+section('close --stage run again after its trash refused runs no second gate, so a gate that would fail now cannot stop it');
+await withFixture(({ root, repo }) => {
+  const feat = opened(repo, 'feat');
+  stage(feat, 's.txt', 'accepted\n');
+  const mainAt = sha(repo, 'refs/heads/main');
+
+  const refused = wtStubbed(TRASH_STUB, ['close', '--repo', repo, '--name', 'feat', '--into', 'main', '--stage', '--gate', gateCmd(root, 'green', GATE_GREEN)],
+    { AIPG_TRASH_STUB: 'longPath' });
+  eq(refused.code, 40, `close --stage whose trash refuses exits 40 (${firstLine(refused.stderr)})`);
+  eq(stagedNames(repo), 's.txt', '...after staging the change on main');
+  ok(worktreePaths(repo).includes(norm(feat)), '...with the worktree still registered');
+
+  // A pnpm junction left pointing at the folder's old path after a `git worktree move` fails a gate this way.
+  const red = gateCmd(root, 'red', 'process.exit(1);\n');
+  const again = closeTo(repo, 'feat', red, ['--stage']);
+  eq(again.code, 0, `close --stage run again with a failing gate exits 0 (${firstLine(again.stderr)})`);
+  ok(/already has the work of aipg\/feat staged, so no gate runs/.test(again.stderr), '...saying no gate runs');
+  eq(git(repo, ['show', ':s.txt']).stdout, 'accepted\n', '...main\'s index holds the change once');
+  eq(sha(repo, 'refs/heads/main'), mainAt, '...main is where it was');
+  ok(trashedName(root, feat) !== '', '...the worktree is in the trash');
+  eq(sha(repo, 'refs/heads/aipg/feat'), '', '...and the branch is deleted');
+});
+
+section('close --stage run again on a tip whose staged work main no longer holds gates it again');
+await withFixture(({ root, repo }) => {
+  const feat = opened(repo, 'feat');
+  stage(feat, 's.txt', 'accepted\n');
+
+  const refused = wtStubbed(TRASH_STUB, ['close', '--repo', repo, '--name', 'feat', '--into', 'main', '--stage', '--gate', gateCmd(root, 'green', GATE_GREEN)],
+    { AIPG_TRASH_STUB: 'longPath' });
+  eq(refused.code, 40, `close --stage whose trash refuses exits 40 (${firstLine(refused.stderr)})`);
+  eq(git(repo, ['reset', '-q']).code, 0, 'the user unstages the work on main');
+
+  const again = closeTo(repo, 'feat', gateCmd(root, 'red', 'process.exit(1);\n'), ['--stage']);
+  eq(again.code, 30, `close --stage run again with a failing gate exits 30 (${firstLine(again.stderr)})`);
+  ok(!/no gate runs/.test(again.stderr), '...after running the gate');
+  ok(sha(repo, 'refs/heads/aipg/feat') !== '', '...and keeps the branch');
+});
+
+section('close --stage run again after --into gained a commit rebases, gates, and does not stage the work twice');
+await withFixture(({ root, repo }) => {
+  const feat = opened(repo, 'feat');
+  stage(feat, 's.txt', 'accepted\n');
+
+  const refused = wtStubbed(TRASH_STUB, ['close', '--repo', repo, '--name', 'feat', '--into', 'main', '--stage', '--gate', gateCmd(root, 'green', GATE_GREEN)],
+    { AIPG_TRASH_STUB: 'longPath' });
+  eq(refused.code, 40, `close --stage whose trash refuses exits 40 (${firstLine(refused.stderr)})`);
+  writeFileSync(at(repo, 'o.txt'), 'the user\'s other commit\n');
+  eq(git(repo, ['add', '--', 'o.txt']).code, 0, 'the user adds an unrelated file on main');
+  eq(git(repo, ['commit', '-qm', 'add o.txt', '--', 'o.txt']).code, 0, '...and commits it alone, keeping the staged work');
+  const mainAt = sha(repo, 'refs/heads/main');
+
+  const again = closeTo(repo, 'feat', gateCmd(root, 'green', GATE_GREEN), ['--stage']);
+  eq(again.code, 0, `close --stage run again exits 0 (${firstLine(again.stderr)})`);
+  ok(/already has the work of aipg\/feat staged\n/.test(again.stderr) && !/no gate runs/.test(again.stderr), '...saying the work is already staged, after its gate ran');
+  eq(stagedNames(repo), 's.txt', '...main\'s index holds the change');
+  eq(git(repo, ['show', ':s.txt']).stdout, 'accepted\n', '...once');
+  eq(sha(repo, 'refs/heads/main'), mainAt, '...main is where the user left it');
   eq(sha(repo, 'refs/heads/aipg/feat'), '', '...and the branch is deleted');
 });
 
@@ -249,6 +310,18 @@ await withFixture(({ root, repo }) => {
   const r = closeTo(repo, 'feat', gateCmd(root, 'green', GATE_GREEN), ['--stage']);
   eq(r.code, 40, 'close --stage exits 40');
   ok(/cannot stage the work on main, so it is untouched\. It is checked out in more than one worktree/.test(r.stderr), `...saying so: ${firstLine(r.stderr)}`);
+  eq(stagedNames(repo), '', '...and nothing is staged on main');
+});
+
+section('close --stage with an --into checked out twice runs the gate before it refuses, so a failing gate exits 30');
+await withFixture(({ root, repo }) => {
+  const feat = opened(repo, 'feat');
+  stage(feat, 's.txt', 'accepted\n');
+  eq(git(repo, ['worktree', 'add', '-q', '--force', at(root, 'second-main'), 'main']).code, 0, 'check main out in a second worktree');
+
+  const r = closeTo(repo, 'feat', gateCmd(root, 'red', 'process.exit(1);\n'), ['--stage']);
+  eq(r.code, 30, `close --stage exits 30 (${firstLine(r.stderr)})`);
+  ok(!/cannot stage the work on main/.test(r.stderr), '...with no refusal of main before the gate');
   eq(stagedNames(repo), '', '...and nothing is staged on main');
 });
 

@@ -68,7 +68,7 @@ const ENTRY_NEW = (file, block, runId = 't') => `node '${ENTRY_TOOL}' new --file
 const ENTRY_FLAGS = "--file-ref '<path>:<line>' --severity <low|medium|high|critical> --category <category> --size <trivial|small|medium|large> --decision <ACTIONABLE|NEEDS_USER>";
 const ENTRY_CHECK = (file) => `Then run \`node '${ENTRY_TOOL}' check '${file}'\` and fix each problem it prints.`;
 // The flattened RECORD entry instruction for one file and block, the item named in its **What:** placeholder.
-const ENTRY_RULE = (file, block, item) => `Write each entry ${ENTRY_INTRO}: ${ENTRY_NEW(file, block)} ${ENTRY_FLAGS} It prints the new entry's id on its first line. With the Edit tool, replace the entry's placeholder title with <title>, its **What:** placeholder with <the ${item}, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>. ${ENTRY_CHECK(file)}`;
+const ENTRY_RULE = (file, block, item) => `Write each entry ${ENTRY_INTRO}: ${ENTRY_NEW(file, block)} ${ENTRY_FLAGS} It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>, its **What:** placeholder with <the ${item}, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>. ${ENTRY_CHECK(file)}`;
 const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, backlogDir: BACKLOG, blockTool: BLOCK_TOOL, plans: BLOCKS };
 const ONE_BLOCK = { ...baseArgs, plans: [BLOCKS[0]] };
 const PRO_ONE_BLOCK = { ...ONE_BLOCK, changePolicy: 'proactive' };
@@ -1634,7 +1634,7 @@ section('every park appends one backlog entry that links its branch');
     `3. RECORD. Append ONE entry to ${FILE} ${ENTRY_INTRO}:`,
     `${ENTRY_NEW(FILE, 'block-a')} --file-ref '<the first path \`git -C E:/repo diff --name-only ${UNFINISHED('block-a')}^1 ${UNFINISHED('block-a')}\` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch '${UNFINISHED('block-a')}' --origin 'E:/plans/bus.md#block-a'`,
     'Its --decision value follows the decision sentence at the end of this step.',
-    'With the Edit tool, replace the entry\'s placeholder title with "unfinished: <block title>",',
+    'Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry\'s placeholder title with "unfinished: <block title>",',
     'and its **Fix:** placeholder with this text: Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.',
     ENTRY_CHECK(FILE),
     `When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. ${DECISION_RULE}`,
@@ -4061,7 +4061,8 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
   const best = 'with the change that has the best long-term result: correct, simple, maintainable and consistent with the repo. Leave a change that another block of the plan owns to that block.';
   const takenRules = 'An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block\'s developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block\'s branch or is not built yet.';
   const closedRule = 'An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.';
-  const fixScope = `Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on behalf of an entry that is not ACTIONABLE, in any zone. ${takenRules} ${closedRule} ${scopeLine.fix}`;
+  const triageRule = 'An entry\'s **Triage:** line, when it has one, holds the user\'s decision on that entry. It settles each choice the entry\'s **Fix:** line leaves open, and it wins where the two differ.';
+  const fixScope = `Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. ${triageRule} Change nothing on behalf of an entry that is not ACTIONABLE, in any zone. ${takenRules} ${closedRule} ${scopeLine.fix}`;
   const buildLine = {
     focused: {
       feature: `Build it minimally and surgically; match conventions; ${scopeLine.feature}`,
@@ -4119,7 +4120,14 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
           `${where}: the developer and acceptance both skip an entry whose status reads fixed or stale`);
         ok(acc.includes(takenRules) && acc.includes('or that it carries a "- pulled:" line or a line that starts with "**Parked with:**": an'),
           `${where}: fix acceptance counts a parked-with entry as not ACTIONABLE, and confirms it was reported SKIPPED`);
+        ok(acc.includes(triageRule), `${where}: fix acceptance reads an entry's Triage line as the user's decision`);
       }
+      // A fix frame states the Triage rule for every entry, so its pull step and pulled-entry acceptance leave it out.
+      const pullTriage = `does not already use the same way. ${mode === 'fix' ? '' : `${triageRule} `}TAKE an entry only when`;
+      ok((policy === 'proactive') === dev.includes(pullTriage),
+        `${where}: ${policy === 'proactive' ? 'the pull step reads a pulled entry\'s Triage line as the user\'s decision' : 'no pull step'}`);
+      eq(`${dev.split(triageRule).length - 1}/${acc.split(triageRule).length - 1}`, mode === 'fix' || policy === 'proactive' ? '1/1' : '0/0',
+        `${where}: each prompt that judges a backlog entry states the Triage rule once`);
       ok(acc.includes(lastItems(mode, tag, id, zones)) && !acc.includes(otherTag),
         `${where}: the removed-defect item excuses a ${tag}-logged fix of a defect only in unclaimed code and ${zones}`);
       ok(acc.includes('escalates it when only a change in other code closes it. Once'), `${where}: acceptance names other code as the escalation's limit`);
@@ -4639,8 +4647,8 @@ section('every develop prompt that writes a round file says to Read an earlier l
   const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE);
   const commit = await run(C_RUN, COMMIT_ONE);
   const park = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 });
-  // The risk tool has written the file before the developer writes it, so its read takes its own sentence.
-  const RISK_READ = 'The command leaves the file in place, so Read it, then replace its entire content.';
+  // The risk tool writes no file, so its read sentence covers only a risk file an earlier launch left.
+  const RISK_READ = 'The command leaves an existing file in place, so Read it, then replace its entire content.';
   for (const [what, p] of [['the developer', feat.prompt('develop block-a r1')], ['the proactive developer', proBus.prompt('develop block-a r1')]]) {
     eq(flat(p).split(RISK_READ).length - 1, 1, `${what}: the risk file's read step says the command left the file in place`);
   }
@@ -4748,7 +4756,7 @@ section('the risk file is tied to the snapshot its developer returned');
     'acceptance gets the tree id of each audited round and of its base round');
   ok(a3.includes('Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round returned. A file whose line differs, or whose round returned none, counts as a missing file.'),
     'a mismatch or a missing id counts as a missing risk file, which is a gap that sets risk_misclassified');
-  // The risk tool writes a skeleton for a file it finds missing, so a round with no snapshot gets no command.
+  // A round with no snapshot has no tree id to pass the risk tool, so it gets no command.
   ok(a3.includes("SWEEP CHECK. Round 3's developer returned no snapshot, so E:/r/runs/t/risk-block-a-r3.md counts as missing and holds no sweep to check.")
     && !a3.includes(`'E:/r/runs/t/risk-block-a-r3.md' --repo`),
   'a latest round that returned no snapshot gets no risk tool command in the sweep check');
@@ -5419,6 +5427,11 @@ section('a prompt drops the PULLED read when round 1 took no entry');
   const took = await rounds(PRO_DEV([{ issue_id: PULL_A, status: 'FIXED' }]));
   ok(flat(took.prompt('develop block-a r2')).includes('when it exists, lists the backlog entries round 1 took') && flat(took.prompt('acceptance block-a r1')).includes(READ_PULLED),
     'a taken entry keeps both read steps');
+  const TRIAGE = 'An entry\'s **Triage:** line, when it has one, holds the user\'s decision on that entry.';
+  ok(flat(took.prompt('develop block-a r2')).includes(`report it FAILED. ${TRIAGE}`) && flat(took.prompt('acceptance block-a r1')).includes(`-<n>">.md. ${TRIAGE}`),
+    'a feature block\'s later developer and its acceptance read a pulled entry\'s Triage line as the user\'s decision');
+  ok(!flat(none.prompt('develop block-a r2')).includes(TRIAGE) && !flat(none.prompt('acceptance block-a r1')).includes(TRIAGE),
+    'a feature block that took no entry states no Triage rule');
   const unknown = await rounds({ ...PRO_DEV([]), pulled_results: undefined });
   ok(flat(unknown.prompt('acceptance block-a r1')).includes(READ_PULLED), 'a round-1 report with no pulled_results list keeps the read step');
 

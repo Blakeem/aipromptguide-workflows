@@ -5,9 +5,9 @@
 //
 // Fixtures live under os.tmpdir(), never under tests/fixtures/, as in plan-entry.test.mjs.
 import { execFileSync } from 'node:child_process';
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
 import { FORMAT, NO_CHANGES, RISK_KEYS, SNAPSHOT_LINE, SWEEP_HEADING, changedNames, codeNames, parseRiskFile, repoPath, run, searchForms, skeleton } from '../tools/risk-check.mjs';
 
@@ -55,14 +55,18 @@ const ALL_HITS = [
   '- gen/snap.md (3 hits) unaffected: generated, the gate checks it',
 ];
 
-section('a missing file gets a skeleton that never passes');
+section('a missing file gets a printed skeleton and no write, and the skeleton never passes');
 {
   const { repo, tree } = fixtureRepo(FILES);
   const path = join(tmpDir(), 'nested', 'risk-x-r1.md');
   const first = run([path, '--repo', repo, '--snapshot', tree]);
-  eq(first.code, 1, 'writing a skeleton exits 1, since the file is not filled');
-  ok(first.lines[0].startsWith(`wrote a skeleton to ${path}`) && first.lines.join('\n').includes('A risk file holds, in this order:'), 'it prints the format after the write');
-  eq(readFileSync(path, 'utf8'), skeleton(tree), 'the skeleton holds the snapshot id it was given');
+  const printed = first.lines.join('\n');
+  eq(first.code, 1, 'a missing file exits 1, since no file is filled');
+  ok(first.lines[0].startsWith(`no risk file at ${path}. Write it from the skeleton below`), `the first line says the file is missing and to write it from the skeleton (${first.lines[0]})`);
+  ok(printed.includes('A risk file holds, in this order:') && printed.endsWith(skeleton(tree).trimEnd()), 'it prints the format, then the skeleton with the snapshot id it was given');
+  ok(!existsSync(path) && !existsSync(dirname(path)), 'and writes no file or folder');
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, skeleton(tree));
   const second = run([path, '--repo', repo, '--snapshot', tree]);
   eq(second.code, 1, 'an unfilled skeleton fails the check');
   ok(second.lines.filter((l) => l.includes("still holds the skeleton's placeholder")).length === 8, `each of the 8 slots is named (${second.lines.length} lines)`);

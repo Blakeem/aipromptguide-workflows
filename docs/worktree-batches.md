@@ -136,7 +136,9 @@ worktree.
 
 A refusal before the rebase changes nothing. Each later stop keeps the steps already done, such as a
 rebased `aipg/<name>`, a moved `--into` branch or a worktree in the trash. Running `close` again
-finishes the steps left. `close` exits 40 in cases such as these:
+finishes the steps left. It runs no second gate on a commit it already merged, or with `--stage` on
+a commit whose change it already staged while the `--into` branch stayed where it was. `close` exits
+40 in cases such as these:
 
 - the `--into` branch is the integration or chain branch of a batch, which only `land` moves, under
   its lock,

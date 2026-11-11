@@ -3,16 +3,16 @@
 //
 //   node tools/risk-check.mjs <risk file> --repo <repo> --snapshot <tree id> [--base <tree id>]
 //
-// A missing file gets a skeleton. A written one is checked: its format, its Snapshot line against --snapshot, and
-// each sweep search, rerun in the repo's working tree in its plain and source-escaped forms. With --base, a file
-// with no format error and a change section also gets an `uncovered:` line for each changed name that no search
-// covers. Exit 0 prints `ok: <file>`, 1 lists each problem and, after a format or Snapshot error, the format, and
-// 2 is a usage or git error. Both 0 and 1 end `low risk: yes|no` once every answer parses. tools/CLAUDE.md holds
-// the contract. FORMAT below holds the file format.
+// A missing file exits 1 with the format and a skeleton printed, and the tool writes no file. A written one is
+// checked: its format, its Snapshot line against --snapshot, and each sweep search, rerun in the repo's working
+// tree in its plain and source-escaped forms. With --base, a file with no format error and a change section also
+// gets an `uncovered:` line for each changed name that no search covers. Exit 0 prints `ok: <file>`, 1 lists each
+// problem and, after a format or Snapshot error, the format, and 2 is a usage or git error. Both 0 and 1 end
+// `low risk: yes|no` once every answer parses. tools/CLAUDE.md holds the contract. FORMAT below holds the file
+// format.
 
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const EXIT = { ok: 0, problems: 1, usage: 2 };
@@ -68,8 +68,9 @@ export const FORMAT = `A risk file holds, in this order:
 A round that changed nothing holds the ${SNAPSHOT_LINE} line and the line \`${NO_CHANGES}\` alone.`;
 
 const USAGE = `usage: node tools/risk-check.mjs <risk file> --repo <repo> --snapshot <tree id> [--base <tree id>]
-  writes a skeleton when the file is missing. Otherwise it checks the file, reruns each sweep search in the
-  repo's working tree, prints "ok: <file>" or each problem, and ends "low risk: yes|no" once every answer parses.
+  prints a skeleton to write, and writes nothing, when the file is missing. Otherwise it checks the file, reruns
+  each sweep search in the repo's working tree, prints "ok: <file>" or each problem, and ends "low risk: yes|no"
+  once every answer parses.
   With --base, the round's diff runs from --base to --snapshot, and each name shaped like a code name, such as
   PLUGIN_ROOT or installedSiblings, that its removed lines hold and its added lines do not, that a line of the
   --snapshot tree holds and that no search with that literal finds at each such line prints as an "uncovered:"
@@ -341,7 +342,7 @@ export function checkText(text, { file, snapshot, found, scopeMatches, top, roun
   const uncovered = checksNames ? uncoveredLines(roundReaders(), parsed.searches, foundOnce) : [];
 
   // Output
-  // A file with a format error or another launch's snapshot is rewritten, and only the skeleton run showed the format.
+  // A file with a format error or another launch's snapshot is rewritten, and only the run on a missing file showed the format.
   const formatHelp = errors.length ? ['', FORMAT] : [];
   const riskLine = parsed.lowRisk === null ? [] : [`low risk: ${parsed.lowRisk ? 'yes' : 'no'}`];
   return problemCount
@@ -432,10 +433,12 @@ export function run(argv) {
     }
 
     // Process and output
+    // An agent's Write tool may refuse to replace a file the agent has not read, so the skeleton is printed, not written.
     if (!existsSync(file)) {
-      mkdirSync(dirname(file), { recursive: true });
-      writeFileSync(file, skeleton(snapshot));
-      return { lines: [`wrote a skeleton to ${file}. Replace each TODO line, then run this command again.`, '', FORMAT], code: EXIT.problems };
+      return {
+        lines: [`no risk file at ${file}. Write it from the skeleton below, replacing each TODO line, then run this command again.`, '', FORMAT, '', skeleton(snapshot).trimEnd()],
+        code: EXIT.problems,
+      };
     }
     return checkText(readFileSync(file, 'utf8'), {
       file, snapshot, top, found: (search) => grepHits(top, search), scopeMatches: (pathspec) => scopeMatches(top, pathspec),
