@@ -21,12 +21,12 @@ flowchart TD
   t8(["BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file)"])
   t9(["BLOCKED (the run was launched inside a user turn, so the harness relayed that message to every agent)"])
   x1[/"throw: Invalid args JSON"/]
-  x2[/"throw: args must include at least { runId, root, planPath, blockTool, priorRounds, target:{repo} }"/]
+  x2[/"throw: args must include at least { runId, root, planPath, blockTool, launchDir, target:{repo} }"/]
   x3[/"throw: args.root is required"/]
   x4[/"throw: args.planPath is required"/]
   x5[/"throw: args.target.repo is required"/]
   x6[/"throw: Invalid numeric arg"/]
-  x7[/"throw: args.priorRounds is required"/]
+  x7[/"throw: Retired arg"/]
   x8[/"throw: Invalid severity floor"/]
   x9[/"throw: Invalid role map"/]
   x10[/"throw: Unknown role key in a role map"/]
@@ -34,9 +34,11 @@ flowchart TD
   x12[/"throw: Invalid agentTypes arg"/]
   x13[/"throw: Invalid notes arg"/]
   x14[/"throw: Invalid args.conventionFiles"/]
-  x15[/"throw: Missing args.blockTool"/]
-  x16[/"throw: args.notes.dir is inside the target repo"/]
-  x17[/"throw: Plan critic returned nothing in round ..."/]
+  x15[/"throw: Missing args.launchDir"/]
+  x16[/"throw: Invalid args.launchDir"/]
+  x17[/"throw: Missing args.blockTool"/]
+  x18[/"throw: args.notes.dir is inside the target repo"/]
+  x19[/"throw: Plan critic returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -54,13 +56,15 @@ flowchart TD
   S0 --> x14
   S0 --> x15
   S0 --> x16
+  S0 --> x17
+  S0 --> x18
   a1 --> a2
   a1 --> t1
   a1 --> t2
   a1 --> t4
   a1 --> t5
   a1 --> t9
-  a1 --> x17
+  a1 --> x19
   a2 -.->|"a fold, then a clean round · the confirm round finds gaps (×4)"| a1
   a2 --> t2
   a2 --> t3
@@ -90,23 +94,25 @@ flowchart TD
 | BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file) | the plan editor dies | derived |
 | BLOCKED (the run was launched inside a user turn, so the harness relayed that message to every agent) | the plan critic reports a user request relayed into its context | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 29) |
-| throw: args must include at least { runId, root, planPath, blockTool, priorRounds, target:{repo} } | args.runId is missing | throw (line 32) |
+| throw: args must include at least { runId, root, planPath, blockTool, launchDir, target:{repo} } | args.runId is missing | throw (line 32) |
 | throw: args.root is required | args.root is missing | throw (line 37) |
 | throw: args.planPath is required | args.planPath is missing | throw (line 43) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 49) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 62) |
-| throw: args.priorRounds is required | args.priorRounds is missing | throw (line 71) |
-| throw: Invalid severity floor | critiqueSeverity is outside blocking \| major \| minor | throw (line 81) |
-| throw: Invalid role map | models is an array in place of an object | throw (line 99) |
-| throw: Unknown role key in a role map | models carries a key outside critic \| editor | throw (line 104) |
-| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 107) |
-| throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside critic \| editor, or maps one to a blank name | throw (line 121) |
-| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 138) |
-| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 156) |
-| throw: Missing args.blockTool | blockTool is missing or blank | throw (line 173) |
-| throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 201) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 489) |
+| throw: Retired arg | args.priorRounds is set | throw (line 74) |
+| throw: Invalid severity floor | critiqueSeverity is outside blocking \| major \| minor | throw (line 83) |
+| throw: Invalid role map | models is an array in place of an object | throw (line 101) |
+| throw: Unknown role key in a role map | models carries a key outside critic \| editor | throw (line 106) |
+| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 109) |
+| throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside critic \| editor, or maps one to a blank name | throw (line 123) |
+| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 140) |
+| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 158) |
+| throw: Missing args.launchDir | args.launchDir is missing or blank | throw (line 177) |
+| throw: Invalid args.launchDir | args.launchDir is not a launch-&lt;n&gt; folder directly inside the stateDir | throw (line 193) |
+| throw: Missing args.blockTool | blockTool is missing or blank | throw (line 202) |
+| throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 232) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 526) |
 
 ## Coverage
 
-30 scenarios · 2/2 roles · 17/17 throw sites · 9/9 halt statuses · 26 terminal states.
+32 scenarios · 2/2 roles · 19/19 throw sites · 9/9 halt statuses · 28 terminal states.

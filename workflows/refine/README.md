@@ -9,8 +9,9 @@ never writes code.
 ## How it works
 
 Two agents take turns for up to `maxRounds` critic rounds. The last round is a confirm round. Its critic
-runs and no editor follows, so a run that spends its budget ends on a critic. Each run numbers its
-rounds after the last run's, so every critique file is kept.
+runs and no editor follows, so a run that spends its budget ends on a critic. Each run writes its
+critique files to its own launch folder, so every critique file is kept. The launch folder also holds a
+copy of the plan as it was before the run.
 
 1. A **critic** reads the repo and judges each `todo` block. It writes every gap it finds, with file and
    line evidence, to a critique file for that round. A round that finds nothing writes `No gaps.` to
@@ -46,8 +47,9 @@ A plan review that keeps adding detail never ends. Four rules make this one fini
 - `needs-answers` means the critic or the editor raised something only you can decide, such as a block
   order. Read `NEEDS-USER.md`, change the plan, and run refine again. When you keep the plan text, add
   your ruling to `DISMISSED-PLAN.md` as a `USER-RULED:` line instead. `NEEDS-USER.md` keeps the entries
-  of earlier runs, so the newest entries are at its end. Each entry opens with its round and the agent
-  that wrote it, such as `## r2 critic`, and `nextStep` names the round of the new entries.
+  of earlier runs, so the newest entries are at its end. Each entry opens with its launch, its round and
+  the agent that wrote it, such as `## launch 3 r2 critic`, and `nextStep` names the launch and round of
+  the new entries.
 - `dismissal-contested` means the critic contested a gap the editor had declined, and the editor passed
   it to you. Read the newest entries at the end of `NEEDS-USER.md`. Fold the gap into the plan, or add
   your ruling to `DISMISSED-PLAN.md` as a `USER-RULED:` line, which no later critic contests. Then run

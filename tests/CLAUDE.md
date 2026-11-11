@@ -109,7 +109,9 @@ without can report success having written nothing. Make the set consistent.
 the paths the earlier launch used, and the Write tool refuses to overwrite a file the agent has not
 read. An agent that ignores the refusal still returns `wrote_file: true`, and the next stage's agent
 reads the earlier launch's text as the new round's. Every engine holds `REPLACE_NOTE` and
-`WROTE_NOTE` once. `REPLACE_NOTE` sits at each site that replaces a file in full, apart from develop's risk
+`WROTE_NOTE` once. refine writes its records in a launch folder that no other launch writes, so its
+`REPLACE_NOTE` names a file an interrupted attempt of the same launch left, and its test passes that note
+to `pinWriteNotes`. `REPLACE_NOTE` sits at each site that replaces a file in full, apart from develop's risk
 file, whose read step says `risk-check.mjs` leaves an existing file in place, since the tool writes none.
 `WROTE_NOTE` sits once in each prompt whose return attests a file the agent writes with the Write tool.
 One return falls outside that rule and carries no `WROTE_NOTE`: docs' `files_cleaned`, an in-place Edit count.
@@ -200,7 +202,8 @@ against (halt); an unreachable feature does not (flag).
   from develop's, so change all seven together. `convention-files-copies.test.mjs` fails when refine's
   or develop's `conventionFilesOf` differs from audit's, so change all three together. `develop.test.mjs`
   fails when develop's `WRITER_TITLE` or its own copy differs from `tools/plan-edit.mjs`'s, so change all
-  three together.
+  three together. `launch-dir-copies.test.mjs` fails when an engine's `launchDirOf` differs from refine's,
+  so change every copy together.
   `notes.test.mjs` fails when an engine's exit-survey instruction differs from the test's copy, or when an
   engine calls `agent(` anywhere but inside its `callAgent`, so route every new call site through
   `callAgent` and change all seven instructions together. `relay-guard.test.mjs` fails when an engine's

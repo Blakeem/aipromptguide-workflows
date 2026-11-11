@@ -21,7 +21,7 @@ Use these paths wherever the guide says "this checkout" or "the tool's own direc
 - `root` arg: `${CLAUDE_PLUGIN_DATA}`. Refine state lands in its `runs/<runId>-refine/`, plan files in
   its `plans/<runId>/`. Never the plugin install dir, which is version-swapped on update.
 - `blockTool` arg (the editor's re-validation command): `${CLAUDE_PLUGIN_ROOT}/tools/plan-block.mjs`
-
-Pass the `priorRounds` arg too, with the value the guide's §0 step 1 chooses.
+- Launch tool (operator-side, the reserve command of the guide's §0 step 5):
+  `${CLAUDE_PLUGIN_ROOT}/tools/launch.mjs`
 
 $ARGUMENTS

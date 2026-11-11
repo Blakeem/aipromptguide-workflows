@@ -58,7 +58,7 @@ const DEVELOP_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, ga
 // whole subject of the run: there is no inline plan and no default, and an omitted one would spawn a
 // critic against nothing and report a clean round for a plan it never saw.
 const REFINE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, planPath: 'plans/bus.md', blockTool: 'E:/r/tools/plan-block.mjs',
-  priorRounds: 0 };
+  launchDir: 'E:/r/runs/t-refine/launch-1' };
 const REVIEW_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units: [UNIT] };
 const ENHANCE_ARGS = { kind: 'enhancements', runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   scope: ['workflows/'], lenses: ['efficiency', 'simplification'] };
@@ -94,7 +94,7 @@ const SWEEP = [
     baseArgs: REFINE_ARGS,
     respond: {},
     // No gates row: refine stages nothing and runs no build, so it never reads args.gates.
-    required: ['runId', 'root', 'planPath', 'target.repo', 'blockTool', 'priorRounds'],
+    required: ['runId', 'root', 'planPath', 'target.repo', 'blockTool', 'launchDir'],
   },
   {
     // audit.mjs runs two kinds. The defects kind is the default, so its row carries no kind.

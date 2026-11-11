@@ -17,7 +17,7 @@ const ENGINE = 'workflows/refine/refine-cycle.mjs';
 
 // planPath resolves OUTSIDE the target repo, which is what keeps the plan and the critique files away
 // from develop-cycle's blind reviewer. A path inside the repo only warns, so it would prove nothing here.
-const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, planPath: 'E:/plans/bus.md', blockTool: 'E:/r/tools/plan-block.mjs', priorRounds: 0 };
+const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, planPath: 'E:/plans/bus.md', blockTool: 'E:/r/tools/plan-block.mjs', launchDir: 'E:/r/runs/t-refine/launch-1' };
 const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, respond, budget });
 
 // The same healthy returns as tools/flows/refine.flow.mjs, with the editor's `declined` pinned to 0 so
@@ -42,11 +42,15 @@ const PLAN_BROKEN   = 'BLOCKED (the folded plan file no longer parses - every la
 // Each terminal's instructions live in nextStep, never in status, so its clauses are asserted with
 // baseArgs' real paths.
 const STATE    = 'E:/r/runs/t-refine';
+const LDIR     = `${STATE}/launch-1`;
 const LIST     = `node 'E:/r/tools/plan-block.mjs' 'E:/plans/bus.md' --list`;
-// A relaunch numbers its rounds after the last round of the launch it follows.
-const relaunchAfter = (round) => `A relaunch takes the same args and runId with priorRounds: ${round}, and no resumeFromRunId, which keeps the stateDir and its ledger ${STATE}/DISMISSED-PLAN.md.`;
-const RELAUNCH = relaunchAfter(1);
-const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
+// A relaunch reserves a new launch folder, and a replay keeps its launch's folder and reserves none.
+const relaunchFrom = (launchDir) => `A relaunch takes the same args and runId with a newly reserved launchDir in place of ${launchDir}, and no resumeFromRunId, which keeps the stateDir and its ledger ${STATE}/DISMISSED-PLAN.md.`;
+const RELAUNCH = relaunchFrom(LDIR);
+const LAUNCH_PATH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
+const LAUNCH = `run node 'E:/r/tools/plan-block.mjs' 'E:/plans/bus.md' --list in the foreground, and once it exits 0, ${LAUNCH_PATH}. That pre-launch command is node 'E:/r/tools/launch.mjs' reserve '${STATE}' --keep 'E:/plans/bus.md', and launchDir is the folder it prints`;
+const REPLAY = `${LAUNCH_PATH}. A replay keeps its launchDir, so that pre-launch command is ${LIST}, which reserves no launch folder`;
+const REPLACE_NOTE = 'The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content.';
 const DEVELOP_CLAUSE = 'Then build the plan through the develop guide\'s §0, which takes the user\'s approval of E:/plans/bus.md at its step 12, once its steps 10 and 11 give the approval summary\'s values: continue at develop §0 step 9 when develop §0 step 8 started this refine run, or else work develop §0 from its step 1.';
 const handBack = (out, halted, clauses, where) => {
   eq(out.halted, halted, `${where}: halted`);
@@ -69,7 +73,7 @@ section('a clean first round converges, and is the one path that spawns no edito
   eq(out.status, CONVERGED, 'status');
   eq(out.rounds, 1, 'on round 1');
   eq(out.openGaps, 0, 'with no open gaps');
-  eq(out.lastCritique, 'E:/r/runs/t-refine/plan-critique-1.md', 'and the clean round\'s critique file is named, since every round writes one');
+  eq(out.lastCritique, 'E:/r/runs/t-refine/launch-1/plan-critique-1.md', 'and the clean round\'s critique file is named, since every round writes one');
   handBack(out, false, [
     `Audit ${STATE}/DISMISSED-PLAN.md before trusting the converge, since each declined gap is a judgment call.`,
     DEVELOP_CLAUSE,
@@ -99,10 +103,10 @@ section('an FYI-only round writes its critique file and still converges, naming 
   ok(p.includes('and count them in fyi_count'), 'the critic is told to count its FYI items');
   eq(out.status, CONVERGED, 'status');
   ok(!labels.some((l) => l.startsWith('plan-editor')), 'with no editor spawned for FYI items');
-  eq(out.lastCritique, 'E:/r/runs/t-refine/plan-critique-1.md', 'and the FYI file is named as the last critique');
+  eq(out.lastCritique, 'E:/r/runs/t-refine/launch-1/plan-critique-1.md', 'and the FYI file is named as the last critique');
   eq(out.belowFloor, 2, 'and the return carries the FYI count, so the operator knows that file holds findings');
   handBack(out, false, [
-    `Show the user the FYI section of ${STATE}/plan-critique-1.md with the plan, since no editor folded its 2 item(s).`,
+    `Show the user the FYI section of ${LDIR}/plan-critique-1.md with the plan, since no editor folded its 2 item(s).`,
     'The user can add an item to a block before approving.',
     DEVELOP_CLAUSE,
   ], 'converged with FYI items');
@@ -137,7 +141,7 @@ section('the critic writes the FYI section only in a round with no gap and no qu
     'Outside the plan holds defects no plan text holds, in a file the critic read for the plan, each with its file and line, at every floor, and the critic never searches further');
   ok(!p.includes('A gap never invites the editor to fold an FYI item.') && !p.includes('then the FYI section, then a QUESTIONS section'),
     'the critique file layout puts no FYI section beside the gaps the editor reads');
-  ok(p.includes('You write only your critique file E:/r/runs/t-refine/plan-critique-1.md, E:/r/runs/t-refine/NEEDS-USER.md, and a probe\'s files'),
+  ok(p.includes('You write only your critique file E:/r/runs/t-refine/launch-1/plan-critique-1.md, E:/r/runs/t-refine/NEEDS-USER.md, and a probe\'s files'),
     'the opening write list names the critique file by its path');
 }
 
@@ -235,7 +239,7 @@ section('the critic judges only whether the plan\'s text is correct, and a lean 
     'the critic bar calls a clause that makes a stated requirement sentence true a correction and a new obligation an addition, as the editor guard does');
   ok(p.includes('A command, flag, or library, tool or API behavior the block prescribes counts too. Confirm each one the repo does not already use the same way, against the dependency\'s own docs or source, or a probe in a temporary directory outside the repo and the state dir. A confirmed prescription needs no source cited in the plan.'),
     'a prescribed command or dependency behavior is confirmed against its docs, source or a probe');
-  ok(p.includes('You write only your critique file E:/r/runs/t-refine/plan-critique-1.md, E:/r/runs/t-refine/NEEDS-USER.md, and a probe\'s files in a temporary directory outside the target repo and the state dir E:/r/runs/t-refine.'),
+  ok(p.includes('You write only your critique file E:/r/runs/t-refine/launch-1/plan-critique-1.md, E:/r/runs/t-refine/NEEDS-USER.md, and a probe\'s files in a temporary directory outside the target repo and the state dir E:/r/runs/t-refine.'),
     'the write list names the critique file by its path and the probe\'s temporary directory');
   ok(p.includes('Judge the plan file against the REAL repo and find plan text that is wrong.') && !p.includes('find what would BUILD WRONG'),
     'the opener looks for wrong plan text');
@@ -288,7 +292,7 @@ section('a round-2 critic is pointed at no earlier critique file, and a file-key
 {
   const { byLabel } = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK });
   const [r1, r2] = byLabel('plan-critic').map((c) => c.prompt.replace(/\s+/g, ' '));
-  ok(!r2.includes(`${STATE}/plan-critique-1.md`) && r2.includes(`${STATE}/plan-critique-2.md`),
+  ok(!r2.includes(`${LDIR}/plan-critique-1.md`) && r2.includes(`${LDIR}/plan-critique-2.md`),
     'the round-2 prompt names only its own critique file, never the round-1 file');
   ok(!r1.includes('plan-critique-0') && !r1.includes('plan-critique-2'),
     'the round-1 prompt names no other round\'s critique');
@@ -303,7 +307,7 @@ section('a gapped round then a clean one converges on round 2, with exactly one 
   eq(out.rounds, 2, 'the clean round is a second round, not a continuation of the first');
   eq(byLabel('plan-editor').length, 1, 'the editor ran once — the clean round folds nothing');
   eq(out.status, CONVERGED, 'status');
-  eq(out.lastCritique, `${STATE}/plan-critique-2.md`,
+  eq(out.lastCritique, `${LDIR}/plan-critique-2.md`,
     'and lastCritique names the clean round\'s file, since every round writes one');
 }
 
@@ -390,7 +394,7 @@ section('both roles sort plan text into requirement text and method text, and a 
   ok(critic.includes('A sentence the REQUIREMENT TEXT list does not plainly name is REQUIREMENT TEXT when, without it, a developer who reads only this block and the repo would build something the user or another block rejects, since it then carries a user decision or a choice that developer cannot see. Any other such sentence is METHOD TEXT.')
     && editor.includes('Any other such sentence is METHOD TEXT.'),
     'both roles sort a sentence the list does not name by principle #21\'s one test');
-  ok(editor.includes(`A gap in REQUIREMENT TEXT whose evidence leaves more than one correction that differ in user-visible behavior, stored data or a public contract is the user's choice, so neither fold nor decline it. Append a full self-contained entry to ${STATE}/NEEDS-USER.md that opens with the line \`## r1 editor\` and names each correction, and count it in questions.`),
+  ok(editor.includes(`A gap in REQUIREMENT TEXT whose evidence leaves more than one correction that differ in user-visible behavior, stored data or a public contract is the user's choice, so neither fold nor decline it. Append a full self-contained entry to ${STATE}/NEEDS-USER.md that opens with the line \`## launch 1 r1 editor\` and names each correction, and count it in questions.`),
     'the editor sends a requirement gap that is the user\'s choice to NEEDS-USER.md, never to the ledger');
   for (const [name, p] of [['critic', critic], ['editor', editor]]) {
     ok(!p.includes('. A clause that makes a stated sentence true is a correction'),
@@ -408,7 +412,7 @@ section('questions end the run on any round, and the editor never sees them');
   eq(out.questions, 1, 'the count is handed back');
   ok(!labels.some((l) => l.startsWith('plan-editor')), 'nothing was folded');
   handBack(out, true, [
-    `Read the QUESTIONS section of ${STATE}/plan-critique-1.md and the new entries headed "## r1 critic" at the end of ${STATE}/NEEDS-USER.md, settle the questions with the user and restructure or correct E:/plans/bus.md by the answers, where new blocks take fresh kebab ids. Record an answer that keeps the plan text by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${STATE}/DISMISSED-PLAN.md. Then relaunch.`,
+    `Read the QUESTIONS section of ${LDIR}/plan-critique-1.md and the new entries headed "## launch 1 r1 critic" at the end of ${STATE}/NEEDS-USER.md, settle the questions with the user and restructure or correct E:/plans/bus.md by the answers, where new blocks take fresh kebab ids. Record an answer that keeps the plan text by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${STATE}/DISMISSED-PLAN.md. Then relaunch.`,
     RELAUNCH,
     'A replay returns the cached agents and halts the same way.',
   ], 'needs-answers');
@@ -418,12 +422,19 @@ section('questions end the run on any round, and the editor never sees them');
   const { out: later, byLabel } = await run({ 'plan-critic': firstRound(GAPS, QUESTIONS), 'plan-editor': FOLD_OK });
   eq(later.status, NEEDS_ANSWERS, 'a question raised after a fold lands on the same status');
   eq(later.rounds, 2, 'on the round that raised it');
-  ok(String(later.nextStep ?? '').includes(`the new entries headed "## r2 critic" at the end of ${STATE}/NEEDS-USER.md`),
-    'and nextStep names that round as the one whose NEEDS-USER entries are new');
+  ok(String(later.nextStep ?? '').includes(`the new entries headed "## launch 1 r2 critic" at the end of ${STATE}/NEEDS-USER.md`),
+    'and nextStep names that launch and round as the ones whose NEEDS-USER entries are new');
   const [q1, q2] = byLabel('plan-critic').map((c) => c.prompt.replace(/\s+/g, ' '));
-  ok(q1.includes(`QUESTIONS also go to ${STATE}/NEEDS-USER.md IN FULL (append, create it if needed). Each question you append there opens with the line \`## r1 critic\`.`)
-    && q2.includes('opens with the line \`## r2 critic\`.'),
-    'each round\'s critic heads its NEEDS-USER entries with its own round');
+  ok(q1.includes(`QUESTIONS also go to ${STATE}/NEEDS-USER.md IN FULL (append, create it if needed). Each question you append there opens with the line \`## launch 1 r1 critic\`.`)
+    && q2.includes('opens with the line \`## launch 1 r2 critic\`.'),
+    'each round\'s critic heads its NEEDS-USER entries with its launch and its own round');
+
+  // Rounds restart at 1 in each launch, so only the launch number keeps a later launch's heading apart.
+  const { out: second, prompt: secondPrompt } = await run({ 'plan-critic': QUESTIONS }, { ...baseArgs, launchDir: `${STATE}/launch-2` });
+  ok(secondPrompt('plan-critic').replace(/\s+/g, ' ').includes('opens with the line \`## launch 2 r1 critic\`.'),
+    'a critic of launch 2 heads its entries with launch 2');
+  ok(String(second.nextStep ?? '').includes(`the new entries headed "## launch 2 r1 critic"`),
+    'and nextStep names launch 2');
   eq(byLabel('plan-editor').length, 1, 'the round-1 fold ran; the round-2 question spawned no second editor');
 }
 
@@ -436,7 +447,7 @@ section('an editor that leaves a requirement gap to the user ends the run needs-
   eq(out.questions, 1, 'the editor\'s count is handed back');
   eq(byLabel('plan-critic').length, 1, 'and no second critic ran to report a clean round over the open question');
   handBack(out, true, [
-    `Read the new entries headed "## r1 editor" at the end of ${STATE}/NEEDS-USER.md, settle the questions with the user`,
+    `Read the new entries headed "## launch 1 r1 editor" at the end of ${STATE}/NEEDS-USER.md, settle the questions with the user`,
     RELAUNCH,
   ], 'needs-answers');
   ok(!String(out.nextStep ?? '').includes('QUESTIONS section'), 'nextStep sends the operator to no QUESTIONS section the critic left empty');
@@ -453,12 +464,12 @@ section('an editor that escalates a contested dismissal ends the run dismissal-c
 {
   const { out, byLabel, prompt } = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': { ...FOLD_OK, needs_user: true } });
   ok(prompt('plan-editor').includes('needs_user=true'), 'the editor is told which field reports the escalation');
-  ok(prompt('plan-editor').replace(/\s+/g, ' ').includes(`append a full self-contained entry to ${STATE}/NEEDS-USER.md that opens with the line \`## r1 editor\`, and set needs_user=true.`),
+  ok(prompt('plan-editor').replace(/\s+/g, ' ').includes(`append a full self-contained entry to ${STATE}/NEEDS-USER.md that opens with the line \`## launch 1 r1 editor\`, and set needs_user=true.`),
     'the editor heads its NEEDS-USER entry with its round');
   eq(out.status, CONTESTED, 'status');
   eq(out.rounds, 1, 'on the round the editor escalated');
   handBack(out, true, [
-    `Read the new entries headed "## r1 editor" at the end of ${STATE}/NEEDS-USER.md and record the user's ruling, by folding the gap into E:/plans/bus.md or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${STATE}/DISMISSED-PLAN.md. Then relaunch.`,
+    `Read the new entries headed "## launch 1 r1 editor" at the end of ${STATE}/NEEDS-USER.md and record the user's ruling, by folding the gap into E:/plans/bus.md or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${STATE}/DISMISSED-PLAN.md. Then relaunch.`,
     RELAUNCH,
   ], 'dismissal-contested');
   eq(byLabel('plan-critic').length, 1, 'and no second critic ran to report a clean round over the open question');
@@ -496,12 +507,12 @@ section('the round budget ends on a confirm round whose gaps stay open for the u
   eq(out.status, EXHAUSTED, 'status');
   eq(out.rounds, 3, 'rounds');
   eq(out.openGaps, 3, 'the confirm round\'s gaps, which no editor folded');
-  eq(out.lastCritique, 'E:/r/runs/t-refine/plan-critique-3.md',
+  eq(out.lastCritique, 'E:/r/runs/t-refine/launch-1/plan-critique-3.md',
     'and the file named is the confirm round\'s, under the -refine state dir that keeps it out of develop\'s');
   handBack(out, false, [
-    `The confirm round's critic found 3 gap(s), and no editor folded them, so they are open in E:/plans/bus.md. Show the user ${STATE}/plan-critique-3.md and relaunch only on the user's ruling.`,
+    `The confirm round's critic found 3 gap(s), and no editor folded them, so they are open in E:/plans/bus.md. Show the user ${LDIR}/plan-critique-3.md and relaunch only on the user's ruling.`,
     `The user rules each gap one of three ways: a relaunch folds it, a "<block id> - <gap gist> - USER-RULED: <reason>" line appended to ${STATE}/DISMISSED-PLAN.md declines it, or the user edits the plan.`,
-    relaunchAfter(3),
+    RELAUNCH,
   ], 'rounds-exhausted');
   ok(!String(out.nextStep ?? '').includes('raising maxRounds'), 'and with maxRounds above 1, nextStep sends the operator to no bigger budget');
 }
@@ -517,42 +528,84 @@ section('a launch with maxRounds 1 runs one critic and no editor');
     'and nextStep names the bigger budget a folding relaunch needs, since the same args run no editor');
 }
 
-section('a relaunch continues the round numbers, so it writes no earlier launch\'s critique file');
+section('a relaunch writes its critique files in its own launch folder, so it writes no earlier launch\'s file');
 {
+  const L2 = `${STATE}/launch-2`;
   const { out, byLabel, logs } = await run({
-    'plan-critic': GAPS, 'plan-critic r6': CLEAN, 'plan-editor': FOLD_OK,
-  }, { ...baseArgs, priorRounds: 4 });
+    'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK,
+  }, { ...baseArgs, launchDir: L2 });
   const critics = byLabel('plan-critic');
-  eq(critics.map((c) => c.label).join(), 'plan-critic r5,plan-critic r6', 'the rounds are numbered 5 and 6');
-  ok(critics[0].prompt.includes(`You write only your critique file ${STATE}/plan-critique-5.md,`),
-    'the first critic writes plan-critique-5.md');
+  eq(critics.map((c) => c.label).join(), 'plan-critic r1,plan-critic r2', 'the launch counts its rounds from 1');
+  ok(critics[0].prompt.includes(`You write only your critique file ${L2}/plan-critique-1.md,`),
+    'the first critic writes plan-critique-1.md inside launch-2');
   const prompts = [...critics, ...byLabel('plan-editor')].map((c) => c.prompt);
-  ok(prompts.every((p) => !/plan-critique-[0-4]\.md/.test(p)),
-    'no prompt of the launch names a critique file numbered 4 or lower');
-  ok(String(byLabel('plan-editor')[0]?.prompt ?? '').includes(`THE GAPS TO FOLD (read it verbatim): ${STATE}/plan-critique-5.md`),
-    'the editor folds round 5\'s file');
+  const named = prompts.flatMap((p) => p.match(/\S*plan-critique-\d+\.md/g) ?? []);
+  ok(named.length > 0 && named.every((path) => path.startsWith(`${L2}/`)),
+    `every critique file a prompt of the launch names lies in launch-2: ${[...new Set(named)].join(', ')}`);
+  ok(String(byLabel('plan-editor')[0]?.prompt ?? '').includes(`THE GAPS TO FOLD (read it verbatim): ${L2}/plan-critique-1.md`),
+    'the editor folds round 1\'s file of launch-2');
   eq(out.status, CONVERGED, 'status');
-  eq(out.rounds, 2, 'rounds counts this launch\'s critic rounds, not the round number');
-  eq(out.lastCritique, `${STATE}/plan-critique-6.md`, 'and lastCritique names this launch\'s last confirmed file');
-  ok(logs.some((l) => l.includes('priorRounds=4')), 'the launch line names the priorRounds value');
+  eq(out.rounds, 2, 'rounds counts this launch\'s critic rounds');
+  eq(out.lastCritique, `${L2}/plan-critique-2.md`, 'and lastCritique names this launch\'s last confirmed file');
+  ok(logs.some((l) => l.includes(`→ ${L2}`)), 'the launch line names the launch folder');
+  ok(String(out.stateDir) === STATE, 'and the stateDir stays the folder that holds every launch');
 
-  const { out: spent, byLabel: spentBy } = await run({ 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, { ...baseArgs, priorRounds: 4, maxRounds: 2 });
-  eq(spentBy('plan-critic').map((c) => c.label).join(), 'plan-critic r5,plan-critic r6', 'a relaunch\'s budget counts its own rounds');
-  eq(spent.status, EXHAUSTED, 'and round 6 is its confirm round');
-  ok(String(spent.nextStep ?? '').includes(relaunchAfter(6)), 'and its relaunch names priorRounds 6');
+  const { out: spent } = await run({ 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, { ...baseArgs, launchDir: L2, maxRounds: 2 });
+  eq(spent.status, EXHAUSTED, 'a launch\'s budget counts its own rounds');
+  ok(String(spent.nextStep ?? '').includes(relaunchFrom(L2)), 'and its relaunch names a newly reserved launchDir in place of launch-2');
 }
 
-section('a launch without a valid priorRounds throws, naming the arg');
+section('a launch without a valid launchDir throws, naming the arg, and a launch that passes priorRounds throws');
 {
-  const { priorRounds: _, ...NO_PRIOR } = baseArgs;
-  for (const args of [NO_PRIOR, { ...baseArgs, priorRounds: null }]) {
+  const { launchDir: _, ...NO_LAUNCH } = baseArgs;
+  for (const args of [NO_LAUNCH, { ...baseArgs, launchDir: null }, { ...baseArgs, launchDir: ' ' }, { ...baseArgs, launchDir: 3 }]) {
     const msg = await throwsWith(ENGINE, { args });
-    ok(msg.startsWith('args.priorRounds is required: pass 0 on a plan\'s first launch, else the value the last launch\'s nextStep or thrown error names, or with neither at hand the highest <round> among the plan-critique-<round>.md files in the stateDir.'),
-      `a missing priorRounds throws naming the arg: ${msg.slice(0, 50)}`);
+    ok(msg.startsWith('Missing args.launchDir: pass the launchDir that the reserve command of the workflow guide\'s pre-launch step prints'),
+      `launchDir ${JSON.stringify(args.launchDir)} throws naming the arg: ${msg.slice(0, 50)}`);
   }
-  for (const bad of ['2', -1, NaN, false, [], {}]) {
-    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, priorRounds: bad } });
-    ok(/^Invalid numeric arg: args\.priorRounds/.test(msg), `priorRounds ${JSON.stringify(bad)} throws: ${msg.slice(0, 50)}`);
+  const BAD_DIRS = [
+    ['E:/r/runs/other-refine/launch-1', 'a launch folder of another stateDir'],
+    ['E:/r/runs/t-refine/launch-1/x', 'a folder below a launch folder'],
+    ['E:/r/runs/t-refine', 'the stateDir itself'],
+    ['E:/r/runs/t-refine/run-1', 'a folder not named launch-<n>'],
+    ['E:/r/runs/t-refine/launch-0', 'launch-0, since launches count from 1'],
+    ['E:/r/runs/t-refine/launch-01', 'a launch number with a leading zero'],
+    ['runs/t-refine/launch-1', 'a relative path'],
+  ];
+  for (const [launchDir, what] of BAD_DIRS) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, launchDir } });
+    ok(msg.startsWith(`Invalid args.launchDir: it must be a folder named launch-<n> directly inside the stateDir ${STATE}`),
+      `${what} throws: ${msg.slice(0, 70)}`);
+  }
+  // Windows folds case in a drive path, and the tool prints forward slashes whatever the caller passed.
+  for (const launchDir of ['e:\\R\\runs\\t-refine\\launch-3\\', 'E:/r/runs/t-refine/launch-3']) {
+    const { out } = await run({ 'plan-critic': CLEAN }, { ...baseArgs, launchDir });
+    ok(String(out.lastCritique).toLowerCase() === 'e:/r/runs/t-refine/launch-3/plan-critique-1.md',
+      `${launchDir} is accepted as launch-3 of the stateDir: ${out.lastCritique}`);
+  }
+  // The operator may spell the stateDir for reserve another way than the engine does.
+  const RESOLVED = [
+    ['E:/r/x/../runs/t-refine', 'E:/r/runs/t-refine/launch-2', 'a stateDir with a .. segment'],
+    ['E:/r//runs/./t-refine/', 'E:/r/runs/t-refine/launch-2', 'a stateDir with a repeated slash and a . segment'],
+    ['/srv/a/../state', '/srv/state/launch-2', 'a POSIX stateDir with a .. segment'],
+    ['E:/r/runs/t-refine', 'E:/r/runs/x/../t-refine/launch-2', 'a launchDir with a .. segment'],
+  ];
+  for (const [stateDir, launchDir, what] of RESOLVED) {
+    const { out } = await run({ 'plan-critic': CLEAN }, { ...baseArgs, stateDir, launchDir });
+    ok(out.lastCritique === `${launchDir}/plan-critique-1.md`, `${what} is accepted as launch-2 of its stateDir: ${out.lastCritique}`);
+  }
+  for (const [stateDir, launchDir, what] of [
+    ['E:/r/runs/t-refine', 'E:/r/runs/t-refine/../other-refine/launch-1', 'a launchDir whose .. leads to another stateDir'],
+    ['/srv/state', '/SRV/state/launch-1', 'a POSIX launchDir that differs in case'],
+  ]) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, stateDir, launchDir } });
+    ok(msg.startsWith('Invalid args.launchDir: it must be a folder named launch-<n> directly inside the stateDir'), `${what} throws: ${msg.slice(0, 70)}`);
+  }
+  for (const priorRounds of [0, 4, null]) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, priorRounds } });
+    ok(msg.startsWith('Retired arg: args.priorRounds is retired, since each launch counts its rounds from 1')
+      && msg.includes('args.launchDir') && msg.includes('`node <launch.mjs> reserve <stateDir> --keep <planPath>`'),
+      `priorRounds ${JSON.stringify(priorRounds)} throws, naming launchDir and the reserve command: ${msg.slice(0, 60)}`);
   }
 }
 
@@ -576,17 +629,19 @@ section('conventionFiles reach the critic and the editor, and a bad value throws
   }
 }
 
-section('a launch without blockTool throws, naming the pre-launch command that runs the tool');
+section('a launch without blockTool throws, naming the check that runs the tool');
 // An installed plugin keeps run-state (root) apart from tools/, so no path derived from root names the tool.
 {
   const { blockTool: _, ...NO_TOOL } = baseArgs;
   for (const [args, what] of [[NO_TOOL, 'a missing path'], [{ ...baseArgs, blockTool: '' }, 'an empty path'], [{ ...baseArgs, blockTool: 7 }, 'a path that is not a string']]) {
     const msg = await throwsWith(ENGINE, { args });
-    ok(msg.startsWith('Missing args.blockTool: pass the path of the plan-block.mjs that the pre-launch command `node <plan-block.mjs> <planPath> --list` runs'),
-      `${what} throws, naming the arg and the pre-launch command: ${msg.slice(0, 70)}`);
+    ok(msg.startsWith('Missing args.blockTool: pass the path of the plan-block.mjs that the check `node <plan-block.mjs> <planPath> --list` runs before the pre-launch command'),
+      `${what} throws, naming the arg and the check: ${msg.slice(0, 70)}`);
   }
-  const { prompt } = await runEngine(ENGINE, { args: { ...baseArgs, blockTool: 'C:\\plug\\tools\\plan-block.mjs' }, respond: { 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK } });
+  const { out, prompt } = await runEngine(ENGINE, { args: { ...baseArgs, blockTool: 'C:\\plug\\tools\\plan-block.mjs' }, respond: { 'plan-critic': firstRound(GAPS, QUESTIONS), 'plan-editor': FOLD_OK } });
   ok(prompt('plan-editor').includes("node 'C:/plug/tools/plan-block.mjs' 'E:/plans/bus.md' --list"), 'the editor re-validates through the passed path, backslashes normalized');
+  ok(String(out.nextStep ?? '').includes("node 'C:/plug/tools/launch.mjs' reserve "),
+    'and a relaunch reserves through the launch.mjs beside it');
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -597,11 +652,12 @@ section('a dead critic throws on every round — zero gaps from an agent that di
   const r1 = await throwsWith(ENGINE, { args: baseArgs, respond: { 'plan-critic': null } });
   ok(/Plan critic returned nothing in round 1/.test(r1) && /resumeFromRunId/.test(r1),
     `round 1 throws with the resume hint: ${r1.slice(0, 50)}`);
-  ok(r1.includes(`To replay, ${LAUNCH}.`), 'and names the notification-turn launch path');
-  const resumed = await throwsWith(ENGINE, { args: { ...baseArgs, priorRounds: 4 }, respond: { 'plan-critic': null } });
-  ok(resumed.includes('Plan critic returned nothing in round 5')
-    && resumed.includes('Replay with the same args and runId, priorRounds: 4 included, plus the Workflow tool\'s resumeFromRunId, so the cached agents return and the critic of round 5 runs again.'),
-    `the replay names this launch's priorRounds value: ${resumed.slice(0, 50)}`);
+  ok(r1.includes(`To replay, ${REPLAY}.`) && !r1.includes('launch.mjs'),
+    'and names the notification-turn launch path, whose pre-launch command reserves no new folder');
+  const resumed = await throwsWith(ENGINE, { args: { ...baseArgs, launchDir: `${STATE}/launch-4` }, respond: { 'plan-critic': null } });
+  ok(resumed.includes('Plan critic returned nothing in round 1')
+    && resumed.includes(`Replay with the same args and runId, launchDir ${STATE}/launch-4 included, plus the Workflow tool's resumeFromRunId, so the cached agents return and the critic of round 1 runs again.`),
+    `the replay names this launch's launchDir: ${resumed.slice(0, 50)}`);
 
   const r2 = await throwsWith(ENGINE, {
     args: baseArgs,
@@ -620,15 +676,14 @@ section('a dead editor halts instead, because the round\'s critique file survive
   ok(out.lastCritique.endsWith('plan-critique-1.md'), 'the file a relaunch resumes the fold from is named');
   handBack(out, true, [
     `Run ${LIST} first, since the editor may have partly edited the plan.`,
-    `Then replay with the same args and runId, priorRounds: 0 included, plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${STATE}/plan-critique-1.md runs again.`,
-    `To replay, ${LAUNCH}.`,
-    'A relaunch without resumeFromRunId takes priorRounds: 1 instead and runs a critic before any fold.',
+    `Then replay with the same args and runId, launchDir ${LDIR} included, plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${LDIR}/plan-critique-1.md runs again.`,
+    `To replay, ${REPLAY}.`,
+    'A relaunch without resumeFromRunId takes a newly reserved launchDir instead and runs a critic before any fold.',
   ], 'agent-dead');
-  const { out: resumed } = await run({ 'plan-critic': GAPS, 'plan-editor': null }, { ...baseArgs, priorRounds: 4 });
+  const { out: resumed } = await run({ 'plan-critic': GAPS, 'plan-editor': null }, { ...baseArgs, launchDir: `${STATE}/launch-4` });
   handBack(resumed, true, [
-    `Then replay with the same args and runId, priorRounds: 4 included, plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${STATE}/plan-critique-5.md runs again.`,
-    'A relaunch without resumeFromRunId takes priorRounds: 5 instead and runs a critic before any fold.',
-  ], 'agent-dead after priorRounds 4');
+    `Then replay with the same args and runId, launchDir ${STATE}/launch-4 included, plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${STATE}/launch-4/plan-critique-1.md runs again.`,
+  ], 'agent-dead in launch 4');
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -646,10 +701,11 @@ section('a critic that reports findings it never wrote halts before the editor')
   eq(asked.status, NO_CRITIQUE, 'an unwritten QUESTION halts the same way, ahead of the needs-answers branch');
 }
 
-section('a relayed user request relaunches with the next round number');
+section('a relayed user request relaunches in a newly reserved launch folder');
 {
-  const { out } = await run({ 'plan-critic': { ...GAPS, relayed_request: true } }, { ...baseArgs, priorRounds: 2 });
-  ok(String(out.nextStep ?? '').includes(relaunchAfter(3)), 'the relaunch names priorRounds 3, after the critic of round 3');
+  const { out } = await run({ 'plan-critic': { ...GAPS, relayed_request: true } }, { ...baseArgs, launchDir: `${STATE}/launch-3` });
+  ok(String(out.nextStep ?? '').includes(relaunchFrom(`${STATE}/launch-3`)) && String(out.nextStep ?? '').includes(`To relaunch, ${LAUNCH}.`),
+    'the relaunch reserves a new launch folder in place of launch-3');
 }
 
 section('a critic that reports a clean round it never wrote halts instead of converging');
@@ -661,7 +717,7 @@ section('a critic that reports a clean round it never wrote halts instead of con
   eq(out.lastCritique, '', 'and no file is named');
   const { out: later } = await run({ 'plan-critic': firstRound(GAPS, { ...CLEAN, wrote_file: false }), 'plan-editor': FOLD_OK });
   eq(later.status, NO_CRITIQUE, 'an unwritten clean round after a fold halts the same way');
-  eq(later.lastCritique, `${STATE}/plan-critique-1.md`, 'and names the last file a critic confirmed writing');
+  eq(later.lastCritique, `${LDIR}/plan-critique-1.md`, 'and names the last file a critic confirmed writing');
 }
 
 section('a critic that reports FYI items it never wrote halts instead of converging');
@@ -729,7 +785,7 @@ section('run-state and plan files inside the target repo each draw their own war
 const planWarnings = (logs) => logs.filter((l) => l.includes('resolves inside the target repo'));
 const stateWarnings = (logs) => logs.filter((l) => l.includes('INSIDE the target repo'));
 {
-  const { logs } = await run({ 'plan-critic': CLEAN }, { ...baseArgs, stateDir: 'E:/repo/runs/t-refine' });
+  const { logs } = await run({ 'plan-critic': CLEAN }, { ...baseArgs, stateDir: 'E:/repo/runs/t-refine', launchDir: 'E:/repo/runs/t-refine/launch-1' });
   eq(stateWarnings(logs).length, 1, 'run-state inside the repo warns once');
   eq(planWarnings(logs).length, 0, 'and does not also fire the plan guard');
 }
@@ -755,7 +811,7 @@ const stateWarnings = (logs) => logs.filter((l) => l.includes('INSIDE the target
     ['E:/repo', 'E:/repo-state/t', 0, 'a folder beside the repo whose name extends the repo\'s'],
   ];
   for (const [repo, path, warns, what] of CASES) {
-    const { logs } = await run({ 'plan-critic': CLEAN }, { ...baseArgs, target: { repo }, stateDir: path, planPath: `${path}/bus.md` });
+    const { logs } = await run({ 'plan-critic': CLEAN }, { ...baseArgs, target: { repo }, stateDir: path, launchDir: `${path.replace(/[\\/]+$/, '')}/launch-1`, planPath: `${path}/bus.md` });
     eq(stateWarnings(logs).length, warns, `run-state: ${what} warns ${warns} time(s)`);
     eq(planWarnings(logs).length, warns, `plan file: ${what} warns ${warns} time(s)`);
   }
@@ -774,7 +830,9 @@ section('a payload the loop cannot trust throws instead of running a round');
     ['planPath', { ...baseArgs, planPath: undefined }],
     ['target.repo', { ...baseArgs, target: {} }],
     ['critiqueSeverity', { ...baseArgs, critiqueSeverity: 'nit' }],
-    ['priorRounds', { ...baseArgs, priorRounds: undefined }],
+    ['launchDir', { ...baseArgs, launchDir: undefined }],
+    ['launchDir outside the stateDir', { ...baseArgs, launchDir: 'E:/r/runs/t/launch-1' }],
+    ['priorRounds', { ...baseArgs, priorRounds: 0 }],
   ];
   for (const [name, args] of BAD) {
     const { terminal, calls } = await runTrace(ENGINE, { args, respond: { 'plan-critic': CLEAN } });
@@ -788,14 +846,15 @@ await pinRoleMaps({
   runs: [{ args: { ...baseArgs, maxRounds: 2 }, respond: { 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, labels: { critic: 'plan-critic', editor: 'plan-editor' } }],
 });
 
-// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite one the agent has not read.
-section("every prompt that writes a file says to Read an earlier launch's file first, and a rejected write is not a write");
+// A replay meets the files its interrupted attempt left in the launch folder, and the Write tool refuses to overwrite one the agent has not read.
+section('every prompt that writes a file says to Read a file an interrupted attempt left first, and a rejected write is not a write');
 {
   const { prompt } = await run({ 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, { ...baseArgs, maxRounds: 2 });
   const sites = [
     ["the critic's critique file", prompt('plan-critic'), 1, 1],
     ["the editor's plan edits", prompt('plan-editor'), 0, 1],
   ];
-  pinWriteNotes(sites);
+  pinWriteNotes(sites, REPLACE_NOTE);
   pinFileWriteNote(sites);
+  ok(!prompt('plan-critic').includes("earlier launch's text"), 'and no prompt says a file may hold an earlier launch\'s text');
 }

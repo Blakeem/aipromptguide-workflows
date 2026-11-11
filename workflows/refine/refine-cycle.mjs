@@ -1,6 +1,6 @@
 export const meta = {
   name: 'refine-cycle',
-  description: 'Converging plan review, file-bus design: a read-only CRITIC judges every todo block of ONE plan file against the REAL repo under a fixed DEFECT BAR (it judges only whether the plan\'s text is correct, and what the plan does not say is never a gap - improvements, alternatives and style are excluded unconditionally), grades each gap against a severity FLOOR, names whether each gap is in requirement text or method text, and writes its findings verbatim to plan-critique-<round>.md; a minimal-fold EDITOR then checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it (a gap in method text closes by removing text, never by a corrected method, and a gap in requirement text is corrected in place) and changes NOTHING a gap does not name, declining to DISMISSED-PLAN.md and re-validating the file through the plan-block tool. The loop ends on ONE clean round. maxRounds counts one launch\'s critic rounds, and its last is a confirm round that no editor follows, so a launch that spends its budget ends on a critic. Round numbers continue across the launches of one stateDir through the required priorRounds arg, so no launch overwrites an earlier critique file. The harness routes only counts, paths and an explicit halt kind.',
+  description: 'Converging plan review, file-bus design: a read-only CRITIC judges every todo block of ONE plan file against the REAL repo under a fixed DEFECT BAR (it judges only whether the plan\'s text is correct, and what the plan does not say is never a gap - improvements, alternatives and style are excluded unconditionally), grades each gap against a severity FLOOR, names whether each gap is in requirement text or method text, and writes its findings verbatim to plan-critique-<round>.md; a minimal-fold EDITOR then checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it (a gap in method text closes by removing text, never by a corrected method, and a gap in requirement text is corrected in place) and changes NOTHING a gap does not name, declining to DISMISSED-PLAN.md and re-validating the file through the plan-block tool. The loop ends on ONE clean round. maxRounds counts one launch\'s critic rounds, and its last is a confirm round that no editor follows, so a launch that spends its budget ends on a critic. Each launch counts its rounds from 1 and writes its critique files in its own launch folder, the required launchDir arg that tools/launch.mjs reserves in the stateDir, so no launch overwrites an earlier critique file. The harness routes only counts, paths and an explicit halt kind.',
   whenToUse: 'Converge a plan file BEFORE develop-cycle builds from it: the plan is authored, and you want its gaps closed until a critic finds none. It is built to converge: a refine loop without its defect bar, floor, dismissal ledger and minimal-fold editor, run five times on one plan, keeps adding code and detail and never stops. Questions (a dependency-ordering error whose fix splits, merges, adds or reorders blocks, a gap in a closed block, which is a block with any status but todo, a defect in a file key at or above the floor, or a gap in requirement text at or above the floor whose corrections differ in user-visible behavior, stored data or a public contract) END the run needs-answers for the operator to settle with the user, because none of them is the editor\'s to fold. Nothing here builds, stages or commits.',
   phases: [
     { title: 'Critique', detail: 'A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-<round>.md every round (gaps with file:line evidence and the kind of text each is in, questions, and an FYI section only in a round with no gaps and no questions, or "No gaps." in a round with nothing) and returns counts plus a wrote_file attestation and a relayed_request flag, nothing else.' },
@@ -29,7 +29,7 @@ try {
   throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
 }
 if (!A || !A.runId) {
-  throw new Error('args must include at least { runId, root, planPath, blockTool, priorRounds, target:{repo} }; got typeof=' + (typeof args));
+  throw new Error('args must include at least { runId, root, planPath, blockTool, launchDir, target:{repo} }; got typeof=' + (typeof args));
 }
 // `root` is REQUIRED setup the main agent supplies (#4 - no in-engine "find my cwd" agent). It is the
 // absolute path the run-state dir hangs off, normally the workflow tool's own directory.
@@ -59,19 +59,21 @@ const CONVENTIONS = A.conventions ?? '(none supplied - infer from the surroundin
 const num = (v, name, min, dflt, max = 1_000_000) => {
   if (v === undefined || v === null) return dflt;
   if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) {
-    throw new Error(`Invalid numeric arg: args.${name} must be a number between ${min} and ${max}; got ${JSON.stringify(v)}. It is not coerced - an arg that absorbs garbage runs zero rounds, or misnumbers the rounds and can overwrite an earlier launch's critique files, and the run reports either as an ordinary exit.`);
+    throw new Error(`Invalid numeric arg: args.${name} must be a number between ${min} and ${max}; got ${JSON.stringify(v)}. It is not coerced - an arg that absorbs garbage runs zero rounds, and the run reports that as an ordinary exit.`);
   }
   return Math.floor(v);
 };
 const MAX_ROUNDS  = num(A.maxRounds, 'maxRounds', 1, 4, 50);    // this launch's critic rounds, the last a confirm round no editor follows
 
-// A relaunch continues the round numbers that name the critique files. The engine reads no files, so the
-// operator passes the count, and a default would let a forgotten one overwrite an earlier launch's critiques.
-if (A.priorRounds == null) {
-  throw new Error('args.priorRounds is required: pass 0 on a plan\'s first launch, else the value the last launch\'s nextStep or thrown error names, or with neither at hand the highest <round> among the plan-critique-<round>.md files in the stateDir.');
+// Retired args throw, never ignored: an old payload would otherwise run a launch its operator never chose.
+const RETIRED_ARGS = {
+  priorRounds: 'each launch counts its rounds from 1 and writes its critique files in its own launch folder, so pass args.launchDir, the folder that `node <launch.mjs> reserve <stateDir> --keep <planPath>` prints',
+};
+for (const [name, replacement] of Object.entries(RETIRED_ARGS)) {
+  if (A[name] !== undefined) {
+    throw new Error(`Retired arg: args.${name} is retired, since ${replacement}. Drop it and relaunch. Got ${name} ${JSON.stringify(A[name])}.`);
+  }
 }
-const PRIOR_ROUNDS = num(A.priorRounds, 'priorRounds', 0, 0);
-const LAST_ROUND   = PRIOR_ROUNDS + MAX_ROUNDS;
 
 // THE SEVERITY FLOOR - which grades COUNT as gaps. Below-floor findings are written only in the converged
 // round (an FYI section of the critique file) and are excluded from gap_count, so they neither drive a fold
@@ -167,16 +169,45 @@ const REFERENCE_P = REFERENCE ? abs(REFERENCE) : '';
 // placement and nothing else (#3). args.stateDir still overrides: an operator who merges them is choosing
 // that, rather than inheriting it from a shared runId.
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}-refine`);
+// Copy of the launch folder check each engine with a launch folder holds, since an engine cannot import: a test pins the copies equal.
+// A launch writes its records only in the folder `tools/launch.mjs reserve` made for it, so no launch writes
+// where another did. Static lead clauses: gen-flows labels each throw node from them.
+const launchDirOf = (value, stateDir) => {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new Error(`Missing args.launchDir: pass the launchDir that the reserve command of the workflow guide's pre-launch step prints, a newly reserved one for every launch but a replay, which passes the replayed launch's own with resumeFromRunId. Got ${JSON.stringify(value)}.`);
+  }
+  const dir = value.trim().replace(/\\/g, '/').replace(/\/+$/, '');
+  // reserve may get another spelling of the stateDir, so both sides drop `.`, `..` and repeated slashes. Windows folds case in a drive or UNC path.
+  const key = (p) => {
+    const lead = /^(?:[a-zA-Z]:\/|\/\/|\/)?/.exec(p)[0];
+    const segments = [];
+    for (const segment of p.slice(lead.length).split('/')) {
+      if (segment === '..') segments.pop();
+      else if (segment && segment !== '.') segments.push(segment);
+    }
+    const path = `${lead}${segments.join('/')}`;
+    return lead.length > 1 ? path.toLowerCase() : path;
+  };
+  const cut = dir.lastIndexOf('/');
+  if (cut < 0 || key(dir.slice(0, cut)) !== key(stateDir) || !/^launch-[1-9]\d*$/.test(dir.slice(cut + 1))) {
+    throw new Error(`Invalid args.launchDir: it must be a folder named launch-<n> directly inside the stateDir ${stateDir}, as \`node <launch.mjs> reserve <stateDir>\` prints it. Got ${JSON.stringify(value)}.`);
+  }
+  return dir;
+};
+const LAUNCH_DIR  = launchDirOf(A.launchDir, STATE_DIR);
+const LAUNCH_N    = Number(LAUNCH_DIR.slice(LAUNCH_DIR.lastIndexOf('-') + 1));   // names the launch beside each round in NEEDS-USER.md
 // An INSTALLED plugin keeps run-state (ROOT) in its data dir and tools/ in its versioned cache, so no path
 // derived from ROOT names the tool. The editor re-validates through it, and the parse-halt log line and nextStep name it.
 if (typeof A.blockTool !== 'string' || !A.blockTool.trim()) {
-  throw new Error(`Missing args.blockTool: pass the path of the plan-block.mjs that the pre-launch command \`node <plan-block.mjs> <planPath> --list\` runs (root CLAUDE.md, "Launch from a notification turn"). Got ${JSON.stringify(A.blockTool)}.`);
+  throw new Error(`Missing args.blockTool: pass the path of the plan-block.mjs that the check \`node <plan-block.mjs> <planPath> --list\` runs before the pre-launch command (refine guide §0 step 5). Got ${JSON.stringify(A.blockTool)}.`);
 }
 const BLOCK_TOOL  = abs(A.blockTool);
+// launch.mjs sits beside plan-block.mjs in tools/, in a checkout and in an installed plugin alike.
+const LAUNCH_TOOL = `${BLOCK_TOOL.slice(0, BLOCK_TOOL.lastIndexOf('/'))}/launch.mjs`;
 
-const critiqueFile = (r) => `${STATE_DIR}/plan-critique-${r}.md`;   // one per round, the critic's full findings
-const DISMISSED    = `${STATE_DIR}/DISMISSED-PLAN.md`;              // the editor's declined gaps, one line each
-const NEEDS_USER   = `${STATE_DIR}/NEEDS-USER.md`;                  // questions in full; ends the run needs-answers
+const critiqueFile = (r) => `${LAUNCH_DIR}/plan-critique-${r}.md`;  // one per round of this launch, the critic's full findings
+const DISMISSED    = `${STATE_DIR}/DISMISSED-PLAN.md`;              // the editor's declined gaps, one line each, kept across launches
+const NEEDS_USER   = `${STATE_DIR}/NEEDS-USER.md`;                  // questions in full, kept across launches; ends the run needs-answers
 
 // Windows folds case in a drive or UNC path, so E:/Repo/x lies inside e:/repo there.
 // A POSIX path keeps its case, so a macOS spelling in another case draws no warning.
@@ -242,14 +273,19 @@ ${CONVENTION_FILES.length ? `CONVENTION FILES (the target's own rules, which the
 ${CONVENTION_FILES.map((p) => `  - ${p}`).join('\n')}
 ` : ''}${REFERENCE_P ? `REFERENCE - a completed example the plan should mirror: ${REFERENCE_P}\n` : ''}`;
 
-// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite
-// a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
-const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
+// A replay meets the files its interrupted attempt left in the launch folder, and the Write tool refuses to
+// overwrite a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
+const REPLACE_NOTE = 'The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content.';
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 // Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
 // A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
-const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
+// A relaunch reserves a new launch folder. A replay keeps its launch's folder, so its pre-launch command reserves none.
+// A relaunch parses the plan first, as guide §0 step 5 does, so a plan that fails the parse costs no agent.
+const LIST_CMD = `node '${BLOCK_TOOL}' '${PLAN_PATH}' --list`;
+const LAUNCH_PATH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
+const LAUNCH = `run ${LIST_CMD} in the foreground, and once it exits 0, ${LAUNCH_PATH}. That pre-launch command is node '${LAUNCH_TOOL}' reserve '${STATE_DIR}' --keep '${PLAN_PATH}', and launchDir is the folder it prints`;
+const REPLAY = `${LAUNCH_PATH}. A replay keeps its launchDir, so that pre-launch command is ${LIST_CMD}, which reserves no launch folder`;
 // A run launched from another project loads no guide, so each role's prompt carries principles #21's two kinds.
 const TEXT_KINDS = `THE TWO KINDS OF PLAN TEXT. A plan block states the end goal, the requirements and the user's
 decisions, and leaves the method to the developer. Every plan sentence is one of two kinds:
@@ -282,7 +318,7 @@ PROCEDURE:
 2. Read the plan file and grep the repo, judging each todo block by THE DEFECT BAR, THE TWO KINDS OF PLAN
    TEXT, BLOCK METADATA, the SCOPE RULES and THE SEVERITY FLOOR below. Output: each gap and question,
    with its evidence.
-3. WRITE ${critiqueFile(round)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Put EVERYTHING there VERBATIM, since it
+3. WRITE ${critiqueFile(round)} (create ${LAUNCH_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE} Put EVERYTHING there VERBATIM, since it
    is your ONLY channel to the editor: a numbered GAPS section, then a QUESTIONS section, or in the
    converged round only what step 5 names. Per gap: the block id, which of the four classes it is, which
    kind of text it is in (REQUIREMENT TEXT or METHOD TEXT), its grade, its evidence with the plan line
@@ -292,7 +328,8 @@ PROCEDURE:
    still names no alternatives. It names every plan line the change makes stale.
    Write the file EVERY round and return wrote_file=true. Output: the file, and wrote_file=true.
 4. (when you have a question) QUESTIONS also go to ${NEEDS_USER} IN FULL (append, create it if needed).
-   Each question you append there opens with the line \`## r${round} critic\`. Output: the appended entry.
+   Each question you append there opens with the line \`## launch ${LAUNCH_N} r${round} critic\`. Output: the
+   appended entry.
 5. (in the converged round the FYI rules below define) The file step 3 writes holds the FYI section. A
    round with FYI items and no gaps or questions writes the file with its FYI section, returns gap_count
    and question_count 0 and fyi_count set, and still converges. A round with nothing at all writes the
@@ -402,7 +439,7 @@ const editorPrompt = (round, critiquePath) => `
 You are the PLAN EDITOR. Fold this round's gaps into the plan file.
 ${ENV}
 THE GAPS TO FOLD (read it verbatim): ${critiquePath}
-This is round ${round} of at most ${LAST_ROUND}.
+This is round ${round} of at most ${MAX_ROUNDS}.
 
 THE ONE GUARD THAT MATTERS: you may change ONLY what a numbered gap NAMES. Not a wording improvement,
 not an extra step you think a block needs, and not a criterion you would have phrased differently.
@@ -431,8 +468,8 @@ PROCEDURE:
    closes it, or when its only closing edit adds METHOD TEXT. Its reason names which.
    A gap in REQUIREMENT TEXT whose evidence leaves more than one correction that differ in user-visible
    behavior, stored data or a public contract is the user's choice, so neither fold nor decline it.
-   Append a full self-contained entry to ${NEEDS_USER} that opens with the line \`## r${round} editor\`
-   and names each correction, and count it in questions.
+   Append a full self-contained entry to ${NEEDS_USER} that opens with the line
+   \`## launch ${LAUNCH_N} r${round} editor\` and names each correction, and count it in questions.
    A gap prefixed "CONTESTS DISMISSAL:" is never declined here and goes to ${NEEDS_USER} under the
    contested-dismissal step.
 2. For each numbered gap, make the smallest edit to ${PLAN_PATH} that closes it - usually one line, one
@@ -444,9 +481,9 @@ PROCEDURE:
    The critic skips the item next round for your stated reason, so a vague reason buys the same gap again.
 4. A gap prefixed "CONTESTS DISMISSAL:" may NOT be declined a second time. FOLD it, or - if it is
    genuinely a call only the user can make - append a full self-contained entry to ${NEEDS_USER} that
-   opens with the line \`## r${round} editor\`, and set needs_user=true.
+   opens with the line \`## launch ${LAUNCH_N} r${round} editor\`, and set needs_user=true.
 5. MANDATORY FINAL STEP, after every edit is written: run
-     node '${BLOCK_TOOL}' '${PLAN_PATH}' --list
+     ${LIST_CMD}
    and report plan_parses = (it exited 0). The plan-bus grammar is strict: a folded \`key: value\` line
    landing at the top of a block BODY joins the preamble run and throws as an unrecognized key. Non-zero
    exit: FIX the file and re-run until it exits 0. Report plan_parses=false only if you could not.
@@ -455,15 +492,15 @@ ${WROTE_NOTE} ${FILE_WRITE_NOTE}
 Return via the schema.`;
 
 // =============================================================================
-// THE LOOP - [critique -> (fold, when there are gaps and no questions)] x maxRounds, numbered from
-// priorRounds + 1. It STARTS with the critic: the editor only ever folds what a round produced, the last
+// THE LOOP - [critique -> (fold, when there are gaps and no questions)] x maxRounds, numbered from 1 in
+// each launch. It STARTS with the critic: the editor only ever folds what a round produced, the last
 // round is a confirm round that no editor follows, so a launch that spends its budget ends on a critic, and
 // the run only ends clean when a critic that ran found nothing. haltKind is set at EVERY terminal site and
 // mapped once below; nothing sniffs prose (tests/CLAUDE.md §3).
 // =============================================================================
-log(`refine: converging ${PLAN_PATH} against ${REPO} [floor=${SEVERITY}, maxRounds=${MAX_ROUNDS}, priorRounds=${PRIOR_ROUNDS}] → ${STATE_DIR}`);
+log(`refine: converging ${PLAN_PATH} against ${REPO} [floor=${SEVERITY}, maxRounds=${MAX_ROUNDS}] → ${LAUNCH_DIR}`);
 
-let round = PRIOR_ROUNDS;
+let round = 0;
 let haltKind = 'rounds';        // the default terminal state: the confirm round found gaps
 let haltReason = '';            // stays empty on converged and rounds-exhausted, which are not halts
 let openGaps = 0;               // the LAST round's at-or-above-floor gap count
@@ -473,7 +510,7 @@ let belowFloor = 0;             // the LAST round's FYI count
 let dismissedCount = 0;         // gaps the editor declined across the whole run
 let lastCritique = '';          // the last critique file this launch's critic CONFIRMED writing - never one nothing wrote
 
-while (round < LAST_ROUND) {
+while (round < MAX_ROUNDS) {
   round++;
 
   // ---- CRITIQUE (read-only, non-blind) ---------------------------------------
@@ -486,7 +523,7 @@ while (round < LAST_ROUND) {
   // fires on a NULL return specifically - never on a missing count - because an agent that returns an
   // empty object still ran, and the required-args baseline contract feeds every engine exactly that and
   // expects a return, not a throw (decide-cycle's guard is the pattern).
-  if (!crit) throw new Error(`Plan critic returned nothing in round ${round} (agent skipped or died) - that is NOT a clean plan. Replay with the same args and runId, priorRounds: ${PRIOR_ROUNDS} included, plus the Workflow tool's resumeFromRunId, so the cached agents return and the critic of round ${round} runs again. To replay, ${LAUNCH}.`);
+  if (!crit) throw new Error(`Plan critic returned nothing in round ${round} (agent skipped or died) - that is NOT a clean plan. Replay with the same args and runId, launchDir ${LAUNCH_DIR} included, plus the Workflow tool's resumeFromRunId, so the cached agents return and the critic of round ${round} runs again. To replay, ${REPLAY}.`);
   // A run launched inside a user turn relays that message to every agent, so the critic stops it before any editor.
   if (crit.relayed_request === true) {
     haltKind = 'relayed-request';
@@ -529,7 +566,7 @@ while (round < LAST_ROUND) {
   }
   // The confirm round's gaps stay open in the plan for the user to rule on, since a fold after it would
   // end the launch on text no critic read.
-  if (round >= LAST_ROUND) {
+  if (round >= MAX_ROUNDS) {
     log(`  ⚠ r${round}: the confirm round found ${openGaps} gap(s), left open in ${PLAN_PATH} (see ${lastCritique})`);
     break;                       // haltKind stays 'rounds'
   }
@@ -567,7 +604,7 @@ while (round < LAST_ROUND) {
   if (fold.plan_parses !== true) {
     haltKind = 'plan-broken';
     haltReason = `The editor did not confirm ${PLAN_PATH} still parses after the round ${round} fold.`;
-    log(`  ✋ r${round}: editor did not confirm ${PLAN_PATH} still parses (node '${BLOCK_TOOL}' '${PLAN_PATH}' --list must exit 0) - halting before another agent builds from it`);
+    log(`  ✋ r${round}: editor did not confirm ${PLAN_PATH} still parses (${LIST_CMD} must exit 0) - halting before another agent builds from it`);
     break;
   }
   // A contested dismissal the editor escalated is a user-only call. Another round would find the original
@@ -608,14 +645,12 @@ const HALT_STATUS = {
 // terminal state is precisely the collapse this table exists to prevent.
 const status = HALT_STATUS[haltKind] || `halted (unmapped terminal state "${haltKind}" - engine bug)`;
 const halted = haltKind !== 'converged' && haltKind !== 'rounds';
-const launchRounds = round - PRIOR_ROUNDS;
-log(`refine: ${status} after ${launchRounds} round(s), through round ${round} - ${openGaps} open gap(s), ${questions} question(s), ${dismissedCount} declined`);
+log(`refine: ${status} after ${round} round(s) in ${LAUNCH_DIR} - ${openGaps} open gap(s), ${questions} question(s), ${dismissedCount} declined`);
 
 // Every terminal but agent-dead relaunches, since a replay would return the same cached agents and halt the
 // same way. agent-dead replays because its editor never returned, so only the fold runs again.
-// A relaunch numbers its rounds after this launch's last, whose critic may have written its file unconfirmed.
-const listCmd  = `node '${BLOCK_TOOL}' '${PLAN_PATH}' --list`;
-const relaunch = `A relaunch takes the same args and runId with priorRounds: ${round}, and no resumeFromRunId, which keeps the stateDir and its ledger ${DISMISSED}. To relaunch, ${LAUNCH}.`;
+// A relaunch writes in a new launch folder, since this launch's critic may have written a file unconfirmed.
+const relaunch = `A relaunch takes the same args and runId with a newly reserved launchDir in place of ${LAUNCH_DIR}, and no resumeFromRunId, which keeps the stateDir and its ledger ${DISMISSED}. To relaunch, ${LAUNCH}.`;
 // A launch with maxRounds 1 runs only its confirm round, so the same args would never reach an editor.
 const foldingRelaunch = MAX_ROUNDS > 1 ? 'a relaunch folds it' : 'a relaunch with maxRounds 2 or more in place of 1 folds it';
 // An editor runs only after a critic with no questions, so its questions live only in NEEDS-USER.md.
@@ -625,13 +660,13 @@ const NEXT_STEP = {
     + (belowFloor > 0 ? ` Show the user the FYI section of ${lastCritique} with the plan, since no editor folded its ${belowFloor} item(s). The user can add an item to a block before approving.` : '')
     + ` Then build the plan through the develop guide's §0, which takes the user's approval of ${PLAN_PATH} at its step 12, once its steps 10 and 11 give the approval summary's values: continue at develop §0 step 9 when develop §0 step 8 started this refine run, or else work develop §0 from its step 1.`,
   'rounds': `The confirm round's critic found ${openGaps} gap(s), and no editor folded them, so they are open in ${PLAN_PATH}. Show the user ${lastCritique} and relaunch only on the user's ruling. The user rules each gap one of three ways: ${foldingRelaunch}, a "<block id> - <gap gist> - USER-RULED: <reason>" line appended to ${DISMISSED} declines it, or the user edits the plan. ${relaunch}`,
-  'needs-answers': `Read ${critiqueQuestions}the new entries headed "## r${round} ${questionsBy}" at the end of ${NEEDS_USER}, settle the questions with the user and restructure or correct ${PLAN_PATH} by the answers, where new blocks take fresh kebab ids. Record an answer that keeps the plan text by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${DISMISSED}. Then relaunch. ${relaunch} A replay returns the cached agents and halts the same way.`,
-  'dismissal-contested': `Read the new entries headed "## r${round} editor" at the end of ${NEEDS_USER} and record the user's ruling, by folding the gap into ${PLAN_PATH} or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${DISMISSED}. Then relaunch. ${relaunch}`,
-  'agent-dead': `Run ${listCmd} first, since the editor may have partly edited the plan. Then replay with the same args and runId, priorRounds: ${PRIOR_ROUNDS} included, plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${critiqueFile(round)} runs again. To replay, ${LAUNCH}. A relaunch without resumeFromRunId takes priorRounds: ${round} instead and runs a critic before any fold.`,
+  'needs-answers': `Read ${critiqueQuestions}the new entries headed "## launch ${LAUNCH_N} r${round} ${questionsBy}" at the end of ${NEEDS_USER}, settle the questions with the user and restructure or correct ${PLAN_PATH} by the answers, where new blocks take fresh kebab ids. Record an answer that keeps the plan text by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${DISMISSED}. Then relaunch. ${relaunch} A replay returns the cached agents and halts the same way.`,
+  'dismissal-contested': `Read the new entries headed "## launch ${LAUNCH_N} r${round} editor" at the end of ${NEEDS_USER} and record the user's ruling, by folding the gap into ${PLAN_PATH} or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${DISMISSED}. Then relaunch. ${relaunch}`,
+  'agent-dead': `Run ${LIST_CMD} first, since the editor may have partly edited the plan. Then replay with the same args and runId, launchDir ${LAUNCH_DIR} included, plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${critiqueFile(round)} runs again. To replay, ${REPLAY}. A relaunch without resumeFromRunId takes a newly reserved launchDir instead and runs a critic before any fold.`,
   'critique-unwritten': `Relaunch to redo the round. ${relaunch}`,
   'fold-unattested': `Inspect ${PLAN_PATH}, then relaunch. ${relaunch}`,
   'relayed-request': relaunch,
-  'plan-broken': `Repair ${PLAN_PATH} by hand until ${listCmd} exits 0, then relaunch. ${relaunch}`,
+  'plan-broken': `Repair ${PLAN_PATH} by hand until ${LIST_CMD} exits 0, then relaunch. ${relaunch}`,
 };
 const nextStep = (halted ? `Run halted - ${haltReason} ` : '')
   + (NEXT_STEP[haltKind] ?? `No next step is mapped for terminal state "${haltKind}" - engine bug.`);
@@ -641,7 +676,7 @@ return {
   halted,
   haltReason: halted ? haltReason : '',
   runId: RUN_ID,
-  rounds: launchRounds,
+  rounds: round,
   // The LAST round's counts. On rounds-exhausted these are the confirm round's gaps, which no editor folded.
   openGaps,
   questions,

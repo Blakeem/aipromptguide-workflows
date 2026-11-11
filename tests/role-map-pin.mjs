@@ -119,11 +119,12 @@ export function pinFileWriteNote(sites) {
 /**
  * Pins the two relaunch notes in each prompt that writes a file.
  * @param {Array<[string, string, number, number]>} sites  [where, prompt text, REPLACE_NOTE count, WROTE_NOTE count]
+ * @param {string} replaceNote  the engine's Read-first note, which an engine that writes in a launch folder words for a replay
  */
-export function pinWriteNotes(sites) {
+export function pinWriteNotes(sites, replaceNote = REPLACE_NOTE) {
   const times = (text, needle) => text.split(needle).length - 1;
   for (const [where, text, replaces, wrotes] of sites) {
-    eq(times(text, REPLACE_NOTE), replaces, `${where}: the prompt carries the Read-first note at each write site`);
+    eq(times(text, replaceNote), replaces, `${where}: the prompt carries the Read-first note at each write site`);
     eq(times(text, WROTE_NOTE), wrotes, `${where}: the prompt carries the rejected-write note`);
   }
 }

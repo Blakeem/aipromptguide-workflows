@@ -53,12 +53,12 @@ the message over its task. A turn started by a background task's notification ca
 So run the workflow's pre-launch command with `run_in_background`, and call the Workflow tool in the turn
 its notification starts. A notification that arrives inside a tool result does not start a new turn, so end
 the turn after starting the pre-launch command. The pre-launch command is `plan-edit.mjs args` for develop,
-`plan-block.mjs <planPath> --list` for refine, and `git -C <target.repo> status --short` for the rest
-(`node --version` when the run has no `target.repo`). Agents receive the auto-memory index the session
-loaded at its start, so a line already loaded stays in every run of that session. A `MEMORY.md` index
-line holds settled facts and pointers, and neither it nor a topic file it points to holds the plan or goal
-of work a run is building, since every agent of the run reads that index
-(`principles/WORKFLOW-PRINCIPLES.md` #3).
+`launch.mjs reserve <stateDir> --keep <planPath>` for refine (`plan-block.mjs <planPath> --list` on a
+replay), and `git -C <target.repo> status --short` for the rest (`node --version` when the run has no
+`target.repo`). Agents receive the auto-memory index the session loaded at its start, so a line already
+loaded stays in every run of that session. A `MEMORY.md` index line holds settled facts and pointers, and
+neither it nor a topic file it points to holds the plan or goal of work a run is building, since every agent
+of the run reads that index (`principles/WORKFLOW-PRINCIPLES.md` #3).
 
 **Two paths, never the same directory:** `target.repo` = the project being worked on (the folder holding
 its `.git`); `root` = where run-state lands (`<root>/runs/<runId>/`), normally this checkout. Keeping
@@ -73,9 +73,9 @@ the session cannot already read, and an installed plugin's folder is outside eve
 skill first runs `tools/plugin-access.mjs`, which adds one Read rule for the plugin folder once the
 user agrees. The develop and debug skills run `tools/onboard.mjs` in its place, which asks for that
 access together with every other setup answer the repo is missing. Rename an engine, guide,
-`tools/plan-block.mjs`, `tools/plan-edit.mjs`, `tools/plugin-access.mjs`, `tools/onboard.mjs`,
-`tools/project-settings.mjs`, `tools/wt.mjs` or `workflows/audit/gen-units.mjs` and the matching
-`skills/<x>/SKILL.md` paths must move with it. The debug and enhance skills both launch
+`tools/plan-block.mjs`, `tools/plan-edit.mjs`, `tools/launch.mjs`, `tools/plugin-access.mjs`,
+`tools/onboard.mjs`, `tools/project-settings.mjs`, `tools/wt.mjs` or `workflows/audit/gen-units.mjs` and the
+matching `skills/<x>/SKILL.md` paths must move with it. The debug and enhance skills both launch
 `workflows/audit/audit.mjs`, each with its kind.
 
 **Want to see what a run actually does?** Each workflow ships a generated `FLOW.md` beside its engine

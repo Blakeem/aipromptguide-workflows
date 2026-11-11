@@ -4,7 +4,7 @@
 //
 // READ THIS BESIDE tools/flows/investigate.flow.mjs — the same non-blind bounded-round shape, and the same
 // rule that every terminal is its OWN fact. Nothing here builds, stages, parks or commits, so there is no
-// park scenario and no PARK_* script to fill in: refine's whole exit surface is the eight HALT_STATUS
+// park scenario and no PARK_* script to fill in: refine's whole exit surface is the nine HALT_STATUS
 // values plus the dead-critic throw.
 //
 // TWO scenarios reach `converged` and both are load-bearing. The round-1 clean round is the only path that
@@ -22,7 +22,7 @@ const TARGET = { repo: 'E:/repo', lang: 'JavaScript', framework: 'none' };
 // planPath resolves against `root`, i.e. OUTSIDE the target repo — which is what keeps the plan and the
 // critique files away from develop-cycle's blind reviewer. A path inside the repo only warns, so it would
 // draw the identical map and prove nothing.
-const base = { runId: 'flow', root: 'E:/flow', target: TARGET, planPath: 'plans/bus.md', blockTool: 'E:/flow/tools/plan-block.mjs', conventionFiles: ['CLAUDE.md'], priorRounds: 0 };
+const base = { runId: 'flow', root: 'E:/flow', target: TARGET, planPath: 'plans/bus.md', blockTool: 'E:/flow/tools/plan-block.mjs', conventionFiles: ['CLAUDE.md'], launchDir: 'E:/flow/runs/flow-refine/launch-1' };
 
 // Critic returns. Counts plus one attestation are the WHOLE control plane: every gap, grade and citation
 // crosses to the editor through the critique file, which the harness never sees.
@@ -55,9 +55,8 @@ export default {
     // One throw site serves every numeric bound. Without it `round < NaN` is false on the first test, the
     // loop never runs, and the engine reports `rounds-exhausted` after zero rounds.
     { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
-    // The critique files are numbered by round, so a relaunch that restarted at round 1 would overwrite an
-    // earlier launch's critiques.
-    { name: 'no priorRounds', when: 'args.priorRounds is missing', args: { ...base, priorRounds: undefined } },
+    // An old payload's round count is no longer read, so it throws rather than run a launch nobody chose.
+    { name: 'priorRounds passed', when: 'args.priorRounds is set', args: { ...base, priorRounds: 0 } },
     // The floor decides which gaps COUNT and which are demoted to the critique file's FYI section, so a
     // coerced value silently changes what "clean" means.
     { name: 'severity floor is not a known grade', when: 'critiqueSeverity is outside blocking | major | minor', args: { ...base, critiqueSeverity: 'nit' } },
@@ -70,6 +69,10 @@ export default {
     { name: 'notes missing a path', when: 'notes lacks dir or survey, or names a relative path', args: { ...base, notes: { dir: 'E:/flow/notes' } } },
     // A coerced path list would hand both roles a file that is not there, or none of the target's rules.
     { name: 'conventionFiles is not a path list', when: 'args.conventionFiles is not an array of non-empty paths', args: { ...base, conventionFiles: 'CLAUDE.md' } },
+    // Each launch writes its critique files in its own launch folder, so a launch without one, or with a
+    // folder outside the stateDir, would write where another launch did.
+    { name: 'no launch folder', when: 'args.launchDir is missing or blank', args: { ...base, launchDir: undefined } },
+    { name: 'launch folder outside the stateDir', when: 'args.launchDir is not a launch-<n> folder directly inside the stateDir', args: { ...base, launchDir: 'E:/flow/runs/flow/launch-1' } },
     // The editor re-validates the plan through the plan-block tool, and an installed plugin keeps it apart from root.
     { name: 'no block tool', when: 'blockTool is missing or blank', args: { ...base, blockTool: '' } },
     { name: 'notes folder inside the repo', when: 'notes.dir lies inside target.repo', args: { ...base, notes: { dir: 'E:/repo/notes', survey: 'E:/aipg/tools/EXIT-SURVEY.md' } } },

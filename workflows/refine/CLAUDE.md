@@ -14,9 +14,8 @@ condition in parentheses runs only under it.
 
 ### Before the run
 
-1. Choose the `runId`, `root` and `priorRounds` args, keeping the plan's earlier `runId` on a relaunch
-   and passing `priorRounds: 0` on a plan's first launch and the value §5 names on a relaunch (§2 step 1,
-   §4, §5). Output: a value for each.
+1. Choose the `runId` and `root` args, keeping the plan's earlier `runId` on a relaunch (§2 step 1, §4,
+   §5). Output: a value for each.
 2. Author the plan file in the plan-bus format at `<root>/plans/<runId>/`, outside every repo (§2 step 1).
    Output: the plan file.
 3. Choose the other args: `planPath` (that file), `target.repo` and, when wanted, `critiqueSeverity`,
@@ -26,23 +25,27 @@ condition in parentheses runs only under it.
    that step 5 runs (§5). Output: that allow rule in the settings.
 5. Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to,
    holds no line on this run's plan or goal, and when one does, remove the line and launch from a new
-   session. Then run `node <plan-block.mjs> <planPath> --list` with run_in_background, then end the turn
-   (§2 step 2, root `CLAUDE.md`, "Launch from a notification turn"). Output: the index checked, and that
-   tool call is the last one of this turn.
+   session. Then run `node <plan-block.mjs> <planPath> --list` in the foreground. Once it exits 0, run
+   `node <launch.mjs> reserve <stateDir> --keep <planPath>` with run_in_background, where `<launch.mjs>` is
+   the `launch.mjs` beside `<plan-block.mjs>` and `<planPath>` is absolute, or on a replay run the `--list`
+   check again with run_in_background in its place, then end the turn (§2 step 2, §4, root `CLAUDE.md`,
+   "Launch from a notification turn"). Output: the index checked, and that tool call is the last one of
+   this turn.
 6. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
-   `refine-cycle.mjs`, the args steps 1 and 3 chose and `blockTool` set to step 4's path (§2 step 2, §5,
-   root `CLAUDE.md`, "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
+   `refine-cycle.mjs`, the args steps 1 and 3 chose, `blockTool` set to step 4's path and `launchDir` set
+   to the folder the reserve command printed, or on a replay to the replayed launch's `launchDir` (§2 step
+   2, §5, root `CLAUDE.md`, "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
 
 ### After the run
 
 7. (when the run threw because the plan critic returned nothing) Replay through steps 5 and 6 with the same
-   args and `runId`, `priorRounds` included, plus the Workflow tool's `resumeFromRunId`. Stop this pass of
+   args and `runId`, `launchDir` included, plus the Workflow tool's `resumeFromRunId`. Stop this pass of
    the list there, and work it again from step 7 once that run ends (§3, the thrown error's message).
    Output: the replay's Workflow run id.
 8. (when `status` names the plan editor returning nothing) Run `node '<blockTool>' '<planPath>' --list`,
    since the editor may have partly edited the plan (§3, the return's `nextStep`). Output: the block list
    it prints.
-9. (after step 8) Replay through steps 5 and 6 with the same args and `runId`, `priorRounds` included,
+9. (after step 8) Replay through steps 5 and 6 with the same args and `runId`, `launchDir` included,
    plus the Workflow tool's `resumeFromRunId`, so only the fold runs again. Stop this pass of the list
    there, and work it again from step 7 once that run ends (§3, the return's `nextStep`). Output: the
    replay's Workflow run id.
@@ -64,8 +67,8 @@ condition in parentheses runs only under it.
     `nextStep`). Output: the plan file's state, checked.
 15. (when `status` names a plan file that no longer parses) Repair the plan file by hand until
     `node '<blockTool>' '<planPath>' --list` exits 0 (§3, the return's `nextStep`). Output: that exit 0.
-16. (when `status` is not `converged`) Relaunch through steps 5 and 6 with the same args and `runId`, the
-    `priorRounds` value `nextStep` names and no `resumeFromRunId`, after `rounds-exhausted` once the user
+16. (when `status` is not `converged`) Relaunch through steps 5 and 6 with the same args and `runId`, a
+    newly reserved `launchDir` and no `resumeFromRunId`, after `rounds-exhausted` once the user
     has ruled on every gap, raising `maxRounds` from 1 when `nextStep` names it. Stop this pass of the list
     there, and work it again from step 7 once that run ends (§2 step 2, §2 step 3, §4, §5, the return's
     `nextStep`). Output: the relaunch's Workflow run id.
@@ -124,9 +127,11 @@ Four things together — remove any one and the plan grows every round instead o
 ## 2. The flow
 
 1. Author the plan file (plan-bus format, at `<root>/plans/<runId>/`, outside every repo).
-2. Launch refine with `planPath` = that file and `blockTool` = the absolute path of the
-   `plan-block.mjs` that the pre-launch command `node <plan-block.mjs> <planPath> --list` runs, from a
-   notification turn (root `CLAUDE.md`, "Launch from a notification turn"). Follow the return's
+2. Launch refine with `planPath` = that file, `blockTool` = the absolute path of the `plan-block.mjs`
+   that the check `node <plan-block.mjs> <planPath> --list` runs before the pre-launch command, and
+   `launchDir` = the folder that the pre-launch command `node <launch.mjs> reserve <stateDir> --keep
+   <planPath>` prints, from a notification turn (root `CLAUDE.md`, "Launch from a notification turn").
+   A replay passes the replayed launch's `launchDir` and reserves none (§4). Follow the return's
    `nextStep`, which names the files to read and the relaunch or replay for each terminal. The
    `status` token says what the state means:
    - `converged` — one clean round: no gaps at or above the floor, and no questions.
@@ -156,9 +161,9 @@ own single refine run. One develop launch takes both files when their file keys 
 
 ## 3. Roles
 
-- **Critic** (opus, read-only on the repo) — writes `plan-critique-<round>.md` (gaps with file:line
-  evidence and the kind of text each is in, no evidence no gap; questions). In a round with no gap and
-  no question, the converged round, it writes the FYI section when it has items, and writes "No gaps."
+- **Critic** (opus, read-only on the repo) — writes `<launchDir>/plan-critique-<round>.md` (gaps with
+  file:line evidence and the kind of text each is in, no evidence no gap; questions). In a round with no gap
+  and no question, the converged round, it writes the FYI section when it has items, and writes "No gaps."
   when it has none. That section has one subsection per block with below-floor findings, then
   `File preamble` (plan text above the first block, other than the file keys, at any grade, plus a
   file-key finding below the floor), then `Outside the plan` (defects no plan text holds, in files the
@@ -183,28 +188,34 @@ own single refine run. One develop launch takes both files when their file keys 
 Default stateDir is `<root>/runs/<runId>-refine/` — the `-refine` suffix is a mechanism, not taste:
 reusing one runId across a phase's runs would otherwise land critique files (which quote plan
 content) in the exact directory develop's blind reviewer treats as its world's parent. Files:
-`plan-critique-<round>.md` per round · `DISMISSED-PLAN.md` · `NEEDS-USER.md`. Every relaunch of one
-plan keeps the same runId and stateDir and never clears it, since `DISMISSED-PLAN.md` and its
-`USER-RULED:` lines are what stop the next critic re-raising declined gaps. Round numbers continue across
-the launches of one stateDir through the `priorRounds` arg, so no launch writes a critique file path an
-earlier launch used, and every round of every launch keeps its file. `NEEDS-USER.md` is
-cumulative across relaunches of one stateDir, so entries from earlier halts were already settled. Each
-entry opens with `## r<round> critic` or `## r<round> editor`, and `nextStep` names the round whose
-entries at the end of the file are new.
+`launch-<n>/` per launch · `DISMISSED-PLAN.md` · `NEEDS-USER.md`. A launch folder holds
+`plan-critique-<round>.md` per round of that launch and `kept/<plan file name>`, the plan as it was
+before that launch's editor. The pre-launch command `node <launch.mjs> reserve <stateDir> --keep
+<planPath>` creates the folder, one past the highest `launch-<n>` in the stateDir, and prints it as
+`launchDir`. Each launch counts its rounds from 1 and writes its critique files only in its own launch
+folder, so no launch writes a critique file another launch wrote, and every round of every launch keeps
+its file. A replay passes the replayed launch's `launchDir`, so it meets only the files its interrupted
+attempt left. Files that a refine engine from before launch folders left directly in the stateDir stay
+there. Every relaunch of one plan keeps the same runId and stateDir and never clears it, since
+`DISMISSED-PLAN.md` and its `USER-RULED:` lines are what stop the next critic re-raising declined gaps.
+`NEEDS-USER.md` is cumulative across relaunches of one stateDir, so entries from earlier halts were
+already settled. Each entry opens with `## launch <n> r<round> critic` or `## launch <n> r<round>
+editor`, and `nextStep` names the launch and round whose entries at the end of the file are new.
 
 ## 5. Args reference
 
 Full schema + defaults: the Config block atop `refine-cycle.mjs` (the canonical source).
 - **Required:** `runId` · `root` · `planPath` (absolute; no inline plan, no default — an omitted
   path would critique nothing and report a clean plan) · `target.repo` (**throws** if missing — the
-  critic greps it) · `blockTool` (the absolute path of the `plan-block.mjs` the pre-launch command
-  runs. The editor re-validates through it, and the `plan-broken` log line and `nextStep` name it.
-  **Throws** when missing or blank, and the message names the pre-launch command. Pre-allowlist
-  `Bash(node '<blockTool>':*)`) · `priorRounds` (0 on a plan's first launch, else the value the last
-  launch's `nextStep` or thrown error names, or with neither at hand, such as in a new session or after a
-  launch of the engine before `priorRounds` existed, the highest `<round>` among the
-  `plan-critique-<round>.md` files in the stateDir. The first critic writes round `priorRounds` + 1.
-  **Throws** when missing, and on a value that is not a number of 0 or more).
+  critic greps it) · `blockTool` (the absolute path of the `plan-block.mjs` that the check
+  `node <plan-block.mjs> <planPath> --list` runs. The editor re-validates through it, and the
+  `plan-broken` log line and `nextStep` name it. **Throws** when missing or blank, and the message names
+  that check. Pre-allowlist
+  `Bash(node '<blockTool>':*)`) · `launchDir` (the absolute path of the `launch-<n>` folder that the
+  pre-launch command `node <launch.mjs> reserve <stateDir> --keep <planPath>` prints, newly reserved for
+  every launch but a replay, which passes the replayed launch's own (§4). **Throws** when missing, and
+  when it is not a folder named `launch-<n>` directly inside the stateDir. The retired `priorRounds`
+  **throws**, naming `launchDir`).
 - **Optional:** `critiqueSeverity` (`blocking|major|minor`, default `major`; illegal values
   **throw**) · `maxRounds` (one launch's critic rounds, the last a confirm round that no editor follows,
   so `maxRounds: 1` runs one critic and no editor. Default 4, 1–50, garbage **throws**) · `conventions`
