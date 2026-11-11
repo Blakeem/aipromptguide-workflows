@@ -163,6 +163,25 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-11-10
+
+- **Principle #21 says what a plan block holds.** A block states the end goal, the requirements and the
+  user's decisions. The developer chooses the method. A requirement may name a tool.
+- **Refine removes wrong method text.** The critic marks each gap as requirement text or method text. The
+  editor closes a method gap by removing the text and never writes a corrected method. A requirement gap
+  that the repo does not settle can go to the user as a question.
+- **A refine launch ends on a critic round.** `maxRounds` counts the critic rounds of a launch, and no
+  editor follows the last one. `rounds-exhausted` now means that round found gaps that are still open in
+  the plan. The operator shows them to the user before a relaunch.
+- **Refine keeps every critique file.** `priorRounds` is a new required arg, and a launch without it
+  throws. It is 0 on a plan's first launch and the value the last launch's `nextStep` names on a relaunch.
+  Round numbers continue across the launches of a plan, so a relaunch no longer replaces
+  `plan-critique-<round>.md`.
+- **A kept answer stops a repeated refine question.** When the user keeps the plan text, the operator
+  records the answer as a `USER-RULED:` line. The next critic then leaves that text alone.
+- **The investigate guide names `priorRounds` for a new session.** With no earlier return at hand, the
+  value is the highest round number among the review files in the state folder.
+
 ### 2026-11-04
 
 - **Principle #20 sorts what an agent reads into three kinds.** Every required action is a numbered step
