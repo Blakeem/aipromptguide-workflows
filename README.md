@@ -163,6 +163,16 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-11-11
+
+- **A `close --stage` run again skips a gate that already passed.** A close can stop after it staged the
+  work, such as on a refused trash. The next run finds the work staged and runs no gate. A run whose
+  `--into` branch moved still rebases and gates.
+- **The risk tool prints a missing file's skeleton.** `tools/risk-check.mjs` used to write the skeleton
+  file, and the developer's first write to it then failed. The developer now writes the risk file once.
+- **A `**Triage:**` line decides what its entry's `**Fix:**` line leaves open.** The develop prompts now
+  say that the Triage line holds the user's decision and wins where the two differ.
+
 ### 2026-11-10
 
 - **A refused trash names its cause.** On Windows, `tools/trash.mjs` names three measured causes beside the
