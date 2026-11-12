@@ -2017,7 +2017,7 @@ section('a fix block restores each branch its ACTIONABLE entries link, in round 
   const accept = flat(prompt('acceptance fix-a r2'));
   ok(accept.includes('An entry with an "- origin:" line holds a parked block\'s unfinished work. When it also carries a "- branch:" line, the developer restored that branch\'s work into the unstaged diff in round 1, unless the accepted baseline already held it, and its fix is that entire branch work and every change made on it: read every hunk of that range, by `git -C E:/repo diff --stat <branch>^1 <branch>` first, then `git -C E:/repo diff <branch>^1 <branch> -- <file>` for each file it lists, one file per command, in the unstaged diff or the accepted baseline.'),
     'acceptance judges the entire branch work as that entry\'s fix, wherever it is');
-  ok(accept.includes(`The gaps its **What:** lists are another agent's claims, which the developer confirmed or refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted baseline with the unstaged diff closes each gap its **What:** lists, or a line in E:/r/runs/t/gate/DISMISSED-fix-a.md declines that gap under the OVERRIDE and ledger-line rules above, and meets ${ORIGIN_CRITERIA}. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, that its **What:** lists counts as closed, since this block's first blind review, which runs before any acceptance, judges the entire restored work.`),
+  ok(accept.includes(`The gaps its **What:** lists are another agent's claims, which the developer confirmed or refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted baseline with the unstaged diff closes each gap its **What:** lists, or a line in force in E:/r/runs/t/gate/DISMISSED-fix-a.md declines that gap under the OVERRIDE and ledger-line rules above, and meets ${ORIGIN_CRITERIA}. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, that its **What:** lists counts as closed, since this block's first blind review, which runs before any acceptance, judges the entire restored work.`),
     'acceptance checks the origin block\'s criteria and reachability for every park entry, with a branch or without, and counts a listed risk gap closed');
   // Stage delivery: the user may still reject the staged work, so the branch stays until the user commits it.
   ok(accept.includes(`9. LIST LANDED BRANCHES, only on a pass that returns regression=false, once step 8 has staged the block: return branches_kept = ${LANDED_BRANCHES}, or []. Delete no branch:`)
@@ -2779,8 +2779,8 @@ section('MATRIX case 6 is SPLIT in every mode: 6a fixes a VERIFIED plan defect, 
       `${mode}: the ledger-reason rule gains the SPEC form for a plan-prescribed or other-block decline`);
     ok(dev.includes(`DROP (1, 2, 6b or 8): append ONE terse line to ${STATE}/gate/DISMISSED-${id}.md`),
       `${mode}: LOGGING routes the DROP at 1, 2, 6b and 8, not the whole of 6`);
-    ok(dev.includes(`(create ${STATE}/gate/ if it does not exist) when no line there covers the finding yet:`),
-      `${mode}: the DROP bullet appends a line only when no ledger line covers the finding yet`);
+    ok(dev.includes(`(create ${STATE}/gate/ if it does not exist) when no line there that is in force covers the finding yet.`),
+      `${mode}: the DROP bullet appends a line only when no ledger line in force covers the finding yet`);
     ok(dev.includes(`in the DROP line format above, even when a SKIPPED line already covers the finding, its reason`),
       `${mode}: the ESCALATE default appends its ESCALATED line even when a SKIPPED line covers the finding`);
     ok(/7\. A choice that changes user-visible behavior, stored data or a public contract/.test(dev), `${mode}: ESCALATE (case 7) is intact`);
@@ -3490,7 +3490,7 @@ section('fix acceptance and the sweep return decisions only, never a prose field
     'the sweep greps every guide and README for what the goal moves or renames');
   ok(sweepText.includes('Run the gates and record the real outcome.') && !sweepText.includes('Run each distinct gate command'),
     'the sweep leaves the one-run rule for a shared gate command to the gate-run rule');
-  ok(sweepText.includes(`Before step 1, READ ${STATE}/DECISIONS.md and every ${STATE}/AMENDED-<id>.md (list ${STATE}/ to find them), each only if it exists. An escalated default in ${STATE}/DECISIONS.md records a choice routed to the user and the default the developer took, and you hold it as acceptance holds it. Unless the reason it gives is false, a goal hit it covers is no gap. Every other line and amendment records a developer's claim, which excuses a goal hit only once you confirm it against the code.`)
+  ok(sweepText.includes(`Before step 1, READ ${STATE}/DECISIONS.md and every ${STATE}/AMENDED-<id>.md (list ${STATE}/ to find them), each only if it exists. A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. An escalated default in ${STATE}/DECISIONS.md records a choice routed to the user and the default the developer took, and you hold it as acceptance holds it. Unless the reason it gives is false, a goal hit it covers is no gap. Every other line and amendment records a developer's claim, which excuses a goal hit only once you confirm it against the code.`)
     && sweepText.indexOf('Before step 1, READ') < sweepText.indexOf('PROCEDURE') && !sweepText.includes('never a gap'),
     'the sweep reads the decisions and amendments before step 1, holds an escalated default, and confirms each other claim before it excuses a goal hit');
   ok(sweepText.includes('Where a block\'s text explicitly excludes something the goal line covers, the block\'s text decides. A goal hit that no block\'s text names or excludes is still a gap.'),
@@ -3916,15 +3916,15 @@ section('both SETTLED variants say a DISMISSED line covers exactly what it names
   }
 }
 
-section('acceptance counts a sibling path as a gap only when no DISMISSED line covers it');
+section('acceptance counts a sibling path as a gap only when no DISMISSED line in force covers it');
 // A class line has no line of its own per place, so an own-line test would count every covered caller as a gap.
 {
   for (const [mode, id, r] of FRAMES) {
     const acc = flat(r.prompt(`acceptance ${id}`));
     const ledger = `${STATE}/gate/DISMISSED-${id}.md`;
     ok(!acc.includes('without its own line'), `${mode}: the sibling-path check no longer asks for a line of its own`);
-    ok(acc.includes(`the same mechanism and that no line in ${ledger} covers`),
-      `${mode}: step 2 (a) counts only a sibling path that no DISMISSED line covers`);
+    ok(acc.includes(`the same mechanism and that no line in force in ${ledger} covers`),
+      `${mode}: step 2 (a) counts only a sibling path that no DISMISSED line in force covers`);
     ok(acc.includes('covers, or (b)') && acc.includes('Every other finding or gap counts as a gap.')
       && !acc.includes(`that no line in ${ledger} covers keeps the same mechanism`),
       `${mode}: the gap rule counts every finding that neither (a) nor (b) settles, with no restated sibling-path list`);
@@ -4744,13 +4744,62 @@ section('a dismissal rests on a checked fact, and every reader checks it');
   ok(flat(bus.prompt('quality block-a r1')).includes('Before you skip a listed finding, check its stated reason against the code it cites.'),
     'the blind reviewer checks a reason before it skips the finding');
   // Round 1 can only see an earlier launch's ledger, written against code this launch rebuilds.
-  const RECHECK = `ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build. In round 1, ${STATE}/gate/DISMISSED-block-a.md and ${STATE}/AMENDED-block-a.md can hold only an earlier launch's text. Take these actions in order: 1. When ${STATE}/gate/DISMISSED-block-a.md exists, re-check each line against the current code, and remove each line whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal hides a finding in rebuilt code. Output: the rewritten ${STATE}/gate/DISMISSED-block-a.md.`;
+  const RECHECK = `ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build. In round 1, ${STATE}/gate/DISMISSED-block-a.md and ${STATE}/AMENDED-block-a.md can hold only an earlier launch's text.`;
   const rounds = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, ONE_BLOCK);
   const recheckR1 = flat(rounds.prompt('develop block-a r1'));
   // The re-check is a titled step of the opening, after STEP 0 and the build line, and before the zones and PROCEDURE.
   ok(recheckR1.includes(RECHECK) && recheckR1.indexOf('implement this block from scratch') < recheckR1.indexOf(RECHECK)
     && recheckR1.indexOf(RECHECK) < recheckR1.indexOf('PROCEDURE:'), 'the round-1 developer re-checks a carried ledger in a titled step before it builds');
   ok(!flat(rounds.prompt('develop block-a r2')).includes('LEDGER RE-CHECK'), 'a later round keeps the ledger its own launch wrote');
+}
+
+section('a relaunch retires a ledger line or an amendment with a mark, removes none, and every reader skips a retired one');
+{
+  const LINES = 'A line that starts with "RETIRED launch <n>: " is retired. Launch <n>\'s re-check found that it no longer applies, so it is no longer in force and settles nothing.';
+  const AMENDMENTS = 'An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>\'s re-check found that it no longer applies, so it is no longer in force and excuses nothing.';
+  const relaunch = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN), 'final-sweep': SWEEP_OK },
+    { ...ONE_BLOCK, launchDir: `${STATE}/launch-3`, sweep: 'goal-coverage', goal: 'g' });
+  const r1 = flat(relaunch.prompt('develop block-a r1'));
+  ok(r1.includes(`${LINES} ${AMENDMENTS} These files and ${STATE}/DECISIONS.md keep every launch's record for the user, so retire a line or an amendment with this launch's mark "RETIRED launch 3: " and remove none.`),
+    'round 1 marks with the launch number of its own launchDir and removes nothing');
+  ok(r1.includes(`1. When ${STATE}/gate/DISMISSED-block-a.md exists, re-check each line in force against the current code, and retire each line whose finding no longer applies or whose reason the code no longer supports, by putting the mark at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: ${STATE}/gate/DISMISSED-block-a.md with each such line marked.`),
+    'a dismissal line it no longer supports is marked at its start');
+  ok(r1.includes('by putting the mark directly after the "## " of its heading') && r1.includes('the line that names its block id, round, launch and defect file:line, by putting the mark at its start'),
+    'an amendment is marked after the "## " of its heading, and its pointer line at its start');
+  ok(r1.includes('READ it first: your ledger of declined findings for THIS block. Skip each line there that the LEDGER RE-CHECK calls retired.'),
+    'round 1 reads its ledger past each retired line');
+  ok(flat(relaunch.prompt('develop block-a r2')).includes(`READ it first: your ledger of declined findings for THIS block. ${LINES}`), 'a later round skips a retired line too');
+  for (const [mode, id, r] of FRAMES) {
+    ok(flat(r.prompt(`develop ${id}`)).includes('when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:'),
+      `${mode}: a finding a retired line names is declined again with a new line`);
+  }
+  for (const c of [...relaunch.calls, ...fixBus.calls]) {
+    ok(!/remove each (line|amendment)|, with its pointer line in|Output: the rewritten/.test(flat(c.prompt)), `${c.label}: no prompt removes a ledger line, an amendment or a pointer line`);
+  }
+  ok(flat(relaunch.prompt('quality block-a r1')).includes(`${LINES} Skip anything listed there FOR THE STATED REASON.`), 'the blind reviewer skips no finding for a retired line');
+  for (const [where, prompt] of [['feature', bus.prompt('acceptance block-a r1')], ['section', bus.prompt('acceptance block-b r1')], ['fix', fixBus.prompt('acceptance fix-a r1')]]) {
+    const text = flat(prompt);
+    ok(text.includes(`${LINES} Skip anything listed there FOR THE STATED REASON.`) && text.includes(`each with the defect it claims the overridden text prescribes. ${AMENDMENTS} Each amendment`),
+      `${where} acceptance: a retired line declines nothing and a retired amendment excuses nothing`);
+    ok(text.includes('holds a line in force for it'), `${where} acceptance: only a line in force declines an earlier finding`);
+    ok(text.includes(`and that no line in force in ${STATE}/gate/DISMISSED-`) && !/and that no line in \S+DISMISSED-/.test(text),
+      `${where} acceptance: a retired line covers no sibling path an earlier finding names`);
+  }
+  const ownAbsent = fixDev([{ issue_id: 'i-1', status: 'FIXED' }], { earlier_files: false, dismissed_count: 0, plan_amendments: 0 });
+  const originOnly = flat((await run({ develop: ownAbsent, quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE)).prompt('acceptance fix-a'));
+  ok(originOnly.includes(`continues OVERRODE. ${AMENDMENTS} Each amendment is the developer's claim. Reproduce its defect yourself against the file:line it cites and the text it quotes before it excuses a criterion of a block`)
+    && originOnly.split(AMENDMENTS).length === 2 && !originOnly.includes('Judge each of those amendments the same way'),
+    'a fix acceptance with no AMENDED file of its own skips a retired origin amendment once and states the reproduce rule it cannot refer back to');
+  ok(flat(fixBus.prompt('acceptance fix-a r1')).includes('continues OVERRODE. Judge each of those amendments the same way before it excuses a criterion of a block'),
+    'a fix acceptance that reads its own AMENDED file judges the origin amendments by that rule');
+  ok(flat(relaunch.prompt('final-sweep')).includes(`only if it exists. ${LINES} ${AMENDMENTS} An escalated default`), 'the sweep skips a retired line and amendment');
+  const parked = flat((await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 })).prompt('park:block-a'));
+  ok(parked.includes('A line that starts with "RETIRED launch <n>: ", or an amendment whose heading starts with "## RETIRED launch <n>: ", is retired and no longer in force, and the block built from this entry skips it. A file that holds only retired ones still exists, so pass its flag.'),
+    'the park says a retired line is no longer in force and still passes the flag of a file that holds only retired ones');
+  const amended = String((await run({ ...GREEN_RUN, develop: { ...DEV_OK, plan_amendments: 1 } })).out.nextStep ?? '');
+  ok(amended.includes('Skip each amendment whose heading starts with "## RETIRED launch <n>: " and each pointer line that starts with "RETIRED launch <n>: ", since a relaunch\'s re-check retired it.'),
+    'the fold step of nextStep skips a retired amendment and pointer line');
+  ok(amended.includes('Leave out each line that starts with "RETIRED launch <n>: ", since a relaunch\'s re-check retired it.'), 'and the summary leaves out a retired DECISIONS line');
 }
 
 section('the risk file is tied to the snapshot its developer returned');
@@ -5093,7 +5142,7 @@ section('an amendment header and a question heading name the launch, which the e
   ok(!r1.includes('launch_number') && !r2.includes('launch_number'), 'no round is told to count or report a launch number');
   const twelve = await run(twoRounds(DEV_OK), { ...ONE_BLOCK, launchDir: 'E:/r/runs/t/launch-12/' });
   ok(flat(twelve.prompt('develop block-a r2')).includes('`## Plan amendment: block-a r2, launch 12`'), 'a launchDir with a trailing slash still names its launch number');
-  ok(r1.includes(`2. When ${STATE}/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1 re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose defect the current code does not reproduce, with its pointer line in ${STATE}/DECISIONS.md, the line that names its block id, round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match that pointer by its block id, round and defect file:line alone. Output: the rewritten ${STATE}/AMENDED-block-a.md and ${STATE}/DECISIONS.md.`),
+  ok(r1.includes(`2. When ${STATE}/AMENDED-block-a.md exists, re-check each amendment in force, each another agent's claim, as action 1 re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire its pointer line in ${STATE}/DECISIONS.md, the line that names its block id, round, launch and defect file:line, by putting the mark at its start. An amendment whose header names no launch has a pointer that names none, so match that pointer by its block id, round and defect file:line alone. Output: ${STATE}/AMENDED-block-a.md and ${STATE}/DECISIONS.md with each such amendment and pointer line marked.`),
     'round 1 re-checks every earlier launch\'s amendment as it re-checks a DISMISSED line, an unnumbered one included');
   ok(!r2.includes('Report baseline_dirty_files=-1'), 'a later round is not told to report the round-1 fields');
   const schema = r.calls.find((c) => c.label === 'develop block-a r1')?.opts.schema;
@@ -5262,7 +5311,7 @@ section('an index halt names a reported commit and its revert, and says when no 
   ok(String(devCommitted.out.haltReason ?? '').includes('before resuming. HEAD before this block was the HEAD this launch started from, so a newer commit holds work no acceptance landed: list each with `git -C E:/repo log --oneline` and revert it with `git -C E:/repo revert <sha>`.'),
     'a commit-mode halt for an unconfirmed developer names the history check too');
   ok(flat(bus.prompt('develop block-a')).includes(`Then append ONE POINTER line to ${STATE}/DECISIONS.md: the block id, the round, the launch, the defect's file:line, and the path`),
-    'an amendment\'s pointer line names its launch, so a relaunch finds the pointer of an amendment it removes');
+    'an amendment\'s pointer line names its launch, so a relaunch finds the pointer of an amendment it retires');
 }
 
 section('develop hands each later agent what an earlier agent settled');
@@ -5282,9 +5331,9 @@ section('develop hands each later agent what an earlier agent settled');
   // The fix block built from such an entry: round 1 copies each kept ledger line where the blind reviewer reads.
   const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: firstRound(FIX_GAP, FIX_PASS) }, FIX_ONE);
   const r1 = flat(fix.prompt('develop fix-a r1'));
-  const copy = r1.indexOf(`An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it continues. Before you build, READ each file it names, re-check each line there as the ledger rule below re-checks an earlier launch's line, and append each line you keep to ${LEDGER('fix-a')} unless that file already holds it, since that is the one ledger the blind reviewer reads.`);
+  const copy = r1.indexOf(`An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it continues. Before you build, READ each file it names, re-check each line there in force as the ledger rule below re-checks an earlier launch's line, and append each line you keep to ${LEDGER('fix-a')} unless that file already holds it in force, since that is the one ledger the blind reviewer reads. Copy no retired line, and change nothing in the file it names.`);
   ok(copy > -1 && copy < r1.indexOf('ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.'), 'round 1 re-checks and copies each origin ledger line, before the ledger rule it cites');
-  ok(r1.includes('Its "- amended:" line names the plan amendments of the blocks its "- origin:" line names, each another agent\'s claim. READ each file it names and reproduce each amendment\'s defect against the file:line it cites. Meet an origin criterion under an amendment whose defect you reproduce, and as its block\'s text states it otherwise.'),
+  ok(r1.includes('Its "- amended:" line names the plan amendments of the blocks its "- origin:" line names, each another agent\'s claim. READ each file it names and reproduce the defect of each amendment there in force against the file:line it cites. Meet an origin criterion under an amendment whose defect you reproduce, and as its block\'s text states it otherwise.'),
     'round 1 meets an origin criterion under an amendment only once it reproduces its defect');
   ok(!flat(fix.prompt('develop fix-a r2')).includes('"- ledger:" line names'), 'a later round copies nothing');
   const acc = flat(fix.prompt('acceptance fix-a r1'));
@@ -5401,12 +5450,12 @@ section('an acceptance prompt leaves out every rule that judges a DISMISSED line
     `OVERRIDE: ${ledger(id)} entries are the developer's judgment calls.`,
     'A line whose reason starts `SKIPPED:` declines a finding',
     'A line whose reason starts `ESCALATED:` records a default',
-    `that no line in ${ledger(id)} covers`,
-    `${ledger(id)} holds a line for it`,
+    `that no line in force in ${ledger(id)} covers`,
+    `${ledger(id)} holds a line in force for it`,
     "Once the developer's ledger holds one, the OVERRIDE rule above governs it.",
   ];
   const CONTEST = 'A finding this pass\'s blind review raised as "CONTESTS DISMISSAL"';
-  const ORIGIN = `closes each gap its **What:** lists, or a line in ${ledger('fix-a')} declines that gap under the OVERRIDE and ledger-line rules above, and meets`;
+  const ORIGIN = `closes each gap its **What:** lists, or a line in force in ${ledger('fix-a')} declines that gap under the OVERRIDE and ledger-line rules above, and meets`;
   const ORIGIN_GONE = 'closes each gap its **What:** lists and meets';
   const CLOSED_ONLY = 'For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the REGRESSION step below, and a grep finds no sibling path that carries the same mechanism. Every other finding or gap counts as a gap.';
   const REGRESSION_END = 'escalates it when only a change in other code closes it.';

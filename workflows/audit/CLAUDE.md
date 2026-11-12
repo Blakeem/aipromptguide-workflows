@@ -399,9 +399,9 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
      with its sha and the issue files it holds (from the run's `nextStep`) in commit delivery, each file you
      resolved or fixed at the landing, the NEEDS-USER questions after the research step in
      `../develop/CLAUDE.md` §6 (the settled ones with their evidence, the rest with a recommendation
-     each), the entries in `DECISIONS.md`, and every parked block with its branch and the backlog entry
-     that links it (`../develop/CLAUDE.md` §7). In stage delivery, **never commit**: the user reviews and
-     commits.
+     each), the entries in `DECISIONS.md` that are not retired (`../develop/CLAUDE.md` §5), and every
+     parked block with its branch and the backlog entry that links it (`../develop/CLAUDE.md` §7). In stage
+     delivery, **never commit**: the user reviews and commits.
 
 ### External inventory (skip the review)
 

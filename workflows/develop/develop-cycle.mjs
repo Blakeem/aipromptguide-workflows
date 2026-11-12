@@ -563,6 +563,12 @@ const unfinishedBranch = (id) => `aipg-unfinished/${backlogId(id)}`;
 const SPEC_REASON = 'SKIPPED: SPEC:';
 // The cases a SPEC line may rest on. The developer's LOGGING rule and acceptance's LEDGER_LINES both render it.
 const SPEC_CASES = "the plan prescribes the code, this block's text excludes it, or another block of the plan owns it";
+// The round-1 re-check marks a ledger line or an amendment that no longer applies and removes none, since the user
+// audits every launch's decisions. Every reader of the three files renders the rule that skips a marked one.
+const RETIRED_MARK = (n) => `RETIRED launch ${n}: `;
+const RETIRED_WHY  = "Launch <n>'s re-check found that it no longer applies, so it is no longer in force";
+const RETIRED_LINES = `A line that starts with "${RETIRED_MARK('<n>')}" is retired. ${RETIRED_WHY} and settles nothing.`;
+const RETIRED_AMENDMENTS = `An amendment whose heading starts with "## ${RETIRED_MARK('<n>')}" is retired. ${RETIRED_WHY} and excuses nothing.`;
 
 // The blind variant (canContest=true) reads DISMISSED alone (see GATE_DIR) and may contest it. qualityPrompt's
 // GATE_DIR read rule keeps prior reviews from anchoring it (#5). Acceptance overrides instead. A fix acceptance also reads the
@@ -581,6 +587,7 @@ Review the CURRENT diff FRESH, catching new or nearby issues.` : `Before reviewi
   • ${DECISIONS} — defaults the developer took, plan amendment pointers, and one line per ${BASELINE_FIX} that
     this run's ${CHANGE_POLICY} change policy let the developer make, a record. A
     ${LOGGED_FIX_TAG} line is never skipped for its stated reason, since the regression rule below judges each one.`}
+${RETIRED_LINES}
 Skip anything listed there FOR THE STATED REASON.${dismissedAbsent ? '' : ' A DISMISSED line covers exactly what it names: one place, or every place in the class it names.'} Review the CURRENT
 diff FRESH, catching new or nearby issues.${canContest ? `
 Before you skip a listed finding, check its stated reason against the code it cites. When the code
@@ -1059,7 +1066,7 @@ const MATRIX = (p, round) => {
     block parks with the user's question in ${questionFile(id)}.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to ${dismissedFile(id)} (create ${GATE_DIR}/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to ${dismissedFile(id)} (create ${GATE_DIR}/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       \`<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>\`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -1532,11 +1539,11 @@ Every branch stays as it was. Otherwise set restore_failed to "" and restored_br
 branches step b applied.`;
 // The blind reviewer reads only this block's ledger, so round 1 copies the origin ledger's kept lines into it.
 const ledgerParagraph = (p) => `An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
-continues. Before you build, READ each file it names, re-check each line there as the ledger rule below re-checks an earlier
-launch's line, and append each line you keep to ${dismissedFile(p.id)} unless that file already holds it,
-since that is the one ledger the blind reviewer reads. Its "- amended:" line names the plan
+continues. Before you build, READ each file it names, re-check each line there in force as the ledger rule below re-checks an earlier
+launch's line, and append each line you keep to ${dismissedFile(p.id)} unless that file already holds it in force,
+since that is the one ledger the blind reviewer reads. Copy no retired line, and change nothing in the file it names. Its "- amended:" line names the plan
 amendments of the blocks its "- origin:" line names, each another agent's claim. READ each file it names
-and reproduce each amendment's defect against the file:line it cites. Meet an origin criterion under an
+and reproduce the defect of each amendment there in force against the file:line it cites. Meet an origin criterion under an
 amendment whose defect you reproduce, and as its block's text states it otherwise.`;
 const restoreOpening = (p) => `fix this block's entries on top of the accepted
 baseline. ${restoreSteps(p)}
@@ -1612,18 +1619,22 @@ ${PULLED_REPORT}`;
 // In round 1 both files can hold only an earlier launch's text, written against code this launch rebuilds. The
 // re-check follows a fix block's restore, since an earlier launch's lines may cite the restored code.
 const ledgerRecheckStep = (p) => `ROUND 1 — LEDGER RE-CHECK, after STEP 0${p.mode === 'fix' ? ' and any restore of an unfinished branch' : ''}, and before you build.
-In round 1, ${dismissedFile(p.id)} and ${amendedFile(p.id)} can hold only an earlier launch's text. Take
-these actions in order:
-  1. When ${dismissedFile(p.id)} exists, re-check each line against the current code, and remove each line
-     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
-     dismissal hides a finding in rebuilt code. Output: the rewritten ${dismissedFile(p.id)}.
-  2. When ${amendedFile(p.id)} exists, re-check each amendment, each another agent's claim, as action 1
-     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
-     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
-     defect the current code does not reproduce, with its pointer line in ${DECISIONS}, the line that names
-     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
-     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
-     Output: the rewritten ${amendedFile(p.id)} and ${DECISIONS}.`;
+In round 1, ${dismissedFile(p.id)} and ${amendedFile(p.id)} can hold only an earlier launch's text.
+${RETIRED_LINES} ${RETIRED_AMENDMENTS} These files and ${DECISIONS} keep every launch's record for the
+user, so retire a line or an amendment with this launch's mark "${RETIRED_MARK(LAUNCH_N)}" and remove none.
+Take these actions in order:
+  1. When ${dismissedFile(p.id)} exists, re-check each line in force against the current code, and retire each
+     line whose finding no longer applies or whose reason the code no longer supports, by putting the mark
+     at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: ${dismissedFile(p.id)}
+     with each such line marked.
+  2. When ${amendedFile(p.id)} exists, re-check each amendment in force, each another agent's claim, as action 1
+     re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it
+     quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the
+     current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire
+     its pointer line in ${DECISIONS}, the line that names its block id, round, launch and defect file:line,
+     by putting the mark at its start. An amendment whose header names no launch has a pointer that names
+     none, so match that pointer by its block id, round and defect file:line alone.
+     Output: ${amendedFile(p.id)} and ${DECISIONS} with each such amendment and pointer line marked.`;
 const pulledLaterNote = (p, lastPulled, none) => (none ? `PULLED ENTRIES. Round 1 took no backlog entry beside this block, so ${pulledFile(p.id)} lists none. Take no new entry, and report an empty pulled_results.` : `PULLED ENTRIES. ${pulledFile(p.id)}, when it exists, lists the backlog entries round 1 took beside
 this block. Take no new entry. Close a review gap on a pulled entry like any other gap, or revert that
 entry's change surgically and report it FAILED.${pulledTriage(p)} ${PULLED_REPORT} Your earlier rounds last reported:
@@ -1672,7 +1683,7 @@ tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
   // Every round, round 1 included: the ledger persists across resumes. Round 1's re-check is its own step in `opening`.
   // Only a later round can know the file is absent, since round 1 reports earlier_files (see fileTracker).
   const ledgerNote = round > 1 && dismissedNone ? `${dismissedFile(p.id)} does not exist, so you have declined nothing in THIS block yet.` : `If ${dismissedFile(p.id)} exists, READ it first: your ledger of declined findings for THIS
-block.`;
+block. ${round === 1 ? 'Skip each line there that the LEDGER RE-CHECK calls retired.' : RETIRED_LINES}`;
   const staging = `LEAVE EVERYTHING UNSTAGED — do NOT \`git add\` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run \`git -C ${REPO} add -N <file>\` (intent-to-add, so reviewers' \`git diff\` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
@@ -1752,8 +1763,8 @@ const earlierFindingsStep = (p, earlierReviews, dismissedAbsent) => {
   return `EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
 ${earlierReviews.map((path) => `     ${path}`).join('\n') || '     (none: no review in this run has flagged this block)'}
-   For each finding or gap in them, confirm ${dismissedAbsent ? `that ${closed}.` : `one of: (a) ${closed} and that no line in ${dismissedFile(p.id)} covers, or (b)
-   ${dismissedFile(p.id)} holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
+   For each finding or gap in them, confirm ${dismissedAbsent ? `that ${closed}.` : `one of: (a) ${closed} and that no line in force in ${dismissedFile(p.id)} covers, or (b)
+   ${dismissedFile(p.id)} holds a line in force for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance.`} Every other finding or gap counts as a gap. ${RISK_GAPS} is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.`;
@@ -1838,15 +1849,16 @@ fails acceptance. Name it in your file as held.`;
 // An amendment is the developer's claim that the plan prescribes a defect, so acceptance reproduces that defect
 // before the amendment excuses anything. A fix block also judges its origin blocks' criteria under their amendments.
 const amendmentsSection = (id, { overridden, judged, article = /^[aeiou]/.test(judged) ? 'an' : 'a', unexcused, origin = false }, amendedAbsent = false) => `AMENDMENTS: ${amendedAbsent ? `${amendedFile(id)} does not exist, so no amendment excuses ${article} ${judged}.` : `READ ${amendedFile(id)} if it exists. It records ${overridden} the developer OVERRODE, each
-with the defect it claims the overridden text prescribes. Each amendment is the developer's claim. Before it
+with the defect it claims the overridden text prescribes. ${RETIRED_AMENDMENTS} Each amendment is the developer's claim. Before it
 excuses ${article} ${judged}, reproduce its defect yourself against the file:line it cites and the text it quotes, by
 reading that code and following the failure path it names, or by running the probe it names. Judge ${article} ${judged}
 under an amendment you confirmed against the AMENDED behavior, not the superseded text, and NAME every ${judged}
 you judged under an amendment in your review file. An amendment whose defect you cannot confirm, or that
 states NO defect evidence, excuses NOTHING: ${unexcused}.`}${origin ? `
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
-that the developers of the parked block whose work that entry continues OVERRODE. Judge each of those
-amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
+that the developers of the parked block whose work that entry continues OVERRODE.${amendedAbsent ? ` ${RETIRED_AMENDMENTS} Each amendment is the developer's claim.
+Reproduce its defect yourself against the file:line it cites and the text it quotes before it excuses` : ` Judge each of those
+amendments the same way before it excuses`} a criterion of a block that entry's "- origin:" line names. A
 criterion that no amendment you confirmed excuses must hold as its block's text states it.` : ''}`;
 // A closing pass has no later round, so a blocking gap in the closing acceptance parks the block.
 const failBullet = (round) => `${round === CLOSING_ROUND ? 'Any blocking gap' : 'Otherwise'} → return pass=false (do NOT stage${COMMIT ? ' or commit, and return committed=false and commit_sha ""' : ''}); ${round === CLOSING_ROUND
@@ -2012,7 +2024,7 @@ ${claimedFixed.map((id) => `     - ${id}`).join('\n') || '     (none claimed fix
    \`git -C ${REPO} diff <branch>^1 <branch> -- <file>\` for each file it lists, one file per command, in the unstaged diff or the accepted
    baseline.` : ''} The gaps its **What:** lists are another agent's claims, which the developer confirmed or
    refuted. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
-   baseline with the unstaged diff closes each gap its **What:** lists${absent.dismissed ? '' : `, or a line in ${dismissedFile(p.id)}
+   baseline with the unstaged diff closes each gap its **What:** lists${absent.dismissed ? '' : `, or a line in force in ${dismissedFile(p.id)}
    declines that gap under the OVERRIDE and ledger-line rules above,`} and meets ${ORIGIN_CRITERIA}.
    ${RISK_GAPS} that its **What:** lists counts as closed, since this block's first blind review, which
    runs before any acceptance, judges the entire restored work.` : ''}
@@ -2231,7 +2243,10 @@ const parkPrompt = (p, { lastReviewPath, escalated, haltKind, haltText, stopsRun
     absent.amended ? null : { rule: `--amended only when ${amendedFile(p.id)} exists`, reads: 'plan amendments' },
   ].filter(Boolean);
   const linesRule = fileLines.length
-    ? `\n   Pass ${fileLines.map((l) => l.rule).join(', and ')}, so the block built from this entry reads this block's ${fileLines.map((l) => l.reads).join(' and ')}.`
+    ? `\n   Pass ${fileLines.map((l) => l.rule).join(', and ')}, so the block built from this entry reads this block's ${fileLines.map((l) => l.reads).join(' and ')}.
+   A line that starts with "${RETIRED_MARK('<n>')}", or an amendment whose heading starts with
+   "## ${RETIRED_MARK('<n>')}", is retired and no longer in force, and the block built from this entry skips it.
+   A file that holds only retired ones still exists, so pass its flag.`
     : '';
   const parkFile = shq(backlogFile(p.id));
   // A FAILED report may keep or revert an entry's restored work, so the working tree, which step 1e reads
@@ -2385,7 +2400,8 @@ every file in ${COMMIT ? "this launch's commits" : 'the staged diff'}, and every
 ${ENV}
 COMPLETED BLOCKS: ${doneIds.join(', ')}
 Before step 1, READ ${DECISIONS} and every ${STATE_DIR}/AMENDED-<id>.md (list ${STATE_DIR}/ to find them), each
-only if it exists. An escalated default in ${DECISIONS} records a choice routed to the user and the default the
+only if it exists. ${RETIRED_LINES} ${RETIRED_AMENDMENTS}
+An escalated default in ${DECISIONS} records a choice routed to the user and the default the
 developer took, and you hold it as acceptance holds it. Unless the reason it gives is false, a goal hit it
 covers is no gap. Every other line and amendment records a developer's claim, which excuses a goal hit only
 once you confirm it against the code.
@@ -3866,7 +3882,7 @@ return {
     : ''}${haltedPlans.length
     ? `${haltedPlans.length} block(s) halted and are NOT done: ${haltedPlans.map((r) => r.id).join(', ')} - the halt reason above says what each needs. `
     : ''}${amendedIds.length
-    ? `PLAN AMENDED for: ${amendedIds.join(', ')}. The developer overrode a plan clause it verified prescribes a real defect — read ${STATE_DIR}/AMENDED-<id>.md (and the pointer lines in ${DECISIONS})${COMMIT ? '' : ' before you commit'}, and fold anything you agree with back into the plan file. `
+    ? `PLAN AMENDED for: ${amendedIds.join(', ')}. The developer overrode a plan clause it verified prescribes a real defect — read ${STATE_DIR}/AMENDED-<id>.md (and the pointer lines in ${DECISIONS})${COMMIT ? '' : ' before you commit'}, and fold anything you agree with back into the plan file. Skip each amendment whose heading starts with "## ${RETIRED_MARK('<n>')}" and each pointer line that starts with "${RETIRED_MARK('<n>')}", since a relaunch's re-check retired it. `
     : ''}${sweep && sweep.complete !== true
     ? `The sweep reported goal-coverage gaps — ${sweepFileNote}. `
     : ''}${backlogFiles.size || backlogUnknown
@@ -3875,5 +3891,5 @@ return {
       : `This run added ${backlogEntries} entr${backlogEntries === 1 ? 'y' : 'ies'} to the project's backlog folder ${BACKLOG_DIR}/, in: ${[...backlogFiles].sort().join(', ')}.`} Report each added entry's severity, or its category for an entry with no severity line, its title and its decision to the user. Work the backlog as the develop guide's "Working the backlog" says once each file's block is done, skip or backlogged, since a relaunch of a blocked block may still append to its file. `
     : ''}${unparkedPullPlans.length
     ? `These blocks ended without a park that returned, so no status edit closes the "- pulled:" line of an entry that a block's round-1 developer marked and that no report or verdict of this run names. ${unparkedPullPlans.map((r) => `For ${r.id}, grep ${BACKLOG_DIR}/ for the line "- pulled: ${pulledMark(r.id)}" and remove each one ${r.pulled.length ? `on an entry that is not one of ${r.pulled.map((e) => e.issue_id).join(', ')}, the ids its ledger row's \`pulled\` names` : 'you find, since its ledger row\'s `pulled` names no entry'}. `).join('')}`
-    : ''}${acceptedLine}Check that \`git -C ${REPO} diff\` is empty and \`git -C ${REPO} status --porcelain\` lists no \`??\` file. Land the run with \`wt.mjs close\` once the develop guide says the run lands, and report the run's summary to the user: each landed block, each backlog entry named above, and each entry in ${DECISIONS} if it exists, since each is a default the developer took, a plan amendment, or a ${BASELINE_FIX} that the ${CHANGE_POLICY} change policy allowed. Show a ${LOGGED_FIX_TAG} line only after you confirm the landed code still holds its change, since a later round or a park can undo it.${dismissedLine} Then derive the next launch's args with \`node '${toolPath('plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file.${haltKind === 'relayed-request' ? '' : ` To relaunch, ${LAUNCH}.`} ${closingLine}`,
+    : ''}${acceptedLine}Check that \`git -C ${REPO} diff\` is empty and \`git -C ${REPO} status --porcelain\` lists no \`??\` file. Land the run with \`wt.mjs close\` once the develop guide says the run lands, and report the run's summary to the user: each landed block, each backlog entry named above, and each entry in ${DECISIONS} if it exists, since each is a default the developer took, a plan amendment, or a ${BASELINE_FIX} that the ${CHANGE_POLICY} change policy allowed. Show a ${LOGGED_FIX_TAG} line only after you confirm the landed code still holds its change, since a later round or a park can undo it. Leave out each line that starts with "${RETIRED_MARK('<n>')}", since a relaunch's re-check retired it.${dismissedLine} Then derive the next launch's args with \`node '${toolPath('plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file.${haltKind === 'relayed-request' ? '' : ` To relaunch, ${LAUNCH}.`} ${closingLine}`,
 };

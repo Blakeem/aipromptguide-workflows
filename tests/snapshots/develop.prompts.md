@@ -6,100 +6,100 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 33461 | every block accepts first time |
+| develop | 1 | 1 | 34334 | every block accepts first time |
 | quality | 1 | 1 | 8633 | every block accepts first time |
-| acceptance | 1 | 1 | 13887 | every block accepts first time |
-| develop | 2 | 1 | 33886 | every block accepts first time |
-| acceptance | 2 | 2 | 14168 | every block accepts first time |
-| final-sweep | 1 | 1 | 4887 | every block accepts first time |
-| develop | 3 | 2 | 37054 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 3 | 15388 | a feature block accepts under the proactive policy |
-| final-sweep | 2 | 1 | 4878 | a feature block accepts under the proactive policy |
-| develop | 4 | 3 | 32509 | quality flags the first round |
-| acceptance | 4 | 1 | 13895 | quality flags the first round |
-| develop | 5 | 3 | 32879 | quality flags the first round |
-| acceptance | 5 | 2 | 14176 | quality flags the first round |
-| develop | 6 | 3 | 32505 | acceptance finds gaps, then passes |
-| acceptance | 6 | 1 | 13893 | acceptance finds gaps, then passes |
-| develop | 7 | 3 | 32875 | acceptance finds gaps, then passes |
-| acceptance | 7 | 2 | 14174 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 18754 | a later round is judged low risk |
-| acceptance | 9 | 2 | 19035 | a later round is judged low risk |
-| quality | 2 | 1 | 9417 | the developer declines a finding |
-| acceptance | 10 | 1 | 15737 | the developer declines a finding |
-| develop | 8 | 3 | 31313 | the gate never goes green |
-| develop-closing | 1 | 1 | 32935 | the gate never goes green |
+| acceptance | 1 | 1 | 14050 | every block accepts first time |
+| develop | 2 | 1 | 34759 | every block accepts first time |
+| acceptance | 2 | 2 | 14331 | every block accepts first time |
+| final-sweep | 1 | 1 | 5231 | every block accepts first time |
+| develop | 3 | 2 | 37927 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 3 | 15551 | a feature block accepts under the proactive policy |
+| final-sweep | 2 | 1 | 5222 | a feature block accepts under the proactive policy |
+| develop | 4 | 3 | 32591 | quality flags the first round |
+| acceptance | 4 | 1 | 14058 | quality flags the first round |
+| develop | 5 | 3 | 32961 | quality flags the first round |
+| acceptance | 5 | 2 | 14339 | quality flags the first round |
+| develop | 6 | 3 | 32587 | acceptance finds gaps, then passes |
+| acceptance | 6 | 1 | 14056 | acceptance finds gaps, then passes |
+| develop | 7 | 3 | 32957 | acceptance finds gaps, then passes |
+| acceptance | 7 | 2 | 14337 | acceptance finds gaps, then passes |
+| acceptance | 8 | 1 | 18917 | a later round is judged low risk |
+| acceptance | 9 | 2 | 19198 | a later round is judged low risk |
+| quality | 2 | 1 | 9580 | the developer declines a finding |
+| acceptance | 10 | 1 | 15918 | the developer declines a finding |
+| develop | 8 | 3 | 31395 | the gate never goes green |
+| develop-closing | 1 | 1 | 33017 | the gate never goes green |
 | quality | 3 | 1 | 8693 | the gate never goes green |
-| acceptance | 11 | 4 | 17166 | the gate never goes green |
+| acceptance | 11 | 4 | 17329 | the gate never goes green |
 | park | 1 | 1 | 10617 | the gate never goes green |
-| develop | 9 | 3 | 31738 | the gate never goes green |
-| develop-closing | 2 | 1 | 33305 | the gate never goes green |
-| acceptance | 12 | 5 | 17447 | the gate never goes green |
-| acceptance | 13 | 1 | 13957 | a parked block, and the run carries on |
-| acceptance | 14 | 1 | 14021 | a parked block, and the run carries on |
-| acceptance | 15 | 1 | 14085 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 33962 | a parked block, and the run carries on |
-| acceptance | 16 | 4 | 22287 | a parked block, and the run carries on |
-| develop | 10 | 1 | 33443 | an ordered run stops at a parked block |
-| acceptance | 17 | 1 | 13881 | an ordered run stops at a parked block |
-| develop | 11 | 3 | 32487 | an ordered run stops at a parked block |
-| acceptance | 18 | 1 | 13887 | an ordered run stops at a parked block |
-| acceptance | 19 | 1 | 13951 | an ordered run stops at a parked block |
-| acceptance | 20 | 1 | 14015 | an ordered run stops at a parked block |
-| acceptance | 21 | 1 | 14079 | an ordered run stops at a parked block |
-| develop-closing | 4 | 1 | 33944 | an ordered run stops at a parked block |
-| acceptance | 22 | 4 | 22281 | an ordered run stops at a parked block |
+| develop | 9 | 3 | 31820 | the gate never goes green |
+| develop-closing | 2 | 1 | 33387 | the gate never goes green |
+| acceptance | 12 | 5 | 17610 | the gate never goes green |
+| acceptance | 13 | 1 | 14120 | a parked block, and the run carries on |
+| acceptance | 14 | 1 | 14184 | a parked block, and the run carries on |
+| acceptance | 15 | 1 | 14248 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 34044 | a parked block, and the run carries on |
+| acceptance | 16 | 4 | 22450 | a parked block, and the run carries on |
+| develop | 10 | 1 | 34316 | an ordered run stops at a parked block |
+| acceptance | 17 | 1 | 14044 | an ordered run stops at a parked block |
+| develop | 11 | 3 | 32569 | an ordered run stops at a parked block |
+| acceptance | 18 | 1 | 14050 | an ordered run stops at a parked block |
+| acceptance | 19 | 1 | 14114 | an ordered run stops at a parked block |
+| acceptance | 20 | 1 | 14178 | an ordered run stops at a parked block |
+| acceptance | 21 | 1 | 14242 | an ordered run stops at a parked block |
+| develop-closing | 4 | 1 | 34026 | an ordered run stops at a parked block |
+| acceptance | 22 | 4 | 22444 | an ordered run stops at a parked block |
 | park | 2 | 1 | 10629 | an ordered run stops at a parked block |
-| develop | 12 | 4 | 42728 | a fix block closes its issues |
-| acceptance | 23 | 6 | 22237 | a fix block closes its issues |
-| final-sweep | 3 | 1 | 4878 | a fix block closes its issues |
-| develop | 13 | 5 | 46220 | a fix block closes its issues under the proactive policy |
-| acceptance | 24 | 7 | 23762 | a fix block closes its issues under the proactive policy |
-| develop | 14 | 4 | 36651 | a fix block that continues no park closes its issues |
-| acceptance | 25 | 6 | 19555 | a fix block that continues no park closes its issues |
-| develop | 15 | 5 | 42883 | a proactive fix block that continues no park closes its issues and a pulled entry |
-| acceptance | 26 | 7 | 22837 | a proactive fix block that continues no park closes its issues and a pulled entry |
-| acceptance | 27 | 7 | 19839 | a proactive fix block that continues no park and pulled nothing closes its issues |
-| acceptance | 28 | 7 | 23776 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 16 | 6 | 37348 | a proactive fix block starts round 2 from the statuses it last reported |
-| acceptance | 29 | 7 | 23584 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 17 | 4 | 43117 | a pass of two fix blocks closes its issues |
-| acceptance | 30 | 6 | 22522 | a pass of two fix blocks closes its issues |
-| final-sweep | 4 | 1 | 4908 | a pass of two fix blocks closes its issues |
-| acceptance | 31 | 6 | 22236 | every issue is already fixed |
-| develop | 18 | 4 | 42710 | an ordered run stops on a fix block that closes nothing |
+| develop | 12 | 4 | 43702 | a fix block closes its issues |
+| acceptance | 23 | 6 | 22662 | a fix block closes its issues |
+| final-sweep | 3 | 1 | 5222 | a fix block closes its issues |
+| develop | 13 | 5 | 47194 | a fix block closes its issues under the proactive policy |
+| acceptance | 24 | 7 | 24187 | a fix block closes its issues under the proactive policy |
+| develop | 14 | 4 | 37524 | a fix block that continues no park closes its issues |
+| acceptance | 25 | 6 | 19718 | a fix block that continues no park closes its issues |
+| develop | 15 | 5 | 43857 | a proactive fix block that continues no park closes its issues and a pulled entry |
+| acceptance | 26 | 7 | 23262 | a proactive fix block that continues no park closes its issues and a pulled entry |
+| acceptance | 27 | 7 | 20002 | a proactive fix block that continues no park and pulled nothing closes its issues |
+| acceptance | 28 | 7 | 24201 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 16 | 6 | 37430 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 29 | 7 | 24009 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 17 | 4 | 44091 | a pass of two fix blocks closes its issues |
+| acceptance | 30 | 6 | 22947 | a pass of two fix blocks closes its issues |
+| final-sweep | 4 | 1 | 5252 | a pass of two fix blocks closes its issues |
+| acceptance | 31 | 6 | 22661 | every issue is already fixed |
+| develop | 18 | 4 | 43684 | an ordered run stops on a fix block that closes nothing |
 | park | 3 | 1 | 10941 | passed with a regression, not staged |
 | park | 4 | 1 | 10378 | acceptance stages a rejected block |
 | park | 5 | 1 | 10785 | the quality reviewer fails a block without its file |
 | park | 6 | 1 | 10785 | acceptance fails a block without its file |
 | park | 7 | 1 | 10714 | the developer staged its own work |
 | park | 8 | 1 | 10784 | the index changed outside acceptance |
-| park | 9 | 1 | 10806 | developer never got its block |
+| park | 9 | 1 | 11081 | developer never got its block |
 | park | 10 | 1 | 10352 | acceptance never got its block |
-| park | 11 | 1 | 10679 | the developer dies |
+| park | 11 | 1 | 10954 | the developer dies |
 | park | 12 | 1 | 10334 | the quality reviewer dies |
 | park | 13 | 1 | 10712 | the acceptance verifier dies |
-| park | 14 | 1 | 10201 | developer escalates |
-| park | 15 | 1 | 10191 | developer escalates in an ordered run |
-| acceptance | 32 | 6 | 24690 | log line cap before the sweep |
-| acceptance | 33 | 4 | 22031 | a closing acceptance lands the block |
-| develop-closing | 5 | 1 | 34332 | a closing acceptance lands the block |
-| acceptance | 34 | 5 | 22312 | a closing acceptance lands the block |
-| acceptance | 35 | 4 | 17238 | a closing pass gets a blind review |
-| acceptance | 36 | 5 | 17519 | a closing pass gets a blind review |
-| acceptance | 37 | 4 | 22324 | a closing acceptance finds a blocking gap |
+| park | 14 | 1 | 10476 | developer escalates |
+| park | 15 | 1 | 10466 | developer escalates in an ordered run |
+| acceptance | 32 | 6 | 25115 | log line cap before the sweep |
+| acceptance | 33 | 4 | 22194 | a closing acceptance lands the block |
+| develop-closing | 5 | 1 | 34414 | a closing acceptance lands the block |
+| acceptance | 34 | 5 | 22475 | a closing acceptance lands the block |
+| acceptance | 35 | 4 | 17401 | a closing pass gets a blind review |
+| acceptance | 36 | 5 | 17682 | a closing pass gets a blind review |
+| acceptance | 37 | 4 | 22487 | a closing acceptance finds a blocking gap |
 | park | 16 | 1 | 10767 | a closing acceptance finds a blocking gap |
-| acceptance | 38 | 5 | 22605 | a closing acceptance finds a blocking gap |
+| acceptance | 38 | 5 | 22768 | a closing acceptance finds a blocking gap |
 | park | 17 | 1 | 10767 | a closing acceptance finds a blocking gap |
-| develop | 19 | 7 | 33632 | every block commits first time |
+| develop | 19 | 7 | 34505 | every block commits first time |
 | quality | 4 | 1 | 8586 | every block commits first time |
-| acceptance | 39 | 8 | 15520 | every block commits first time |
-| develop | 20 | 7 | 34057 | every block commits first time |
-| acceptance | 40 | 9 | 15801 | every block commits first time |
-| final-sweep | 5 | 1 | 5199 | every block commits first time |
-| develop | 21 | 8 | 42930 | a fix block commits |
-| acceptance | 41 | 10 | 24087 | a fix block commits |
-| final-sweep | 6 | 1 | 5106 | a fix block commits |
+| acceptance | 39 | 8 | 15683 | every block commits first time |
+| develop | 20 | 7 | 34930 | every block commits first time |
+| acceptance | 40 | 9 | 15964 | every block commits first time |
+| final-sweep | 5 | 1 | 5543 | every block commits first time |
+| develop | 21 | 8 | 43904 | a fix block commits |
+| acceptance | 41 | 10 | 24512 | a fix block commits |
+| final-sweep | 6 | 1 | 5450 | a fix block commits |
 | park | 18 | 1 | 10384 | acceptance commits a rejected block |
 
 ## develop · variant 1 · schema 1
@@ -139,20 +139,24 @@ and report the tree id it prints as baseline_index_tree. Next, report earlier_fi
 else false, before you write to either file. Then implement this block from
 scratch on top of the accepted baseline.
 ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build.
-In round 1, E:/flow/runs/flow/gate/DISMISSED-block-a.md and E:/flow/runs/flow/AMENDED-block-a.md can hold only an earlier launch's text. Take
-these actions in order:
-  1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line against the current code, and remove each line
-     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
-     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-a.md.
-  2. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
-     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
-     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
-     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
-     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
-     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
-     Output: the rewritten E:/flow/runs/flow/AMENDED-block-a.md and E:/flow/runs/flow/DECISIONS.md.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-a.md and E:/flow/runs/flow/AMENDED-block-a.md can hold only an earlier launch's text.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. These files and E:/flow/runs/flow/DECISIONS.md keep every launch's record for the
+user, so retire a line or an amendment with this launch's mark "RETIRED launch 1: " and remove none.
+Take these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line in force against the current code, and retire each
+     line whose finding no longer applies or whose reason the code no longer supports, by putting the mark
+     at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     with each such line marked.
+  2. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment in force, each another agent's claim, as action 1
+     re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it
+     quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the
+     current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire
+     its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id, round, launch and defect file:line,
+     by putting the mark at its start. An amendment whose header names no launch has a pointer that names
+     none, so match that pointer by its block id, round and defect file:line alone.
+     Output: E:/flow/runs/flow/AMENDED-block-a.md and E:/flow/runs/flow/DECISIONS.md with each such amendment and pointer line marked.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
-block.
+block. Skip each line there that the LEDGER RE-CHECK calls retired.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
@@ -334,7 +338,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -696,6 +700,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -905,20 +910,24 @@ and report the tree id it prints as baseline_index_tree. Next, report earlier_fi
 else false, before you write to either file. Then implement this block from
 scratch on top of the accepted baseline.
 ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build.
-In round 1, E:/flow/runs/flow/gate/DISMISSED-block-b.md and E:/flow/runs/flow/AMENDED-block-b.md can hold only an earlier launch's text. Take
-these actions in order:
-  1. When E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, re-check each line against the current code, and remove each line
-     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
-     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-b.md.
-  2. When E:/flow/runs/flow/AMENDED-block-b.md exists, re-check each amendment, each another agent's claim, as action 1
-     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
-     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
-     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
-     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
-     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
-     Output: the rewritten E:/flow/runs/flow/AMENDED-block-b.md and E:/flow/runs/flow/DECISIONS.md.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-b.md and E:/flow/runs/flow/AMENDED-block-b.md can hold only an earlier launch's text.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. These files and E:/flow/runs/flow/DECISIONS.md keep every launch's record for the
+user, so retire a line or an amendment with this launch's mark "RETIRED launch 1: " and remove none.
+Take these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, re-check each line in force against the current code, and retire each
+     line whose finding no longer applies or whose reason the code no longer supports, by putting the mark
+     at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: E:/flow/runs/flow/gate/DISMISSED-block-b.md
+     with each such line marked.
+  2. When E:/flow/runs/flow/AMENDED-block-b.md exists, re-check each amendment in force, each another agent's claim, as action 1
+     re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it
+     quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the
+     current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire
+     its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id, round, launch and defect file:line,
+     by putting the mark at its start. An amendment whose header names no launch has a pointer that names
+     none, so match that pointer by its block id, round and defect file:line alone.
+     Output: E:/flow/runs/flow/AMENDED-block-b.md and E:/flow/runs/flow/DECISIONS.md with each such amendment and pointer line marked.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
-block.
+block. Skip each line there that the LEDGER RE-CHECK calls retired.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
@@ -1103,7 +1112,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-b.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -1329,6 +1338,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -1526,7 +1536,8 @@ Write every scratch file, such as a plan block or a test log, under E:/flow/runs
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-a, block-b
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
-only if it exists. An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
+only if it exists. A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing.
+An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
 developer took, and you hold it as acceptance holds it. Unless the reason it gives is false, a goal hit it
 covers is no gap. Every other line and amendment records a developer's claim, which excuses a goal hit only
 once you confirm it against the code.
@@ -1617,18 +1628,22 @@ and report the tree id it prints as baseline_index_tree. Next, report earlier_fi
 else false, before you write to either file. Then implement this block from
 scratch on top of the accepted baseline.
 ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build.
-In round 1, E:/flow/runs/flow/gate/DISMISSED-block-a.md and E:/flow/runs/flow/AMENDED-block-a.md can hold only an earlier launch's text. Take
-these actions in order:
-  1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line against the current code, and remove each line
-     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
-     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-a.md.
-  2. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
-     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
-     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
-     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
-     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
-     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
-     Output: the rewritten E:/flow/runs/flow/AMENDED-block-a.md and E:/flow/runs/flow/DECISIONS.md.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-a.md and E:/flow/runs/flow/AMENDED-block-a.md can hold only an earlier launch's text.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. These files and E:/flow/runs/flow/DECISIONS.md keep every launch's record for the
+user, so retire a line or an amendment with this launch's mark "RETIRED launch 1: " and remove none.
+Take these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line in force against the current code, and retire each
+     line whose finding no longer applies or whose reason the code no longer supports, by putting the mark
+     at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     with each such line marked.
+  2. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment in force, each another agent's claim, as action 1
+     re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it
+     quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the
+     current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire
+     its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id, round, launch and defect file:line,
+     by putting the mark at its start. An amendment whose header names no launch has a pointer that names
+     none, so match that pointer by its block id, round and defect file:line alone.
+     Output: E:/flow/runs/flow/AMENDED-block-a.md and E:/flow/runs/flow/DECISIONS.md with each such amendment and pointer line marked.
 PULL READY BACKLOG ENTRIES, in round 1 only. Once you have read your block, and before
 you build, list the files your block will change as repo paths relative to E:/repo, with forward
 slashes, and run:
@@ -1656,7 +1671,7 @@ block alone fills that. For each entry you take:
 Report each entry the PULLED file lists in pulled_results: FIXED when your change closes it, STALE
 when its defect no longer exists, FAILED when you reverted its change or could not fix it.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
-block.
+block. Skip each line there that the LEDGER RE-CHECK calls retired.
 You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below
 allows.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -1838,7 +1853,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -2095,6 +2110,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's proactive change policy let the developer make, a record. A
     PROACTIVE line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -2326,7 +2342,8 @@ Write every scratch file, such as a plan block or a test log, under E:/flow/runs
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-a
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
-only if it exists. An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
+only if it exists. A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing.
+An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
 developer took, and you hold it as acceptance holds it. Unless the reason it gives is false, a goal hit it
 covers is no gap. Every other line and amendment records a developer's claim, which excuses a goal hit only
 once you confirm it against the code.
@@ -2588,7 +2605,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -2799,6 +2816,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -3183,7 +3201,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-b.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -3394,6 +3412,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -3777,7 +3796,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -3988,6 +4007,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -4372,7 +4392,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-b.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -4583,6 +4603,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -4790,6 +4811,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -5026,6 +5048,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -5259,6 +5282,7 @@ Before reviewing, READ this if it exists. It holds the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
     It exists only once the developer has declined something, so a missing file or folder means nothing
     is settled yet. Do not search for it elsewhere.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues.
 Before you skip a listed finding, check its stated reason against the code it cites. When the code
@@ -5411,6 +5435,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -5479,8 +5504,8 @@ PROCEDURE:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
-   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
+   sibling path that carries the same mechanism and that no line in force in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line in force for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
    after the verdict that names it and before any later acceptance. A blind review that came back clean
    is never on this list, since it found nothing. That includes this round's blind review, when one ran.
@@ -5808,7 +5833,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -6209,7 +6234,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -6565,6 +6590,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -7102,7 +7128,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-b.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -7507,7 +7533,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-b.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -7727,6 +7753,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -7962,6 +7989,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -8167,6 +8195,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -8373,6 +8402,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -8771,7 +8801,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -8991,6 +9021,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -9263,20 +9294,24 @@ and report the tree id it prints as baseline_index_tree. Next, report earlier_fi
 else false, before you write to either file. Then implement this block from
 scratch on top of the accepted baseline.
 ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build.
-In round 1, E:/flow/runs/flow/gate/DISMISSED-block-a.md and E:/flow/runs/flow/AMENDED-block-a.md can hold only an earlier launch's text. Take
-these actions in order:
-  1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line against the current code, and remove each line
-     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
-     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-a.md.
-  2. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
-     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
-     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
-     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
-     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
-     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
-     Output: the rewritten E:/flow/runs/flow/AMENDED-block-a.md and E:/flow/runs/flow/DECISIONS.md.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-a.md and E:/flow/runs/flow/AMENDED-block-a.md can hold only an earlier launch's text.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. These files and E:/flow/runs/flow/DECISIONS.md keep every launch's record for the
+user, so retire a line or an amendment with this launch's mark "RETIRED launch 1: " and remove none.
+Take these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line in force against the current code, and retire each
+     line whose finding no longer applies or whose reason the code no longer supports, by putting the mark
+     at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     with each such line marked.
+  2. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment in force, each another agent's claim, as action 1
+     re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it
+     quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the
+     current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire
+     its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id, round, launch and defect file:line,
+     by putting the mark at its start. An amendment whose header names no launch has a pointer that names
+     none, so match that pointer by its block id, round and defect file:line alone.
+     Output: E:/flow/runs/flow/AMENDED-block-a.md and E:/flow/runs/flow/DECISIONS.md with each such amendment and pointer line marked.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
-block.
+block. Skip each line there that the LEDGER RE-CHECK calls retired.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
@@ -9458,7 +9493,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -9684,6 +9719,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -10064,7 +10100,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -10275,6 +10311,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -10479,6 +10516,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -10684,6 +10722,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -10890,6 +10929,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -11288,7 +11328,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -11508,6 +11548,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -11951,27 +11992,31 @@ conflict you could not confirm), set restored_branches to 0, and STOP.
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
-continues. Before you build, READ each file it names, re-check each line there as the ledger rule below re-checks an earlier
-launch's line, and append each line you keep to E:/flow/runs/flow/gate/DISMISSED-block-c.md unless that file already holds it,
-since that is the one ledger the blind reviewer reads. Its "- amended:" line names the plan
+continues. Before you build, READ each file it names, re-check each line there in force as the ledger rule below re-checks an earlier
+launch's line, and append each line you keep to E:/flow/runs/flow/gate/DISMISSED-block-c.md unless that file already holds it in force,
+since that is the one ledger the blind reviewer reads. Copy no retired line, and change nothing in the file it names. Its "- amended:" line names the plan
 amendments of the blocks its "- origin:" line names, each another agent's claim. READ each file it names
-and reproduce each amendment's defect against the file:line it cites. Meet an origin criterion under an
+and reproduce the defect of each amendment there in force against the file:line it cites. Meet an origin criterion under an
 amendment whose defect you reproduce, and as its block's text states it otherwise.
 ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.
-In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text. Take
-these actions in order:
-  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
-     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
-     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
-  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
-     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
-     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
-     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
-     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
-     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
-     Output: the rewritten E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. These files and E:/flow/runs/flow/DECISIONS.md keep every launch's record for the
+user, so retire a line or an amendment with this launch's mark "RETIRED launch 1: " and remove none.
+Take these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line in force against the current code, and retire each
+     line whose finding no longer applies or whose reason the code no longer supports, by putting the mark
+     at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: E:/flow/runs/flow/gate/DISMISSED-block-c.md
+     with each such line marked.
+  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment in force, each another agent's claim, as action 1
+     re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it
+     quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the
+     current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire
+     its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id, round, launch and defect file:line,
+     by putting the mark at its start. An amendment whose header names no launch has a pointer that names
+     none, so match that pointer by its block id, round and defect file:line alone.
+     Output: E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md with each such amendment and pointer line marked.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block.
+block. Skip each line there that the LEDGER RE-CHECK calls retired.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
@@ -12166,7 +12211,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-c.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -12434,6 +12479,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -12441,8 +12487,8 @@ accepts the overwrite, then replace its entire content.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
-that the developers of the parked block whose work that entry continues OVERRODE. Judge each of those
-amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
+that the developers of the parked block whose work that entry continues OVERRODE. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. Each amendment is the developer's claim.
+Reproduce its defect yourself against the file:line it cites and the text it quotes before it excuses a criterion of a block that entry's "- origin:" line names. A
 criterion that no amendment you confirmed excuses must hold as its block's text states it.
 
 EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
@@ -12715,7 +12761,8 @@ Write every scratch file, such as a plan block or a test log, under E:/flow/runs
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-c
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
-only if it exists. An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
+only if it exists. A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing.
+An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
 developer took, and you hold it as acceptance holds it. Unless the reason it gives is false, a goal hit it
 covers is no gap. Every other line and amendment records a developer's claim, which excuses a goal hit only
 once you confirm it against the code.
@@ -12851,25 +12898,29 @@ conflict you could not confirm), set restored_branches to 0, and STOP.
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
-continues. Before you build, READ each file it names, re-check each line there as the ledger rule below re-checks an earlier
-launch's line, and append each line you keep to E:/flow/runs/flow/gate/DISMISSED-block-c.md unless that file already holds it,
-since that is the one ledger the blind reviewer reads. Its "- amended:" line names the plan
+continues. Before you build, READ each file it names, re-check each line there in force as the ledger rule below re-checks an earlier
+launch's line, and append each line you keep to E:/flow/runs/flow/gate/DISMISSED-block-c.md unless that file already holds it in force,
+since that is the one ledger the blind reviewer reads. Copy no retired line, and change nothing in the file it names. Its "- amended:" line names the plan
 amendments of the blocks its "- origin:" line names, each another agent's claim. READ each file it names
-and reproduce each amendment's defect against the file:line it cites. Meet an origin criterion under an
+and reproduce the defect of each amendment there in force against the file:line it cites. Meet an origin criterion under an
 amendment whose defect you reproduce, and as its block's text states it otherwise.
 ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.
-In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text. Take
-these actions in order:
-  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
-     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
-     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
-  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
-     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
-     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
-     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
-     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
-     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
-     Output: the rewritten E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. These files and E:/flow/runs/flow/DECISIONS.md keep every launch's record for the
+user, so retire a line or an amendment with this launch's mark "RETIRED launch 1: " and remove none.
+Take these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line in force against the current code, and retire each
+     line whose finding no longer applies or whose reason the code no longer supports, by putting the mark
+     at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: E:/flow/runs/flow/gate/DISMISSED-block-c.md
+     with each such line marked.
+  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment in force, each another agent's claim, as action 1
+     re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it
+     quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the
+     current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire
+     its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id, round, launch and defect file:line,
+     by putting the mark at its start. An amendment whose header names no launch has a pointer that names
+     none, so match that pointer by its block id, round and defect file:line alone.
+     Output: E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md with each such amendment and pointer line marked.
 PULL READY BACKLOG ENTRIES, in round 1 only. Once you have read your block and restored any unfinished branch, and before
 you build, list the files your block will change as repo paths relative to E:/repo, with forward
 slashes, and run:
@@ -12897,7 +12948,7 @@ block alone fills that. For each entry you take:
 Report each entry the PULLED file lists in pulled_results: FIXED when your change closes it, STALE
 when its defect no longer exists, FAILED when you reverted its change or could not fix it.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block.
+block. Skip each line there that the LEDGER RE-CHECK calls retired.
 You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below
 allows.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -13093,7 +13144,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-c.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -13392,6 +13443,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's proactive change policy let the developer make, a record. A
     PROACTIVE line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -13399,8 +13451,8 @@ accepts the overwrite, then replace its entire content.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
-that the developers of the parked block whose work that entry continues OVERRODE. Judge each of those
-amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
+that the developers of the parked block whose work that entry continues OVERRODE. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. Each amendment is the developer's claim.
+Reproduce its defect yourself against the file:line it cites and the text it quotes before it excuses a criterion of a block that entry's "- origin:" line names. A
 criterion that no amendment you confirmed excuses must hold as its block's text states it.
 
 PULLED ENTRIES. READ E:/flow/runs/flow/launch-1/PULLED-block-c.md if it exists. Each line is the id of a ready backlog entry this
@@ -13728,20 +13780,24 @@ else false, before you write to either file. Then fix this block's entries on to
 baseline. No entry of this block continues a parked block's work, so report restore_failed "" and
 restored_branches 0, and go on to VERIFY-FIRST.
 ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.
-In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text. Take
-these actions in order:
-  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
-     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
-     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
-  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
-     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
-     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
-     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
-     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
-     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
-     Output: the rewritten E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. These files and E:/flow/runs/flow/DECISIONS.md keep every launch's record for the
+user, so retire a line or an amendment with this launch's mark "RETIRED launch 1: " and remove none.
+Take these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line in force against the current code, and retire each
+     line whose finding no longer applies or whose reason the code no longer supports, by putting the mark
+     at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: E:/flow/runs/flow/gate/DISMISSED-block-c.md
+     with each such line marked.
+  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment in force, each another agent's claim, as action 1
+     re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it
+     quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the
+     current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire
+     its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id, round, launch and defect file:line,
+     by putting the mark at its start. An amendment whose header names no launch has a pointer that names
+     none, so match that pointer by its block id, round and defect file:line alone.
+     Output: E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md with each such amendment and pointer line marked.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block.
+block. Skip each line there that the LEDGER RE-CHECK calls retired.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
@@ -13936,7 +13992,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-c.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -14200,6 +14256,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -14489,25 +14546,29 @@ rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves 
 restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line
 and the origin criteria hold, never STALE.
 An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
-continues. Before you build, READ each file it names, re-check each line there as the ledger rule below re-checks an earlier
-launch's line, and append each line you keep to E:/flow/runs/flow/gate/DISMISSED-block-c.md unless that file already holds it,
-since that is the one ledger the blind reviewer reads. Its "- amended:" line names the plan
+continues. Before you build, READ each file it names, re-check each line there in force as the ledger rule below re-checks an earlier
+launch's line, and append each line you keep to E:/flow/runs/flow/gate/DISMISSED-block-c.md unless that file already holds it in force,
+since that is the one ledger the blind reviewer reads. Copy no retired line, and change nothing in the file it names. Its "- amended:" line names the plan
 amendments of the blocks its "- origin:" line names, each another agent's claim. READ each file it names
-and reproduce each amendment's defect against the file:line it cites. Meet an origin criterion under an
+and reproduce the defect of each amendment there in force against the file:line it cites. Meet an origin criterion under an
 amendment whose defect you reproduce, and as its block's text states it otherwise.
 ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.
-In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text. Take
-these actions in order:
-  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
-     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
-     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
-  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
-     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
-     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
-     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
-     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
-     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
-     Output: the rewritten E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. These files and E:/flow/runs/flow/DECISIONS.md keep every launch's record for the
+user, so retire a line or an amendment with this launch's mark "RETIRED launch 1: " and remove none.
+Take these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line in force against the current code, and retire each
+     line whose finding no longer applies or whose reason the code no longer supports, by putting the mark
+     at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: E:/flow/runs/flow/gate/DISMISSED-block-c.md
+     with each such line marked.
+  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment in force, each another agent's claim, as action 1
+     re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it
+     quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the
+     current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire
+     its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id, round, launch and defect file:line,
+     by putting the mark at its start. An amendment whose header names no launch has a pointer that names
+     none, so match that pointer by its block id, round and defect file:line alone.
+     Output: E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md with each such amendment and pointer line marked.
 PULL READY BACKLOG ENTRIES, in round 1 only. Once you have read your block and restored any unfinished branch, and before
 you build, list the files your block will change as repo paths relative to E:/repo, with forward
 slashes, and run:
@@ -14535,7 +14596,7 @@ block alone fills that. For each entry you take:
 Report each entry the PULLED file lists in pulled_results: FIXED when your change closes it, STALE
 when its defect no longer exists, FAILED when you reverted its change or could not fix it.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block.
+block. Skip each line there that the LEDGER RE-CHECK calls retired.
 You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below
 allows.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -14731,7 +14792,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-c.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -15030,6 +15091,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's proactive change policy let the developer make, a record. A
     PROACTIVE line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -15037,8 +15099,8 @@ accepts the overwrite, then replace its entire content.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
-that the developers of the parked block whose work that entry continues OVERRODE. Judge each of those
-amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
+that the developers of the parked block whose work that entry continues OVERRODE. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. Each amendment is the developer's claim.
+Reproduce its defect yourself against the file:line it cites and the text it quotes before it excuses a criterion of a block that entry's "- origin:" line names. A
 criterion that no amendment you confirmed excuses must hold as its block's text states it.
 
 PULLED ENTRIES. READ E:/flow/runs/flow/launch-1/PULLED-block-c.md if it exists. Each line is the id of a ready backlog entry this
@@ -15350,6 +15412,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's proactive change policy let the developer make, a record. A
     PROACTIVE line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -15650,6 +15713,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's proactive change policy let the developer make, a record. A
     PROACTIVE line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -15657,8 +15721,8 @@ accepts the overwrite, then replace its entire content.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
-that the developers of the parked block whose work that entry continues OVERRODE. Judge each of those
-amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
+that the developers of the parked block whose work that entry continues OVERRODE. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. Each amendment is the developer's claim.
+Reproduce its defect yourself against the file:line it cites and the text it quotes before it excuses a criterion of a block that entry's "- origin:" line names. A
 criterion that no amendment you confirmed excuses must hold as its block's text states it.
 
 PULLED ENTRIES. READ E:/flow/runs/flow/launch-1/PULLED-block-c.md if it exists. Each line is the id of a ready backlog entry this
@@ -16185,7 +16249,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-c.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -16459,6 +16523,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's proactive change policy let the developer make, a record. A
     PROACTIVE line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -16466,8 +16531,8 @@ accepts the overwrite, then replace its entire content.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
-that the developers of the parked block whose work that entry continues OVERRODE. Judge each of those
-amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
+that the developers of the parked block whose work that entry continues OVERRODE. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. Each amendment is the developer's claim.
+Reproduce its defect yourself against the file:line it cites and the text it quotes before it excuses a criterion of a block that entry's "- origin:" line names. A
 criterion that no amendment you confirmed excuses must hold as its block's text states it.
 
 PULLED ENTRIES. READ E:/flow/runs/flow/launch-1/PULLED-block-c.md if it exists. Each line is the id of a ready backlog entry this
@@ -16838,27 +16903,31 @@ conflict you could not confirm), set restored_branches to 0, and STOP.
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
-continues. Before you build, READ each file it names, re-check each line there as the ledger rule below re-checks an earlier
-launch's line, and append each line you keep to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md unless that file already holds it,
-since that is the one ledger the blind reviewer reads. Its "- amended:" line names the plan
+continues. Before you build, READ each file it names, re-check each line there in force as the ledger rule below re-checks an earlier
+launch's line, and append each line you keep to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md unless that file already holds it in force,
+since that is the one ledger the blind reviewer reads. Copy no retired line, and change nothing in the file it names. Its "- amended:" line names the plan
 amendments of the blocks its "- origin:" line names, each another agent's claim. READ each file it names
-and reproduce each amendment's defect against the file:line it cites. Meet an origin criterion under an
+and reproduce the defect of each amendment there in force against the file:line it cites. Meet an origin criterion under an
 amendment whose defect you reproduce, and as its block's text states it otherwise.
 ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.
-In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md and E:/flow/runs/flow/AMENDED-block-c-plus-1.md can hold only an earlier launch's text. Take
-these actions in order:
-  1. When E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md exists, re-check each line against the current code, and remove each line
-     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
-     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md.
-  2. When E:/flow/runs/flow/AMENDED-block-c-plus-1.md exists, re-check each amendment, each another agent's claim, as action 1
-     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
-     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
-     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
-     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
-     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
-     Output: the rewritten E:/flow/runs/flow/AMENDED-block-c-plus-1.md and E:/flow/runs/flow/DECISIONS.md.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md and E:/flow/runs/flow/AMENDED-block-c-plus-1.md can hold only an earlier launch's text.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. These files and E:/flow/runs/flow/DECISIONS.md keep every launch's record for the
+user, so retire a line or an amendment with this launch's mark "RETIRED launch 1: " and remove none.
+Take these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md exists, re-check each line in force against the current code, and retire each
+     line whose finding no longer applies or whose reason the code no longer supports, by putting the mark
+     at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md
+     with each such line marked.
+  2. When E:/flow/runs/flow/AMENDED-block-c-plus-1.md exists, re-check each amendment in force, each another agent's claim, as action 1
+     re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it
+     quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the
+     current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire
+     its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id, round, launch and defect file:line,
+     by putting the mark at its start. An amendment whose header names no launch has a pointer that names
+     none, so match that pointer by its block id, round and defect file:line alone.
+     Output: E:/flow/runs/flow/AMENDED-block-c-plus-1.md and E:/flow/runs/flow/DECISIONS.md with each such amendment and pointer line marked.
 If E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md exists, READ it first: your ledger of declined findings for THIS
-block.
+block. Skip each line there that the LEDGER RE-CHECK calls retired.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
@@ -17053,7 +17122,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-c-plus-1.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -17325,6 +17394,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -17332,8 +17402,8 @@ accepts the overwrite, then replace its entire content.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c-plus-1.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
-that the developers of the parked block whose work that entry continues OVERRODE. Judge each of those
-amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
+that the developers of the parked block whose work that entry continues OVERRODE. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. Each amendment is the developer's claim.
+Reproduce its defect yourself against the file:line it cites and the text it quotes before it excuses a criterion of a block that entry's "- origin:" line names. A
 criterion that no amendment you confirmed excuses must hold as its block's text states it.
 
 EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
@@ -17610,7 +17680,8 @@ Write every scratch file, such as a plan block or a test log, under E:/flow/runs
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-c-plus-1
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
-only if it exists. An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
+only if it exists. A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing.
+An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
 developer took, and you hold it as acceptance holds it. Unless the reason it gives is false, a goal hit it
 covers is no gap. Every other line and amendment records a developer's claim, which excuses a goal hit only
 once you confirm it against the code.
@@ -17701,6 +17772,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -17708,8 +17780,8 @@ accepts the overwrite, then replace its entire content.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
-that the developers of the parked block whose work that entry continues OVERRODE. Judge each of those
-amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
+that the developers of the parked block whose work that entry continues OVERRODE. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. Each amendment is the developer's claim.
+Reproduce its defect yourself against the file:line it cites and the text it quotes before it excuses a criterion of a block that entry's "- origin:" line names. A
 criterion that no amendment you confirmed excuses must hold as its block's text states it.
 
 EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
@@ -18042,27 +18114,31 @@ conflict you could not confirm), set restored_branches to 0, and STOP.
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
-continues. Before you build, READ each file it names, re-check each line there as the ledger rule below re-checks an earlier
-launch's line, and append each line you keep to E:/flow/runs/flow/gate/DISMISSED-block-c.md unless that file already holds it,
-since that is the one ledger the blind reviewer reads. Its "- amended:" line names the plan
+continues. Before you build, READ each file it names, re-check each line there in force as the ledger rule below re-checks an earlier
+launch's line, and append each line you keep to E:/flow/runs/flow/gate/DISMISSED-block-c.md unless that file already holds it in force,
+since that is the one ledger the blind reviewer reads. Copy no retired line, and change nothing in the file it names. Its "- amended:" line names the plan
 amendments of the blocks its "- origin:" line names, each another agent's claim. READ each file it names
-and reproduce each amendment's defect against the file:line it cites. Meet an origin criterion under an
+and reproduce the defect of each amendment there in force against the file:line it cites. Meet an origin criterion under an
 amendment whose defect you reproduce, and as its block's text states it otherwise.
 ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.
-In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text. Take
-these actions in order:
-  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
-     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
-     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
-  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
-     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
-     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
-     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
-     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
-     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
-     Output: the rewritten E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. These files and E:/flow/runs/flow/DECISIONS.md keep every launch's record for the
+user, so retire a line or an amendment with this launch's mark "RETIRED launch 1: " and remove none.
+Take these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line in force against the current code, and retire each
+     line whose finding no longer applies or whose reason the code no longer supports, by putting the mark
+     at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: E:/flow/runs/flow/gate/DISMISSED-block-c.md
+     with each such line marked.
+  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment in force, each another agent's claim, as action 1
+     re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it
+     quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the
+     current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire
+     its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id, round, launch and defect file:line,
+     by putting the mark at its start. An amendment whose header names no launch has a pointer that names
+     none, so match that pointer by its block id, round and defect file:line alone.
+     Output: E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md with each such amendment and pointer line marked.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block.
+block. Skip each line there that the LEDGER RE-CHECK calls retired.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
@@ -18257,7 +18333,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -19316,6 +19392,9 @@ PROCEDURE:
    the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
      Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Pass --ledger only when E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, and --amended only when E:/flow/runs/flow/AMENDED-block-a.md exists, so the block built from this entry reads this block's declined findings and plan amendments.
+   A line that starts with "RETIRED launch <n>: ", or an amendment whose heading starts with
+   "## RETIRED launch <n>: ", is retired and no longer in force, and the block built from this entry skips it.
+   A file that holds only retired ones still exists, so pass its flag.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -19567,6 +19646,9 @@ PROCEDURE:
    the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
      Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Pass --ledger only when E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, and --amended only when E:/flow/runs/flow/AMENDED-block-a.md exists, so the block built from this entry reads this block's declined findings and plan amendments.
+   A line that starts with "RETIRED launch <n>: ", or an amendment whose heading starts with
+   "## RETIRED launch <n>: ", is retired and no longer in force, and the block built from this entry skips it.
+   A file that holds only retired ones still exists, so pass its flag.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -19943,6 +20025,9 @@ PROCEDURE:
    the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
      Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Pass --ledger only when E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, and --amended only when E:/flow/runs/flow/AMENDED-block-a.md exists, so the block built from this entry reads this block's declined findings and plan amendments.
+   A line that starts with "RETIRED launch <n>: ", or an amendment whose heading starts with
+   "## RETIRED launch <n>: ", is retired and no longer in force, and the block built from this entry skips it.
+   A file that holds only retired ones still exists, so pass its flag.
    Set "- decision: NEEDS_USER", since this park waits on a question only the user can answer.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -20069,6 +20154,9 @@ PROCEDURE:
    the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved. Replace the **Fix:** placeholder with this text instead:
      Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Pass --ledger only when E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, and --amended only when E:/flow/runs/flow/AMENDED-block-a.md exists, so the block built from this entry reads this block's declined findings and plan amendments.
+   A line that starts with "RETIRED launch <n>: ", or an amendment whose heading starts with
+   "## RETIRED launch <n>: ", is retired and no longer in force, and the block built from this entry skips it.
+   A file that holds only retired ones still exists, so pass its flag.
    Set "- decision: NEEDS_USER", since this park waits on a question only the user can answer.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
    four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
@@ -20154,6 +20242,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -20161,8 +20250,8 @@ accepts the overwrite, then replace its entire content.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
-that the developers of the parked block whose work that entry continues OVERRODE. Judge each of those
-amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
+that the developers of the parked block whose work that entry continues OVERRODE. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. Each amendment is the developer's claim.
+Reproduce its defect yourself against the file:line it cites and the text it quotes before it excuses a criterion of a block that entry's "- origin:" line names. A
 criterion that no amendment you confirmed excuses must hold as its block's text states it.
 
 EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
@@ -20644,6 +20733,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -21103,7 +21193,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-b.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -21323,6 +21413,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -21591,6 +21682,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -21825,6 +21917,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -22062,6 +22155,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -22456,6 +22550,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -22857,20 +22952,24 @@ and report the tree id it prints as baseline_index_tree. Next, report earlier_fi
 else false, before you write to either file. Then implement this block from
 scratch on top of the accepted baseline.
 ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build.
-In round 1, E:/flow/runs/flow/gate/DISMISSED-block-a.md and E:/flow/runs/flow/AMENDED-block-a.md can hold only an earlier launch's text. Take
-these actions in order:
-  1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line against the current code, and remove each line
-     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
-     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-a.md.
-  2. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
-     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
-     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
-     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
-     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
-     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
-     Output: the rewritten E:/flow/runs/flow/AMENDED-block-a.md and E:/flow/runs/flow/DECISIONS.md.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-a.md and E:/flow/runs/flow/AMENDED-block-a.md can hold only an earlier launch's text.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. These files and E:/flow/runs/flow/DECISIONS.md keep every launch's record for the
+user, so retire a line or an amendment with this launch's mark "RETIRED launch 1: " and remove none.
+Take these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line in force against the current code, and retire each
+     line whose finding no longer applies or whose reason the code no longer supports, by putting the mark
+     at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     with each such line marked.
+  2. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment in force, each another agent's claim, as action 1
+     re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it
+     quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the
+     current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire
+     its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id, round, launch and defect file:line,
+     by putting the mark at its start. An amendment whose header names no launch has a pointer that names
+     none, so match that pointer by its block id, round and defect file:line alone.
+     Output: E:/flow/runs/flow/AMENDED-block-a.md and E:/flow/runs/flow/DECISIONS.md with each such amendment and pointer line marked.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
-block.
+block. Skip each line there that the LEDGER RE-CHECK calls retired.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
@@ -23052,7 +23151,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-a.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -23419,6 +23518,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -23666,20 +23766,24 @@ and report the tree id it prints as baseline_index_tree. Next, report earlier_fi
 else false, before you write to either file. Then implement this block from
 scratch on top of the accepted baseline.
 ROUND 1 — LEDGER RE-CHECK, after STEP 0, and before you build.
-In round 1, E:/flow/runs/flow/gate/DISMISSED-block-b.md and E:/flow/runs/flow/AMENDED-block-b.md can hold only an earlier launch's text. Take
-these actions in order:
-  1. When E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, re-check each line against the current code, and remove each line
-     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
-     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-b.md.
-  2. When E:/flow/runs/flow/AMENDED-block-b.md exists, re-check each amendment, each another agent's claim, as action 1
-     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
-     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
-     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
-     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
-     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
-     Output: the rewritten E:/flow/runs/flow/AMENDED-block-b.md and E:/flow/runs/flow/DECISIONS.md.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-b.md and E:/flow/runs/flow/AMENDED-block-b.md can hold only an earlier launch's text.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. These files and E:/flow/runs/flow/DECISIONS.md keep every launch's record for the
+user, so retire a line or an amendment with this launch's mark "RETIRED launch 1: " and remove none.
+Take these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, re-check each line in force against the current code, and retire each
+     line whose finding no longer applies or whose reason the code no longer supports, by putting the mark
+     at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: E:/flow/runs/flow/gate/DISMISSED-block-b.md
+     with each such line marked.
+  2. When E:/flow/runs/flow/AMENDED-block-b.md exists, re-check each amendment in force, each another agent's claim, as action 1
+     re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it
+     quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the
+     current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire
+     its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id, round, launch and defect file:line,
+     by putting the mark at its start. An amendment whose header names no launch has a pointer that names
+     none, so match that pointer by its block id, round and defect file:line alone.
+     Output: E:/flow/runs/flow/AMENDED-block-b.md and E:/flow/runs/flow/DECISIONS.md with each such amendment and pointer line marked.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
-block.
+block. Skip each line there that the LEDGER RE-CHECK calls retired.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
@@ -23864,7 +23968,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-b.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -24095,6 +24199,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -24329,7 +24434,8 @@ Write every scratch file, such as a plan block or a test log, under E:/flow/runs
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-a, block-b
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
-only if it exists. An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
+only if it exists. A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing.
+An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
 developer took, and you hold it as acceptance holds it. Unless the reason it gives is false, a goal hit it
 covers is no gap. Every other line and amendment records a developer's claim, which excuses a goal hit only
 once you confirm it against the code.
@@ -24469,27 +24575,31 @@ conflict you could not confirm), set restored_branches to 0, and STOP.
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 An ACTIONABLE entry's "- ledger:" line names the DISMISSED ledger of the parked block whose work it
-continues. Before you build, READ each file it names, re-check each line there as the ledger rule below re-checks an earlier
-launch's line, and append each line you keep to E:/flow/runs/flow/gate/DISMISSED-block-c.md unless that file already holds it,
-since that is the one ledger the blind reviewer reads. Its "- amended:" line names the plan
+continues. Before you build, READ each file it names, re-check each line there in force as the ledger rule below re-checks an earlier
+launch's line, and append each line you keep to E:/flow/runs/flow/gate/DISMISSED-block-c.md unless that file already holds it in force,
+since that is the one ledger the blind reviewer reads. Copy no retired line, and change nothing in the file it names. Its "- amended:" line names the plan
 amendments of the blocks its "- origin:" line names, each another agent's claim. READ each file it names
-and reproduce each amendment's defect against the file:line it cites. Meet an origin criterion under an
+and reproduce the defect of each amendment there in force against the file:line it cites. Meet an origin criterion under an
 amendment whose defect you reproduce, and as its block's text states it otherwise.
 ROUND 1 — LEDGER RE-CHECK, after STEP 0 and any restore of an unfinished branch, and before you build.
-In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text. Take
-these actions in order:
-  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
-     whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
-     dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
-  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
-     re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
-     quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
-     defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
-     its block id, round, launch and defect file:line. An amendment whose header names no launch has a
-     pointer that names none, so match that pointer by its block id, round and defect file:line alone.
-     Output: the rewritten E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md.
+In round 1, E:/flow/runs/flow/gate/DISMISSED-block-c.md and E:/flow/runs/flow/AMENDED-block-c.md can hold only an earlier launch's text.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. These files and E:/flow/runs/flow/DECISIONS.md keep every launch's record for the
+user, so retire a line or an amendment with this launch's mark "RETIRED launch 1: " and remove none.
+Take these actions in order:
+  1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line in force against the current code, and retire each
+     line whose finding no longer applies or whose reason the code no longer supports, by putting the mark
+     at its start, so no earlier launch's dismissal hides a finding in rebuilt code. Output: E:/flow/runs/flow/gate/DISMISSED-block-c.md
+     with each such line marked.
+  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment in force, each another agent's claim, as action 1
+     re-checks a DISMISSED line. Reproduce its defect against the file:line it cites and the clause it
+     quotes. Retire each amendment whose quoted clause your block's text no longer holds or whose defect the
+     current code does not reproduce, by putting the mark directly after the "## " of its heading. Retire
+     its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names its block id, round, launch and defect file:line,
+     by putting the mark at its start. An amendment whose header names no launch has a pointer that names
+     none, so match that pointer by its block id, round and defect file:line alone.
+     Output: E:/flow/runs/flow/AMENDED-block-c.md and E:/flow/runs/flow/DECISIONS.md with each such amendment and pointer line marked.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block.
+block. Skip each line there that the LEDGER RE-CHECK calls retired.
 Make the smallest change that does the task, as a contractor in code that others depend on.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
@@ -24684,7 +24794,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     block parks with the user's question in E:/flow/runs/flow/question-block-c.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there covers the finding yet:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) when no line there that is in force covers the finding yet. A retired line covers nothing, so decline again with a new line:
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -24957,6 +25067,7 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
     this run's focused change policy let the developer make, a record. A
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files at your
 EARLIER FINDINGS step below. At the WRITE step, Read the file it names if it exists, so the Write tool
@@ -24964,8 +25075,8 @@ accepts the overwrite, then replace its entire content.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 Also READ each file that the "- amended:" line of an ACTIONABLE entry of this block names. It records the plan clauses
-that the developers of the parked block whose work that entry continues OVERRODE. Judge each of those
-amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
+that the developers of the parked block whose work that entry continues OVERRODE. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing. Each amendment is the developer's claim.
+Reproduce its defect yourself against the file:line it cites and the text it quotes before it excuses a criterion of a block that entry's "- origin:" line names. A
 criterion that no amendment you confirmed excuses must hold as its block's text states it.
 
 EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
@@ -25276,7 +25387,8 @@ Write every scratch file, such as a plan block or a test log, under E:/flow/runs
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-c
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
-only if it exists. An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
+only if it exists. A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing.
+An escalated default in E:/flow/runs/flow/DECISIONS.md records a choice routed to the user and the default the
 developer took, and you hold it as acceptance holds it. Unless the reason it gives is false, a goal hit it
 covers is no gap. Every other line and amendment records a developer's claim, which excuses a goal hit only
 once you confirm it against the code.

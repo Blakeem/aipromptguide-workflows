@@ -164,7 +164,8 @@ which the park also copies into that block's backlog entry), and the defaults th
 pointer to each plan amendment and each fix the developer made to a problem the code already had that its
 block did not require (`DECISIONS.md`).
 The run's summary names each `DISMISSED-<id>.md` file, so you can audit every finding a developer
-declined.
+declined. A relaunch removes no line from these files. It marks a declined finding, an amendment or a
+pointer line that no longer applies with `RETIRED launch <n>:`, where `<n>` is the launch that retired it.
 
 The project's backlog folder (`backlog/<project>/`) holds the defects found outside each block's work,
 in one file per block of each run. From a block's closing pass, it holds the findings whose fixes need

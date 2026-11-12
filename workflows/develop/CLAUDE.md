@@ -96,7 +96,8 @@ steps 39 to 44.
 26. Grep the integration points of each block the run built (§6). Output: the hits, each one consistent
     with the block's change.
 27. (when `nextStep` says PLAN AMENDED) Read each `AMENDED-<id>.md` and the pointer lines in `DECISIONS.md`,
-    and fold each amendment you agree with into the plan file (§6). Output: the plan file holds each one.
+    and fold each amendment you agree with into the plan file, skipping each retired one (§5, §6). Output:
+    the plan file holds each one.
 28. Name to the user `NEEDS-USER.md`, `DECISIONS.md`, the `SWEEP.md` in this launch's `launchDir`, each
     file in `backlogFiles` and the path of each `DISMISSED-<id>.md` that `nextStep` names, each one that
     exists, and report each backlog entry the run added with the fields `nextStep` names (§6, §8). Output:
@@ -128,11 +129,11 @@ steps 39 to 44.
     `PROACTIVE <id>:` or `FOCUSED <id>:` line in `DECISIONS.md` (§2 step 6, §4). Output: each such line
     confirmed or left out of the report.
 37. (once step 34 landed the run) Report the run's summary to the user: each landed block, the gate's result
-    step 35 gave, each backlog entry and `DISMISSED-<id>.md` path step 28 named, each `DECISIONS.md` line,
-    with a `PROACTIVE` or `FOCUSED` line only once step 36 confirmed it, each file you resolved at a close
-    exit 20, each file you changed at a close exit 30 with the reason, a skipped backlog build and, in stage
-    delivery, each unfinished branch that `nextStep` says to delete once the user commits the staged work,
-    with its `git branch -D` command (§2 step 6, §7). Output: the summary.
+    step 35 gave, each backlog entry and `DISMISSED-<id>.md` path step 28 named, each `DECISIONS.md` line
+    that is not retired (§5), with a `PROACTIVE` or `FOCUSED` line only once step 36 confirmed it, each file
+    you resolved at a close exit 20, each file you changed at a close exit 30 with the reason, a skipped
+    backlog build and, in stage delivery, each unfinished branch that `nextStep` says to delete once the user
+    commits the staged work, with its `git branch -D` command (§2 step 6, §7). Output: the summary.
 38. (when a `todo` block is left, step 34 did not land the run and, in an ordered plan, no parked block
     before it still waits for its entry to build) Relaunch with the same `runId` through steps 13 to 17 (§4,
     "Relaunch vs. new run", §7). Stop this pass of the list there, and work the After list again from step
@@ -371,9 +372,9 @@ reason the code shows.
    - `0`: landed. Run the full gate in the user's checkout, since the run worktree held only the tracked
      files and the ignored files that provision copied. Report the result with the run's summary: each
      landed block, each backlog entry the run added with its severity, or its category when it has no
-     severity line, its title and its decision, each `DECISIONS.md` line, showing a logged fix line only
-     after you confirm the landed code still holds its change, and the path of each `DISMISSED-<id>.md`
-     that `nextStep` names and that exists.
+     severity line, its title and its decision, each `DECISIONS.md` line that is not retired (§5), showing
+     a logged fix line only after you confirm the landed code still holds its change, and the path of each
+     `DISMISSED-<id>.md` that `nextStep` names and that exists.
    - `20`: the rebase conflicted with commits the branch gained during the run, or the branch moved
      while close ran. Resolve it yourself in the run worktree: run `git rebase <branch>`, read both
      sides of each conflicted file and keep both intents, `git add` it, run `git rebase --continue`,
@@ -646,16 +647,21 @@ The roles:
   it. That form quotes no plan text. It never drops a finding it can neither confirm nor refute. It
   settles that finding with a read or a probe, fixes it or escalates it. On a relaunch, the round-1
   developer re-checks each line that `DISMISSED-<id>.md` carries from an earlier launch against the
-  current code before it builds, and removes each line whose finding no longer applies or whose reason
+  current code before it builds, and retires each line whose finding no longer applies or whose reason
   the code no longer supports. It re-checks each amendment in `AMENDED-<id>.md` the same way. It
-  reproduces the amendment's defect and removes each amendment whose quoted clause the block's text no
+  reproduces the amendment's defect and retires each amendment whose quoted clause the block's text no
   longer holds or whose defect the current code does not reproduce, together with its pointer line in
-  `DECISIONS.md`. Each amendment's header, `## Plan amendment: <id> rN, launch <n>`, numbers its launch,
-  and its pointer line names the same number. An amendment whose header names no launch has a pointer
-  that names none, and the developer matches that pointer by block id, round and defect file:line
-  alone. The engine takes `<n>` from the name of the launch folder, `launch-<n>` (§8), and renders it
-  into every round's header. A header that a develop engine from before launch folders wrote may name
-  a later launch's number too, and the developer tells their pointers apart by defect file:line.
+  `DECISIONS.md`. It retires a line by putting the mark `RETIRED launch <n>: ` at its start, and an
+  amendment by putting that mark directly after the `## ` of its heading, where `<n>` numbers the launch
+  that retires it. It removes nothing, so these ledgers only grow. A retired line or amendment is no
+  longer in force, so every agent and every step of this guide that reads these files skips it, and a
+  developer that declines its finding again appends a new line. Each amendment's header,
+  `## Plan amendment: <id> rN, launch <n>`, numbers its launch, and its pointer line names the same
+  number. An amendment whose header names no launch has a pointer that names none, and the developer
+  matches that pointer by block id, round and defect file:line alone. The engine takes `<n>` from the
+  name of the launch folder, `launch-<n>` (§8), and renders it into every round's header. A header that a
+  develop engine from before launch folders wrote may name a later launch's number too, and the developer
+  tells their pointers apart by defect file:line.
   It escalates only a choice that changes user-visible behavior, stored data or a public contract and
   that nothing it can read or check settles, or a blocker it cannot resolve in scope. One it cannot
   proceed without goes to `NEEDS-USER.md` in an ordered run, which halts on it, and to the block's
@@ -764,11 +770,12 @@ The roles:
   since the block's first blind review judges the entire restored work. A park entry's `- ledger:`
   line names the `DISMISSED-<id>.md` of the parked block, and its `- amended:` line names
   the `AMENDED-<id>.md` files of the blocks its `- origin:` line names. The round-1 developer re-checks
-  each line of that ledger as it re-checks an earlier launch's line, and copies each one it keeps into
-  its own block's ledger, the one ledger the blind reviewer reads. It reproduces each such amendment's
-  defect and meets an origin criterion under an amendment it reproduces. Acceptance reads both files,
-  counts a ledger line the developer did not copy as settling nothing, and judges an origin criterion
-  under such an amendment only once it reproduces the amendment's defect. A landed block holds a
+  each line of that ledger that is not retired as it re-checks an earlier launch's line, and copies each
+  one it keeps into its own block's ledger, the one ledger the blind reviewer reads. It reproduces the
+  defect of each such amendment that is not retired and meets an origin criterion under an amendment it
+  reproduces. Acceptance reads both files, counts a ledger line the developer did not copy as settling
+  nothing, and judges an origin criterion under such an amendment only once it reproduces the amendment's
+  defect. A landed block holds a
   branch's work only when acceptance returned `actually_fixed=true` for every entry that names that
   branch, since the developer may keep or revert the restored work of an entry it reports FAILED. In
   commit delivery, acceptance deletes each such branch with `git branch -D` only on a pass with no

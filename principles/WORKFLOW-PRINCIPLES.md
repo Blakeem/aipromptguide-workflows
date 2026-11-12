@@ -141,7 +141,10 @@ outputs are four append files:
   spec, not a real path), with just enough context that a reviewer is not in the dark. The line format
   is `<file:line, or the class of places it covers> — <gist> — SKIPPED: <≤15-word reason>`, and its
   reason holds for every place it names. The ledger is an inter-agent message from the developer to the
-  reviewers and the user's end-of-run audit of every judgment call.
+  reviewers and the user's end-of-run audit of every judgment call. A relaunch's developer retires a line
+  that no longer applies with the mark `RETIRED launch <n>: ` and removes none, so the ledger only grows,
+  and every reader skips a retired line. The same mark retires an `AMENDED-<id>.md` entry and its
+  `DECISIONS.md` pointer line.
 - **`AMENDED-<id>.md`**, one entry per plan clause the developer overrode because it prescribes a real
   defect. Each entry quotes the clause, names the defect's file:line, and says what was built instead.
   It is an inter-agent message from the developer to the acceptance stage and the sweep. It is kept
@@ -507,8 +510,10 @@ rules and apply only where they fit.
   state. A replay is a relaunch that also passes the Workflow tool's `resumeFromRunId`, so agents whose
   prompts are unchanged return from cache. Unrelated new work takes a new `runId`. Nobody clears
   run-state, so a halted run keeps its ledgers and user notes, and a new `runId` never reads stale
-  ones. `DISMISSED-<id>.md`, `NEEDS-USER.md` and `DECISIONS.md` are cumulative across every launch of
-  one `runId`. Choosing the `runId` is pre-run setup (#4), not an engine job.
+  ones. `DISMISSED-<id>.md`, `AMENDED-<id>.md`, `NEEDS-USER.md` and `DECISIONS.md` are cumulative across
+  every launch of one `runId`, and develop's relaunch retires a line or an amendment there and removes
+  none (#6).
+  Choosing the `runId` is pre-run setup (#4), not an engine job.
   Six engines write each launch's record files in a launch folder of its own: refine, investigate's run
   phase, develop, audit, decide and brainstorm. The pre-launch command `tools/launch.mjs reserve
   <stateDir>` creates the next `<stateDir>/launch-<n>/` and prints it, and develop reserves it through
