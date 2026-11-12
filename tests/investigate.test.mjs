@@ -136,6 +136,17 @@ section('a contested exhaustion claim buys another round, and the search can sti
   eq(quiet.status, 'not exhaustive (round budget spent)', 'a quiet last round runs out of rounds too');
   ok(/DETERMINATION\.md was written as a PARTIAL result \(it says so at the top\)/.test(quiet.nextStep),
     'and keeps the partial wording, since the prompt told it to label the file');
+
+  // A claim rejected before the last round leaves a file the last round rewrote as partial.
+  const { out: early } = await run({
+    'investigate': (label) => (/r1$/.test(label) ? { ...INV, claim: 'exhausted' } : LEARN),
+    'critique': { ...CRIT, contests_claim: true },
+  }, { ...baseArgs, maxRounds: 3 });
+  eq(early.status, 'not exhaustive (round budget spent)', 'an early contested claim then learning rounds run out of rounds');
+  const earlyStep = String(early.nextStep ?? '');
+  ok(earlyStep.includes('was written as a PARTIAL result (it says so at the top)'),
+    `the last round's partial file keeps the partial wording: ${earlyStep.slice(0, 400)}`);
+  ok(!earlyStep.includes('asserts the'), 'and never says the file asserts round 1\'s rejected claim');
 }
 
 section('an uncontested exhaustion claim ends the loop before the round budget');
@@ -265,6 +276,33 @@ section('a round that adds NOTHING stalls the run rather than buying another emp
   ok(String(late.out.nextStep ?? '').includes('(what is already closed, apart from the lines tagged `r2 inv`, which no critic checked and a re-invoke\'s first critic checks)'),
     'the stalled nextStep names round 2\'s lines as unchecked');
   ok(late.logs.some((l) => /added NOTHING/.test(l) && /No critic checked the ledger lines tagged `r2 inv`/.test(l)), 'and so does the stall log line');
+  ok(String(out.nextStep ?? '').includes('Round 2 wrote no determination, so there is no product file to relay.'),
+    'a stall after no claim says the stalled round wrote no determination');
+  ok(String(out.nextStep ?? '').includes('say plainly that round 2 found nothing new.'),
+    'and says only the stalled round found nothing new, since an earlier round of the launch may have');
+
+  // A contested claim in round 1 owed a determination, and the stall in round 2 leaves that file on disk.
+  const contested = await run({
+    'investigate': (label) => (/r1$/.test(label) ? { ...INV, claim: 'exhausted' } : INV),
+    'critique': { ...CRIT, contests_claim: true },
+  }, { ...baseArgs, maxRounds: 5 });
+  eq(contested.labels.join(), 'investigate r1,critique r1,investigate r2', 'the contested claim buys round 2, which stalls');
+  eq(contested.out.determination, '', 'the return names no determination');
+  const contestedStep = String(contested.out.nextStep ?? '');
+  ok(contestedStep.includes(`Round 2 wrote no determination. ${LDIR}/DETERMINATION.md is round 1's determination for the exhaustion claim the critic did NOT accept (see ${LDIR}/acceptance-review-r1.md): it is an unaccepted determination, so do not relay it as a result.`),
+    `the stalled nextStep names round 1's file as unaccepted and not to be relayed: ${contestedStep.slice(0, 400)}`);
+  ok(!contestedStep.includes('no product file'), 'and never says no file exists (guard)');
+
+  // A claim the critic merely did not agree to, without a contest, leaves the same file and gets the same words.
+  const unagreed = await run({
+    'investigate': (label) => (/r1$/.test(label) ? { ...INV, claim: 'saturated' } : INV),
+    'critique': CRIT,
+  }, { ...baseArgs, maxRounds: 5 });
+  eq(unagreed.labels.join(), 'investigate r1,critique r1,investigate r2', 'the unagreed claim buys round 2, which stalls');
+  const unagreedStep = String(unagreed.out.nextStep ?? '');
+  ok(unagreedStep.includes(`${LDIR}/DETERMINATION.md is round 1's determination for the saturation claim the critic did NOT accept`),
+    `the stalled nextStep names round 1's file for an uncontested rejection too: ${unagreedStep.slice(0, 400)}`);
+  ok(!/contested/i.test(unagreedStep), 'and never calls a claim no critic contested "contested"');
 }
 
 section('a LEARNING round is not a stall — ruling candidates out is progress');

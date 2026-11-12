@@ -178,6 +178,17 @@ await withFixture(({ root, repo }) => {
   ok(/left the hook/.test(batch.stderr), '...and it says the hook was left alone');
   eq(readOr(hook), HOOK, '...since the hook path resolves only from a linked worktree');
 });
+// POSIX stat fails with ENOTDIR on a path under a file, and Windows stat reports that path as missing.
+await withFixture(({ root, repo }) => {
+  const { chains } = batchOf(root, repo, ['filed']);
+  const parent = dirname(chains.filed);
+  rmSync(parent, { recursive: true, force: true });
+  writeFileSync(parent, 'a file where the worktree folder was\n');
+  const filed = wt(['clean', '--repo', repo, '--key', 'filed']);
+  eq(filed.code, 0, `clean --key exits 0 for a worktree whose parent folder is now a file (${firstLine(filed.stderr)})`);
+  ok(/already gone/.test(filed.stderr), '...saying its folder is already gone');
+  ok(!worktreePaths(repo).includes(norm(chains.filed)), '...and its registration is pruned');
+});
 
 section('clean finds a worktree through a --repo typed through a link, and a relative gitdir file from the physical root');
 await withFixture(({ root, repo }) => {

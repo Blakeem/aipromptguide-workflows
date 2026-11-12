@@ -99,9 +99,9 @@ condition in parentheses runs only under it.
 26. (when the return names a `determination` and `determinationDefects` is not 0) Read the review file
     `nextStep` names, and correct in `DETERMINATION.md` each defect it records (§7, the return's
     `nextStep`). Output: the corrected determination.
-27. (when `nextStep` says `DETERMINATION.md` asserts a claim the critic did not accept) Label it a PARTIAL
-    result and add the open avenue of the review `nextStep` names (§6, the return's `nextStep`). Output:
-    the determination labelled partial, with that avenue.
+27. (when the round budget ran out and `nextStep` says `DETERMINATION.md` asserts a claim the critic did
+    not accept) Label it a PARTIAL result and add the open avenue of the review `nextStep` names (§6, the
+    return's `nextStep`). Output: the determination labelled partial, with that avenue.
 28. (when the return names a `determination`) Relay `DETERMINATION.md` with the sections and caveats
     `nextStep` names, such as WHERE NEXT on saturation and NEAR MISSES when it lists any (§6, §7). Output:
     the determination relayed.
@@ -112,8 +112,8 @@ condition in parentheses runs only under it.
     are unranked, and run decide-cycle over this option set when the user wants them ranked (§6, the
     return's `nextStep`). Output: the user's choice.
 31. (when the run stalled) Read the `r<N> NEXT:` lines in `SEARCHED.md` and `DISQUALIFIED.md`, and tell the
-    user the search found nothing new this invocation (§6, §10, the return's `nextStep`). Output: the
-    unswept avenues and that sentence, told to the user.
+    user the stalled round found nothing new (§6, §10, the return's `nextStep`). Output: the unswept
+    avenues and that sentence, told to the user.
 32. (when no qualifying option exists) Take the criterion the determination names to the user, since
     relaxing one criterion is the only change that alters the answer (§10, the return's `nextStep`).
     Output: the user's answer.
@@ -292,14 +292,14 @@ check)] × maxRounds`. Every round **starts with the investigator**.
   `exhaustive` stays **false**.
 - **A round whose investigator adds *nothing* stops the run.** The investigator adds no option, no ledger
   line (a `FLAG` line counts as one), no claim and no escalation, and no determination is owed → `stalled`,
-  immediately, round 1 included: the next round would have nothing to diverge from. No determination was
-  written. A stall in the run's first round comes after its critic judged the files in `options/`. That critic
-  may still disqualify files an earlier attempt left and append their ledger lines. The round stalls all the
-  same, since those files are old ground. A stall in a later round ran no critic. Either way, `options` holds
-  the latest critic's verified set, or is `null` when that critic returned no `verified_ids`. A **learning
-  round**, where the investigator rules candidates out but adds 0 options, is *not* a stall and continues,
-  because closing candidates is real progress. The final round is not a stall either, since it was ordered
-  to write a determination and keeps its own terminal state.
+  immediately, round 1 included: the next round would have nothing to diverge from. The stalled round
+  wrote no determination (§10). A stall in the run's first round comes after its critic judged the files in
+  `options/`. That critic may still disqualify files an earlier attempt left and append their ledger lines.
+  The round stalls all the same, since those files are old ground. A stall in a later round ran no critic.
+  Either way, `options` holds the latest critic's verified set, or is `null` when that critic returned no
+  `verified_ids`. A **learning round**, where the investigator rules candidates out but adds 0 options, is
+  *not* a stall and continues, because closing candidates is real progress. The final round is not a stall
+  either, since it was ordered to write a determination and keeps its own terminal state.
 - **`DETERMINATION.md` has a fixed shape** — ANSWER, COMPARISON, WHICH TO PICK WHEN, NEAR MISSES,
   COVERAGE, and **WHERE NEXT** on any *stopped* result (a saturation, a no-solution, or a partial last
   round): the unswept avenues with a confidence each, plus the premise/criteria change that would open
@@ -329,7 +329,7 @@ check)] × maxRounds`. Every round **starts with the investigator**.
   | `not exhaustive (round budget spent)` | Options may be valid, but **nothing was proved complete**. |
   | `no qualifying option exists (verified)` | Critic-verified: nothing can meet these criteria. |
   | `stopped on saturation (diminishing returns, critic agreed — the search is open, not closed)` | Diminishing returns, verified. Options found are valid, but the search is **open**. A critic agreed to it as one agrees to exhaustion, so it is the state most easily mistaken for a finished search. |
-  | `stalled (a round added nothing new and claimed nothing)` | A round's investigator produced nothing. No determination. In the run's first round the critic still judged the option files and may have disqualified some. |
+  | `stalled (a round added nothing new and claimed nothing)` | A round's investigator produced nothing. That round wrote no determination, and `nextStep` names any unaccepted one an earlier round left. In the run's first round the critic still judged the option files and may have disqualified some. |
   | `stopped on token budget (rounds remain, and the ledgers carry the search)` | Clean stop between rounds; the ledger resumes it. |
   | `BLOCKED (needs user input)` | Criteria contradiction or a user-only call. Halted. |
   | `BLOCKED (an agent did not confirm writing its files)` | The investigator or the critic did not attest its write. Halted before that output was used. No determination is named. |
@@ -475,7 +475,9 @@ inline.
   contested, then stops on the token budget has a real (stale) determination on disk that `determination`
   does not name, and so does a last round that escalated instead of concluding. That gap is deliberate,
   and it errs the safe way: the field never names a file nothing wrote. When a run halts, look in its
-  launch folder before assuming there is nothing there.
+  launch folder before assuming there is nothing there. A run that stalls after a round whose claim the
+  critic did not accept has that round's file on disk too, and the stalled `nextStep` names it as an
+  unaccepted determination that is not to be relayed.
 - `NEEDS-USER.md` — escalations; on a verified no-solution, which criterion the user might relax. It is
   cumulative across relaunches. Each entry opens with `## r<round> investigator` or `## r<round> critic`,
   and a needs-user `nextStep` names the heading of the new entries. A critic halt on a `no_solution` round

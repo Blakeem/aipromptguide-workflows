@@ -620,7 +620,8 @@ let entryHeadings = '';         // when haltKind is 'needs-user': the quoted hea
 let haltReason = '';
 let reviewPath = '';            // set only from a critic's attested write, so it can never name a file no
                                 // critic wrote. The return names it as the latest review.
-let lastClaimRejected = '';     // the claim kind the critic did not accept on the LAST round ('' = none)
+let rejectedDetRound = 0;       // the latest round of this launch whose claim the critic did not accept, and
+let rejectedDetClaim = '';      // that claim's kind. Its DETERMINATION.md stays on disk (0 and '' = none)
 let critRound = 0;              // the round reviewPath's critic ran in: after a critic-less round that
                                 // review is already answered, so the next investigator must not get it.
 let determinationDefects = null; // the critic's count for the determination it last checked. null when no critic has checked one
@@ -810,11 +811,10 @@ while (round < LAST_ROUND) {
       : crit?.agree !== true ? 'not agreed'
         : reopened === null ? 'not accepted (the critic returned no re-open count)'
           : `not accepted (the critic re-opened ${reopened} disqualified candidate(s))`;
+    rejectedDetRound = round;
+    rejectedDetClaim = invClaim === 'saturated' ? 'saturation' : invClaim === 'no_solution' ? 'no-solution' : 'exhaustion';
     if (round < LAST_ROUND) log(`  ↻ r${round}: ${kind} claim ${why} → another investigator round (addresses ${reviewPath})`);
-    else {
-      lastClaimRejected = invClaim === 'saturated' ? 'saturation' : invClaim === 'no_solution' ? 'no-solution' : 'exhaustion';
-      log(`  ✗ r${round}: ${kind} claim ${why} on the LAST round — the search ends unproven (see ${reviewPath})`);
-    }
+    else log(`  ✗ r${round}: ${kind} claim ${why} on the LAST round — the search ends unproven (see ${reviewPath})`);
   }
   if (round >= LAST_ROUND) {
     log(`  ⚠ r${round}: round budget spent with the search still OPEN — ${optionCount()} option(s) qualified, nothing proved exhaustive (partial ${DETERMINATION}; see ${LEDGER})`);
@@ -889,10 +889,12 @@ return {
         : haltKind === 'stalled'
           ? `Round ${round}'s investigator added NOTHING — no option, no ledger line, no claim — so the run stopped rather than buy another round of the same. ${stallCritic
             ? `In that round ${stallCritic}.`
-            : `No critic ran in round ${round}, and the return's ${setPhrase()}.`} No ${DETERMINATION} was written, so there is no product file to relay. Read the \`r<N> NEXT:\` lines in ${SEARCHED} (the avenues the search itself named as unswept) and ${LEDGER} (what is already closed${stallUnchecked ? `, apart from the lines tagged ${stallUnchecked}, which no critic checked and a re-invoke's first critic checks` : ''}), and say plainly that the search found nothing new this invocation. Then either re-invoke phase:"run" with the same runId, ${NEW_LAUNCH_DIR} and priorRounds: ${round} to continue from that memory, or change the criteria/premise — an unchanged re-run starts from the same empty round. To re-invoke, ${RUN_LAUNCH}.`
+            : `No critic ran in round ${round}, and the return's ${setPhrase()}.`} Round ${round} wrote no determination${rejectedDetRound
+            ? `. ${DETERMINATION} is round ${rejectedDetRound}'s determination for the ${rejectedDetClaim} claim the critic did NOT accept (see ${reviewFile(rejectedDetRound)}): it is an unaccepted determination, so do not relay it as a result`
+            : ', so there is no product file to relay'}. Read the \`r<N> NEXT:\` lines in ${SEARCHED} (the avenues the search itself named as unswept) and ${LEDGER} (what is already closed${stallUnchecked ? `, apart from the lines tagged ${stallUnchecked}, which no critic checked and a re-invoke's first critic checks` : ''}), and say plainly that round ${round} found nothing new. Then either re-invoke phase:"run" with the same runId, ${NEW_LAUNCH_DIR} and priorRounds: ${round} to continue from that memory, or change the criteria/premise — an unchanged re-run starts from the same empty round. To re-invoke, ${RUN_LAUNCH}.`
           : haltKind === 'no-solution'
             ? `NOTHING qualifies, and the critic verified that: this is a real answer, not a failure. Relay ${DETERMINATION} + ${LEDGER} and take the criterion it names to the user: relaxing one criterion is the only thing that changes this answer. ${determinationNote} Lead with the determination's NEAR MISSES section when it lists any — each failed exactly one criterion, so they are what relaxing a criterion would make available, and some may be worth doing on their own merits even though they do not qualify. Do NOT re-run unchanged — the same criteria produce the same dead end.`
-            : `The round budget ran out with the search still open — ${optionCount()} option(s) qualified so far but NOTHING was proved exhaustive, so do not present this as a complete answer. ${lastClaimRejected
-              ? `${DETERMINATION} asserts the ${lastClaimRejected} claim the critic did NOT accept (see ${reviewPath}): it is NOT labelled partial and may lack WHERE NEXT, so label it a PARTIAL result and add that review's open avenue before relaying it`
+            : `The round budget ran out with the search still open — ${optionCount()} option(s) qualified so far but NOTHING was proved exhaustive, so do not present this as a complete answer. ${rejectedDetRound === LAST_ROUND
+              ? `${DETERMINATION} asserts the ${rejectedDetClaim} claim the critic did NOT accept (see ${reviewPath}): it is NOT labelled partial and may lack WHERE NEXT, so label it a PARTIAL result and add that review's open avenue before relaying it`
               : `${DETERMINATION} was written as a PARTIAL result (it says so at the top)`} — relay it with that caveat and its NEAR MISSES section, alongside ${LEDGER} and the latest ${reviewPath || 'round review'}. ${determinationNote} Then either re-invoke with the same runId, ${NEW_LAUNCH_DIR} and priorRounds: ${round} to continue from the ledger, or accept the partial result. To re-invoke, ${RUN_LAUNCH}.`,
 };

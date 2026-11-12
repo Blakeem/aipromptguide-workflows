@@ -985,7 +985,15 @@ const IGNORED_LIST_ARGS = ['ls-files', '-z', '--others', '--ignored', '--exclude
 // a NUL. A directory that holds its own repository is one entry ending in `/`.
 const UNTRACKED_LIST_ARGS = ['ls-files', '-z', '--others', '--exclude-standard'];
 
-const pathExists = (path) => statSync(path, { throwIfNoEntry: false }) !== undefined;
+/** Whether `path` exists. throwIfNoEntry covers only ENOENT, and a POSIX path under a file fails with ENOTDIR. */
+function pathExists(path) {
+  try {
+    return statSync(path, { throwIfNoEntry: false }) !== undefined;
+  } catch (err) {
+    if (err.code === 'ENOTDIR') return false;
+    throw err;
+  }
+}
 
 /** A file's trimmed text, or '' when it cannot be read. */
 function readTrimmed(file) {

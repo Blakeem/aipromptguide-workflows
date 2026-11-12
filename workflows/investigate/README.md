@@ -115,8 +115,9 @@ rather than repetitive.
 cost. The options are verified and the search is **open**. The determination's WHERE NEXT section names
 the avenues left and the premise change that would open new ground. `stalled` means a round's
 investigator found no option, ruled out no candidate and made no claim, so the run stopped instead of
-buying another empty one. There is no determination. A stall in a run's first round still ran the critic
-over the option files, and that critic may have ruled some of them out.
+buying another empty one. That round wrote no determination. An earlier round's determination for a claim
+the critic rejected may remain in the launch folder, and it is not a result. A stall in a run's first round
+still ran the critic over the option files, and that critic may have ruled some of them out.
 
 `DISQUALIFIED.md` is worth reading even on a clean run. It is usually the fastest way to see whether your
 criteria were doing what you meant them to.
