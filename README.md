@@ -168,6 +168,22 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-11-11
 
+- **Each launch writes its records in its own launch folder.** Refine, investigate's run phase, develop,
+  audit, decide and brainstorm take a required `launchDir`. `tools/launch.mjs reserve <stateDir>` creates
+  `<stateDir>/launch-<n>/` and prints its path, and each of those guides runs it as the pre-launch
+  command. Develop reserves through `plan-edit.mjs args --reserve <stateDir>`. A relaunch reserves a new
+  folder, so it replaces no record of an earlier launch. A replay passes the same `launchDir`. Docs takes
+  no launch folder.
+- **`reserve --keep` copies a working document before a launch rewrites it.** The copy goes to
+  `<launchDir>/kept/`. Refine keeps the plan file, investigate keeps `options`, and audit keeps `issues`
+  or `proposals`.
+- **Refine no longer takes `priorRounds`.** Each launch counts its rounds from 1 in its own launch folder.
+  A launch that passes the arg throws.
+- **Develop retires a ledger line and never removes it.** A line of `DISMISSED-<id>.md` or `DECISIONS.md`
+  that no longer holds takes the mark `RETIRED launch <n>: ` at its start. An amendment in
+  `AMENDED-<id>.md` takes the mark in its heading. Every reader skips a retired line.
+- **A stalled investigate launch names the determination an earlier round wrote.** Its `nextStep` said
+  that no determination was written. It now names that file as unaccepted and not to be relayed.
 - **Landing or dropping a develop run trashes its `scratch/` folder.** `tools/wt.mjs close` and `clean`
   take `--state-dir <abs>`, and move that run's `scratch/` folder to the trash after the worktree. The
   folder holds gate logs and repo exports, and no command removed it before.
