@@ -14,10 +14,12 @@
 // terminal is the only place the map can tell it apart from a clean lens.
 
 const KIND = { kind: 'enhancements' };
+const LAUNCH_DIR = 'E:/flow/runs/flow/launch-1';
 const base = {
   ...KIND,
   runId: 'flow',
   root: 'E:/flow',
+  launchDir: LAUNCH_DIR,
   target: { repo: 'E:/repo', lang: 'JavaScript', framework: 'none' },
   scope: ['workflows/', 'tools/'],
   goals: 'fewer agents, fewer tokens, less operator babysitting',
@@ -120,18 +122,22 @@ export default {
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { find: 'ultra' } } },
     { name: 'agentTypes names an unknown role', when: 'agentTypes is not an object, carries a key outside find | verify, or maps one to a blank name', args: { ...base, agentTypes: { planner: 'my-planner' } } },
     { name: 'notes missing a path', when: 'notes lacks dir or survey, or names a relative path', args: { ...base, notes: { dir: 'E:/flow/notes' } } },
-    { name: 'no scope', when: 'args.scope is empty', args: { ...KIND, runId: 'flow', root: 'E:/flow' } },
+    // Each launch writes its candidates files in its own launch folder, so a launch without one, or with a
+    // folder outside the stateDir, would write where another launch did.
+    { name: 'no launch folder', when: 'args.launchDir is missing or blank', args: { ...base, launchDir: undefined } },
+    { name: 'launch folder outside the stateDir', when: 'args.launchDir is not a launch-<n> folder directly inside the stateDir', args: { ...base, launchDir: 'E:/flow/runs/other/launch-1' } },
+    { name: 'no scope', when: 'args.scope is empty', args: { ...KIND, runId: 'flow', root: 'E:/flow', launchDir: LAUNCH_DIR } },
     {
       // The relative-scope guard: with no repo to resolve `workflows/` against, every finder would read
       // the wrong tree — so the repo is required exactly when a scope path is relative.
       name: 'relative scope, no repo',
       when: 'a scope path is relative and target.repo is missing',
-      args: { ...KIND, runId: 'flow', root: 'E:/flow', scope: ['workflows/'] },
+      args: { ...KIND, runId: 'flow', root: 'E:/flow', launchDir: LAUNCH_DIR, scope: ['workflows/'] },
     },
     {
       name: 'relative conventionFiles, no repo',
       when: 'a conventionFiles entry is relative and target.repo is missing',
-      args: { ...KIND, runId: 'flow', root: 'E:/flow', scope: ['E:/repo/workflows/'], conventionFiles: ['CLAUDE.md'] },
+      args: { ...KIND, runId: 'flow', root: 'E:/flow', launchDir: LAUNCH_DIR, scope: ['E:/repo/workflows/'], conventionFiles: ['CLAUDE.md'] },
     },
     { name: 'conventionFiles is not a path list', when: 'args.conventionFiles is not an array of non-empty paths', args: { ...base, conventionFiles: 'CLAUDE.md' } },
     { name: 'no lenses', when: 'args.lenses is empty', args: { ...base } },

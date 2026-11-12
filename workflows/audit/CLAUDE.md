@@ -45,23 +45,26 @@ the one under the list's kind.
    for each arg.
 7. Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to,
    holds no line on this run's plan or goal, and when one does, remove the line and launch from a new
-   session. Then run `git -C <target.repo> status --short` (`node --version` when the run has no
-   `target.repo`) with run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification
-   turn"). Output: the index checked, and that tool call is the last one of this turn.
+   session. Then run `node <launch.mjs> reserve <stateDir> --keep issues` with run_in_background, where
+   `<launch.mjs>` is `tools/launch.mjs` of this checkout and `<stateDir>` is the absolute state dir, then end
+   the turn ("State files (`runs/<runId>/`, outside every repo)", root `CLAUDE.md`, "Launch from a
+   notification turn"). Output: the index checked, and that tool call is the last one of this turn.
 8. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
-   `audit.mjs`, `kind: defects` and the args steps 4 and 6 chose ("Playbook" step 3, root `CLAUDE.md`,
-   "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
+   `audit.mjs`, `kind: defects`, the args steps 4 and 6 chose and `launchDir` set to the folder the reserve
+   command printed ("Playbook" step 3, root `CLAUDE.md`, "Launch from a notification turn"). Output: the
+   Workflow run id (`wf_...`).
 
 ### After a defects run
 
 9. (when the run threw on a relayed user request) Relaunch through steps 7 and 8 with the same args, its
-   full `units` included, and the same `runId`, never a resume through "Playbook" step 4. Stop this pass of
-   the list there, and work it again from step 9 once that run ends ("Playbook" step 3, root `CLAUDE.md`,
-   "Launch from a notification turn"). Output: the relaunch's Workflow run id.
+   full `units` included, a newly reserved `launchDir` and the same `runId`, never a resume through
+   "Playbook" step 4. Stop this pass of the list there, and work it again from step 9 once that run ends
+   ("Playbook" step 3, root `CLAUDE.md`, "Launch from a notification turn"). Output: the relaunch's Workflow
+   run id.
 10. (when the return's `failed` lists units to re-review, which `nextStep` names first) Resume the review
-    through steps 7 and 8, with `args.units` built as "Playbook" step 4 says, under the same `runId`, then
-    work this list again from step 9 on that run's return ("Playbook" step 4, "Args reference"). Output: a
-    return whose `failed` lists no unit to re-review.
+    through steps 7 and 8, with `args.units` built as "Playbook" step 4 says, a newly reserved `launchDir`
+    and the same `runId`, then work this list again from step 9 on that run's return ("Playbook" step 4,
+    "Args reference"). Output: a return whose `failed` lists no unit to re-review.
 11. (when `nextStep` names units whose verifier verdicts did not match every finding id) Count those units'
     findings from their issue files ("Args reference"). Output: totals that include those findings.
 12. Read the issue files `nextStep` names and present the inventory from those files: totals by severity
@@ -112,22 +115,25 @@ the one under the list's kind.
     flow", "Pre-run setup (your job — no setup agent, #4)", "Args reference"). Output: a value for each arg.
 27. Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to,
     holds no line on this run's plan or goal, and when one does, remove the line and launch from a new
-    session. Then run `git -C <target.repo> status --short` (`node --version` when the run has no
-    `target.repo`) with run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification
-    turn"). Output: the index checked, and that tool call is the last one of this turn.
+    session. Then run `node <launch.mjs> reserve <stateDir> --keep proposals` with run_in_background, where
+    `<launch.mjs>` is `tools/launch.mjs` of this checkout and `<stateDir>` is the absolute state dir, then
+    end the turn ("State files (`runs/<runId>/`, outside every repo)", root `CLAUDE.md`, "Launch from a
+    notification turn"). Output: the index checked, and that tool call is the last one of this turn.
 28. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
-    `audit.mjs`, `kind: enhancements` and the args steps 24 to 26 chose ("The flow" step 3, root
-    `CLAUDE.md`, "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
+    `audit.mjs`, `kind: enhancements`, the args steps 24 to 26 chose and `launchDir` set to the folder the
+    reserve command printed ("The flow" step 3, root `CLAUDE.md`, "Launch from a notification turn").
+    Output: the Workflow run id (`wf_...`).
 
 ### After an enhancements run
 
 29. (when the run threw on a relayed user request) Relaunch through steps 27 and 28 with the same args and
-    `runId`. Stop this pass of the list there, and work it again from step 29 once that run ends ("The
-    flow", root `CLAUDE.md`, "Launch from a notification turn"). Output: the relaunch's Workflow run id.
+    `runId` and a newly reserved `launchDir`. Stop this pass of the list there, and work it again from step
+    29 once that run ends ("The flow", root `CLAUDE.md`, "Launch from a notification turn"). Output: the
+    relaunch's Workflow run id.
 30. (when `nextStep` says NOTHING was audited) Tell the user no lens was audited, re-run the failed lenses
-    with the same `runId` through steps 27 and 28, and work this list again from step 29 on that run's
-    return ("Presenting the result (the deliverable is a triage conversation)", "State files
-    (`runs/<runId>/`, outside every repo)"). Output: the re-run's Workflow run id.
+    with the same `runId` and a newly reserved `launchDir` through steps 27 and 28, and work this list again
+    from step 29 on that run's return ("Presenting the result (the deliverable is a triage conversation)",
+    "State files (`runs/<runId>/`, outside every repo)"). Output: the re-run's Workflow run id.
 31. Read the proposal files `nextStep` lists, and only those, and present them in its order: the ADOPT
     items, then ROADMAP, then each NEEDS_USER item with its options and recommendation ("Presenting the
     result (the deliverable is a triage conversation)", "Pre-run setup (your job — no setup agent, #4)").
@@ -139,9 +145,10 @@ the one under the list's kind.
     triage ("Presenting the result (the deliverable is a triage conversation)"). Output: each unjudged
     candidate read in its file.
 34. (when `nextStep` names failed lenses) Tell the user those lenses were not audited and offer to re-run
-    them through steps 27 and 28. When the user accepts, run that re-run once step 37 is done, then work
-    this list again from step 29 on its return ("Presenting the result (the deliverable is a triage
-    conversation)", "State files (`runs/<runId>/`, outside every repo)"). Output: the user's answer.
+    them through steps 27 and 28 with a newly reserved `launchDir`. When the user accepts, run that re-run
+    once step 37 is done, then work this list again from step 29 on its return ("Presenting the result (the
+    deliverable is a triage conversation)", "State files (`runs/<runId>/`, outside every repo)"). Output:
+    the user's answer.
 35. Triage the proposals with the user ("Presenting the result (the deliverable is a triage
     conversation)"). Output: the user's decision on each item.
 36. Build the items the user adopts through `../develop/CLAUDE.md` §0 from its step 1 through step 43,
@@ -215,8 +222,8 @@ the ones below.
 
 **The defects kind (read-only; units run CONCURRENTLY via `pipeline`):**
 - **Reviewer** (opus) — finds production defects in ONE unit's files through ONE lens. It writes its
-  findings, with the evidence for each, to `reviews/<unit>-<lens>.md` and returns only their count and
-  whether it wrote that file. `<unit>` and `<lens>` are the unit id and the lens id (`lens1` when no
+  findings, with the evidence for each, to `<launchDir>/reviews/<unit>-<lens>.md` and returns only their
+  count and whether it wrote that file. `<unit>` and `<lens>` are the unit id and the lens id (`lens1` when no
   lens is set) in file-safe form: lowercase, each run of other characters than letters and digits
   replaced by `_`. A lens whose id shares its file-safe form with an earlier lens of the unit gets a
   `-<n>` suffix, its position in the unit's lens array. With a lens array, each lens numbers its
@@ -250,9 +257,9 @@ Fixing roles (developer, blind quality, acceptance, park) are develop's, in `../
 
 - **The defects kind is read-only.** One writer per unit file — the reviewer writes it when the unit is
   clean, the verifier when it has findings; never both, only ever its own unit's file (parallel-safe).
-  Each reviewer also writes its own `reviews/<unit>-<lens>.md` when it has findings, and nothing else
-  writes that file. The verifier's one other write is its own temporary probe directory, outside the
-  repo and run-state.
+  Each reviewer also writes its own `<launchDir>/reviews/<unit>-<lens>.md` when it has findings, and
+  nothing else writes that file. The verifier's one other write is its own temporary probe directory,
+  outside the repo and run-state.
   Review-phase needs-decision items live INSIDE each unit file (a shared file written by concurrent
   verifiers would race). `NEEDS-USER.md` and `question-<id>.md` are only for develop's fix-phase escalations,
   which one agent writes at a time (develop guide §5).
@@ -326,17 +333,18 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    and `conventionFiles` (the paths of the project's CLAUDE.md files, which every agent reads in full).
    Choose `changePolicy` as `../develop/CLAUDE.md` §4 "Choosing the change policy" says, which settles
    `auto` into `focused` or `proactive` for the run, and pass it.
-3. **Run `audit.mjs`** (`scriptPath` = its absolute path) with `kind: defects`, from a notification
-   turn (root `CLAUDE.md`, "Launch from a notification turn"). Each reviewer says whether its context
-   holds a relayed user request. When one does, the engine stops every later lens pass and every verifier
-   that has not started, then throws. A relaunch after that throw passes the full `units`, never a
-   gen-units resume, since reviewers and verifiers of other units run concurrently, so they may have
-   written issue files with the real unit hash before the throw, and gen-units would read those units
-   `unchanged`. It writes `issues/<unit>.md` per unit and returns counts + the hottest areas +
-   `needsUserFiles`. When the return's `failed` lists units to re-review (Args reference), resume them
-   through step 4 (Resume the review) before step 5 (triage). Then follow the return's `nextStep`. It
-   leads with any unit to re-review, then names the files to present and the triage and develop steps
-   after it.
+3. **Run `audit.mjs`** (`scriptPath` = its absolute path) with `kind: defects` and the `launchDir` its
+   pre-launch command `node <launch.mjs> reserve <stateDir> --keep issues` prints, a newly reserved one for
+   every launch, from a notification turn (root `CLAUDE.md`, "Launch from a notification turn"). Each
+   reviewer says whether its context holds a relayed user request. When one does, the engine stops every
+   later lens pass and every verifier that has not started, then throws. A relaunch after that throw
+   passes the full `units`, never a gen-units resume, since reviewers and verifiers of other units run
+   concurrently, so they may have written issue files with the real unit hash before the throw, and
+   gen-units would read those units `unchanged`. It writes `issues/<unit>.md` per unit and returns
+   counts + the hottest areas + `needsUserFiles`. When the return's `failed` lists units to re-review
+   (Args reference), resume them through step 4 (Resume the review) before step 5 (triage). Then follow
+   the return's `nextStep`. It leads with any unit to re-review, then names the files to present and the
+   triage and develop steps after it.
 4. **Resume the review.** Re-run `gen-units.mjs` with `--issues-dir <root>/runs/<runId>/issues`, under
    the same runId. gen-units resolves the flag against your cwd, and run-state hangs off `root`. It
    joins each unit against its issue file's `hash:` frontmatter, tags them `new`/`changed`/`unchanged`,
@@ -346,7 +354,8 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
      wrote its file and then did not attest it leaves the unit's real hash, so gen-units reads that
      unit `unchanged`.
    - Run the resume before any triage edit and before develop. A re-review rewrites each re-reviewed
-     unit's issue file from scratch, and develop's fixes make every fixed unit read `changed`.
+     unit's issue file from scratch, and develop's fixes make every fixed unit read `changed`. The resume
+     reserves a new launch folder, whose `kept/issues/` holds each issue file as it was before the resume.
    - `staleUnits` carries gen-units ids and no `unit.lens`. If the run set `unit.lens`, re-attach each
      unit's lens before passing it. For a run that passed the same files as one unit per lens, pass your own
      lens units instead, each with its unit's current gen-units hash, and keep only those whose
@@ -433,12 +442,18 @@ Verify-first makes loose anchors safe — the fixer re-confirms each issue again
 
 ### State files (`runs/<runId>/`, outside every repo)
 
-`manifest.json` (units; from `gen-units.mjs`, read by YOU) · `reviews/<unit>-<lens>.md` (each
-reviewer's findings with their evidence, the message its verifier and the unit's later lenses read) ·
-`issues/<unit>.md` (per-unit inventory + triage doc, verifier-written, user-editable, a fix-mode plan
-file). The fix loop's files (develop's quality and
-acceptance reviews, ledgers) land in develop's state dir, a parked block's work on a branch of the repo,
-listed in `../develop/CLAUDE.md`.
+`manifest.json` (units; from `gen-units.mjs`, read by YOU) · `issues/<unit>.md` (per-unit inventory +
+triage doc, verifier-written, user-editable, a fix-mode plan file) · `launch-<n>/` (one folder per launch,
+which the pre-launch command `node <launch.mjs> reserve <stateDir> --keep issues` creates one past the
+highest `launch-<n>` in the state dir and prints as `launchDir`. Its `kept/issues/` holds the issue files
+as they were before that launch) · `launch-<n>/reviews/<unit>-<lens>.md` (each reviewer's findings with
+their evidence, the message its verifier and the unit's later lenses read). A launch writes its review
+files only in its own launch folder, so no launch replaces a review file an earlier launch wrote, and a
+review file there exists before its reviewer runs only when an interrupted attempt of the same launch
+left it. Files that an engine from before launch folders left directly in the state dir stay where they
+are. The fix loop's files (develop's quality and acceptance reviews, ledgers) land in develop's state
+dir, which is this run's state dir, in launch folders of the same sequence, and a parked block's work
+lands on a branch of the repo, listed in `../develop/CLAUDE.md`.
 
 A review that starts over takes a new `runId`, since a defects re-run rewrites each unit file it
 re-reviews, triage edits included. The resume in playbook step 4 keeps the `runId`, so it re-reviews
@@ -451,10 +466,13 @@ with `units` from `gen-units.mjs`.
 
 - **Kind:** `kind: defects`, or no `kind`, since `defects` is its default. An enhancements-only arg
   **throws** (Scope, "Pass the kind").
-- **Required:** `runId` · `root` · `target.repo` · `units` (from `gen-units.mjs`). `conventions` and
-  `conventionFiles` are strongly recommended, not enforced — omitted, the reviewer runs on a
-  placeholder rubric; supply them. `conventionFiles` is an array of paths, each absolute or relative to
-  `target.repo`, and a value that is not an array of non-empty paths **throws**.
+- **Required:** `runId` · `root` · `target.repo` · `units` (from `gen-units.mjs`) · `launchDir` (the
+  absolute path of the `launch-<n>` folder that `node <launch.mjs> reserve <stateDir> --keep issues` prints,
+  newly reserved for every launch. The engine **throws** when it is missing or blank, and when it is not a
+  folder named `launch-<n>` directly inside the state dir). `conventions` and `conventionFiles` are
+  strongly recommended, not enforced — omitted, the reviewer runs on a placeholder rubric; supply them.
+  `conventionFiles` is an array of paths, each absolute or relative to `target.repo`, and a value that is
+  not an array of non-empty paths **throws**.
   `gates` is informational context for the reviewer here. Missing `runId`, `root`, `target.repo` or
   `units` **throws** — `target.repo` has no default, so a bogus inventory can't be built against `.`.
 - **Optional tuning:** `reviewSeverity` (inventory floor, default medium; a name outside
@@ -498,8 +516,8 @@ with `units` from `gen-units.mjs`.
 Launch `audit.mjs` with `kind: enhancements`. It audits a system that **already works** for
 **enhancements** — bigger changes worth writing up, not nits. It fans out one **finder per lens** across
 the WHOLE scope (breadth, not file slices — cross-cutting enhancements are the point), each writing its
-candidates to `candidates/<lens>.md`, then **verifiers bin-packed across lenses** that kill anything the
-system already does, score impact × size, route each survivor, and write one verbatim
+candidates to `<launchDir>/candidates/<lens>.md`, then **verifiers bin-packed across lenses** that kill
+anything the system already does, score impact × size, route each survivor, and write one verbatim
 `proposals/<lens>.md` per lens. Then it **STOPS**. This kind is a *generative* workflow honoring the core
 (#1–4, #6, #8, #11–20); it writes no code, stages nothing, and never commits.
 
@@ -539,6 +557,8 @@ Pick a `runId`. `Workflow` loads by path: `scriptPath` = absolute path to `audit
   scope. Every proposal targets the scope. Agents may read and cite files outside it as evidence.
 - **`lenses` — REQUIRED:** ≥1 axis (strings, or `{ id, focus, criteria }`). Ids that collide after
   slugging throw — two lenses would write the same proposal file.
+- **`launchDir` — REQUIRED:** the folder that the pre-launch command `node <launch.mjs> reserve <stateDir>
+  --keep proposals` prints, newly reserved for every launch (State files).
 - **`target.repo`:** the absolute path to the system under audit — the directory holding its `.git`.
   REQUIRED whenever any `scope` path is relative (it is what they resolve against); the engine throws
   otherwise rather than guessing, since defaulting to `root` would audit the run-state base (this
@@ -554,7 +574,9 @@ Pick a `runId`. `Workflow` loads by path: `scriptPath` = absolute path to `audit
   run shows whether the floor or the system thinned it.
 - **Relaunch vs. new run.** A re-run with the same `runId` overwrites the proposal file of each lens that
   produces one in this run. A lens in `failed`, listed with the stage that dropped it, keeps any earlier
-  file, so present only the paths in `lenses[].file`. Keep an old batch → new `runId` (or `stateDir`).
+  file, so present only the paths in `lenses[].file`. The re-run reserves a new launch folder, whose
+  `kept/proposals/` holds each proposal file as it was before the re-run (State files). Keep an old batch
+  → new `runId` (or `stateDir`).
 
 ### Lenses — the fan-out axis
 
@@ -581,10 +603,10 @@ noise.
   the code as it is: **what the system does today** (cited `file:line`) → **what it would do instead** →
   **the specific cost that removes** (tokens, wall-clock, agent count, operator steps, a failure mode,
   maintenance surface). No nameable cost = not an enhancement. It writes each candidate whole, with an
-  `**Evidence:**` line naming what it read and ran, to `candidates/<lens>.md`, and returns only the
-  candidate ids, numbered `<lens>-<n>`. Zero candidates is a legitimate outcome — the finder then writes
-  its own clean `proposals/<lens>.md` marker. A finder that verifies a defect in passing reports it as a
-  `DEFECT:` candidate.
+  `**Evidence:**` line naming what it read and ran, to `<launchDir>/candidates/<lens>.md`, and returns only
+  the candidate ids, numbered `<lens>-<n>`. Zero candidates is a legitimate outcome — the finder then
+  writes its own clean `proposals/<lens>.md` marker. A finder that verifies a defect in passing reports it
+  as a `DEFECT:` candidate.
 - **Verifier** (verify · opus) — spawned ONLY for lenses with candidates, and **bin-packed across
   lenses**, as the defects kind packs small units: in lens order, a lens joins the current verifier while
   their candidates total at most 12, a lens with more gets a verifier of its own, and a lens never splits
@@ -658,9 +680,15 @@ What each decision means:
   `<lens>-<n>` is ignored and logged. A dead packed
   verifier fails every lens it carried. The run logs a ⚠ naming the lens in each case, and `nextStep`
   names it as `<lens> (<stage>)`. Re-run it.
-- `candidates/<lens>.md` — the finder's candidates, each with its evidence, that the verifier reads. A
-  clean lens's finder writes none, so a candidates file on disk for a clean lens is from an earlier
-  launch.
+- `launch-<n>/` — one folder per launch, which the pre-launch command `node <launch.mjs> reserve
+  <stateDir> --keep proposals` creates one past the highest `launch-<n>` in the state dir and prints as
+  `launchDir`. Its `kept/proposals/` holds the proposal files as they were before that launch. A launch
+  writes its candidates files only in its own launch folder, so no launch replaces a candidates file an
+  earlier launch wrote. Files that an engine from before launch folders left directly in the state dir
+  stay where they are.
+- `launch-<n>/candidates/<lens>.md` — the finder's candidates, each with its evidence, that the verifier
+  reads. A clean lens's finder writes none, so a candidates file for a clean lens in a launch folder is
+  from an interrupted attempt of that launch.
 - No shared `NEEDS-USER.md` (Contracts) — a user-only call lives in its candidate's block in the lens file.
 
 No `issues/` directory (deliberately — Contracts), no status files, no run summary.
@@ -671,7 +699,10 @@ Full schema + defaults: the Config block atop `audit.mjs` (the canonical source)
 inline.
 - **Required:** `kind: enhancements` (a defects-only arg **throws**, Scope, "Pass the kind") · `runId` ·
   `root` (Pre-run setup) · `scope` (array of paths every finder reads) · `lenses` (array of axes —
-  strings or `{ id, focus, criteria }`).
+  strings or `{ id, focus, criteria }`) · `launchDir` (the absolute path of the `launch-<n>` folder that
+  `node <launch.mjs> reserve <stateDir> --keep proposals` prints, newly reserved for every launch. The
+  engine **throws** when it is missing or blank, and when it is not a folder named `launch-<n>` directly
+  inside the state dir).
 - **Optional:** `target.repo` (absolute) · `goals` (what "better" means — strongly recommended) ·
   `conventions` (house rules) · `conventionFiles` (an array of instruction file paths, Pre-run setup) ·
   `context` (domain facts the agents won't infer) · `minImpact`

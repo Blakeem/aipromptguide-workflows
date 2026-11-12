@@ -9,7 +9,7 @@ import { emitList, parseBlocks, parseFileKeys, validate } from '../tools/plan-bl
 const ENGINE = 'workflows/audit/audit.mjs';
 
 const UNIT = { id: 'u1', hash: 'h', files: [{ path: 'a.js', loc: 10 }] };
-const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c' };
+const baseArgs = { runId: 't', root: 'E:/r', launchDir: 'E:/r/runs/t/launch-1', target: { repo: 'E:/repo' }, conventions: 'c' };
 const run = (args, respond) => runEngine(ENGINE, { args: { ...baseArgs, units: [UNIT], ...args }, respond });
 
 const DESTRUCT = { id: 'destructive', mandate: 'auditing for DESTRUCTIVE behavior', categories: ['data-loss', 'irreversible-op'], findingNoun: 'destructive DEFECTS', matters: ' unattended' };
@@ -21,7 +21,7 @@ const keep    = (id, extra = {}) => ({ finding_id: id, file: 'a.js', is_real: tr
 const found   = (count) => ({ finding_count: count, wrote_file: true, wrote_clean_marker: false });
 const NO_FINDINGS = { finding_count: 0, wrote_file: false, wrote_clean_marker: false };
 const CLEAN   = { finding_count: 0, wrote_file: false, wrote_clean_marker: true };
-const REVIEWS = 'E:/r/runs/t/reviews';
+const REVIEWS = 'E:/r/runs/t/launch-1/reviews';
 
 section('only a lens whose categories include convention is told to file convention findings');
 // A lens category list without 'convention' would have the reviewer file a category its lens does not define.
@@ -253,7 +253,7 @@ section('a DEAD lens reviewer is named, not silently counted as a clean lens');
 
 section('a reviewer whose count and review file disagree counts as a lens with no coverage');
 // The verifier reads the findings from the review file, so a count with no confirmed file hands it nothing,
-// or an earlier launch's file at the same path, and a confirmed file with a zero count is never handed to it.
+// or a file an interrupted attempt of the launch left at the same path, and a confirmed file with a zero count is never handed to it.
 {
   const cases = [
     ['findings with wrote_file false', { finding_count: 2, wrote_file: false, wrote_clean_marker: false }, 'finding_count 2 with wrote_file false', { finding_count: 2, wrote_file: false }],
@@ -275,7 +275,7 @@ section('a reviewer whose count and review file disagree counts as a lens with n
     ok(!calls[1].prompt.includes('ALREADY FOUND'), `${name}: the next lens is handed no unconfirmed file`);
     ok(calls[2].prompt.includes('\nhash: incomplete\n'), `${name}: the inventory is stamped incomplete`);
     ok(out.nextStep.startsWith('1. First re-review u1:'), `${name}: nextStep leads with the re-review`);
-    ok(out.nextStep.split('\n')[0].endsWith('rewrites each re-reviewed unit\'s issue file. To relaunch, start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts.'),
+    ok(out.nextStep.split('\n')[0].endsWith('rewrites each re-reviewed unit\'s issue file. To relaunch, start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts. That pre-launch command is node <launch.mjs> reserve \'E:/r/runs/t\' --keep issues, and launchDir is the folder it prints.'),
       `${name}: and the re-review names the notification-turn launch path`);
   }
   // The marker it claims carries the real hash, so resume would skip the unit unless the operator names it.
@@ -505,7 +505,7 @@ section('the verifier writes a fix-mode PLAN block, and its own template parses 
   ok(v.includes('\nmode: fix\ngate: green\nstatus: todo\n'), 'the preamble declares the fix mode, its only legal gate, and todo');
   ok(v.includes('\n- status: open\n'), 'every entry carries the status the fix bus reads');
   ok(v.includes(`unit: ${PATH_UNIT.id}\nhash: h\nreviewed: true`), 'the frontmatter stamp gen-units resumes on is unchanged');
-  ok(prompt('review').includes(`WRITE E:/r/runs/t/reviews/workflows_audit_p1-lens1.md (`), 'the review file name is fileSafe(unit.id) and the lens id');
+  ok(prompt('review').includes(`WRITE E:/r/runs/t/launch-1/reviews/workflows_audit_p1-lens1.md (`), 'the review file name is fileSafe(unit.id) and the lens id');
 
   // A fixture assembled from the prompt's OWN template: the parenthetical instruction dropped, every
   // <placeholder> filled. Asserting the template's lines proves the words; parsing it proves the format.
@@ -749,7 +749,7 @@ section('run-state inside the target repo draws a warning, whatever case a drive
     ['E:/repo', 'E:/r/runs/t', 0, 'a folder outside the repo'],
   ];
   for (const [repo, stateDir, warns, what] of CASES) {
-    const { logs } = await run({ target: { repo }, stateDir }, { 'review': NO_FINDINGS });
+    const { logs } = await run({ target: { repo }, stateDir, launchDir: `${stateDir.replace(/[\\/]+$/, '')}/launch-1` }, { 'review': NO_FINDINGS });
     eq(logs.filter((l) => l.includes('INSIDE the target repo')).length, warns, `${what} warns ${warns} time(s)`);
   }
 }
@@ -917,17 +917,21 @@ await pinRoleMaps({
   }],
 });
 
-// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite one the agent has not read.
-section("every prompt that writes a file says to Read an earlier launch's file first, and a rejected write is not a write");
+// A relaunch with the same runId finds the earlier launch's issue files, and the Write tool refuses to overwrite one the agent
+// has not read. A launch folder holds a review file only from an interrupted attempt of the same launch.
+section("every prompt that writes a file says when the file may already exist and to Read it first, and a rejected write is not a write");
 {
   const clean = await run({}, { review: NO_FINDINGS });
   const lensed = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, { review: NO_FINDINGS });
   const verified = await run({}, { review: found(1), verify: { wrote_file: true, verdicts: [keep('u1-1')] } });
-  const sites = [
-    ['the review file and the clean-unit marker', clean.prompt('review'), 2, 1],
-    ['the review file of a lens that may not write the marker', lensed.calls[0].prompt, 1, 1],
-    ["the verifier's inventory file", verified.prompt('verify'), 1, 1],
+  const LAUNCH_NOTE = 'The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content.';
+  // [the stateDir note's count, the launch folder note's count] in each prompt
+  const sites = (counts) => [
+    ['the review file and the clean-unit marker', clean.prompt('review'), counts[0], 1],
+    ['the review file of a lens that may not write the marker', lensed.calls[0].prompt, counts[1], 1],
+    ["the verifier's inventory file", verified.prompt('verify'), counts[2], 1],
   ];
-  pinWriteNotes(sites);
-  pinFileWriteNote(sites);
+  pinWriteNotes(sites([1, 0, 1]));
+  pinWriteNotes(sites([1, 1, 0]), LAUNCH_NOTE);
+  pinFileWriteNote(sites([1, 0, 1]));
 }

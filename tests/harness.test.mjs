@@ -19,7 +19,7 @@ const REVIEW      = 'workflows/audit/audit.mjs';
 const srcOf = (rel) => readFileSync(`${REPO_ROOT}/${rel}`, 'utf8');
 const invArgs = { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/criteria.md', priorRounds: 0, launchDir: 'E:/r/runs/t/launch-1' };
 const unit = (id, extra = {}) => ({ id, hash: 'h', files: [{ path: `${id}.js`, loc: 10 }], ...extra });
-const reviewArgs = (units) => ({ runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units });
+const reviewArgs = (units) => ({ runId: 't', root: 'E:/r', launchDir: 'E:/r/runs/t/launch-1', target: { repo: 'E:/repo' }, conventions: 'c', units });
 
 section('a throw AFTER an agent call keeps every call the run had already made');
 // THE case for the never-throws contract. Build it the other way — let execute() throw and catch in

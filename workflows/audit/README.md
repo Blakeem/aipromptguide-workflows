@@ -206,15 +206,21 @@ The run leaves a transparent trail under `runs/<runId>/`:
 
 - `issues/<unit>.md`: the per-unit inventory and your triage document (the deliverable of the review
   pass). Read these to plan, and edit decisions in them.
-- develop's run folder holds the fix loop's review files and declined findings. Its
-  [README](../develop/README.md) lists them.
+- `launch-<n>/`: one folder per launch. A launch of the review holds the reviewers' findings
+  (`reviews/<unit>-<lens>.md`) and a copy of the issue files as they were before that launch
+  (`kept/issues/`), so a re-review never replaces an earlier review or loses your triage edits.
+- The fix loop's develop launches write in this same folder and take the next `launch-<n>/` numbers of
+  the same sequence. develop's [README](../develop/README.md) lists their review files and declined
+  findings.
 
 Run the gates yourself, spot-check the riskiest fixes, then commit (stage mode). Issues marked needs-attention
 were attempted but not closed. The fix failed, its block stopped before acceptance staged it, or acceptance
 found the fix incomplete. Read that block's acceptance review for why. Then work the parked block's
 backlog entry, if it has one, or retry those issues with a sharper fix instruction.
 
-An enhancements run leaves `runs/<runId>/proposals/` with one file per lens. Each file holds the kept
+An enhancements run leaves `runs/<runId>/proposals/` with one file per lens, and one `launch-<n>/`
+folder per launch that holds the finders' candidates (`candidates/<lens>.md`) and a copy of the proposal
+files as they were before that launch (`kept/proposals/`). Each proposal file holds the kept
 proposals (highest impact first), a `Defects to route` section when the verifier found a defect, and a
 `Rejected` section that explains what was thrown out and why. Every proposal carries:
 

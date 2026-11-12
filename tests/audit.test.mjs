@@ -5,8 +5,9 @@ import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
 
 const ENGINE = 'workflows/audit/audit.mjs';
 const UNIT = { id: 'u1', hash: 'h', files: [{ path: 'a.js', loc: 10 }] };
-const DEFECTS_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units: [UNIT] };
-const ENHANCEMENTS_ARGS = { kind: 'enhancements', runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, scope: ['workflows/'], lenses: ['efficiency'] };
+const LDIR = 'E:/r/runs/t/launch-1';
+const DEFECTS_ARGS = { runId: 't', root: 'E:/r', launchDir: LDIR, target: { repo: 'E:/repo' }, conventions: 'c', units: [UNIT] };
+const ENHANCEMENTS_ARGS = { kind: 'enhancements', runId: 't', root: 'E:/r', launchDir: LDIR, target: { repo: 'E:/repo' }, scope: ['workflows/'], lenses: ['efficiency'] };
 const MATRIX = { clarity: 'clear', size: 'small', blast_radius: 'local', scope: 'in-scope', architectural: false };
 const DEFECTS_RESPOND = {
   review: { finding_count: 1, wrote_file: true, wrote_clean_marker: false },
@@ -106,9 +107,84 @@ section('the missing-root message keeps each kind\'s pre-merge wording');
 
 section('kind enhancements runs with no target.repo when every scope path is absolute, and kind defects never does');
 {
-  const noRepo = { kind: 'enhancements', runId: 't', root: 'E:/r', scope: ['E:/repo/workflows/'], lenses: ['efficiency'] };
+  const noRepo = { kind: 'enhancements', runId: 't', root: 'E:/r', launchDir: LDIR, scope: ['E:/repo/workflows/'], lenses: ['efficiency'] };
   const ran = await throwsWith(ENGINE, { args: noRepo, respond: ENHANCEMENTS_RESPOND });
   eq(ran, '', 'an all-absolute enhancements scope needs no repo');
-  const defectsNoRepo = { runId: 't', root: 'E:/r', conventions: 'c', units: [UNIT] };
+  const defectsNoRepo = { runId: 't', root: 'E:/r', launchDir: LDIR, conventions: 'c', units: [UNIT] };
   ok((await throwsWith(ENGINE, { args: defectsNoRepo })).startsWith('args.target.repo is required'), 'a defects payload with no repo throws');
+}
+
+section('each kind writes its review and candidates files in its own launch folder, and its triage documents in the stateDir');
+// A relaunch under one runId would otherwise replace the review and candidates files an earlier launch wrote.
+{
+  for (const [kind, base] of [['defects', DEFECTS_ARGS], ['enhancements', ENHANCEMENTS_ARGS]]) {
+    const { launchDir: _, ...noLaunch } = base;
+    for (const args of [noLaunch, { ...base, launchDir: null }, { ...base, launchDir: ' ' }, { ...base, launchDir: 3 }]) {
+      const msg = await throwsWith(ENGINE, { args });
+      ok(msg.startsWith('Missing args.launchDir: pass the launchDir that the reserve command of the workflow guide\'s pre-launch step prints'),
+        `kind ${kind} with launchDir ${JSON.stringify(args.launchDir)} throws naming the arg: ${msg.slice(0, 50)}`);
+    }
+    for (const [launchDir, what] of [
+      ['E:/r/runs/other/launch-1', 'a launch folder of another stateDir'],
+      ['E:/r/runs/t/launch-1/x', 'a folder below a launch folder'],
+      ['E:/r/runs/t/launch-0', 'launch-0, since launches count from 1'],
+      ['E:/r/runs/t', 'the stateDir itself'],
+    ]) {
+      const msg = await throwsWith(ENGINE, { args: { ...base, launchDir } });
+      ok(msg.startsWith('Invalid args.launchDir: it must be a folder named launch-<n> directly inside the stateDir E:/r/runs/t'),
+        `kind ${kind} with ${what} throws: ${msg.slice(0, 70)}`);
+    }
+    const spelled = await throwsWith(ENGINE, { args: { ...base, launchDir: 'e:\\R\\runs\\t\\launch-3\\' }, respond: kind === 'defects' ? DEFECTS_RESPOND : ENHANCEMENTS_RESPOND });
+    eq(spelled, '', `kind ${kind} accepts a Windows spelling of a launch folder`);
+  }
+
+  const L2 = 'E:/r/runs/t/launch-2';
+  const lens = [{ id: 'x', mandate: 'auditing X' }, { id: 'y', mandate: 'auditing Y' }];
+  const defects = await runEngine(ENGINE, {
+    args: { ...DEFECTS_ARGS, launchDir: L2, units: [{ ...UNIT, lens }] },
+    respond: {
+      review: { finding_count: 1, wrote_file: true, wrote_clean_marker: false },
+      verify: { wrote_file: true, verdicts: ['u1-a1', 'u1-b1'].map((id) => ({ finding_id: id, file: 'a.js', is_real: true, severity: 'high', decision: 'ACTIONABLE', matrix: MATRIX })) },
+    },
+  });
+  ok(defects.prompt('review:u1/x').includes(`WRITE ${L2}/reviews/u1-x.md (create ${L2}/reviews/ if`), 'a reviewer writes its review file in launch-2');
+  ok(defects.prompt('review:u1/y').includes(`[x] ${L2}/reviews/u1-x.md`), 'the next lens reads the earlier lens\'s review file in launch-2');
+  const verifier = defects.prompt('verify');
+  ok(verifier.includes(`[x] ${L2}/reviews/u1-x.md (u1-a1 to u1-a1)`) && verifier.includes(`[y] ${L2}/reviews/u1-y.md (u1-b1 to u1-b1)`),
+    'the verifier reads both review files in launch-2');
+  ok(verifier.includes('INVENTORY FILE: write E:/r/runs/t/issues/u1.md (create E:/r/runs/t/issues/ if needed).'), 'and writes the issue file in the stateDir');
+  const clean = await runEngine(ENGINE, { args: { ...DEFECTS_ARGS, launchDir: L2 }, respond: { review: { finding_count: 0, wrote_file: false, wrote_clean_marker: true } } });
+  ok(clean.prompt('review').includes('WRITE the file E:/r/runs/t/issues/u1.md (create\nE:/r/runs/t/issues/ if needed).'), 'a clean reviewer writes its marker in the stateDir');
+
+  const enhancements = await runEngine(ENGINE, { args: { ...ENHANCEMENTS_ARGS, launchDir: L2 }, respond: ENHANCEMENTS_RESPOND });
+  ok(enhancements.prompt('find').includes(`WRITE the file ${L2}/candidates/efficiency.md (create\n${L2}/candidates/ if needed).`), 'a finder writes its candidates file in launch-2');
+  const v = enhancements.prompt('verify');
+  ok(v.includes(`candidates file: ${L2}/candidates/efficiency.md`), 'the verifier reads the candidates file in launch-2');
+  ok(v.includes('proposal file:   E:/r/runs/t/proposals/efficiency.md'), 'and writes the proposal file in the stateDir');
+  const marker = await runEngine(ENGINE, { args: { ...ENHANCEMENTS_ARGS, launchDir: L2 }, respond: { find: { candidate_ids: [], wrote_candidates: false, wrote_clean_marker: true } } });
+  ok(marker.prompt('find').includes('WRITE the file E:/r/runs/t/proposals/efficiency.md\n(create E:/r/runs/t/proposals/ if needed).'), 'a clean finder writes its marker in the stateDir');
+
+  // No prompt names a review or candidates file outside its own launch folder.
+  const named = [defects, clean, enhancements, marker].flatMap((r) => r.calls.flatMap((c) => c.prompt.match(/E:\/r\/runs\/t\/[^\s`'"()]*(?:reviews|candidates)\/[^\s`'"()]*/g) ?? []));
+  ok(named.length > 0 && named.every((p) => p.startsWith(`${L2}/`)), `every review and candidates path a prompt names lies in launch-2: ${[...new Set(named)].join(', ')}`);
+}
+
+section('a relaunch reserves a new launch folder that keeps the triage documents, and a relayed request relaunches in one');
+{
+  const keep = (what) => `start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts. That pre-launch command is node <launch.mjs> reserve 'E:/r/runs/t' --keep ${what}, and launchDir is the folder it prints`;
+  const { out } = await runEngine(ENGINE, { args: DEFECTS_ARGS, respond: { review: null } });
+  const first = String(out.nextStep ?? '').split('\n')[0];
+  ok(first.includes(`under this runId and with a newly reserved launchDir in place of ${LDIR}, manifest.staleUnits`) && first.endsWith(`To relaunch, ${keep('issues')}.`),
+    `the re-review reserves a new launch folder that keeps the issue files: ${first.slice(-200)}`);
+  const relayedDefects = await throwsWith(ENGINE, { args: DEFECTS_ARGS, respond: { review: { finding_count: 0, wrote_file: false, wrote_clean_marker: false, relayed_request: true } } });
+  ok(relayedDefects.endsWith(`${keep('issues')}. Pass that newly reserved launchDir in place of ${LDIR}.`), `a relayed request to a reviewer relaunches in a new launch folder: ${relayedDefects.slice(-120)}`);
+
+  const { out: lost } = await runEngine(ENGINE, { args: ENHANCEMENTS_ARGS, respond: { find: null } });
+  ok(String(lost.nextStep ?? '').includes(`Re-run those lenses with the same runId and a newly reserved launchDir in place of ${LDIR}. To relaunch, ${keep('proposals')}.`),
+    'a lens re-run reserves a new launch folder that keeps the proposal files');
+  const { out: partial } = await runEngine(ENGINE, { args: { ...ENHANCEMENTS_ARGS, lenses: ['efficiency', 'simplification'] }, respond: { 'find:simplification': null, ...ENHANCEMENTS_RESPOND } });
+  ok(String(partial.nextStep ?? '').includes(`offer to re-run just those, with the same runId and a newly reserved launchDir in place of ${LDIR}.`)
+    && String(partial.nextStep ?? '').includes(`To relaunch, ${keep('proposals')}.`), 'a failed lens\'s re-run reserves a new launch folder too');
+  const relayedEnhancements = await throwsWith(ENGINE, { args: ENHANCEMENTS_ARGS, respond: { find: { candidate_ids: [], wrote_candidates: false, wrote_clean_marker: false, relayed_request: true } } });
+  ok(relayedEnhancements.endsWith(`${keep('proposals')}. Pass that newly reserved launchDir in place of ${LDIR}.`), `a relayed request to a finder relaunches in a new launch folder: ${relayedEnhancements.slice(-120)}`);
 }

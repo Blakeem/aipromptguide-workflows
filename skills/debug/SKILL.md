@@ -24,6 +24,8 @@ Use these paths wherever the guide says "this checkout" or "the tool's own direc
 
 - Review engine `scriptPath`: `${CLAUDE_PLUGIN_ROOT}/workflows/audit/audit.mjs`, launched with
   `kind: defects`
+- Launch tool (operator-side, the reserve command of the guide's §0 step 7):
+  `${CLAUDE_PLUGIN_ROOT}/tools/launch.mjs`
 - Fix engine `scriptPath` (develop in fix mode, guide `${CLAUDE_PLUGIN_ROOT}/workflows/develop/CLAUDE.md`):
   `${CLAUDE_PLUGIN_ROOT}/workflows/develop/develop-cycle.mjs`
 - develop's `blockTool` arg: the args tool below prints it, so the spread args carry it, and develop

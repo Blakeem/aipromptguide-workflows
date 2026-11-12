@@ -6,11 +6,11 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| find | 1 | 1 | 6152 | two lenses propose |
-| find | 2 | 1 | 6188 | two lenses propose |
-| verify | 1 | 1 | 9249 | two lenses propose |
-| find | 3 | 1 | 6617 | a lens id past 60 characters |
-| verify | 2 | 1 | 9240 | a lens id past 60 characters |
+| find | 1 | 1 | 6219 | two lenses propose |
+| find | 2 | 1 | 6255 | two lenses propose |
+| verify | 1 | 1 | 9267 | two lenses propose |
+| find | 3 | 1 | 6684 | a lens id past 60 characters |
+| verify | 2 | 1 | 9249 | a lens id past 60 characters |
 
 ## find · variant 1 · schema 1
 
@@ -69,8 +69,8 @@ RULES:
   Score both honestly. Inflated impact gets rejected.
 - QUALITY over count. Five substantiated enhancements beat twenty speculative ones.
 
-CANDIDATES FILE: if you have ANY candidate, WRITE the file E:/flow/runs/flow/candidates/efficiency.md (create
-E:/flow/runs/flow/candidates/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. The verifier reads it by path, so it holds every
+CANDIDATES FILE: if you have ANY candidate, WRITE the file E:/flow/runs/flow/launch-1/candidates/efficiency.md (create
+E:/flow/runs/flow/launch-1/candidates/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. The verifier reads it by path, so it holds every
 candidate whole. Number the candidates efficiency-1, efficiency-2 and so on, in file order. Its format is EXACTLY this:
 -----
 ---
@@ -201,8 +201,8 @@ RULES:
   Score both honestly. Inflated impact gets rejected.
 - QUALITY over count. Five substantiated enhancements beat twenty speculative ones.
 
-CANDIDATES FILE: if you have ANY candidate, WRITE the file E:/flow/runs/flow/candidates/simplification.md (create
-E:/flow/runs/flow/candidates/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. The verifier reads it by path, so it holds every
+CANDIDATES FILE: if you have ANY candidate, WRITE the file E:/flow/runs/flow/launch-1/candidates/simplification.md (create
+E:/flow/runs/flow/launch-1/candidates/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. The verifier reads it by path, so it holds every
 candidate whole. Number the candidates simplification-1, simplification-2 and so on, in file order. Its format is EXACTLY this:
 -----
 ---
@@ -310,11 +310,11 @@ THIS IS AN ENHANCEMENT AUDIT:
 BE TOKEN-ECONOMICAL: don't restate large files back.
 YOUR LENSES (judge each lens's candidates under that lens's focus):
   - LENS efficiency: efficiency
-      candidates file: E:/flow/runs/flow/candidates/efficiency.md   (read it in full: every candidate with its evidence)
+      candidates file: E:/flow/runs/flow/launch-1/candidates/efficiency.md   (read it in full: every candidate with its evidence)
       candidate ids:   efficiency-1
       proposal file:   E:/flow/runs/flow/proposals/efficiency.md
   - LENS simplification: simplification
-      candidates file: E:/flow/runs/flow/candidates/simplification.md   (read it in full: every candidate with its evidence)
+      candidates file: E:/flow/runs/flow/launch-1/candidates/simplification.md   (read it in full: every candidate with its evidence)
       candidate ids:   simplification-1
       proposal file:   E:/flow/runs/flow/proposals/simplification.md
 Judge only the candidate ids listed above. A block of a candidates file whose id is not listed for its
@@ -558,8 +558,8 @@ RULES:
   Score both honestly. Inflated impact gets rejected.
 - QUALITY over count. Five substantiated enhancements beat twenty speculative ones.
 
-CANDIDATES FILE: if you have ANY candidate, WRITE the file E:/flow/runs/flow/candidates/operator_effort_across_every_engine_guide_and_every_skill_en.md (create
-E:/flow/runs/flow/candidates/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. The verifier reads it by path, so it holds every
+CANDIDATES FILE: if you have ANY candidate, WRITE the file E:/flow/runs/flow/launch-1/candidates/operator_effort_across_every_engine_guide_and_every_skill_en.md (create
+E:/flow/runs/flow/launch-1/candidates/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. The verifier reads it by path, so it holds every
 candidate whole. Number the candidates operator-effort-across-every-engine-guide-and-every-skill-en-1, operator-effort-across-every-engine-guide-and-every-skill-en-2 and so on, in file order. Its format is EXACTLY this:
 -----
 ---
@@ -667,7 +667,7 @@ THIS IS AN ENHANCEMENT AUDIT:
 BE TOKEN-ECONOMICAL: don't restate large files back.
 YOUR LENSES (judge each lens's candidates under that lens's focus):
   - LENS operator-effort-across-every-engine-guide-and-every-skill-en: operator effort across every engine guide and every skill entry point today
-      candidates file: E:/flow/runs/flow/candidates/operator_effort_across_every_engine_guide_and_every_skill_en.md   (read it in full: every candidate with its evidence)
+      candidates file: E:/flow/runs/flow/launch-1/candidates/operator_effort_across_every_engine_guide_and_every_skill_en.md   (read it in full: every candidate with its evidence)
       candidate ids:   operator-effort-across-every-engine-guide-and-every-skill-en-1
       proposal file:   E:/flow/runs/flow/proposals/operator_effort_across_every_engine_guide_and_every_skill_en.md
 Judge only the candidate ids listed above. A block of a candidates file whose id is not listed for its

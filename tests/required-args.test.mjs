@@ -59,8 +59,8 @@ const DEVELOP_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, ga
 // critic against nothing and report a clean round for a plan it never saw.
 const REFINE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, planPath: 'plans/bus.md', blockTool: 'E:/r/tools/plan-block.mjs',
   launchDir: 'E:/r/runs/t-refine/launch-1' };
-const REVIEW_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units: [UNIT] };
-const ENHANCE_ARGS = { kind: 'enhancements', runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
+const REVIEW_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units: [UNIT], launchDir: 'E:/r/runs/t/launch-1' };
+const ENHANCE_ARGS = { kind: 'enhancements', runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, launchDir: 'E:/r/runs/t/launch-1',
   scope: ['workflows/'], lenses: ['efficiency', 'simplification'] };
 // docs does NOT reach a terminal on empty returns (measured 2026-08-01: it throws "Every source reported
 // zero doc files"), so its row scripts the returns its per-engine table already uses.
@@ -101,14 +101,14 @@ const SWEEP = [
     engine: 'workflows/audit/audit.mjs',
     baseArgs: REVIEW_ARGS,
     respond: {},
-    required: ['runId', 'root', 'target.repo', 'units'],
+    required: ['runId', 'root', 'target.repo', 'units', 'launchDir'],
   },
   {
     // Dropping kind from an enhancements payload runs the defects kind, whose guard refuses scope.
     engine: 'workflows/audit/audit.mjs',
     baseArgs: ENHANCE_ARGS,
     respond: {},
-    required: ['kind', 'runId', 'root', 'scope', 'lenses',
+    required: ['kind', 'runId', 'root', 'scope', 'lenses', 'launchDir',
       // The audit guide's enhancements Args reference lists target.repo under Optional, and its Pre-run
       // setup states the condition: it is what a RELATIVE scope path resolves against, and the baseline
       // scope ('workflows/') is relative. An all-absolute scope needs no repo at all — the one engine here
@@ -210,10 +210,11 @@ for (const { engine, baseArgs, respond, required } of SWEEP) {
 // ---------------------------------------------------------------------------------------------
 {
   const engine = 'workflows/audit/audit.mjs';
-  section('audit.mjs kind defects — an illegal severity floor or change policy throws instead of coercing');
+  section('audit.mjs kind defects — an illegal severity floor, change policy or launch folder throws instead of coercing');
   const VALUES = [
     ['reviewSeverity', 'reviewSeverity:"constructor", an inherited object name', { ...REVIEW_ARGS, reviewSeverity: 'constructor' }],
     ['changePolicy', 'changePolicy:"lenient"', { ...REVIEW_ARGS, changePolicy: 'lenient' }],
+    ['launchDir', 'a launch folder of another stateDir', { ...REVIEW_ARGS, launchDir: 'E:/r/runs/other/launch-1' }],
   ];
   for (const [path, what, args] of VALUES) {
     const msg = await throwsWith(engine, { args, respond: {} });

@@ -1,10 +1,10 @@
 export const meta = {
   name: 'audit',
-  description: 'Read-only fan-out audit, lean/file-bus design, in two kinds whose products stay apart. kind defects (the default) fans out over bounded units (a reviewer, then a verifier only where findings exist) and writes one verbatim issue file per unit, the closed defect inventory and your triage doc, which develop-cycle.mjs in fix mode then builds behind a two-stage review. A clean unit is written by the reviewer itself, and a unit with findings goes to a verifier, so each file has one writer. kind enhancements fans out ONE finder per lens across the whole scope (breadth, not slices, since cross-cutting enhancements are the point), each writing its candidates to candidates/<lens>.md, then verifiers bin-packed across lenses that confirm each candidate against the real code, kill anything the system ALREADY does, score impact x size, and write one verbatim proposals/<lens>.md. Nothing an enhancements run writes is auto-applied. Both kinds then STOP. Agents exchange messages as verbatim files, and the harness only routes paths + verdicts.',
+  description: 'Read-only fan-out audit, lean/file-bus design, in two kinds whose products stay apart. kind defects (the default) fans out over bounded units (a reviewer, then a verifier only where findings exist) and writes one verbatim issue file per unit, the closed defect inventory and your triage doc, which develop-cycle.mjs in fix mode then builds behind a two-stage review. A clean unit is written by the reviewer itself, and a unit with findings goes to a verifier, so each file has one writer. kind enhancements fans out ONE finder per lens across the whole scope (breadth, not slices, since cross-cutting enhancements are the point), each writing its candidates to candidates/<lens>.md, then verifiers bin-packed across lenses that confirm each candidate against the real code, kill anything the system ALREADY does, score impact x size, and write one verbatim proposals/<lens>.md. Nothing an enhancements run writes is auto-applied. Both kinds then STOP. Each launch writes its review and candidates files in its own launch folder, the required launchDir arg that tools/launch.mjs reserves in the stateDir, so no launch replaces a review or candidates file an earlier launch wrote, while the issue and proposal files stay in the stateDir. Agents exchange messages as verbatim files, and the harness only routes paths + verdicts.',
   whenToUse: 'kind defects: review a whole codebase (or subsystem) for production DEFECTS as a planned campaign. The main agent runs gen-units.mjs and passes the units in args. Each unit gets a reviewer, a clean unit gets its runs/<runId>/issues/<unit>.md marker from the reviewer, and a unit with findings gets a verifier that writes that file. You triage by editing those files (flip a decision to SKIP, answer a NEEDS_USER by writing the chosen option into its Fix line), then run develop-cycle.mjs in fix mode, one plans entry per triaged issue file with findings. An OPTIONAL lens (args.lens, or per-unit unit.lens) narrows WHICH defects a unit hunts, and an ARRAY of lenses sweeps the same files from several angles behind ONE verifier per unit. A lens never widens the pass into proposing improvements, because the inventory feeds an autonomous fixer. kind enhancements: audit a system you already have for ENHANCEMENTS, bigger changes worth writing up, not nits: make it more efficient, simpler, cheaper, more robust, less work to operate, or smaller (removing a role/file/arg/code path is a first-class enhancement). The main agent settles the scope + the lenses with the user. Each lens gets the whole scope and returns a verified, impact-scored, human-triage-ready proposal file. YOU triage, and adopted proposals become plan-file blocks that refine-cycle converges and develop-cycle builds. NOT for open-ended creative variations (brainstorm-cycle) or for concluding among competing approaches (decide-cycle).',
   phases: [
-    { title: 'Review', detail: 'kind defects. Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only) and writes them, with the evidence for each, to reviews/<unit>-<lens>.md, returning only their count; when it finds nothing it writes the clean issues/<unit>.md marker itself.' },
-    { title: 'Find', detail: 'kind enhancements. One finder per lens (CONCURRENT), each reading the WHOLE scope through its lens. Grounded candidates only: what the system does today (file:line) -> what it would do instead -> the concrete cost that removes, with the evidence for each, written to candidates/<lens>.md. The finder returns only the candidate ids. A lens that finds nothing writes its own clean proposals/<lens>.md marker.' },
+    { title: 'Review', detail: 'kind defects. Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only) and writes them, with the evidence for each, to <launchDir>/reviews/<unit>-<lens>.md, returning only their count; when it finds nothing it writes the clean issues/<unit>.md marker itself.' },
+    { title: 'Find', detail: 'kind enhancements. One finder per lens (CONCURRENT), each reading the WHOLE scope through its lens. Grounded candidates only: what the system does today (file:line) -> what it would do instead -> the concrete cost that removes, with the evidence for each, written to <launchDir>/candidates/<lens>.md. The finder returns only the candidate ids. A lens that finds nothing writes its own clean proposals/<lens>.md marker.' },
     { title: 'Verify', detail: 'kind defects: spawned ONLY for units with findings, one per unit. It reads the review files by path, confirms each finding against real code, corrects severity, checks the Fix line it writes against the code it changes, routes via the decision matrix, and WRITES runs/<runId>/issues/<unit>.md verbatim (the inventory), returning a slim verdict index. kind enhancements: spawned ONLY for lenses with candidates, bin-packed: lenses join one verify unit up to a candidate cap, and a lens never splits across units. Each verifier reads its lenses\' candidates files by path, re-checks each candidate against the real code, REJECTS anything the system already does / any unsubstantiated benefit / any nit / anything that is really a defect, scores impact x size, routes ADOPT | ROADMAP | NEEDS_USER | REJECT, and WRITES proposals/<lens>.md verbatim for each of its lenses.' },
   ],
 };
@@ -57,7 +57,7 @@ if (strayArgs.length) {
 }
 
 if (!A || !A.runId) {
-  throw new Error(`args must include at least { runId, root, target, ${KIND === 'defects' ? 'conventions, units' : 'scope, lenses'} }; got typeof=` + (typeof args));
+  throw new Error(`args must include at least { runId, root, target, launchDir, ${KIND === 'defects' ? 'conventions, units' : 'scope, lenses'} }; got typeof=` + (typeof args));
 }
 // `root` is REQUIRED setup the main agent supplies (#4 — no in-engine "find my cwd" agent). It is the
 // absolute path the run-state dir hangs off, normally this workflow tool's own directory.
@@ -203,6 +203,34 @@ const callAgent = (prompt, opts) => agent(NOTES
 // a scope path is relative (checked below), since an all-absolute scope needs no repo.
 const REPO      = TARGET.repo ? abs(TARGET.repo) : '';
 const STATE_DIR = abs(A.stateDir ?? `runs/${RUN_ID}`);
+// Copy of the launch folder check each engine with a launch folder holds, since an engine cannot import: a test pins the copies equal.
+// A launch writes its records only in the folder `tools/launch.mjs reserve` made for it, so no launch writes
+// where another did. Static lead clauses: gen-flows labels each throw node from them.
+const launchDirOf = (value, stateDir) => {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new Error(`Missing args.launchDir: pass the launchDir that the reserve command of the workflow guide's pre-launch step prints, a newly reserved one for every launch but a replay, which passes the replayed launch's own with resumeFromRunId. Got ${JSON.stringify(value)}.`);
+  }
+  const dir = value.trim().replace(/\\/g, '/').replace(/\/+$/, '');
+  // reserve may get another spelling of the stateDir, so both sides drop `.`, `..` and repeated slashes. Windows folds case in a drive or UNC path.
+  const key = (p) => {
+    const lead = /^(?:[a-zA-Z]:\/|\/\/|\/)?/.exec(p)[0];
+    const segments = [];
+    for (const segment of p.slice(lead.length).split('/')) {
+      if (segment === '..') segments.pop();
+      else if (segment && segment !== '.') segments.push(segment);
+    }
+    const path = `${lead}${segments.join('/')}`;
+    return lead.length > 1 ? path.toLowerCase() : path;
+  };
+  const cut = dir.lastIndexOf('/');
+  if (cut < 0 || key(dir.slice(0, cut)) !== key(stateDir) || !/^launch-[1-9]\d*$/.test(dir.slice(cut + 1))) {
+    throw new Error(`Invalid args.launchDir: it must be a folder named launch-<n> directly inside the stateDir ${stateDir}, as \`node <launch.mjs> reserve <stateDir>\` prints it. Got ${JSON.stringify(value)}.`);
+  }
+  return dir;
+};
+// Each launch writes its review and candidates files here. The issue and proposal files are the user's triage
+// documents, so they stay in the stateDir, and the reserve command keeps a copy of each in the launch folder.
+const LAUNCH_DIR = launchDirOf(A.launchDir, STATE_DIR);
 // `conventions` is a distilled index, so each agent also reads the project's own instruction files in full.
 // refine-cycle.mjs and develop-cycle.mjs hold copies, since an engine cannot import: a test pins the copies equal.
 // Static lead clause: gen-flows labels the throw node from it.
@@ -213,14 +241,18 @@ const conventionFilesOf = (value) => {
   }
   return value.map((p) => { const n = norm(p.trim()); return /^([a-zA-Z]:)?\//.test(n) ? n : `${REPO}/${n}`; });
 };
-// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite
-// a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
+// A relaunch with the same runId finds the earlier launch's issue and proposal files in the stateDir, and the Write
+// tool refuses to overwrite a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
 const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
+// A launch folder holds no earlier launch's file, so only an interrupted attempt of the same launch leaves one there.
+const LAUNCH_REPLACE_NOTE = 'The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content.';
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 // Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
 // A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
-const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
+// Every relaunch reserves a new launch folder, which keeps a copy of the triage documents as they were before it.
+const LAUNCH = `start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts. That pre-launch command is node <launch.mjs> reserve '${STATE_DIR}' --keep ${KIND === 'defects' ? 'issues' : 'proposals'}, and launchDir is the folder it prints`;
+const NEW_LAUNCH_DIR = `a newly reserved launchDir in place of ${LAUNCH_DIR}`;
 const RELAYED_REQUEST = { type: 'boolean', description: 'true when your context holds a user request that the Workflow harness relayed ahead of this task, apart from the task text itself. false when it holds only this task. TRUE HALTS the run before any later agent.' };
 const fileSafe = (id) => String(id).replace(/[^a-z0-9]+/gi, '_').toLowerCase();
 
@@ -248,7 +280,7 @@ const CONVENTION_FILES = conventionFilesOf(A.conventionFiles);
 // kind defects: paths, guards and lenses
 // =============================================================================
 const ISSUES_DIR = `${STATE_DIR}/issues`;
-const REVIEWS_DIR = `${STATE_DIR}/reviews`;
+const REVIEWS_DIR = `${LAUNCH_DIR}/reviews`;
 // Windows folds case in a drive or UNC path, so E:/Repo/x lies inside e:/repo there.
 // A POSIX path keeps its case, so a macOS spelling in another case draws no warning.
 const pathKey    = (p) => (/^(?:[a-zA-Z]:\/|\/\/)/.test(p) ? p.toLowerCase() : p);
@@ -352,7 +384,7 @@ const findingId = (unit, n, tag = '') => `${unitSlug(unit.id)}-${tag}${n}`;
 // kind enhancements: paths and lenses
 // =============================================================================
 const PROPOSALS_DIR = `${STATE_DIR}/proposals`;
-const CANDIDATES_DIR = `${STATE_DIR}/candidates`;
+const CANDIDATES_DIR = `${LAUNCH_DIR}/candidates`;
 // The most candidates a verifier carrying several lenses judges. A larger lens gets its own, never split.
 const VERIFY_UNIT_CANDIDATES = 12;
 
@@ -499,7 +531,7 @@ RULES:
   the evidence that shows it, and ${FIX_DIRECTION}.
 
 REVIEW FILE: if you report at least one finding, WRITE ${reviewFile} (create ${REVIEWS_DIR}/ if
-needed). ${REPLACE_NOTE} Number your findings ${findingId(unit, 1, tag)}, ${findingId(unit, 2, tag)} and on, one entry each, in EXACTLY
+needed). ${LAUNCH_REPLACE_NOTE} Number your findings ${findingId(unit, 1, tag)}, ${findingId(unit, 2, tag)} and on, one entry each, in EXACTLY
 this format, then return finding_count (the number of entries) and wrote_file=true:
 -----
 # Review: ${unit.id}${L.isSet ? ` / ${L.id}` : ''}
@@ -764,7 +796,7 @@ RULES:
 - QUALITY over count. Five substantiated enhancements beat twenty speculative ones.
 
 CANDIDATES FILE: if you have ANY candidate, WRITE the file ${candidatesFile(lens.id)} (create
-${CANDIDATES_DIR}/ if needed). ${REPLACE_NOTE} The verifier reads it by path, so it holds every
+${CANDIDATES_DIR}/ if needed). ${LAUNCH_REPLACE_NOTE} The verifier reads it by path, so it holds every
 candidate whole. Number the candidates ${candidatePrefix(lens.id)}1, ${candidatePrefix(lens.id)}2 and so on, in file order. Its format is EXACTLY this:
 -----
 ---
@@ -984,7 +1016,7 @@ const auditDefects = async () => {
           relayedWhere.push(where);
           break;
         }
-        // A count with no confirmed file hands the verifier nothing, or an earlier launch's file at that path.
+        // A count with no confirmed file hands the verifier nothing, or a file an interrupted attempt of this launch left at that path.
         // A confirmed file with a zero count holds findings that no verifier would be handed.
         const count = rev.finding_count;
         if (!Number.isInteger(count) || count < 0 || (count > 0) !== (rev.wrote_file === true)) {
@@ -1061,7 +1093,7 @@ const auditDefects = async () => {
   );
 
   if (relayedWhere.length) {
-    throw new Error(`A user request was relayed into the context of the reviewer for ${relayedWhere.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}.`);
+    throw new Error(`A user request was relayed into the context of the reviewer for ${relayedWhere.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}. Pass that newly reserved launchDir in place of ${LAUNCH_DIR}.`);
   }
   const processed = results.filter(Boolean);
   const all = processed.flatMap((r) => r.kept);
@@ -1080,7 +1112,7 @@ const auditDefects = async () => {
   const reReviewIds = [...new Set(failed.filter((f) => !('unmatched' in f)).map((f) => f.id))];
   const triageIds = [...new Set(failed.filter((f) => 'unmatched' in f && !reReviewIds.includes(f.id)).map((f) => f.id))];
   const nextSteps = [
-    reReviewIds.length && `First re-review ${reReviewIds.join(', ')}: re-run gen-units.mjs with --issues-dir ${ISSUES_DIR}, then pass as args.units, under this runId, manifest.staleUnits plus each of these units it lacks (workflows/audit/CLAUDE.md, defects playbook step "Resume the review"). Do it before any triage edit, because a re-review rewrites each re-reviewed unit's issue file. To relaunch, ${LAUNCH}.`,
+    reReviewIds.length && `First re-review ${reReviewIds.join(', ')}: re-run gen-units.mjs with --issues-dir ${ISSUES_DIR}, then pass as args.units, under this runId and with ${NEW_LAUNCH_DIR}, manifest.staleUnits plus each of these units it lacks (workflows/audit/CLAUDE.md, defects playbook step "Resume the review"). Do it before any triage edit, because a re-review rewrites each re-reviewed unit's issue file. To relaunch, ${LAUNCH}.`,
     triageIds.length && `Count the findings of ${triageIds.join(', ')} from their issue files, since those units' verifier verdicts did not match every finding id and the returned totals leave those findings out.`,
     `Present the inventory: read ${ISSUES_DIR}/*.md. The returned inventory, hottest and needsUserFiles cover only the ${processed.length} unit(s) this run reviewed, so after a resume the other issue files hold findings they leave out. Walk the user through totals by severity and decision, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). This is a scoping conversation.`,
     'Triage by EDITING those files: set a NEEDS_USER item\'s decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP.',
@@ -1150,7 +1182,7 @@ const auditEnhancements = async () => {
     const ids = [...new Set(returned.filter((id) => isCandidateId(lens.id, id)))];
     if (ids.length < returned.length) log(`  ⚠ ${lens.id}: ignored ${returned.length - ids.length} candidate id(s) that repeat or do not read ${candidatePrefix(lens.id)}<n> — check ${candidatesFile(lens.id)}`);
     if (ids.length) {
-      // An unattested candidates file may be an earlier launch's, so the verifier would judge stale candidates.
+      // An unattested candidates file may be missing or one an interrupted attempt of this launch left, so the verifier would judge candidates this finder never wrote.
       if (found.wrote_candidates !== true) {
         log(`  ⚠ ${lens.id}: the finder did NOT confirm writing ${candidatesFile(lens.id)} — this lens was NOT audited. Re-run it.`);
         return null;
@@ -1173,7 +1205,7 @@ const auditEnhancements = async () => {
   };
   const toVerify = (await parallel(LENSES.map((lens) => () => findLens(lens)))).filter(Boolean);
   if (relayedLensIds.length) {
-    throw new Error(`A user request was relayed into the context of the finder for ${relayedLensIds.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}.`);
+    throw new Error(`A user request was relayed into the context of the finder for ${relayedLensIds.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}. Pass that newly reserved launchDir in place of ${LAUNCH_DIR}.`);
   }
 
   // -- Pack: next-fit in lens order, as gen-units packs the defects kind's small units --------------
@@ -1270,13 +1302,13 @@ const auditEnhancements = async () => {
     nextStep: `${numberedSteps(live.length === 0
       ? [
         `NOTHING was audited: every lens failed: ${failedLabels}. There are no proposals to present — do NOT report a clean audit. Tell the user.`,
-        `Re-run those lenses with the same runId. To relaunch, ${LAUNCH}.`,
+        `Re-run those lenses with the same runId and ${NEW_LAUNCH_DIR}. To relaunch, ${LAUNCH}.`,
       ]
       : [
         `Read these proposal files and PRESENT them to the user: ${live.map((r) => r.file).join(', ')}. They hold ${adopt} ADOPT, ${roadmap} ROADMAP and ${needsUser} NEEDS_USER item(s) across ${live.length} lens(es). Present only the listed files: any other file in ${PROPOSALS_DIR}/ is from an earlier run or an agent that did not finish. Present the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation.`,
         'Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run.',
         unjudgedTotal > 0 && `The verifier returned no verdict for ${unjudgedTotal} candidate(s) (summary.unjudged), so they are in no count: check them in ${unjudgedFiles.join(', ')} before triage.`,
-        failed.length && `TELL THE USER these lenses were NOT audited and produced no verified proposal file: ${failedLabels} — offer to re-run just those. Any proposal file on disk for them is not presented until the lens is re-run. To relaunch, ${LAUNCH}.`,
+        failed.length && `TELL THE USER these lenses were NOT audited and produced no verified proposal file: ${failedLabels} — offer to re-run just those, with the same runId and ${NEW_LAUNCH_DIR}. Any proposal file on disk for them is not presented until the lens is re-run. To relaunch, ${LAUNCH}.`,
         'Triage with the user. NOTHING here is applied automatically and there is no fix step — the user decides what gets built.',
         'Route the triaged items: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block when they span many call sites (otherwise a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and every block under a file\'s `## Defects to route` goes to the defects kind (`/aipg:debug`).',
       ])}\nworkflows/audit/CLAUDE.md §0 "After an enhancements run" holds each of these steps with its output, and the steps after the triage.`,

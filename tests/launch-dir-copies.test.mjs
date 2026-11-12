@@ -10,6 +10,7 @@ const ENGINES = [
   'workflows/refine/refine-cycle.mjs',
   'workflows/investigate/investigate-cycle.mjs',
   'workflows/develop/develop-cycle.mjs',
+  'workflows/audit/audit.mjs',
 ];
 
 /** The launchDirOf function of one engine's source, or null when it lacks one. */

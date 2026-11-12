@@ -115,7 +115,9 @@ to `pinWriteNotes`. investigate keeps `REPLACE_NOTE` for its option files in the
 and determination sites in the launch folder carry `REVIEW_REPLACE_NOTE` and `DETERMINATION_REPLACE_NOTE`,
 since an earlier round of the same launch may also have written the determination. develop keeps
 `REPLACE_NOTE` for its park's message file under `scratch/`, and its round files in the launch folder carry
-`LAUNCH_REPLACE_NOTE`, so its test pins each note in its own call. A Read-first note
+`LAUNCH_REPLACE_NOTE`, so its test pins each note in its own call. audit keeps `REPLACE_NOTE` for its
+issue and proposal files in the stateDir, and its review and candidates files in the launch folder carry
+`LAUNCH_REPLACE_NOTE`, so its tests pin each note in its own call too. A Read-first note
 sits at each site that replaces a file in full, apart from develop's risk
 file, whose read step says `risk-check.mjs` leaves an existing file in place, since the tool writes none.
 `WROTE_NOTE` sits once in each prompt whose return attests a file the agent writes with the Write tool.

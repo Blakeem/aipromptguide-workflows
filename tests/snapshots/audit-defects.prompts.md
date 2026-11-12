@@ -6,11 +6,11 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| review | 1 | 1 | 5708 | a clean unit beside one with findings |
-| verify | 1 | 1 | 9275 | a clean unit beside one with findings |
-| review | 2 | 1 | 5193 | two lenses per unit |
-| review | 3 | 1 | 5467 | two lenses per unit |
-| verify | 2 | 1 | 9757 | two lenses per unit |
+| review | 1 | 1 | 5775 | a clean unit beside one with findings |
+| verify | 1 | 1 | 9284 | a clean unit beside one with findings |
+| review | 2 | 1 | 5260 | two lenses per unit |
+| review | 3 | 1 | 5543 | two lenses per unit |
+| verify | 2 | 1 | 9775 | two lenses per unit |
 
 ## review · variant 1 · schema 1
 
@@ -67,8 +67,8 @@ RULES:
 - Each finding: specific file + line, the right category/severity, what's wrong and why it matters in production,
   the evidence that shows it, and a minimal suggested fix direction.
 
-REVIEW FILE: if you report at least one finding, WRITE E:/flow/runs/flow/reviews/u1-lens1.md (create E:/flow/runs/flow/reviews/ if
-needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Number your findings u1-1, u1-2 and on, one entry each, in EXACTLY
+REVIEW FILE: if you report at least one finding, WRITE E:/flow/runs/flow/launch-1/reviews/u1-lens1.md (create E:/flow/runs/flow/launch-1/reviews/ if
+needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. Number your findings u1-1, u1-2 and on, one entry each, in EXACTLY
 this format, then return finding_count (the number of entries) and wrote_file=true:
 -----
 # Review: u1
@@ -197,7 +197,7 @@ THE REVIEWER'S BRIEF (context for judging severity). It narrows which defects ma
 CANDIDATE FINDINGS: the review files below. Each `### [<finding id>]` entry in a file is one
 candidate, with its file:line, category, the reviewer's severity, what is wrong, the reviewer's evidence
 and a suggested fix. Each file holds the ids its line names:
-  - E:/flow/runs/flow/reviews/u2-lens1.md (u2-1 to u2-1)
+  - E:/flow/runs/flow/launch-1/reviews/u2-lens1.md (u2-1 to u2-1)
 
 FOLD DUPLICATES FIRST. One reviewer can surface the SAME underlying defect in different words. Where
 two or more candidates are one defect, keep ONE verdict for it (the clearest id, at the highest
@@ -432,8 +432,8 @@ RULES:
 - Each finding: specific file + line, the right category/severity, what's wrong and why it matters in production,
   the evidence that shows it, and a minimal suggested fix direction.
 
-REVIEW FILE: if you report at least one finding, WRITE E:/flow/runs/flow/reviews/u1-destructive.md (create E:/flow/runs/flow/reviews/ if
-needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Number your findings u1-a1, u1-a2 and on, one entry each, in EXACTLY
+REVIEW FILE: if you report at least one finding, WRITE E:/flow/runs/flow/launch-1/reviews/u1-destructive.md (create E:/flow/runs/flow/launch-1/reviews/ if
+needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. Number your findings u1-a1, u1-a2 and on, one entry each, in EXACTLY
 this format, then return finding_count (the number of entries) and wrote_file=true:
 -----
 # Review: u1 / destructive
@@ -514,7 +514,7 @@ FILES TO REVIEW (read each one in full, in as many reads as its length needs. Th
   - src/u1.js (120 LOC)
 PROCEDURE:
 1. ALREADY FOUND in a prior pass over this unit. Read each of these review files before you review:
-  - [destructive] E:/flow/runs/flow/reviews/u1-destructive.md
+  - [destructive] E:/flow/runs/flow/launch-1/reviews/u1-destructive.md
    Output: the findings they hold, which you do not report again.
 2. Review the FILES TO REVIEW against the criteria and RULES below. Output: your findings.
 3. WRITE the REVIEW FILE below when you report a finding. Output: the file, or none.
@@ -544,8 +544,8 @@ RULES:
 - Each finding: specific file + line, the right category/severity, what's wrong and why it matters in production,
   the evidence that shows it, and a minimal suggested fix direction.
 
-REVIEW FILE: if you report at least one finding, WRITE E:/flow/runs/flow/reviews/u1-data_loss.md (create E:/flow/runs/flow/reviews/ if
-needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Number your findings u1-b1, u1-b2 and on, one entry each, in EXACTLY
+REVIEW FILE: if you report at least one finding, WRITE E:/flow/runs/flow/launch-1/reviews/u1-data_loss.md (create E:/flow/runs/flow/launch-1/reviews/ if
+needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. Number your findings u1-b1, u1-b2 and on, one entry each, in EXACTLY
 this format, then return finding_count (the number of entries) and wrote_file=true:
 -----
 # Review: u1 / data-loss
@@ -662,8 +662,8 @@ the brief of the review file that holds it. A brief narrows which defects matter
 CANDIDATE FINDINGS: the review files below. Each `### [<finding id>]` entry in a file is one
 candidate, with its file:line, category, the reviewer's severity, what is wrong, the reviewer's evidence
 and a suggested fix. Each file holds the ids its line names, and its [lens] is the lens of every candidate it holds:
-  - [destructive] E:/flow/runs/flow/reviews/u1-destructive.md (u1-a1 to u1-a1)
-  - [data-loss] E:/flow/runs/flow/reviews/u1-data_loss.md (u1-b1 to u1-b1)
+  - [destructive] E:/flow/runs/flow/launch-1/reviews/u1-destructive.md (u1-a1 to u1-a1)
+  - [data-loss] E:/flow/runs/flow/launch-1/reviews/u1-data_loss.md (u1-b1 to u1-b1)
 
 FOLD DUPLICATES FIRST. Different briefs can surface the SAME underlying defect in different words. Where
 two or more candidates are one defect, keep ONE verdict for it (the clearest id, at the highest

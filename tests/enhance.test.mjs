@@ -8,9 +8,9 @@ import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs
 
 const ENGINE = 'workflows/audit/audit.mjs';
 const ENHANCE_GUIDE_POINTER = '\nworkflows/audit/CLAUDE.md §0 "After an enhancements run" holds each of these steps with its output, and the steps after the triage.';
-const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
+const LAUNCH = "start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts. That pre-launch command is node <launch.mjs> reserve 'E:/r/runs/t' --keep proposals, and launchDir is the folder it prints";
 const baseArgs = {
-  kind: 'enhancements', runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
+  kind: 'enhancements', runId: 't', root: 'E:/r', launchDir: 'E:/r/runs/t/launch-1', target: { repo: 'E:/repo' },
   scope: ['workflows/'], lenses: ['efficiency', 'simplification'],
 };
 // The engine's verify-unit cap: a lens holding this many candidates gets a verifier of its own.
@@ -157,7 +157,7 @@ section('conventionFiles reach the finder and the verifier, and a bad or unresol
     ok(msg.startsWith('Invalid args.conventionFiles: it must be an array of file paths') && msg.includes(JSON.stringify(bad)),
       `conventionFiles ${JSON.stringify(bad)} throws naming the value: ${msg.slice(0, 120)}`);
   }
-  const noRepo = { kind: 'enhancements', runId: 't', root: 'E:/r', scope: ['E:/repo/workflows/'], lenses: ['efficiency'] };
+  const noRepo = { kind: 'enhancements', runId: 't', root: 'E:/r', launchDir: 'E:/r/runs/t/launch-1', scope: ['E:/repo/workflows/'], lenses: ['efficiency'] };
   const msg = await throwsWith(ENGINE, { args: { ...noRepo, conventionFiles: ['E:/repo/CLAUDE.md', 'docs/RULES.md'] } });
   ok(msg.startsWith('args.target.repo is required when any args.conventionFiles entry is relative (docs/RULES.md)'), `a relative entry with no target.repo throws naming it: ${msg.slice(0, 120)}`);
   const absOnly = await runEngine(ENGINE, { args: { ...noRepo, conventionFiles: ['E:/repo/CLAUDE.md'] }, respond });
@@ -218,7 +218,7 @@ section('a finder whose every candidate id is unroutable lands its lens in faile
 }
 
 section('a finder that returns ids without attesting its candidates file lands its lens in failed');
-// The file on disk may be an earlier launch's, so a verifier would judge candidates this finder never wrote.
+// The file on disk may be missing or one an interrupted attempt of the launch left, so a verifier would judge candidates this finder never wrote.
 {
   const { out, logs, labels } = await runEngine(ENGINE, {
     args: baseArgs,
@@ -226,7 +226,7 @@ section('a finder that returns ids without attesting its candidates file lands i
   });
   eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'efficiency', stage: 'find' }]), 'the lens is reported failed at the find stage');
   ok(labels.includes('verify:simplification'), 'and no verifier carries it');
-  ok(logs.some((l) => /efficiency: the finder did NOT confirm writing E:\/r\/runs\/t\/candidates\/efficiency\.md — this lens was NOT audited\. Re-run it\./.test(l)),
+  ok(logs.some((l) => /efficiency: the finder did NOT confirm writing E:\/r\/runs\/t\/launch-1\/candidates\/efficiency\.md — this lens was NOT audited\. Re-run it\./.test(l)),
     'the log names the candidates file');
 }
 
@@ -259,12 +259,12 @@ section('the finder writes each candidate with its evidence to a file and return
   const findSchema = calls.find((c) => c.label.startsWith('find')).opts.schema;
   eq(Object.keys(findSchema.properties).sort().join(), 'candidate_ids,relayed_request,wrote_candidates,wrote_clean_marker', 'the find schema carries ids and flags only');
   const f = prompt('find');
-  ok(f.includes('WRITE the file E:/r/runs/t/candidates/efficiency.md'), 'the find prompt names the candidates file');
+  ok(f.includes('WRITE the file E:/r/runs/t/launch-1/candidates/efficiency.md'), 'the find prompt names the candidates file');
   ok(f.includes('Number the candidates efficiency-1, efficiency-2 and so on, in file order.'), 'and the id scheme');
   ok(/\n\*\*Evidence:\*\* <what grounds Today and Removes: each file:line you read, and each command you ran with its output>\n/.test(f), 'and an Evidence line per candidate');
   ok(f.includes('- category: <one of efficiency | simplification | removal'), 'and lists the categories');
   const v = prompt('verify');
-  ok(v.includes('candidates file: E:/r/runs/t/candidates/efficiency.md   (read it in full'), 'the verifier reads the candidates file by path');
+  ok(v.includes('candidates file: E:/r/runs/t/launch-1/candidates/efficiency.md   (read it in full'), 'the verifier reads the candidates file by path');
   ok(v.includes('proposal file:   E:/r/runs/t/proposals/efficiency.md'), 'and is told its proposal file');
   ok(v.includes('are the finder\'s claims, not facts. Confirm each one against the source it cites'), 'and confirms the finder\'s claims against their sources');
   ok(v.replace(/\s+/g, ' ').includes('Judge only the candidate ids listed above. A block of a candidates file whose id is not listed for its lens gets no verdict and stays out of every proposal file'),
@@ -449,7 +449,7 @@ section('a run where every lens failed says NOTHING was audited, never presents 
     'every lens failed at the find stage');
   ok(/^1\. NOTHING was audited: every lens failed: efficiency \(find\), simplification \(find\)\./.test(out.nextStep),
     'nextStep says nothing was audited and names each lens with its stage');
-  ok(out.nextStep.endsWith(`\n2. Re-run those lenses with the same runId. To relaunch, ${LAUNCH}.${ENHANCE_GUIDE_POINTER}`),
+  ok(out.nextStep.endsWith(`\n2. Re-run those lenses with the same runId and a newly reserved launchDir in place of E:/r/runs/t/launch-1. To relaunch, ${LAUNCH}.${ENHANCE_GUIDE_POINTER}`),
     'and numbers the re-run as its second step with the notification-turn launch path, then ends on the guide checklist by its heading');
   ok(!/PRESENT them/.test(out.nextStep), 'and never says to present proposals');
 }
@@ -459,15 +459,19 @@ await pinRoleMaps({
   runs: [{ args: baseArgs, respond: { find: FOUND, verify: VERIFIED }, labels: { find: 'find', verify: 'verify' } }],
 });
 
-// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite one the agent has not read.
-section("every prompt that writes a file says to Read an earlier launch's file first, and a rejected write is not a write");
+// A relaunch with the same runId finds the earlier launch's proposal files, and the Write tool refuses to overwrite one the
+// agent has not read. A launch folder holds a candidates file only from an interrupted attempt of the same launch.
+section("every prompt that writes a file says when the file may already exist and to Read it first, and a rejected write is not a write");
 {
   const found = await runEngine(ENGINE, { args: { ...baseArgs, lenses: ['efficiency'] }, respond: { find: { candidate_ids: [], wrote_candidates: false, wrote_clean_marker: true } } });
   const verified = await runEngine(ENGINE, { args: baseArgs, respond: { find: FOUND, verify: VERIFIED } });
-  const sites = [
-    ["the finder's candidates file and clean-lens marker", found.prompt('find'), 2, 1],
-    ["the verifier's proposal files", verified.prompt('verify'), 1, 1],
+  const LAUNCH_NOTE = 'The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content.';
+  // [the stateDir note's count, the launch folder note's count] in each prompt
+  const sites = (finder, verifier) => [
+    ["the finder's candidates file and clean-lens marker", found.prompt('find'), finder, 1],
+    ["the verifier's proposal files", verified.prompt('verify'), verifier, 1],
   ];
-  pinWriteNotes(sites);
-  pinFileWriteNote(sites);
+  pinWriteNotes(sites(1, 1));
+  pinWriteNotes(sites(1, 0), LAUNCH_NOTE);
+  pinFileWriteNote(sites(1, 1));
 }

@@ -19,7 +19,7 @@ flowchart TD
   t6(["lens NOT audited (no marker attested, lens in failed at stage find)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: Wrong kind for ..."/]
-  x3[/"throw: args must include at least { runId, root, target, ... }"/]
+  x3[/"throw: args must include at least { runId, root, target, launchDir, ... }"/]
   x4[/"throw: args.root is required"/]
   x5[/"throw: args.minImpact must be one of ..."/]
   x6[/"throw: Invalid role map"/]
@@ -27,13 +27,15 @@ flowchart TD
   x8[/"throw: Illegal role value in a role map"/]
   x9[/"throw: Invalid agentTypes arg"/]
   x10[/"throw: Invalid notes arg"/]
-  x11[/"throw: Invalid args.conventionFiles"/]
-  x12[/"throw: args.scope is required"/]
-  x13[/"throw: args.target.repo is required when any args.scope path is relative"/]
-  x14[/"throw: args.target.repo is required when any args.conventionFiles entry is relative"/]
-  x15[/"throw: args.lenses is required"/]
-  x16[/"throw: lens ids collide after slugging"/]
-  x17[/"throw: A user request was relayed into the context of the finder for ... ahead of its task"/]
+  x11[/"throw: Missing args.launchDir"/]
+  x12[/"throw: Invalid args.launchDir"/]
+  x13[/"throw: Invalid args.conventionFiles"/]
+  x14[/"throw: args.scope is required"/]
+  x15[/"throw: args.target.repo is required when any args.scope path is relative"/]
+  x16[/"throw: args.target.repo is required when any args.conventionFiles entry is relative"/]
+  x17[/"throw: args.lenses is required"/]
+  x18[/"throw: lens ids collide after slugging"/]
+  x19[/"throw: A user request was relayed into the context of the finder for ... ahead of its task"/]
   S0 --> a2
   S0 --> x1
   S0 --> x2
@@ -51,6 +53,8 @@ flowchart TD
   S0 --> x14
   S0 --> x15
   S0 --> x16
+  S0 --> x17
+  S0 --> x18
   a1 --> t1
   a2 --> a1
   a2 --> t2
@@ -58,14 +62,14 @@ flowchart TD
   a2 --> t4
   a2 --> t5
   a2 --> t6
-  a2 --> x17
+  a2 --> x19
 ```
 
 ## Phases
 
 | Phase | What happens |
 |---|---|
-| Find | kind enhancements. One finder per lens (CONCURRENT), each reading the WHOLE scope through its lens. Grounded candidates only: what the system does today (file:line) -&gt; what it would do instead -&gt; the concrete cost that removes, with the evidence for each, written to candidates/&lt;lens&gt;.md. The finder returns only the candidate ids. A lens that finds nothing writes its own clean proposals/&lt;lens&gt;.md marker. |
+| Find | kind enhancements. One finder per lens (CONCURRENT), each reading the WHOLE scope through its lens. Grounded candidates only: what the system does today (file:line) -&gt; what it would do instead -&gt; the concrete cost that removes, with the evidence for each, written to &lt;launchDir&gt;/candidates/&lt;lens&gt;.md. The finder returns only the candidate ids. A lens that finds nothing writes its own clean proposals/&lt;lens&gt;.md marker. |
 | Verify | kind defects: spawned ONLY for units with findings, one per unit. It reads the review files by path, confirms each finding against real code, corrects severity, checks the Fix line it writes against the code it changes, routes via the decision matrix, and WRITES runs/&lt;runId&gt;/issues/&lt;unit&gt;.md verbatim (the inventory), returning a slim verdict index. kind enhancements: spawned ONLY for lenses with candidates, bin-packed: lenses join one verify unit up to a candidate cap, and a lens never splits across units. Each verifier reads its lenses' candidates files by path, re-checks each candidate against the real code, REJECTS anything the system already does / any unsubstantiated benefit / any nit / anything that is really a defect, scores impact x size, routes ADOPT \| ROADMAP \| NEEDS_USER \| REJECT, and WRITES proposals/&lt;lens&gt;.md verbatim for each of its lenses. |
 
 ## Terminal states
@@ -80,7 +84,7 @@ flowchart TD
 | lens NOT audited (no marker attested, lens in failed at stage find) | the finder returns no candidate and does not attest its marker | declared |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 39) |
 | throw: Wrong kind for ... | a kind: enhancements payload holds an arg only the defects kind reads | throw (line 56) |
-| throw: args must include at least { runId, root, target, ... } | args carry no runId | throw (line 60) |
+| throw: args must include at least { runId, root, target, launchDir, ... } | args carry no runId | throw (line 60) |
 | throw: args.root is required | args.root is missing | throw (line 65) |
 | throw: args.minImpact must be one of ... | args.minImpact names no rank | throw (line 115) |
 | throw: Invalid role map | models is an array in place of an object | throw (line 149) |
@@ -88,17 +92,19 @@ flowchart TD
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 157) |
 | throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside find \| verify, or maps one to a blank name | throw (line 171) |
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 191) |
-| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 212) |
-| throw: args.scope is required | args.scope is empty | throw (line 231) |
-| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 237) |
-| throw: args.target.repo is required when any args.conventionFiles entry is relative | a conventionFiles entry is relative and target.repo is missing | throw (line 243) |
-| throw: args.lenses is required | args.lenses is empty | throw (line 378) |
-| throw: lens ids collide after slugging | two lenses slug to one id · two lenses differ only past their 60th slug character | throw (line 382) |
-| throw: A user request was relayed into the context of the finder for ... ahead of its task | a finder reports a user request relayed into its context, so no verifier runs | throw (line 1176) |
+| throw: Missing args.launchDir | args.launchDir is missing or blank | throw (line 211) |
+| throw: Invalid args.launchDir | args.launchDir is not a launch-&lt;n&gt; folder directly inside the stateDir | throw (line 227) |
+| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 240) |
+| throw: args.scope is required | args.scope is empty | throw (line 263) |
+| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 269) |
+| throw: args.target.repo is required when any args.conventionFiles entry is relative | a conventionFiles entry is relative and target.repo is missing | throw (line 275) |
+| throw: args.lenses is required | args.lenses is empty | throw (line 410) |
+| throw: lens ids collide after slugging | two lenses slug to one id · two lenses differ only past their 60th slug character | throw (line 414) |
+| throw: A user request was relayed into the context of the finder for ... ahead of its task | a finder reports a user request relayed into its context, so no verifier runs | throw (line 1208) |
 
 ## Coverage
 
-26 scenarios · 2/3 roles · 17/26 throw sites · 0/0 halt statuses · 23 terminal states.
+28 scenarios · 2/3 roles · 19/28 throw sites · 0/0 halt statuses · 25 terminal states.
 
 audit.mjs also runs the defects kind, drawn in FLOW-defects.md, so the roles and throw sites only that kind reaches are listed uncovered here. The suite checks coverage over both maps.
 
@@ -108,8 +114,8 @@ Uncovered throw (line 46): Invalid args.kind
 Uncovered throw (line 73): args.target.repo is required
 Uncovered throw (line 89): reviewSeverity "..." is not one of low\|medium\|high\|critical
 Uncovered throw (line 95): Invalid args.changePolicy
-Uncovered throw (line 266): args.notes.dir is inside the target repo
-Uncovered throw (line 925): review requires a non-empty args.units array
-Uncovered throw (line 935): Issue file collision
-Uncovered throw (line 936): Plan id collision
-Uncovered throw (line 1064): A user request was relayed into the context of the reviewer for ... ahead of its task
+Uncovered throw (line 298): args.notes.dir is inside the target repo
+Uncovered throw (line 957): review requires a non-empty args.units array
+Uncovered throw (line 967): Issue file collision
+Uncovered throw (line 968): Plan id collision
+Uncovered throw (line 1096): A user request was relayed into the context of the reviewer for ... ahead of its task

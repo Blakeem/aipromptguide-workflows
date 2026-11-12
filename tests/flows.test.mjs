@@ -31,7 +31,7 @@ const reviewSpec = (units) => ({
   scenarios: [{
     name: 'units with findings',
     when: 'every unit has findings',
-    args: { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units },
+    args: { runId: 't', root: 'E:/r', launchDir: 'E:/r/runs/t/launch-1', target: { repo: 'E:/repo' }, conventions: 'c', units },
     respond: { review: { finding_count: 1, wrote_file: true, wrote_clean_marker: false }, verify: { wrote_file: true, verdicts: [] } },
     terminal: 'inventory written',
   }],

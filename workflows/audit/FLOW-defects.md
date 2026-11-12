@@ -18,7 +18,7 @@ flowchart TD
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: Invalid args.kind"/]
   x3[/"throw: Wrong kind for ..."/]
-  x4[/"throw: args must include at least { runId, root, target, ... }"/]
+  x4[/"throw: args must include at least { runId, root, target, launchDir, ... }"/]
   x5[/"throw: args.root is required"/]
   x6[/"throw: args.target.repo is required"/]
   x7[/"throw: reviewSeverity #quot;...#quot; is not one of low#124;medium#124;high#124;critical"/]
@@ -28,12 +28,14 @@ flowchart TD
   x11[/"throw: Illegal role value in a role map"/]
   x12[/"throw: Invalid agentTypes arg"/]
   x13[/"throw: Invalid notes arg"/]
-  x14[/"throw: Invalid args.conventionFiles"/]
-  x15[/"throw: args.notes.dir is inside the target repo"/]
-  x16[/"throw: review requires a non-empty args.units array"/]
-  x17[/"throw: Issue file collision"/]
-  x18[/"throw: Plan id collision"/]
-  x19[/"throw: A user request was relayed into the context of the reviewer for ... ahead of its task"/]
+  x14[/"throw: Missing args.launchDir"/]
+  x15[/"throw: Invalid args.launchDir"/]
+  x16[/"throw: Invalid args.conventionFiles"/]
+  x17[/"throw: args.notes.dir is inside the target repo"/]
+  x18[/"throw: review requires a non-empty args.units array"/]
+  x19[/"throw: Issue file collision"/]
+  x20[/"throw: Plan id collision"/]
+  x21[/"throw: A user request was relayed into the context of the reviewer for ... ahead of its task"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -53,12 +55,14 @@ flowchart TD
   S0 --> x16
   S0 --> x17
   S0 --> x18
+  S0 --> x19
+  S0 --> x20
   a1 -.->|"L1 ×2"| a1
   a1 --> a2
   a1 --> t1
   a1 --> t2
   a1 --> t3
-  a1 --> x19
+  a1 --> x21
   a2 --> t1
   a2 --> t4
 ```
@@ -67,7 +71,7 @@ flowchart TD
 
 | Phase | What happens |
 |---|---|
-| Review | kind defects. Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only) and writes them, with the evidence for each, to reviews/&lt;unit&gt;-&lt;lens&gt;.md, returning only their count; when it finds nothing it writes the clean issues/&lt;unit&gt;.md marker itself. |
+| Review | kind defects. Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only) and writes them, with the evidence for each, to &lt;launchDir&gt;/reviews/&lt;unit&gt;-&lt;lens&gt;.md, returning only their count; when it finds nothing it writes the clean issues/&lt;unit&gt;.md marker itself. |
 | Verify | kind defects: spawned ONLY for units with findings, one per unit. It reads the review files by path, confirms each finding against real code, corrects severity, checks the Fix line it writes against the code it changes, routes via the decision matrix, and WRITES runs/&lt;runId&gt;/issues/&lt;unit&gt;.md verbatim (the inventory), returning a slim verdict index. kind enhancements: spawned ONLY for lenses with candidates, bin-packed: lenses join one verify unit up to a candidate cap, and a lens never splits across units. Each verifier reads its lenses' candidates files by path, re-checks each candidate against the real code, REJECTS anything the system already does / any unsubstantiated benefit / any nit / anything that is really a defect, scores impact x size, routes ADOPT \| ROADMAP \| NEEDS_USER \| REJECT, and WRITES proposals/&lt;lens&gt;.md verbatim for each of its lenses. |
 
 ## Loops
@@ -87,7 +91,7 @@ flowchart TD
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 39) |
 | throw: Invalid args.kind | args.kind is outside defects \| enhancements | throw (line 46) |
 | throw: Wrong kind for ... | a payload with no kind holds an arg only the enhancements kind reads | throw (line 56) |
-| throw: args must include at least { runId, root, target, ... } | args carry no runId | throw (line 60) |
+| throw: args must include at least { runId, root, target, launchDir, ... } | args carry no runId | throw (line 60) |
 | throw: args.root is required | args.root is missing | throw (line 65) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 73) |
 | throw: reviewSeverity "..." is not one of low\|medium\|high\|critical | args.reviewSeverity is not a known severity | throw (line 89) |
@@ -97,25 +101,27 @@ flowchart TD
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 157) |
 | throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside review \| verify, or maps one to a blank name | throw (line 171) |
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 191) |
-| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 212) |
-| throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 266) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 925) |
-| throw: Issue file collision | two unit ids map to one issue file | throw (line 935) |
-| throw: Plan id collision | two unit ids map to one plan id | throw (line 936) |
-| throw: A user request was relayed into the context of the reviewer for ... ahead of its task | a reviewer reports a user request relayed into its context, so no verifier runs | throw (line 1064) |
+| throw: Missing args.launchDir | args.launchDir is missing or blank | throw (line 211) |
+| throw: Invalid args.launchDir | args.launchDir is not a launch-&lt;n&gt; folder directly inside the stateDir | throw (line 227) |
+| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 240) |
+| throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 298) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 957) |
+| throw: Issue file collision | two unit ids map to one issue file | throw (line 967) |
+| throw: Plan id collision | two unit ids map to one plan id | throw (line 968) |
+| throw: A user request was relayed into the context of the reviewer for ... ahead of its task | a reviewer reports a user request relayed into its context, so no verifier runs | throw (line 1096) |
 
 ## Coverage
 
-24 scenarios · 2/3 roles · 19/26 throw sites · 0/0 halt statuses · 23 terminal states.
+26 scenarios · 2/3 roles · 21/28 throw sites · 0/0 halt statuses · 25 terminal states.
 
 audit.mjs also runs the enhancements kind, drawn in FLOW-enhancements.md, so the roles and throw sites only that kind reaches are listed uncovered here. The suite checks coverage over both maps.
 
 Uncovered roles: find.
 
 Uncovered throw (line 115): args.minImpact must be one of ...
-Uncovered throw (line 231): args.scope is required
-Uncovered throw (line 237): args.target.repo is required when any args.scope path is relative
-Uncovered throw (line 243): args.target.repo is required when any args.conventionFiles entry is relative
-Uncovered throw (line 378): args.lenses is required
-Uncovered throw (line 382): lens ids collide after slugging
-Uncovered throw (line 1176): A user request was relayed into the context of the finder for ... ahead of its task
+Uncovered throw (line 263): args.scope is required
+Uncovered throw (line 269): args.target.repo is required when any args.scope path is relative
+Uncovered throw (line 275): args.target.repo is required when any args.conventionFiles entry is relative
+Uncovered throw (line 410): args.lenses is required
+Uncovered throw (line 414): lens ids collide after slugging
+Uncovered throw (line 1208): A user request was relayed into the context of the finder for ... ahead of its task

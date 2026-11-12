@@ -15,6 +15,7 @@
 const base = {
   runId: 'flow',
   root: 'E:/flow',
+  launchDir: 'E:/flow/runs/flow/launch-1',
   target: { repo: 'E:/repo', lang: 'JavaScript', framework: 'none' },
   conventions: 'zero dependencies; LF only',
   conventionFiles: ['CLAUDE.md'],
@@ -76,7 +77,7 @@ export default {
     },
     {
       // Findings the reviewer did not confirm on file count like a dead lens: `failed` names the lens with the
-      // count and attestation it returned, and no verifier is handed a path that may hold nothing or an earlier launch's text.
+      // count and attestation it returned, and no verifier is handed a path that may hold nothing or the text an interrupted attempt of this launch left.
       name: 'a reviewer whose findings are on no confirmed file',
       when: 'a reviewer reports findings but did not confirm writing its review file',
       args: { ...base, units: [unit('u1')] },
@@ -115,6 +116,10 @@ export default {
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { review: 'ultra' } } },
     { name: 'agentTypes names an unknown role', when: 'agentTypes is not an object, carries a key outside review | verify, or maps one to a blank name', args: { ...base, agentTypes: { planner: 'my-planner' } } },
     { name: 'notes missing a path', when: 'notes lacks dir or survey, or names a relative path', args: { ...base, notes: { dir: 'E:/flow/notes' } } },
+    // Each launch writes its review files in its own launch folder, so a launch without one, or with a folder
+    // outside the stateDir, would write where another launch did.
+    { name: 'no launch folder', when: 'args.launchDir is missing or blank', args: { ...base, launchDir: undefined, units: [unit('u1')] } },
+    { name: 'launch folder outside the stateDir', when: 'args.launchDir is not a launch-<n> folder directly inside the stateDir', args: { ...base, launchDir: 'E:/flow/runs/other/launch-1', units: [unit('u1')] } },
     // A coerced path list would hand every agent a file that is not there, or none of the project's rules.
     { name: 'conventionFiles is not a path list', when: 'args.conventionFiles is not an array of non-empty paths', args: { ...base, conventionFiles: 'CLAUDE.md', units: [unit('u1')] } },
     { name: 'notes folder inside the repo', when: 'notes.dir lies inside target.repo', args: { ...base, notes: { dir: 'E:/repo/notes', survey: 'E:/aipg/tools/EXIT-SURVEY.md' } } },
