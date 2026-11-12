@@ -119,7 +119,9 @@ E:/aipg/               ← root          run-state lands at E:/aipg/runs/<runId>
   is the only place code is ever changed or staged. develop passes a worktree of your project as
   `target.repo`, then lands the result in your project.
 - **`root`** is the base the run-state hangs off. `<root>/runs/<runId>/` holds the review files and the
-  ledgers. Normally the checkout's own folder, so nothing lands in your project.
+  ledgers. develop, refine and investigate's run phase write each launch's review files in a
+  `launch-<n>/` folder of their own there, so a relaunch keeps every earlier review. Normally the
+  checkout's own folder, so nothing lands in your project.
 
 Keeping them apart is what makes the blind review work. The issue files live outside the repo under
 review, so a reviewer that is supposed to judge a diff on its own merits **cannot** wander into them.

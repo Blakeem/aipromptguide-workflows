@@ -9,6 +9,7 @@ import { REPO_ROOT, section, ok } from './harness.mjs';
 const ENGINES = [
   'workflows/refine/refine-cycle.mjs',
   'workflows/investigate/investigate-cycle.mjs',
+  'workflows/develop/develop-cycle.mjs',
 ];
 
 /** The launchDirOf function of one engine's source, or null when it lacks one. */

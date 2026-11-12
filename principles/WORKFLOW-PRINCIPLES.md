@@ -92,12 +92,14 @@ stage 2 checks each answer against the code. A wrong answer sends the developer'
 **Reviewer memory.** Reviewers stay fresh but keep the settled decisions. A blind reviewer that reruns
 each round would otherwise re-flag every finding the developer declined on purpose, and that
 re-litigation never converges. So the blind reviewer reads the dismissed-findings ledger. Per #3, it
-reads the ledger from its own `gate/` directory, the only run-state path its prompt discloses. User
-notes, amendments, critiques, and every plan-adjacent file live outside that directory. The plan-aware
+reads the ledger from its own `gate/` directory, and develop's blind stage writes its review in the
+`gate/` directory of its launch folder. Those are the only run-state paths its prompt discloses. User
+notes, amendments, critiques, and every plan-adjacent file live outside them. The plan-aware
 acceptance stage reads the ledger and the user-notes file (#6). The blind stage never reads the prior
-review files, apart from its own round file left by an earlier launch, which it reads at its write
-step, once its findings are final, so the Write tool accepts the overwrite. Reading the last review
-anchors a reviewer to that one finding, and it misses the similar bug two lines away. Reading only the
+review files, apart from its own round file left by an interrupted attempt of its launch, or by an earlier
+launch in an engine that keeps no launch folders, which it reads at its write step, once its findings are
+final, so the Write tool accepts the overwrite. Reading the last review anchors a reviewer to that one
+finding, and it misses the similar bug two lines away. Reading only the
 dismissed list lets it re-review the entire current diff fresh, so it skips settled noise and catches
 nearby or similar issues. The acceptance stage reads every earlier review file of its block after its
 own first check. It confirms each earlier finding stays closed on every sibling path or sits in the
@@ -477,7 +479,8 @@ rules and apply only where they fit.
   path (`…/quality-review-<round>.md`). The reviewer writes its findings there verbatim and returns a
   thin verdict. The developer is handed the path of the most recent review that flagged issues and reads
   it directly. Round N+1's developer is a fresh agent that rediscovers state from the working tree and
-  that one review file.
+  that one review file. develop writes each launch's round files in a launch folder of their own, so a
+  relaunch that numbers its rounds from 1 never replaces a round file an earlier launch wrote.
 - **First round.** The working tree must be clean of unstaged changes at the start. The main agent
   ensures this beforehand (#4), and the round-1 developer confirms it as its first act. If the tree is
   dirty, the developer halts before any reviewer is spawned. The check exists because the unstaged tree
@@ -491,9 +494,10 @@ rules and apply only where they fit.
   never is. One backlog entry links the branch. The parked commit is the work itself, so it is
   product, one of #6's listed outputs.
 - **Resume.** There is no progress file by design (#6). Durable progress is git staging plus the
-  numbered review trail. Every terminal exit leaves the tree clean, with accepted work staged and
-  unfinished work parked. So a resumed run starts from the same clean baseline as a fresh one, and the
-  round-1 precondition applies unconditionally, including on resume. A parked unit's work lives on its
+  numbered review trail, which develop keeps in one launch folder per launch. Every terminal exit
+  leaves the tree clean, with accepted work staged and unfinished work parked. So a resumed run starts
+  from the same clean baseline as a fresh one, and the round-1 precondition applies unconditionally,
+  including on resume. A parked unit's work lives on its
   branch. develop continues the unit from that branch through the backlog entry that links it. This invariant
   is load-bearing, since an engine that halts leaving work in the tree would false-halt its own resume.
 - **Run identity and relaunch.** A `runId` names one piece of work. Every launch of that work keeps
@@ -555,8 +559,9 @@ Use these as yes/no checks when reviewing any workflow.
       progress, or "what I did" file is narration and a violation, including one that restates numbers the
       harness already has. (#6)
 - [ ] Does the blind reviewer read the dismissed ledger from its own `gate/` directory (#3) and no prior
-      review file (its own round file from an earlier launch is read only at its write step), and the
-      acceptance stage the ledger, user notes and every earlier review file of its block? (#5)
+      review file (its own round file that an interrupted attempt of its launch left, or an earlier launch
+      in an engine that keeps no launch folders, is read only at its write step), and the acceptance stage
+      the ledger, user notes and every earlier review file of its block? (#5)
 - [ ] Can a reviewer contest a wrong dismissal, and must the developer then fix or escalate it and never
       silently re-dismiss it? (#5)
 - [ ] Does the developer own ambiguity resolution and log declines tersely? Is it the only thing that

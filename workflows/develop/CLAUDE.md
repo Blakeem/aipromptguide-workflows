@@ -49,8 +49,9 @@ steps 39 to 44.
     summary that §2 step 3, §3 and §4 describe (§2 step 2). Output: the user's approval.
 13. Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to,
     holds no line on this run's plan or goal, and when one does, remove the line and launch from a new
-    session. Then run `node <plan-edit.mjs> args <planPath>`, with the flags §2 step 3 names, with
-    run_in_background (§2 step 4). Output: the index checked, and the started background task.
+    session. Then run `node <plan-edit.mjs> args <planPath>`, with the flags §2 step 3 names and
+    `--reserve <stateDir>`, with run_in_background (§2 step 4). Output: the index checked, and the started
+    background task.
 14. End the turn (root `CLAUDE.md`, "Launch from a notification turn"). Output: step 13's tool call is the
     last one of this turn.
 15. (when step 13 ran the `args` command of step 32 or step 42, whether it printed args or exited `nothing to
@@ -63,8 +64,8 @@ steps 39 to 44.
     commands every agent runs, built from the `blockTool` the printed args name (§4). Output: each allow
     rule §4 names is in the settings.
 17. (when step 13's command printed args) Call Workflow with `scriptPath` set to this guide's
-    `develop-cycle.mjs`, the printed args and the args steps 2 and 10 chose (§2 step 4, root `CLAUDE.md`,
-    "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
+    `develop-cycle.mjs`, the printed args, `launchDir` included, and the args steps 2 and 10 chose (§2 step 4,
+    root `CLAUDE.md`, "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
 
 ### After the run
 
@@ -79,8 +80,8 @@ steps 39 to 44.
     question and record the answer where `nextStep` says (§6, "Research NEEDS-USER before asking", §10).
     Output: each answer in its block's backlog entry triage or in the block's own text.
 21. (when `nextStep` says the sweep died, did not run, or reported gaps) Check the goal's coverage, from
-    `SWEEP.md` when it exists and against `goal` yourself otherwise (§5, "Sweep", §6). Output: the coverage
-    result, told to the user.
+    `SWEEP.md` in the `launchDir` folder of this launch's args when it exists and against `goal` yourself
+    otherwise (§5, "Sweep", §6, §8). Output: the coverage result, told to the user.
 22. (when `nextStep` names parked blocks) Settle each parked block as its `nextStep` line says (§2 step 5,
     §5, "Park", §7). Output: each parked block's status and backlog entry as that line names them.
 23. (in commit delivery, when `nextStep` names an unfinished branch that a landed block holds) Delete that
@@ -96,9 +97,10 @@ steps 39 to 44.
     with the block's change.
 27. (when `nextStep` says PLAN AMENDED) Read each `AMENDED-<id>.md` and the pointer lines in `DECISIONS.md`,
     and fold each amendment you agree with into the plan file (§6). Output: the plan file holds each one.
-28. Name to the user `NEEDS-USER.md`, `DECISIONS.md`, `SWEEP.md`, each file in `backlogFiles` and the path
-    of each `DISMISSED-<id>.md` that `nextStep` names, each one that exists, and report each backlog entry
-    the run added with the fields `nextStep` names (§6). Output: those paths and entries, told to the user.
+28. Name to the user `NEEDS-USER.md`, `DECISIONS.md`, the `SWEEP.md` in this launch's `launchDir`, each
+    file in `backlogFiles` and the path of each `DISMISSED-<id>.md` that `nextStep` names, each one that
+    exists, and report each backlog entry the run added with the fields `nextStep` names (§6, §8). Output:
+    those paths and entries, told to the user.
 29. (when `nextStep` names blocks that ended without a returned park) Remove the `- pulled:` line it names
     from each entry that the ids of the block's ledger row's `pulled` leave out (§4, "Pulling"). Output: a
     grep of the backlog folder finds that line only on entries those ids name.
@@ -107,8 +109,9 @@ steps 39 to 44.
 31. (under `proactive`, once the plan has no `todo` block left) Apply §10 step 1 to the backlog folder (§2
     step 6). Output: each entry whose fix the run already made is closed.
 32. (once step 31 ran) Build the ready backlog entries once in the run worktree through steps 13 to 17, with
-    `node <plan-edit.mjs> args --backlog <backlogDir> --pack <the run worktree>` at step 13 (§2 step 6).
-    Output: the Workflow run id, or step 13's exit 1 with a message that ends `nothing to build`.
+    `node <plan-edit.mjs> args --backlog <backlogDir> --pack <the run worktree> --reserve <stateDir>` at step
+    13 (§2 step 6). Output: the Workflow run id, or step 13's exit 1 with a message that ends `nothing to
+    build`.
 33. (once step 32's launch ends) Work steps 19 to 30 on its result, running
     `node <plan-edit.mjs> args --backlog <backlogDir> --fold-only` before any status you set by hand (§10
     step 1). Output: that launch's result settled.
@@ -148,9 +151,10 @@ steps 39 to 44.
     block is not `done`, `skip` or `backlogged` until it is (§10 step 2, §10 step 3, §5, "Acceptance
     Verifier"). Output: each entry step 40 researched triaged with the user.
 42. (once step 41 ran) Launch each build §10 step 4 names through steps 2 and 9 to 17, with the `args`
-    command §10 step 4 names at step 13. When only step 39's ordered-plan condition holds, launch only the
-    backlog file step 40 took, with `node <plan-edit.mjs> args <that file> --pack <the run worktree>` at step
-    13, which §10 step 4 allows since the parked block is `backlogged`. Step 2 keeps the run's `runId` only
+    command §10 step 4 names and `--reserve <stateDir>` at step 13. When only step 39's ordered-plan condition
+    holds, launch only the backlog file step 40 took, with `node <plan-edit.mjs> args <that file> --pack <the
+    run worktree> --reserve <stateDir>` at step 13, which §10 step 4 allows since the parked block is
+    `backlogged`. Step 2 keeps the run's `runId` only
     for the ordered plan's parked block that step 39 names, and chooses a new one for every other build (§4,
     "Relaunch vs. new run", §7, §10 step 4). Output: the Workflow run id, or step 13's exit 1 with a message
     that ends `nothing to build`, which ends this list.
@@ -215,7 +219,11 @@ reason the code shows.
 3. **Derive the args with `node <plan-edit.mjs> args <planPath> [<planPath> ...]`, never by hand.**
    It first folds every finished develop run's statuses into the plan files (below), then prints
    `{ goal, ordered, suite, sweep, plans, blockTool }`, each `plans` row carrying its own `planPath`,
-   and `blockTool` naming the `plan-block.mjs` beside the `plan-edit.mjs` that ran. Spread
+   and `blockTool` naming the `plan-block.mjs` beside the `plan-edit.mjs` that ran. The pre-launch run
+   of step 4 adds `--reserve <stateDir>`, and a run in the foreground leaves it out. With that flag the
+   command also reserves the next `<stateDir>/launch-<n>/` folder once it has the args, and adds it to
+   the object as `launchDir`, the launch folder §8 describes. It reserves no folder when it fails or exits
+   `nothing to build`. `<stateDir>` is `<root>/runs/<runId>` unless the launch sets that arg. Spread
    that object into the args, and add `backlogDir`, the folder that
    `node <project-settings.mjs> backlog --root <root> --repo <target.repo>` prints (§4, §10). Also
    add `models` and `efforts` from the JSON line
@@ -271,8 +279,9 @@ reason the code shows.
      again, and rerun it there by hand.
    - When it lists a worktree on `aipg/<runId>`, reuse it. Settle a dirty run worktree first (§4).
 
-   Run step 3 with `run_in_background`, and launch in the turn its notification starts (root
-   `CLAUDE.md`, "Launch from a notification turn"). The engine builds the `status: todo` blocks in file
+   Run step 3 with `--reserve <stateDir>` and `run_in_background`, and launch in the turn its notification
+   starts (root `CLAUDE.md`, "Launch from a notification turn"). Every launch reserves a new launch folder
+   this way, a relaunch of the same `runId` included. The engine builds the `status: todo` blocks in file
    order; `done`/`skip`/`backlogged`/`parked`/`blocked` are never selected. `parked` is what an older
    engine wrote for a park.
 5. **Check the result (§6).** The run's statuses reach the plan file on the next step 3, with no
@@ -465,8 +474,12 @@ level other than the run's (§9).
   `proactive`, also pre-allowlist `Bash(node '<plan-pull.mjs>':*)`, where `<plan-pull.mjs>` is the
   `plan-pull.mjs` beside `blockTool`, since every round-1 developer runs it (§4).
 - **Relaunch vs. new run:** relaunch a halted or parked run with the same `runId` and no
-  `resumeFromRunId`, so its ledgers, `NEEDS-USER.md` and `DECISIONS.md` carry over. Every develop
-  run of one plan, or of one debug review's issue files, keeps that `runId`. Unrelated new work
+  `resumeFromRunId`, so its ledgers, `NEEDS-USER.md` and `DECISIONS.md` carry over. The relaunch
+  reserves a new launch folder (§2 step 4) and numbers its rounds from 1 there, so every review, risk
+  file and sweep report an earlier launch wrote stays in that launch's own folder (§8). Every develop
+  run of one plan keeps that `runId`. Every develop run of one debug review's issue files takes that
+  review's `runId` and `root`, and its `stateDir` when the review set one, so the two engines share
+  one state dir (§8). Unrelated new work
   takes a new `runId`, and so does a block that already landed and is built again from scratch, so
   its old `DISMISSED-<id>.md` stays out. Never clear the state dir (§8), a plan file or debug's
   `issues/`.
@@ -640,16 +653,16 @@ The roles:
   `DECISIONS.md`. Each amendment's header, `## Plan amendment: <id> rN, launch <n>`, numbers its launch,
   and its pointer line names the same number. An amendment whose header names no launch has a pointer
   that names none, and the developer matches that pointer by block id, round and defect file:line
-  alone. The round-1 developer counts `<n>` as one past the highest
-  launch number the file's headers still hold and returns it as `launch_number`, and the engine renders
-  it into every later round's header. The number tells apart the launches whose amendments the file
-  holds. A number returns once every amendment that carried it is removed.
+  alone. The engine takes `<n>` from the name of the launch folder, `launch-<n>` (§8), and renders it
+  into every round's header. A header that a develop engine from before launch folders wrote may name
+  a later launch's number too, and the developer tells their pointers apart by defect file:line.
   It escalates only a choice that changes user-visible behavior, stored data or a public contract and
   that nothing it can read or check settles, or a blocker it cannot resolve in scope. One it cannot
   proceed without goes to `NEEDS-USER.md` in an ordered run, which halts on it, and to the block's
-  own `question-<id>.md` in an unordered run. Park copies it into the block's backlog entry either
-  way. A default it took goes to `DECISIONS.md`, beside each plan amendment pointer. In SIBLINGS,
-  for each finding it fixes in any phase and each fix the block requires, it greps for every sibling
+  own `question-<id>.md` in an unordered run, under the heading `## Question: <id> rN, launch <n>`. Park
+  copies the latest such entry of its launch into the block's backlog entry either way. A default it
+  took goes to `DECISIONS.md`, beside each plan amendment pointer. In SIBLINGS, for each finding it
+  fixes in any phase and each fix the block requires, it greps for every sibling
   path with the same mechanism and fixes each one, at any tier, that its zone routing fixes (§4). It
   logs every other sibling, and a sibling in code the block's text excludes or that another block of
   the plan owns. Under both policies, a real defect at low or above that it logs because its zone
@@ -679,7 +692,8 @@ The roles:
   accepted blocks. In commit mode, an agent's own commit moves HEAD, which `git diff --cached` does not
   show. So the halt reason also names the last commit the launch landed, and says to revert each newer
   commit that `git log --oneline` lists.
-- **Quality Reviewer** — blind by placement (`gate/` only). It receives the conventions and reports
+- **Quality Reviewer** — blind by placement (the state dir's `gate/` and its launch folder's `gate/` only,
+  §8). It receives the conventions and reports
   every finding the diff introduces or exposes at every tier, from critical down to nit, under both
   policies. It works through a reach step over callers, siblings, duplicates and describing text,
   and a lens checklist that ends with the nit list. It also flags a new sentence that the repo's
@@ -964,15 +978,15 @@ yourself. Every exit leaves a clean tree except passed-but-unstaged, `relayed-re
 halts `dirty-baseline` and `staged-baseline`, which change nothing, a commit-mode halt whose reason names
 the tree dirty check, and a `park-unsafe` halt whose park did not confirm a clear. After every
 run, grep integration points, read every `AMENDED-<id>.md` and surface `NEEDS-USER.md`,
-`DECISIONS.md`, the files in `backlogFiles`, `SWEEP.md` and the path of each `DISMISSED-<id>.md` that
-`nextStep` names and that exists, so the user can audit every judgment call. Before landing, do not
-re-run the gates, read the review files or audit those ledgers yourself, since acceptance and the gate
-of `wt.mjs close` cover them. Do not view the accepted diff, apart from a record a guide asks for, such
-as debug's stat record in stage delivery. Once §2 step 6 says the run lands, land it there and
-report its summary.
+`DECISIONS.md`, the files in `backlogFiles`, this launch's `SWEEP.md` (§8) and the path of each
+`DISMISSED-<id>.md` that `nextStep` names and that exists, so the user can audit every judgment call.
+Before landing, do not re-run the gates, read the review files or audit those ledgers yourself, since
+acceptance and the gate of `wt.mjs close` cover them. Do not view the accepted diff, apart from a record a
+guide asks for, such as debug's stat record in stage delivery. Once §2 step 6 says the run lands, land it
+there and report its summary.
 
 **Commit mode.** With `commit: true`, acceptance stages each accepted block, then commits it with the
-block's title as the entire message: it writes the title to `<stateDir>/commit-<id>.txt` and runs
+block's title as the entire message: it writes the title to `<launchDir>/commit-<id>.txt` and runs
 `git -C <repo> commit -F` on that file. It never passes `--no-verify`, `--no-gpg-sign` or `--amend`, so
 the repo's commit hooks and signing run. A legitimate no-op pass makes no commit. The accepted baseline
 is HEAD, and nothing stays staged between blocks. Round 1 halts with `staged-baseline`, before any
@@ -982,7 +996,7 @@ run with `commit-unverified` when its commit fails a landing check. The checks, 
 reason numbers them, are:
 - not committed: the commit did not land. A hook or signing may have refused it, the work stays
   staged, and the hook output is in the acceptance file.
-  `git -C <repo> commit -F <stateDir>/commit-<id>.txt` keeps the work.
+  `git -C <repo> commit -F <launchDir>/commit-<id>.txt` keeps the work.
 - unverified sha: acceptance reported a commit whose `commit_sha` is not 40 or 64 hex digits, such as
   `"none"`, or is blank beside a subject or beside a `tree_matches` that is not true, since a no-op
   reports the reviewed tree. `git -C <repo> log -1 --stat` finds the commit, if any.
@@ -1017,8 +1031,9 @@ overrule them.
 ## 7. Resume
 
 Durable state = git staging (HEAD's commits in commit mode) + the plan file's status lines + the
-review-file trail. A relaunch with args from a fresh `plan-edit.mjs args` (never the previous args
-object) rebuilds pending from `todo`, with the finished runs already applied. `runOnly` is the one
+review-file trail in the launch folders (§8). A relaunch with args from a fresh `plan-edit.mjs args`
+with `--reserve <stateDir>` (never the previous args object) takes a new launch folder and rebuilds
+pending from `todo`, with the finished runs already applied. `runOnly` is the one
 explicit slice, and an unknown id throws. When the run-record fold is unavailable (records past
 `cleanupPeriodDays`, or `--expect` fails), recover with `runOnly` or by editing the statuses in the
 plan file. A `resumeFromRunId` replay of a run launched with a retired arg throws at launch. A
@@ -1061,18 +1076,26 @@ subject, using `git -C <repo> revert <sha>`, and unstage what `git -C <repo> dif
 
 ## 8. State files (`runs/<runId>/`, outside every repo)
 
-`gate/quality-review-<id>-rN.md` · `acceptance-review-<id>-rN.md` · `risk-<id>-rN.md` (the
-developer's risk answers for round N, outside `gate/`, §6, starting with the line
-`Snapshot: <tree id>`) · `gate/DISMISSED-<id>.md` · `AMENDED-<id>.md` · `NEEDS-USER.md` (an ordered
-run's questions) · `question-<id>.md` (an unordered run's question for one block, which park copies
-into its entry) · `DECISIONS.md` · `PULLED-<id>.md` (under `proactive`, the ids of the backlog
-entries the block's round-1 developer pulled, §4) · `commit-<id>.txt` (commit mode: the block's title, its
-commit's message) · `SWEEP.md` · `scratch/` (the agents' plan block copies, test logs and park's temporary
-index file, never in `gate/`. It lasts as long as the run worktree, since the close that lands or drops the
-run moves it to the trash, §2 step 6). A parked block's work is on a branch of `target.repo` and its entry
-is in the backlog folder (§10), so neither is in the state dir. An `<id>` past 60 characters keeps
-its first 51 characters and a hash of the whole id, so two long ids that share a prefix get separate
-files.
+Each launch writes its round files in its own folder `launch-<n>/`, which `plan-edit.mjs args --reserve
+<stateDir>` creates one past the highest `launch-<n>` in the state dir and prints as `launchDir` (§2 step
+3). A launch folder holds `gate/quality-review-<id>-rN.md` · `acceptance-review-<id>-rN.md` ·
+`risk-<id>-rN.md` (the developer's risk answers for round N, outside `gate/`, §6, starting with the line
+`Snapshot: <tree id>`) · `PULLED-<id>.md` (under `proactive`, the ids of the backlog entries the block's
+round-1 developer pulled, §4) · `commit-<id>.txt` (commit mode: the block's title, its commit's message) ·
+`SWEEP.md`. Each launch numbers its rounds from 1 in its own folder, so no launch replaces a round file
+another launch wrote, and a file there exists before its writer runs only when an interrupted attempt of
+the same launch left it. The state dir itself holds what carries across launches: `gate/DISMISSED-<id>.md`
+· `AMENDED-<id>.md` · `NEEDS-USER.md` (an ordered run's questions) · `question-<id>.md` (an unordered
+run's question for one block, which park copies into its entry) · `DECISIONS.md` · each set-aside patch ·
+`scratch/` (the agents' plan block copies, test logs and park's temporary index file, never in either
+`gate/`. It lasts as long as the run worktree, since the close that lands or drops the run moves it to the
+trash, §2 step 6). The blind reviewer's prompt names no run-state path outside the two `gate/` folders.
+An audit of kind defects and the develop runs that fix its issue files share one state dir (§4, "Relaunch
+vs. new run"), so a develop launch numbers its folder past every `launch-<n>` folder there, whichever
+engine reserved it. Files that a develop engine from before launch folders left directly in the state dir
+stay there. A parked block's work is on a branch of `target.repo` and its entry is in the backlog folder
+(§10), so neither is in the state dir. An `<id>` past 60 characters keeps its first 51 characters and a
+hash of the whole id, so two long ids that share a prefix get separate files.
 
 ## 9. Args reference
 
@@ -1095,7 +1118,10 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   relaunch reaches its terminal) · `backlogDir` (the absolute folder `project-settings.mjs backlog`
   prints, §10. **Throws** when missing, relative or inside `target.repo`, and the message names the
   command) · `blockTool` (the `plan-block.mjs` path that `plan-edit.mjs args` prints, so spreading its
-  output passes it. **Throws** when missing or blank, and the message names that command).
+  output passes it. **Throws** when missing or blank, and the message names that command) · `launchDir`
+  (the launch folder that `plan-edit.mjs args --reserve <stateDir>` prints, so spreading its output
+  passes it, newly reserved for every launch, §8. **Throws** when missing, and the message names
+  `--reserve`, and when it is not a folder named `launch-<n>` directly inside the state dir).
 - **File keys:** `ordered` (boolean) · `suite` (`green|scoped`) · `sweep` (`goal-coverage|none`) ·
   `goal` (string). Typed illegal values **throw** — spread what `args` prints. `sweep: goal-coverage`
   with an empty `goal` **throws**.
@@ -1164,12 +1190,11 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   id counts as no risk file) and, in the closing pass only,
   `recorded_entries` (the ids of the backlog entries it listed, appended or already there, which a
   park's entry names) · the round-1 developer's `baseline_index_tree` (the index's tree id before it
-  changed anything, which the first acceptance of a launch confirms, §5) and `launch_number` (the
-  launch its amendment headers name, and a value below 1 or not an integer is logged and renders
-  `launch unrecorded`) and `earlier_files` (true when the block's `DISMISSED-<id>.md` or
-  `AMENDED-<id>.md` existed before it wrote. Only `false` there, with no round, round 1 included,
-  appending to a file, lets the blind review, acceptance and park (and, for DISMISSED, each later
-  developer round) say that file does not exist in place of a read step, and an absent DISMISSED file
+  changed anything, which the first acceptance of a launch confirms, §5) and `earlier_files` (true
+  when the block's `DISMISSED-<id>.md` or `AMENDED-<id>.md` existed before it wrote. Only `false`
+  there, with no round, round 1 included, appending to a file, lets the blind review, acceptance and
+  park (and, for DISMISSED, each later developer round) say that file does not exist in place of a read
+  step, and an absent DISMISSED file
   also drops every acceptance rule that judges its lines. Any other value keeps every read step and
   rule. Under `proactive`, a round-1 `pulled_results` of `[]` does the same for
   `PULLED-<id>.md`. Neither counts from a round 1 that reported `plan_obtained=false` or

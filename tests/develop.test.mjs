@@ -69,14 +69,19 @@ const ENTRY_FLAGS = "--file-ref '<path>:<line>' --severity <low|medium|high|crit
 const ENTRY_CHECK = (file) => `Then run \`node '${ENTRY_TOOL}' check '${file}'\` and fix each problem it prints.`;
 // The flattened RECORD entry instruction for one file and block, the item named in its **What:** placeholder.
 const ENTRY_RULE = (file, block, item) => `Write each entry ${ENTRY_INTRO}: ${ENTRY_NEW(file, block)} ${ENTRY_FLAGS} It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with <title>, its **What:** placeholder with <the ${item}, the input or path that reaches it, and its harm> and its **Fix:** placeholder with <the change that closes it>. ${ENTRY_CHECK(file)}`;
-const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, backlogDir: BACKLOG, blockTool: BLOCK_TOOL, plans: BLOCKS };
+// The launch folder `plan-edit.mjs args --reserve` prints. A second launch, so a test can tell its number from a default.
+const LAUNCH_DIR = 'E:/r/runs/t/launch-2';
+const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, backlogDir: BACKLOG, blockTool: BLOCK_TOOL, launchDir: LAUNCH_DIR, plans: BLOCKS };
 const ONE_BLOCK = { ...baseArgs, plans: [BLOCKS[0]] };
 const PRO_ONE_BLOCK = { ...ONE_BLOCK, changePolicy: 'proactive' };
-const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, respond, budget });
+// A launch folder lies directly inside its stateDir, so a test that moves the stateDir moves the base folder with it.
+const withLaunch = (args) => (args?.launchDir !== LAUNCH_DIR ? args
+  : { ...args, launchDir: `${args.stateDir ?? `${args.root}/runs/${args.runId}`}/launch-2` });
+const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args: withLaunch(args), respond, budget });
 
 // Mirrors tools/flows/develop.flow.mjs, so "a healthy return" has one definition per engine. Only earlier_files
 // differs: true here keeps every read step, false there traces the absent-file wording.
-const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, dismissed_count: 0, backlog_entries: 0, backlog_blocks: [], review_needed: true, risk_snapshot: 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', baseline_index_tree: 'c0ffee0000000000000000000000000000000001', launch_number: 1, earlier_files: true };
+const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, dismissed_count: 0, backlog_entries: 0, backlog_blocks: [], review_needed: true, risk_snapshot: 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', baseline_index_tree: 'c0ffee0000000000000000000000000000000001', earlier_files: true };
 const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, contested_dismissals: 0 };
 const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, contested_dismissals: 0 };
 // The backlog fields are what a closing acceptance reports, and an earlier round ignores them.
@@ -125,7 +130,7 @@ const TASK_CODE = {
 const PULLED_TASK_CODE = ", and the code each pulled backlog entry's fix adds or changes";
 const taskCode = (mode, policy) => (policy === 'proactive' ? TASK_CODE[mode].replace('. Every line', `${PULLED_TASK_CODE}. Every line`) : TASK_CODE[mode]);
 // The proactive "Not a regression" item that excuses a pulled entry's fix.
-const pulledRegressionItem = (id) => `- a behavior change that closes the defect of a backlog entry E:/r/runs/t/PULLED-${id}.md lists. It is not a regression only when you confirm from the code that the baseline behavior it removes was that entry's defect and that the change alters no other behavior.`;
+const pulledRegressionItem = (id) => `- a behavior change that closes the defect of a backlog entry E:/r/runs/t/launch-2/PULLED-${id}.md lists. It is not a regression only when you confirm from the code that the baseline behavior it removes was that entry's defect and that the change alters no other behavior.`;
 const CODE_ZONES = (mode, policy = 'focused') => `CODE ZONES - every piece of code lies in one of three zones: - Task code: ${taskCode(mode, policy)}. - Connected code: the code a reach step from the task code finds, which is its callers and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs that describe it, apart from code this block's text excludes or another block of the plan owns. - Other code: everything else.`;
 // A feature or section block may change connected code for a defect its diff neither introduces nor exposes: any such
 // defect under proactive, and one in a function or method that holds task code under focused.
@@ -178,8 +183,8 @@ section('a dirty baseline halts before any reviewer, and never parks the operato
   ok(!/resumeFromRunId/.test(out.haltReason), 'and never offers a cached replay');
   // The halt still syncs the block blocked, so a fresh args run would drop it unless it is flipped back.
   ok(/recorded the block as `blocked`/.test(out.haltReason)
-    && out.haltReason.includes("(1) Run `plan-edit.mjs args`, which applies that status. (2) Set this block's `status:` back to `todo`. (3) Run `plan-edit.mjs args` again. Output: the launch args. (4) Relaunch with those args."),
-    'and says to flip the block back to todo between two plan-edit.mjs args runs');
+    && out.haltReason.includes("(1) Run `plan-edit.mjs args`, which applies that status. (2) Set this block's `status:` back to `todo`. (3) Run `plan-edit.mjs args` again with `--reserve 'E:/r/runs/t'`, which also reserves the relaunch's launch folder. Output: the launch args. (4) Relaunch with those args."),
+    'and says to flip the block back to todo between two plan-edit.mjs args runs, the second reserving the relaunch\'s launch folder');
   ok(!/re-invoke this run unchanged|Nothing was built or changed/.test(out.haltReason), 'never says to re-invoke the same args');
   // The run worktree never holds the user's edits, so any dirt kept by `git add -A` would land on the
   // user's branch unreviewed.
@@ -402,10 +407,10 @@ section('acceptance audits the risk file of each round since the block\'s last b
   ok(noSnapAcc.includes("RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. TREE CHECK. Round 1's developer returned no snapshot, so this check has nothing to compare. Write each gap it finds")
     && !noSnapAcc.includes('snapshot-block-a-r1-acceptance.index'),
     'a reviewed round that returned no snapshot has no tree to compare, since its blind review read the diff');
-  ok(a3.includes('developer judged each change low risk: E:/r/runs/t/risk-block-a-r2.md E:/r/runs/t/risk-block-a-r3.md The first line of each risk file') && !a3.includes('round 1, base in'),
+  ok(a3.includes('developer judged each change low risk: E:/r/runs/t/launch-2/risk-block-a-r2.md E:/r/runs/t/launch-2/risk-block-a-r3.md The first line of each risk file') && !a3.includes('round 1, base in'),
     'round 3\'s acceptance audits rounds 2 and 3, which no blind review judged, and not round 1, which one did');
-  ok(a3.includes('round 2, base in E:/r/runs/t/risk-block-a-r1.md, snapshot in E:/r/runs/t/risk-block-a-r2.md: git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command')
-    && a3.includes('round 3, base in E:/r/runs/t/risk-block-a-r2.md, snapshot in E:/r/runs/t/risk-block-a-r3.md: git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command'),
+  ok(a3.includes('round 2, base in E:/r/runs/t/launch-2/risk-block-a-r1.md, snapshot in E:/r/runs/t/launch-2/risk-block-a-r2.md: git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command')
+    && a3.includes('round 3, base in E:/r/runs/t/launch-2/risk-block-a-r2.md, snapshot in E:/r/runs/t/launch-2/risk-block-a-r3.md: git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command'),
   'each audited round gets the command that shows its own hunks, from its snapshot and the snapshot of the round before it');
   ok(a3.includes('The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after that round.')
     && a3.includes('<snapshot> and <base> are the tree ids on the first lines of the files named beside each command:')
@@ -429,12 +434,12 @@ section('acceptance audits the risk file of each round since the block\'s last b
   }, ONE_BLOCK);
   const cleanA2 = flat(cleanAudit.prompt('acceptance block-a r2'));
   const cleanA3 = flat(cleanAudit.prompt('acceptance block-a r3'));
-  ok(cleanA2.includes('developer judged each change low risk: E:/r/runs/t/risk-block-a-r2.md The first line of each risk file'),
+  ok(cleanA2.includes('developer judged each change low risk: E:/r/runs/t/launch-2/risk-block-a-r2.md The first line of each risk file'),
     'the acceptance of round 2 audits round 2, which no blind review judged');
-  ok(cleanA3.includes('developer judged each change low risk: E:/r/runs/t/risk-block-a-r3.md The first line of each risk file')
-    && !cleanA3.includes('round 2, base in') && cleanA3.includes('round 3, base in E:/r/runs/t/risk-block-a-r2.md, snapshot in E:/r/runs/t/risk-block-a-r3.md'),
+  ok(cleanA3.includes('developer judged each change low risk: E:/r/runs/t/launch-2/risk-block-a-r3.md The first line of each risk file')
+    && !cleanA3.includes('round 2, base in') && cleanA3.includes('round 3, base in E:/r/runs/t/launch-2/risk-block-a-r2.md, snapshot in E:/r/runs/t/launch-2/risk-block-a-r3.md'),
   'after a clean audit of round 2, the acceptance of round 3 audits only round 3, with the snapshot of round 2 as its base');
-  ok(a3.includes('round 2, base in') && a3.includes('developer judged each change low risk: E:/r/runs/t/risk-block-a-r2.md E:/r/runs/t/risk-block-a-r3.md'),
+  ok(a3.includes('round 2, base in') && a3.includes('developer judged each change low risk: E:/r/runs/t/launch-2/risk-block-a-r2.md E:/r/runs/t/launch-2/risk-block-a-r3.md'),
     'a verdict that returns no risk_misclassified boolean drops no round from the next audit');
   const accSchema = r.byLabel('acceptance block-a r3')[0]?.opts?.schema ?? {};
   ok(String(accSchema.required ?? '').includes('risk_misclassified') && accSchema.properties?.risk_misclassified?.type === 'boolean', 'risk_misclassified is a required boolean');
@@ -446,11 +451,11 @@ section('acceptance audits the risk file of each round since the block\'s last b
     && !d1.includes('marked `updated` or `unaffected`') && !d1.includes('"No changes."'),
     'CLASSIFY has the developer add a sweep search for each changed name a line outside its hunks holds, says how the tool lists dropped names, and leaves the file format to the risk tool');
   // The risk tool holds the risk file format and reruns each search, so neither prompt restates the format or reruns a search by hand.
-  ok(d1.includes(`Then run \`node '${RISK_TOOL}' 'E:/r/runs/t/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>\`. This risk tool holds the file's format.`)
+  ok(d1.includes(`Then run \`node '${RISK_TOOL}' 'E:/r/runs/t/launch-2/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>\`. This risk tool holds the file's format.`)
     && d1.includes('Then run the command again until it prints ok.')
     && d1.includes("Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise."),
   'CLASSIFY runs the risk tool on its own file until it prints ok, and returns review_needed from its last line');
-  ok(a3.includes(`SWEEP CHECK. When E:/r/runs/t/risk-block-a-r3.md, the file of the latest round named above, exists, run \`node '${RISK_TOOL}' 'E:/r/runs/t/risk-block-a-r3.md' --repo 'E:/repo' --snapshot ${DEV_OK.risk_snapshot} --base ${DEV_OK.risk_snapshot}\`.`)
+  ok(a3.includes(`SWEEP CHECK. When E:/r/runs/t/launch-2/risk-block-a-r3.md, the file of the latest round named above, exists, run \`node '${RISK_TOOL}' 'E:/r/runs/t/launch-2/risk-block-a-r3.md' --repo 'E:/repo' --snapshot ${DEV_OK.risk_snapshot} --base ${DEV_OK.risk_snapshot}\`.`)
     && a3.includes('Each line it prints that starts `error:` is a gap.')
     && a3.includes("needs a line there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line")
     && a3.includes('An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap.')
@@ -501,7 +506,7 @@ section('acceptance audits the risk file of each round since the block\'s last b
     quality: CLEAN, acceptance: firstRound(FIX_GAP, FIX_PASS),
   }, FIX_ONE);
   const fa2 = flat(fixRun.prompt('acceptance fix-a r2'));
-  ok(fa2.includes('E:/r/runs/t/risk-fix-a-r2.md') && fa2.includes('6. RISK AUDIT.') && fa2.includes('a failed risk audit, or a regression')
+  ok(fa2.includes('E:/r/runs/t/launch-2/risk-fix-a-r2.md') && fa2.includes('6. RISK AUDIT.') && fa2.includes('a failed risk audit, or a regression')
     && String(fixRun.byLabel('acceptance fix-a r2')[0]?.opts?.schema?.required ?? '').includes('risk_misclassified'),
     'fix acceptance audits the risk file the same way');
   // DECIDE and the schema state one pass contract, so the schema's pass never omits the risk audit.
@@ -512,7 +517,7 @@ section('acceptance audits the risk file of each round since the block\'s last b
   }
 
   const dev = flat(r.prompt('develop block-a r2'));
-  ok(dev.includes('CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK QUESTIONS below, and record each judgment in E:/r/runs/t/risk-block-a-r2.md.')
+  ok(dev.includes('CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK QUESTIONS below, and record each judgment in E:/r/runs/t/launch-2/risk-block-a-r2.md.')
     && dev.includes("Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.")
     && dev.includes('RISK QUESTIONS - answer each one for a change:'),
     'the developer writes the risk file acceptance reads, and returns review_needed from it');
@@ -541,7 +546,7 @@ section('every developer round records a snapshot of its tree in its risk file, 
   const pinned = (prompt, id, round, where) => {
     const text = flat(prompt);
     const base = round === 1 ? '<the tree id STEP 0 printed>' : DEV_OK.risk_snapshot;
-    ok(text.includes(`${FIRST_LINE} ${snapshotLines(id, round)} Delete the temporary index file once the last command has printed the tree id. Then run \`node '${RISK_TOOL}' 'E:/r/runs/t/risk-${id}-r${round}.md' --repo 'E:/repo' --snapshot <that tree id> --base ${base}\`.`),
+    ok(text.includes(`${FIRST_LINE} ${snapshotLines(id, round)} Delete the temporary index file once the last command has printed the tree id. Then run \`node '${RISK_TOOL}' 'E:/r/runs/t/launch-2/risk-${id}-r${round}.md' --repo 'E:/repo' --snapshot <that tree id> --base ${base}\`.`),
       `${where}: CLASSIFY takes the snapshot with the three commands and their own temporary index, then hands its tree id and its round's base to the risk tool`);
   };
 
@@ -572,7 +577,7 @@ section('every developer round records a snapshot of its tree in its risk file, 
     for (const [where, repo] of [['main checkout', main], ['linked worktree', linked]]) {
       const root = `${tmp}/root-${where.split(' ')[0]}`;
       mkdirSync(`${root}/runs/t/scratch`, { recursive: true });
-      const run2 = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, { ...ONE_BLOCK, root, target: { repo } });
+      const run2 = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, { ...ONE_BLOCK, root, target: { repo }, launchDir: `${root}/runs/t/launch-1` });
       const snapshot = (round) => {
         const m = run2.prompt(`develop block-a r${round}`).match(/^ {5}cp "\$\(git -C (\S+) rev-parse --path-format=absolute --git-path index\)" "([^"]+)"\n {5}GIT_INDEX_FILE="([^"]+)" git -C (\S+) add -A\n {5}GIT_INDEX_FILE="([^"]+)" git -C (\S+) write-tree$/m);
         ok(m && m[1] === repo && m[4] === repo && m[6] === repo && m[2] === m[3] && m[3] === m[5],
@@ -642,7 +647,7 @@ section('a block whose last round fails gets one closing pass, whose acceptance 
   ok(closer.includes('This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1.')
     && closer.includes("so you are this block's CLOSING PASS, and no develop round follows you. A blind review follows you when the block's changes since its last blind review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap, and otherwise the block parks."),
     'the closing pass is told what it is, what follows it, and what lands the block');
-  ok(closer.includes('BUILD: CLOSING PASS. READ E:/r/runs/t/acceptance-review-block-a-r1.md.')
+  ok(closer.includes('BUILD: CLOSING PASS. READ E:/r/runs/t/launch-2/acceptance-review-block-a-r1.md.')
     && closer.includes('Where the matrix says FIX, answer the RISK QUESTIONS in CLASSIFY below for that fix before you write any code for it. When the fix is not low risk, change no code for it.')
     && closer.includes('with a **Fix:** line naming the fix you would make')
     && closer.includes('list its id in recorded_entries, and write no DISMISSED line for it'),
@@ -656,15 +661,15 @@ section('a block whose last round fails gets one closing pass, whose acceptance 
     'an item an entry already holds is listed by that entry\'s id, not appended again');
   ok(closer.includes("A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since a blind review of this block's changes follows you."),
     'a wrong risk answer or a tree-check gap is left to the closing blind review');
-  ok(closer.includes('record each judgment in E:/r/runs/t/risk-block-a-r2.md'), 'it writes its own risk file');
+  ok(closer.includes('record each judgment in E:/r/runs/t/launch-2/risk-block-a-r2.md'), 'it writes its own risk file');
   const closingSchema = lands.byLabel('develop-closing block-a')[0]?.opts?.schema ?? {};
   ok(String(closingSchema.required ?? '').includes('recorded_entries')
     && !('recorded_entries' in (lands.byLabel('develop block-a r1')[0]?.opts?.schema?.properties ?? {})),
     'only the closing pass returns recorded_entries');
-  ok(['baseline_dirty_files', 'baseline_index_tree', 'launch_number', 'earlier_files'].every((f) => !closingSchema.required.includes(f) && !(f in closingSchema.properties)),
+  ok(['baseline_dirty_files', 'baseline_index_tree', 'earlier_files'].every((f) => !closingSchema.required.includes(f) && !(f in closingSchema.properties)),
     'the closing pass declares no round-1 field');
   const [earlyAcc, closingAcc] = [flat(lands.prompt('acceptance block-a r1')), flat(lands.prompt('acceptance block-a r2'))];
-  ok(closingAcc.includes('E:/r/runs/t/risk-block-a-r2.md'), 'the closing acceptance audits the closing pass\'s risk file');
+  ok(closingAcc.includes('E:/r/runs/t/launch-2/risk-block-a-r2.md'), 'the closing acceptance audits the closing pass\'s risk file');
   ok(closingAcc.includes('makes it a blocking gap, since no round follows to send to a blind review') && !closingAcc.includes('which sends the next round to a blind review'),
     'and a gap of that audit blocks the landing, since no round follows to send to a blind review');
   ok(closingAcc.includes(`Your file holds no notes or observations. ${CLOSING_BAR.feature}`) && !closingAcc.includes('non-blocking section'),
@@ -693,7 +698,7 @@ section('a block whose last round fails gets one closing pass, whose acceptance 
   const blocked = await run({ develop: develop({ ...CLOSING_OK, recorded_entries: ['t-block-a-x-1'] }), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, ONE_ROUND);
   ok(blocked.labels.includes('acceptance block-a r2') && blocked.labels.includes('park:block-a'), 'a recorded entry reaches the closing acceptance, and a blocking gap parks the block');
   eq(blocked.out.ledger[0].status, 'backlogged (not accepted within round budget)', 'as a budget park');
-  ok(parkText(blocked).includes('its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/r/runs/t/acceptance-review-block-a-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: t-block-a-x-1.">'),
+  ok(parkText(blocked).includes('its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/r/runs/t/launch-2/acceptance-review-block-a-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: t-block-a-x-1.">'),
     'its park entry lists the blocking gaps first, then the rest, then the entries the closing pass listed');
   ok(blocked.logs.some((l) => /the closing acceptance found 2 gap\(s\) that block its landing/.test(l)), 'the log says the gaps block the landing');
   const recorded = await run({ develop: develop({ ...CLOSING_OK, recorded_entries: ['t-block-a-x-1'] }), quality: CLEAN, acceptance: firstRound(ACC_FAIL, LANDS) }, ONE_ROUND);
@@ -718,7 +723,7 @@ section('a block whose last round fails gets one closing pass, whose acceptance 
     const r = await run(respond, ONE_ROUND);
     ok(r.labels.join().endsWith('develop-closing block-a,quality block-a r2,acceptance block-a r2'),
       `${what}: the closing pass gets one blind review, then the closing acceptance, with no develop round between`);
-    ok(flat(r.prompt('acceptance block-a r2')).includes('E:/r/runs/t/gate/quality-review-block-a-r2.md'),
+    ok(flat(r.prompt('acceptance block-a r2')).includes('E:/r/runs/t/launch-2/gate/quality-review-block-a-r2.md'),
       `${what}: the closing acceptance reads the closing blind review's file`);
     eq(r.out.status, 'done (all blocks staged)', `${what}: and lands the block when no gap blocks`);
     ok(r.logs.some((l) => /the closing blind review found 2 issue\(s\) → the closing acceptance sorts them/.test(l)), `${what}: the log says the acceptance sorts its findings`);
@@ -734,7 +739,7 @@ section('a block whose last round fails gets one closing pass, whose acceptance 
     'a clean closing blind review lists no file, and the block lands');
   const redOrdered = await run({ develop: (label) => (label.startsWith('develop-closing') ? CLOSING_OK : { ...DEV_OK, build_passed: false }), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK },
     { ...ONE_ROUND, ordered: true });
-  eq(String(redOrdered.out.haltReason).split(' Its work is')[0], 'Block block-a did not land within 1 rounds and its closing pass, since its closing acceptance found a blocking gap (see E:/r/runs/t/acceptance-review-block-a-r2.md).',
+  eq(String(redOrdered.out.haltReason).split(' Its work is')[0], 'Block block-a did not land within 1 rounds and its closing pass, since its closing acceptance found a blocking gap (see E:/r/runs/t/launch-2/acceptance-review-block-a-r2.md).',
     'an ordered halt names the closing acceptance file that holds the blocking gaps');
   const passes = await run({ ...GREEN_RUN, develop: develop(CLOSING_OK) }, ONE_ROUND);
   ok(!passes.labels.includes('develop-closing block-a') && passes.out.ledger[0].closingPass === false, 'a block that passes in its last round runs no closing pass');
@@ -1648,13 +1653,13 @@ section('every park appends one backlog entry that links its branch');
     'an entry links a branch only when this park made a commit');
 
   const asked = flat((await run({ develop: { ...DEV_OK, needs_user: true }, park: PARK_OK }, ONE_BLOCK)).prompt('park:block-a'));
-  ok(asked.includes('its **What:** placeholder with <the latest `## Question: block-a r<n>` entry in E:/r/runs/t/question-block-a.md, copied verbatim>'),
-    'a needs-user park copies the escalated question');
+  ok(asked.includes('its **What:** placeholder with <the latest `## Question: block-a r<n>, launch 2` entry in E:/r/runs/t/question-block-a.md, copied verbatim>'),
+    'a needs-user park copies the escalated question of its own launch');
   ok(asked.includes('Set "- decision: NEEDS_USER", since this park waits on a question only the user can answer.') && !asked.includes(DECISION_RULE),
     'and is always NEEDS_USER');
   // A staging halt keeps its own kind, but the developer's question still waits on the user.
   const stagedAsk = flat((await run({ develop: { ...DEV_OK, needs_user: true, unstaged_confirmed: false }, park: PARK_OK }, ONE_BLOCK)).prompt('park:block-a'));
-  ok(stagedAsk.includes('its **What:** placeholder with <the line "Halted: ') && stagedAsk.includes(', then the latest `## Question: block-a r<n>` entry in E:/r/runs/t/question-block-a.md, copied verbatim>'),
+  ok(stagedAsk.includes('its **What:** placeholder with <the line "Halted: ') && stagedAsk.includes(', then the latest `## Question: block-a r<n>, launch 2` entry in E:/r/runs/t/question-block-a.md, copied verbatim>'),
     'a staging halt of a block that escalated copies the halt reason, then the question');
   ok(stagedAsk.includes('Set "- decision: NEEDS_USER", since this park waits on a question only the user can answer.') && !stagedAsk.includes(DECISION_RULE),
     'and is always NEEDS_USER');
@@ -2068,8 +2073,8 @@ section('an unordered run parks a needs-user block and continues');
   eq(out.status, 'run complete (1 block(s) parked)', 'status');
   ok(/REST OF THE RUN can continue/.test(prompt('park')), 'park is told the run continues');
   ok(/was halted: the developer escalated a user-only decision \(see E:\/r\/runs\/t\/question-block-a\.md\)/.test(prompt('park')), 'with the needs-user reason and the question file');
-  ok(flat(prompt('develop block-a r1')).includes('append a FULL, self-contained entry to E:/r/runs/t/question-block-a.md (all the detail the user needs to decide) under the heading `## Question: block-a r1`'),
-    'the developer of an unordered run writes its question to the block\'s question file');
+  ok(flat(prompt('develop block-a r1')).includes('append a FULL, self-contained entry to E:/r/runs/t/question-block-a.md (all the detail the user needs to decide) under the heading `## Question: block-a r1, launch 2`'),
+    'the developer of an unordered run writes its question to the block\'s question file, under a heading that names its launch');
   ok(out.nextStep.includes(`1 block(s) escalated a user-only decision: block-a. These questions are in their block's backlog entry, whose decision is NEEDS_USER: block-a in ${backlogFile('block-a')}.`)
     && /research each question in it first \(develop guide §6\), then put the rest to the user with a recommendation each/.test(out.nextStep),
     'nextStep names the block and its backlog entry and sends the operator to research each question before asking the user');
@@ -2139,7 +2144,8 @@ section('acceptance that stages while reporting a regression halts the run');
   ok(out.ledger[0].contradicted === true, 'and the ledger flags the self-contradiction');
   // The plan file's statuses pick the relaunch's blocks, so a block rejected back to todo is rebuilt.
   ok(out.haltReason.includes('CLAUDE.md §6'), 'the halt reason points at the keep-or-reject guide');
-  ok(out.haltReason.includes('relaunch with fresh `plan-edit.mjs args`'), 'and says to relaunch with fresh plan-edit.mjs args');
+  ok(out.haltReason.includes("relaunch with fresh `plan-edit.mjs args` with `--reserve 'E:/r/runs/t'`: the plan file selects"),
+    'and says to relaunch with fresh plan-edit.mjs args that reserve a launch folder');
   ok(!/startAt/.test(out.haltReason), 'and never names startAt');
 }
 
@@ -2168,7 +2174,7 @@ section('acceptance that passed without staging halts without parking');
   // Acceptance passed, so the plan file says done. Synced as blocked, the documented flip-to-todo rebuilt a
   // block that had already landed on top of its own staged copy.
   eq(syncOf(out), 'block-a=done', 'statusSync marks the passed block done');
-  ok(/then relaunch: the next `plan-edit\.mjs args` marks the block done\./.test(out.haltReason) && !/startAt/.test(out.haltReason),
+  ok(out.haltReason.includes("then relaunch with fresh `plan-edit.mjs args` with `--reserve 'E:/r/runs/t'`, which marks the block done.") && !/startAt/.test(out.haltReason),
     'and the reason says stage, relaunch, and that args marks the block done');
   ok(/1 block\(s\) halted and are NOT done: block-a - the halt reason above says what each needs/.test(out.nextStep),
     'nextStep defers to the halt reason rather than giving fix-block advice');
@@ -2194,7 +2200,7 @@ section('acceptance that passed with a regression but staged nothing parks, and 
     'the reason says the work is unstaged and flagged as a regression');
   ok(/never stage it as it is/.test(out.haltReason) && !/Stage its files|git -C \S+ add/.test(out.haltReason),
     'and never tells the operator to stage it');
-  ok(/see E:\/r\/runs\/t\/acceptance-review-block-a-r1\.md/.test(out.haltReason), 'and cites the acceptance file it wrote');
+  ok(/see E:\/r\/runs\/t\/launch-2\/acceptance-review-block-a-r1\.md/.test(out.haltReason), 'and cites the acceptance file it wrote');
   ok(/flagged a regression and staged nothing/.test(out.nextStep), 'nextStep repeats the reason');
 
   const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN,
@@ -2301,7 +2307,7 @@ section('gates.test is demanded only for the PENDING set, not for blocks already
 // relaunch would otherwise throw over a test command this run will never execute instead of reaching the
 // nothing-to-run terminal above.
 {
-  const DONE_GREEN = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b' }, backlogDir: BACKLOG, blockTool: BLOCK_TOOL,
+  const DONE_GREEN = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b' }, backlogDir: BACKLOG, blockTool: BLOCK_TOOL, launchDir: LAUNCH_DIR,
     plans: [onBus({ id: 'block-a', mode: 'feature', gate: 'green', status: 'done' })] };
   const { out, calls } = await run({}, DONE_GREEN);
   eq(calls.length, 0, 'the relaunch spawns nothing');
@@ -2336,7 +2342,7 @@ section('the token budget stops cleanly between blocks');
   eq(calls.length, 0, 'stopped before spawning anything');
   eq(out.status, 'stopped on token budget (fewer tokens remain than minPlanBudget)', 'status');
   ok(/^Stopped before block block-a:/.test(out.haltReason), 'halt reason names the block it stopped before');
-  ok(out.haltReason.includes('Relaunch with fresh `plan-edit.mjs args`') && !/startAt/.test(out.haltReason),
+  ok(out.haltReason.includes("Relaunch with fresh `plan-edit.mjs args` with `--reserve 'E:/r/runs/t'`: it applies") && !/startAt/.test(out.haltReason),
     'and says to relaunch with fresh plan-edit.mjs args, never startAt');
 }
 
@@ -2532,7 +2538,7 @@ section('each retired arg throws at launch, naming itself and its replacement, a
 // different bar than the operator asked for.
 {
   const retired = [
-    ['startAt', { startAt: 'block-b' }, /^args\.startAt is retired: .*"plan-edit\.mjs args <planPath>".*args\.runOnly/],
+    ['startAt', { startAt: 'block-b' }, /^args\.startAt is retired: .*"plan-edit\.mjs args <planPath> --reserve <stateDir>".*args\.runOnly/],
     ['reviewSeverity', { reviewSeverity: 'medium' }, /^args\.reviewSeverity is retired: the developer's risk judgment decides when a blind review runs/],
     ['planPath', { planPath: BUS }, /^The top-level args\.planPath is retired: .*every "plans" row that "plan-edit\.mjs args <planPath>" prints carries its own planPath/],
     ['planContext', { plans: [{ ...BLOCKS[0], planContext: 'block' }] }, /^args\.plans\[\]\.planContext is retired: .*plan-block command.*whole plan file/],
@@ -2559,24 +2565,28 @@ const STATE = 'E:/r/runs/t';
  * (one `ls` reaches all three files), and a pattern demanding a `/` after it cannot see that leak.
  */
 const stateRefsOutsideGate = (p) =>
-  (p.match(/E:\/r\/runs\/t(\/[^\s`'")]*)?/g) ?? []).filter((s) => !s.startsWith(`${STATE}/gate/`));
+  (p.match(/E:\/r\/runs\/t(\/[^\s`'")]*)?/g) ?? []).filter((s) => !s.startsWith(`${STATE}/gate/`) && !s.startsWith(`${LAUNCH_DIR}/gate/`));
 
 section('the quality reviewer is blind BY PLACEMENT: no run-state path outside gate/');
+// The stateDir's gate/ holds the ledgers, and the launch folder's gate/ holds this launch's review files, so the
+// launch folder's acceptance reviews and risk files stay out of reach.
 {
   const q = (await run(GREEN_RUN)).prompt('quality block-a');
   ok(q !== '', 'the blind reviewer ran');
   ok(q.includes(`${STATE}/gate/DISMISSED-block-a.md`), 'it IS given the anti-spin ledger (#5)');
-  ok(q.includes(`${STATE}/gate/quality-review-block-a-r1.md`), 'and its own output path, gate-scoped too');
+  ok(q.includes(`${LAUNCH_DIR}/gate/quality-review-block-a-r1.md`), 'and its own output path, gate-scoped too');
   ok(!q.includes('NEEDS-USER.md') && !q.includes('DECISIONS.md'),
     'but NOT NEEDS-USER or DECISIONS: the DECISIONS amendment pointer line names the AMENDED file, which quotes the plan verbatim');
-  eq(stateRefsOutsideGate(q).join(', '), '', 'and no run-state path outside gate/');
+  eq(stateRefsOutsideGate(q).join(', '), '', 'and no run-state path outside the two gate/ folders');
   // Blindness is placement AND instruction: a fix block's plan file IS an issue inventory.
-  ok(q.includes(`Never open a plan file, an issue inventory, or any run-state path outside ${STATE}/gate/.`),
-    'and it is told never to open a plan file, an inventory or run-state outside gate/');
-  // gate/ is shared by every block, so its own DISMISSED file is the one gate/ file it may read. Its own
+  ok(q.includes(`Never open a plan file, an issue inventory, or any run-state path outside ${STATE}/gate/ and ${LAUNCH_DIR}/gate/.`),
+    'and it is told never to open a plan file, an inventory or run-state outside the two gate/ folders');
+  // Both gate/ folders are shared by every block, so its own DISMISSED file is the one file there it may read. Its own
   // review file is read at the WRITE step, where the Write tool needs a prior read to overwrite it.
-  ok(q.replace(/\s+/g, ' ').includes(`${STATE}/gate/ may also hold other blocks' review and DISMISSED files. Before you review, read only ${STATE}/gate/DISMISSED-block-a.md there. At the WRITE step, once your findings are final, Read ${STATE}/gate/quality-review-block-a-r1.md if it exists`),
-    'and it is told gate/ may hold other blocks\' files and to read only its own DISMISSED file there, plus its own review file at the WRITE step');
+  ok(q.replace(/\s+/g, ' ').includes(`Both may also hold other blocks' files. Before you review, read only ${STATE}/gate/DISMISSED-block-a.md there. At the WRITE step, once your findings are final, Read ${LAUNCH_DIR}/gate/quality-review-block-a-r1.md if it exists`),
+    'and it is told both gate/ folders may hold other blocks\' files and to read only its own DISMISSED file there, plus its own review file at the WRITE step');
+  ok(q.replace(/\s+/g, ' ').includes(`This launch writes its round files in ${LAUNCH_DIR}/gate/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.`),
+    'and its round note names the launch folder\'s gate/, never the launch folder itself');
   const a = (await run(GREEN_RUN)).prompt('acceptance block-a');
   ok(a.includes(`${STATE}/gate/DISMISSED-block-a.md`) && a.includes(`${STATE}/question-block-a.md`)
     && a.includes(`${STATE}/DECISIONS.md`),
@@ -2607,7 +2617,7 @@ section('two block ids that share their first 60 characters get distinct run-sta
   const sixty = `id-${'y'.repeat(57)}`;
   eq(sixty.length, 60, 'an id of exactly 60 characters');
   const whole = await run(GREEN_RUN, { ...baseArgs, plans: [onBus({ id: sixty, mode: 'feature', gate: 'build-only' })] });
-  ok(whole.prompt(`quality ${sixty}`).includes(`${STATE}/gate/quality-review-${sixty}-r1.md`)
+  ok(whole.prompt(`quality ${sixty}`).includes(`${LAUNCH_DIR}/gate/quality-review-${sixty}-r1.md`)
     && whole.prompt(`quality ${sixty}`).includes(`${STATE}/gate/DISMISSED-${sixty}.md`),
     'keeps its whole id in its file names, as before');
 }
@@ -2685,7 +2695,7 @@ section('a dead round-loop agent halts and parks, never a gate miss or a clean r
   // An ordered run's later blocks depend on the parked one, so its entry is worked before they are built.
   for (const [role, respond] of DEAD) {
     const { out } = await run(respond, { ...baseArgs, ordered: true });
-    ok(String(out.haltReason ?? '').includes('the block stays blocked until nextStep\'s rule for a held park picks that entry or the block. When it picks the entry, work that entry first, as the develop guide\'s "Working the backlog" says, then relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, since they depend on this block.')
+    ok(String(out.haltReason ?? '').includes('the block stays blocked until nextStep\'s rule for a held park picks that entry or the block. When it picks the entry, work that entry first, as the develop guide\'s "Working the backlog" says, then relaunch with fresh `plan-edit.mjs args` with `--reserve \'E:/r/runs/t\'` to build the blocks still todo, since they depend on this block.')
       && !String(out.haltReason ?? '').includes('in either order'), `a dead ${role} in an ordered run works the entry before the later blocks`);
   }
 }
@@ -2811,8 +2821,8 @@ section('the developer weighs any other open choice and accounts for every findi
       `${mode}: a fix, found or required, covers every sibling path with the same mechanism that the zone routing fixes, and any other, excluded or other-block code included, is logged by place or class`);
     ok(dev !== '' && !dev.includes('medium/low polish') && !dev.includes('DROP silently'), `${mode}: no rule drops a finding silently`);
     const later = flat(laterRound[id].prompt(`develop ${id} r2`));
-    ok(later.includes(`A prior review flagged issues in ${STATE}/gate/quality-review-${id}-r1.md. Your earlier work is already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`)
-      && later.includes(`BUILD: READ ${STATE}/gate/quality-review-${id}-r1.md and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or log it.`),
+    ok(later.includes(`A prior review flagged issues in ${LAUNCH_DIR}/gate/quality-review-${id}-r1.md. Your earlier work is already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`)
+      && later.includes(`BUILD: READ ${LAUNCH_DIR}/gate/quality-review-${id}-r1.md and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or log it.`),
       `${mode}: a later round's BUILD addresses every finding in the review file`);
     ok(later !== '' && !later.includes('resolve exactly those'), `${mode}: a later round no longer narrows to the flagged issues`);
   }
@@ -2904,8 +2914,8 @@ section('every scratch file an agent writes goes under scratch/, never into the 
   for (const [mode, id, r] of FRAMES) {
     for (const role of ['develop', 'acceptance']) {
       const text = flat(r.prompt(`${role} ${id}`));
-      ok(text.includes(`Write every scratch file, such as a plan block or a test log, under ${STATE}/scratch/, never under ${STATE}/gate/.`),
-        `${mode}: the ${role} prompt sends every scratch file to scratch/ and none to gate/`);
+      ok(text.includes(`Write every scratch file, such as a plan block or a test log, under ${STATE}/scratch/, never under ${STATE}/gate/ or ${LAUNCH_DIR}/gate/.`),
+        `${mode}: the ${role} prompt sends every scratch file to scratch/ and none to either gate/ folder`);
     }
     ok(!r.prompt(`quality ${id}`).includes('/scratch/'), `${mode}: the blind prompt names no scratch dir`);
   }
@@ -2986,8 +2996,8 @@ section('acceptance re-checks every earlier review file of its block, and only t
     'fix: step 1 points at the renumbered WRITE step');
 
   // r1 quality flags, r2 acceptance fails, r3 passes: each acceptance lists every file routed so far.
-  const Q1 = `${STATE}/gate/quality-review-block-a-r1.md`;
-  const A2 = `${STATE}/acceptance-review-block-a-r2.md`;
+  const Q1 = `${LAUNCH_DIR}/gate/quality-review-block-a-r1.md`;
+  const A2 = `${LAUNCH_DIR}/acceptance-review-block-a-r2.md`;
   const chain = await run({
     develop: DEV_OK, quality: firstRound(FLAGGED, CLEAN),
     acceptance: (label) => (/r2$/.test(label) ? ACC_FAIL : { ...ACC_PASS, earlier_reviews_read: 2 }),
@@ -2996,11 +3006,11 @@ section('acceptance re-checks every earlier review file of its block, and only t
   eq(earlierList(chain.prompt('acceptance block-a r3')), `${Q1}, ${A2}`, 'round 3 adds the failed acceptance file, in round order');
   eq(chain.out.status, 'done (all blocks staged)', 'and the block stages on its round-3 pass');
   const fixChain = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: firstRound(FLAGGED, CLEAN), acceptance: FIX_PASS }, FIX_ONE);
-  eq(earlierList(fixChain.prompt('acceptance fix-a r2')), `${STATE}/gate/quality-review-fix-a-r1.md`, 'the fix frame lists it too');
+  eq(earlierList(fixChain.prompt('acceptance fix-a r2')), `${LAUNCH_DIR}/gate/quality-review-fix-a-r1.md`, 'the fix frame lists it too');
 
   // A short read is an audit flag like a thin pass, so the block still stages.
   const shortRead = await run({ develop: DEV_OK, quality: firstRound(FLAGGED, CLEAN), acceptance: ACC_PASS }, ONE_BLOCK);
-  ok(shortRead.logs.some((l) => l.includes(`block-a r2: acceptance read 0 of 1 earlier review file(s) — audit ${STATE}/acceptance-review-block-a-r2.md`)),
+  ok(shortRead.logs.some((l) => l.includes(`block-a r2: acceptance read 0 of 1 earlier review file(s) — audit ${LAUNCH_DIR}/acceptance-review-block-a-r2.md`)),
     'reading fewer files than listed logs the warning');
   eq(shortRead.out.status, 'done (all blocks staged)', 'and the block still stages');
   const missing = await run({ develop: DEV_OK, quality: firstRound(FLAGGED, CLEAN), acceptance: { ...ACC_PASS, earlier_reviews_read: undefined } }, ONE_BLOCK);
@@ -3274,7 +3284,7 @@ section('a run whose status lines would outgrow the runtime\'s first 1,000 halts
   const next = plans[out.plansDone.length]?.id;
   ok(out.plansDone.length > 0 && next, `the halt falls mid-run: ${out.plansDone.length} block(s) done`);
   ok(out.haltReason.startsWith(`Stopped before block ${next}:`), `the halt reason names the first block not run: ${next}`);
-  ok(out.haltReason.includes('Relaunch with fresh `plan-edit.mjs args`') && !/startAt/.test(out.haltReason),
+  ok(out.haltReason.includes("Relaunch with fresh `plan-edit.mjs args` with `--reserve 'E:/r/runs/t'`: it applies") && !/startAt/.test(out.haltReason),
     'and says to relaunch with fresh plan-edit.mjs args, never startAt');
   const missing = idsWithoutKeptStatus(logs, out.plansDone);
   eq(missing.length, 0, `the first 1,000 lines hold a status line for every finished block${missing.length ? `, first miss ${missing[0]}` : ''}`);
@@ -3967,7 +3977,7 @@ section('every developer frame works in six phases in every mode, policy and rou
   // Phrases that would aim the developer's own review at its entire diff.
   const entireDiff = ['so apply them to it first', '"The diff" they name is your unstaged diff', 'SELF-CHECK'];
   const writesCode = { feature: "Implement the plan's steps.", section: "Implement this block's steps.", fix: 'FIX ONLY the entries' };
-  const rework = (id) => `BUILD: READ ${STATE}/gate/quality-review-${id}-r1.md and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or log it.`;
+  const rework = (id) => `BUILD: READ ${LAUNCH_DIR}/gate/quality-review-${id}-r1.md and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or log it.`;
   const reworkKeeps = { feature: 'in place of the build', section: 'in place of the build', fix: 'beside the entry rules' };
   const accepts = {
     feature: 'that the feature is reachable from real entry points',
@@ -4322,16 +4332,16 @@ section('a commit-mode pass commits with the block title through a file, and the
   const acc = flat(r.prompt('acceptance block-a r1'));
   ok(acc.includes(`newly-created files>\`, then COMMIT as step 9 says; return pass=true, staged=true.`) && !acc.includes('NEVER commit'),
     'the pass bullet stages, then commits');
-  ok(acc.includes(`which is the JSON string ${JSON.stringify(TITLE)}, decoded, as the one line of ${STATE}/commit-block-a.txt`)
+  ok(acc.includes(`which is the JSON string ${JSON.stringify(TITLE)}, decoded, as the one line of ${LAUNCH_DIR}/commit-block-a.txt`)
     && acc.includes('with no quotes, no other line and no trailer'), 'the title goes into the commit file as the message\'s one line');
   ok(r.prompt('acceptance block-a r1').includes('\n9. COMMIT, on a pass whose diff is not empty:'), 'the COMMIT step is its own numbered step after DECIDE, not part of the fail bullet');
   ok(acc.includes('Run `git -C E:/repo write-tree` and keep the tree id it prints.')
     && acc.includes('tree_matches=true only when `git -C E:/repo log -1 --format=%T` prints the tree id you kept')
-    && acc.includes(`When it prints another, append both tree ids to ${STATE}/acceptance-review-block-a-r1.md, the kept one first.`),
+    && acc.includes(`When it prints another, append both tree ids to ${LAUNCH_DIR}/acceptance-review-block-a-r1.md, the kept one first.`),
   'the commit\'s tree is checked against the tree staged before it, and a mismatch records both trees');
-  ok(acc.includes(`Run \`git -C E:/repo commit -F ${STATE}/commit-block-a.txt\`.`) && acc.includes('Never pass `--no-verify`, `--no-gpg-sign` or `--amend`.'),
+  ok(acc.includes(`Run \`git -C E:/repo commit -F ${LAUNCH_DIR}/commit-block-a.txt\`.`) && acc.includes('Never pass `--no-verify`, `--no-gpg-sign` or `--amend`.'),
     'it commits from that file, and never skips a hook or signing or amends');
-  ok(acc.includes(`append its full output to ${STATE}/acceptance-review-block-a-r1.md, leave the work staged, and return committed=false`)
+  ok(acc.includes(`append its full output to ${LAUNCH_DIR}/acceptance-review-block-a-r1.md, leave the work staged, and return committed=false`)
     && acc.includes('commit_subject from `git -C E:/repo log -1 --format=%s`')
     && acc.includes('return tree_clean=true only when `git -C E:/repo status --porcelain` then prints nothing'),
     'a refused commit leaves its output in the acceptance file, and the subject and tree come from git');
@@ -4369,8 +4379,8 @@ section('a commit-mode pass halts commit-unverified on each failed landing check
   const cases = [
     ['not committed', { committed: false, commit_sha: '', commit_subject: '' },
       (s) => s.includes('(1) not committed: committed=false.') && s.includes('A commit hook or commit signing may have refused the commit.')
-        && s.includes(`STAGED and not committed, and the hook output is in ${STATE}/acceptance-review-block-a-r1.md`)
-        && s.includes(`run \`git -C E:/repo commit -F ${STATE}/commit-block-a.txt\``) && !s.includes('show --stat')],
+        && s.includes(`STAGED and not committed, and the hook output is in ${LAUNCH_DIR}/acceptance-review-block-a-r1.md`)
+        && s.includes(`run \`git -C E:/repo commit -F ${LAUNCH_DIR}/commit-block-a.txt\``) && !s.includes('show --stat')],
     ['unverified sha', { commit_sha: 'none' },
       (s) => s.includes(`(1) unverified sha: commit_sha="none" beside commit_subject=${JSON.stringify(TITLE)} names no commit id`)
         && s.includes('`git -C E:/repo log -1 --stat`') && !s.includes('show --stat')],
@@ -4379,7 +4389,7 @@ section('a commit-mode pass halts commit-unverified on each failed landing check
         && s.includes(`Inspect the commit with \`git -C E:/repo show --stat ${SHA}\`.`)],
     ['tree changed', { tree_matches: false },
       (s) => s.includes('(1) tree changed: tree_matches=false.') && s.includes('A pre-commit hook may have rewritten and re-staged files')
-        && s.includes(`${STATE}/acceptance-review-block-a-r1.md names both tree ids`) && s.includes(`\`git -C E:/repo diff <staged tree id> ${SHA}\``)],
+        && s.includes(`${LAUNCH_DIR}/acceptance-review-block-a-r1.md names both tree ids`) && s.includes(`\`git -C E:/repo diff <staged tree id> ${SHA}\``)],
     ['tree dirty', { tree_clean: false },
       (s) => s.includes('(1) tree dirty: tree_clean=false.') && s.includes('A commit hook, the gate run, or a block file acceptance did not stage may have left these changes')
         && s.includes('`git -C E:/repo status --porcelain` lists them')],
@@ -4406,7 +4416,7 @@ section('a commit-mode pass halts commit-unverified on each failed landing check
   const fixHalt = await run({ ...C_RUN, develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }], { baseline_staged_files: 0 }),
     acceptance: { ...FIX_PASS, committed: true, commit_sha: SHA, commit_subject: 'rewritten by a hook', tree_matches: true, tree_clean: true } },
   { ...FIX_ONE, commit: true });
-  ok(String(fixHalt.out.haltReason ?? '').includes(`also set each fix issue that ${STATE}/acceptance-review-fix-a-r1.md confirmed closed to \`fixed\` or \`stale\``),
+  ok(String(fixHalt.out.haltReason ?? '').includes(`also set each fix issue that ${LAUNCH_DIR}/acceptance-review-fix-a-r1.md confirmed closed to \`fixed\` or \`stale\``),
     'a fix block\'s commit halt names the issue reset its kept work needs');
   const refused = await run({ ...C_RUN, acceptance: { ...ACC_C, committed: false } }, COMMIT_ONE);
   eq(refused.out.ledger[0]?.commit, null, 'a sha beside committed=false is not recorded as a commit');
@@ -4497,8 +4507,8 @@ section('an acceptance-regression halt on a commit-mode pass appends the same fa
   eq(stagedRegression.out.ledger[0]?.status, 'done (staged, its commit not made)', 'a regression pass whose commit did not land is staged, never a no-op');
   ok(nextOf(stagedRegression.out).endsWith(HALTED_NEXT), 'and nextStep never claims nothing is staged');
   const sr = String(stagedRegression.out.haltReason ?? '');
-  ok(sr.includes('(1) not committed: committed=false.') && sr.includes(`the hook output is in ${STATE}/acceptance-review-block-a-r1.md`)
-    && sr.includes(`\`git -C E:/repo commit -F ${STATE}/commit-block-a.txt\``), 'and its halt reason names the refused commit, the hook output and the commit that keeps the work');
+  ok(sr.includes('(1) not committed: committed=false.') && sr.includes(`the hook output is in ${LAUNCH_DIR}/acceptance-review-block-a-r1.md`)
+    && sr.includes(`\`git -C E:/repo commit -F ${LAUNCH_DIR}/commit-block-a.txt\``), 'and its halt reason names the refused commit, the hook output and the commit that keeps the work');
 }
 
 section('a commit-mode no-op pass makes no commit, lands, and has no subject to check');
@@ -4639,31 +4649,35 @@ section('every prompt and halt names the accepted baseline in its mode\'s own te
 }
 
 // ---------------------------------------------------------------------------------------------
-// A relaunch with the same runId finds the earlier launch's round files
+// A relaunch with the same runId finds the earlier launch's files in the stateDir, and a replay finds its
+// interrupted attempt's files in the launch folder
 // ---------------------------------------------------------------------------------------------
-section('every develop prompt that writes a round file says to Read an earlier launch\'s file first, and a rejected write is not a write');
+section('every develop prompt that writes a round file says to Read a file an earlier attempt left first, and a rejected write is not a write');
 {
   const feat = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, { ...ONE_BLOCK, sweep: 'goal-coverage', goal: 'g' });
   const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE);
   const commit = await run(C_RUN, COMMIT_ONE);
   const park = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 });
-  // The risk tool writes no file, so its read sentence covers only a risk file an earlier launch left.
+  // The risk tool writes no file, so its read sentence covers only a risk file an interrupted attempt left.
   const RISK_READ = 'The command leaves an existing file in place, so Read it, then replace its entire content.';
   for (const [what, p] of [['the developer', feat.prompt('develop block-a r1')], ['the proactive developer', proBus.prompt('develop block-a r1')]]) {
     eq(flat(p).split(RISK_READ).length - 1, 1, `${what}: the risk file's read step says the command left the file in place`);
   }
-  const sites = [
-    ['the developer prompt', flat(feat.prompt('develop block-a r1')), 0, 0],
-    ['the proactive developer PULLED file', flat(proBus.prompt('develop block-a r1')), 1, 0],
-    ['the blind quality file', flat(feat.prompt('quality block-a r1')), 1, 1],
-    ['the feature-mode acceptance file', flat(feat.prompt('acceptance block-a r1')), 1, 1],
-    ['the fix-mode acceptance file', flat(fix.prompt('acceptance fix-a r1')), 1, 1],
-    ['the sweep file', flat(feat.prompt('final-sweep')), 1, 1],
-    ['the commit message file', flat(commit.prompt('acceptance block-a r1')), 2, 1],
-    // The park replaces its commit-message file and appends its backlog entry, attesting the append.
-    ['the park message file and backlog entry', flat(park.prompt('park:block-a')), 1, 1],
+  // [where, prompt, Read-first notes for a launch-folder file, Read-first notes for a stateDir file, rejected-write notes]
+  const rows = [
+    ['the developer prompt', flat(feat.prompt('develop block-a r1')), 0, 0, 0],
+    ['the proactive developer PULLED file', flat(proBus.prompt('develop block-a r1')), 1, 0, 0],
+    ['the blind quality file', flat(feat.prompt('quality block-a r1')), 1, 0, 1],
+    ['the feature-mode acceptance file', flat(feat.prompt('acceptance block-a r1')), 1, 0, 1],
+    ['the fix-mode acceptance file', flat(fix.prompt('acceptance fix-a r1')), 1, 0, 1],
+    ['the sweep file', flat(feat.prompt('final-sweep')), 1, 0, 1],
+    ['the commit message file', flat(commit.prompt('acceptance block-a r1')), 2, 0, 1],
+    // The park replaces its commit-message file under scratch/ and appends its backlog entry, attesting the append.
+    ['the park message file and backlog entry', flat(park.prompt('park:block-a')), 0, 1, 1],
   ];
-  pinWriteNotes(sites);
+  const LAUNCH_REPLACE_NOTE = 'The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content.';
+  pinWriteNotes(rows.map(([where, text, inLaunch, , wrotes]) => [`${where} (launch folder)`, text, inLaunch, wrotes]), LAUNCH_REPLACE_NOTE);
+  pinWriteNotes(rows.map(([where, text, , inState, wrotes]) => [`${where} (stateDir)`, text, inState, wrotes]));
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -4740,7 +4754,7 @@ section('a dismissal rests on a checked fact, and every reader checks it');
 }
 
 section('the risk file is tied to the snapshot its developer returned');
-// A risk file an earlier launch left, or one a round never rewrote, must not pass as that round's.
+// A risk file an interrupted attempt of the launch left, or one a round never rewrote, must not pass as that round's.
 {
   const tree = (c) => c.repeat(40);
   const devSchema = bus.byLabel('develop block-a r1')[0]?.opts?.schema ?? {};
@@ -4757,8 +4771,8 @@ section('the risk file is tied to the snapshot its developer returned');
   ok(a3.includes('Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round returned. A file whose line differs, or whose round returned none, counts as a missing file.'),
     'a mismatch or a missing id counts as a missing risk file, which is a gap that sets risk_misclassified');
   // A round with no snapshot has no tree id to pass the risk tool, so it gets no command.
-  ok(a3.includes("SWEEP CHECK. Round 3's developer returned no snapshot, so E:/r/runs/t/risk-block-a-r3.md counts as missing and holds no sweep to check.")
-    && !a3.includes(`'E:/r/runs/t/risk-block-a-r3.md' --repo`),
+  ok(a3.includes("SWEEP CHECK. Round 3's developer returned no snapshot, so E:/r/runs/t/launch-2/risk-block-a-r3.md counts as missing and holds no sweep to check.")
+    && !a3.includes(`'E:/r/runs/t/launch-2/risk-block-a-r3.md' --repo`),
   'a latest round that returned no snapshot gets no risk tool command in the sweep check');
   ok(r.logs.some((l) => /block-a r3: developer returned no tree id as risk_snapshot \(""\) → acceptance counts its risk file as missing/.test(l)),
     'the log names a round whose developer returned no tree id');
@@ -4769,7 +4783,7 @@ section('the risk file is tied to the snapshot its developer returned');
   ok(flat(noField.prompt('acceptance block-a r2')).includes('round 2: none returned'), 'a missing value counts as none');
   ok(!flat(r.prompt('acceptance block-a r1')).includes('returned the tree id'), 'a round the blind review judged has no snapshot to confirm');
   // The risk tool diffs a round from its base to read the names it dropped: the round before's snapshot, else the accepted baseline.
-  const toolRun = (id, round, base) => `node '${RISK_TOOL}' 'E:/r/runs/t/risk-${id}-r${round}.md' --repo 'E:/repo' --snapshot <that tree id>${base ? ` --base ${base}` : ''}\``;
+  const toolRun = (id, round, base) => `node '${RISK_TOOL}' 'E:/r/runs/t/launch-2/risk-${id}-r${round}.md' --repo 'E:/repo' --snapshot <that tree id>${base ? ` --base ${base}` : ''}\``;
   ok(flat(r.prompt('develop block-a r2')).includes(toolRun('block-a', 2, tree('a'))) && flat(r.prompt('develop block-a r3')).includes(toolRun('block-a', 3, tree('b'))),
     "a later round's CLASSIFY passes the snapshot the round before it returned as --base");
   ok(flat(r.prompt('acceptance block-a r2')).includes(`--snapshot ${tree('b')} --base ${tree('a')}\``),
@@ -4891,7 +4905,7 @@ section('the proactive round-1 developer of every mode runs the pull step, and t
     ok(dev.includes(`a. Append the line "- pulled: t#${id}" to the entry's "- <key>:" lines in its planPath`), `proactive ${mode}: each taken entry is marked with the run and block`);
     ok(dev.includes('When the entry carries a line that starts with "**Parked with:**", delete that line, since the tool lists such an entry only once the block that line names is done or skip.'),
       `proactive ${mode}: a taken entry loses the parked-with line the tool released in memory only`);
-    ok(dev.includes(`b. List its id, one id per line, in ${STATE}/PULLED-${id}.md`), `proactive ${mode}: each taken id goes to the block's PULLED file`);
+    ok(dev.includes(`b. List its id, one id per line, in ${LAUNCH_DIR}/PULLED-${id}.md`), `proactive ${mode}: each taken id goes to the block's PULLED file`);
     ok(dev.includes('aim for a round-1 context of about 200k to 350k tokens, your block\'s own work included'), `proactive ${mode}: the developer takes entries up to its capacity`);
     ok(r.calls.find((c) => c.label === `develop ${id} r1`).opts.schema.required.includes('pulled_results'), `proactive ${mode}: the developer reports its pulled entries`);
     ok(r.calls.find((c) => c.label === `acceptance ${id} r1`).opts.schema.required.includes('pulled_checks'), `proactive ${mode}: acceptance checks each pulled entry`);
@@ -4912,7 +4926,7 @@ section('acceptance judges each pulled entry like a fix entry, and the closing a
 {
   const two = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }, { issue_id: PULL_B, status: 'STALE' }]), acceptance: { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, true], [PULL_B, true]]) } }, PRO_ONE_BLOCK);
   const acc = flat(two.prompt('acceptance block-a r1'));
-  ok(acc.includes(`PULLED ENTRIES. READ ${STATE}/PULLED-block-a.md if it exists.`) && acc.includes(`- ${PULL_A}: FIXED - ${PULL_B}: STALE`), 'acceptance reads the PULLED file and the developer\'s last report');
+  ok(acc.includes(`PULLED ENTRIES. READ ${LAUNCH_DIR}/PULLED-block-a.md if it exists.`) && acc.includes(`- ${PULL_A}: FIXED - ${PULL_B}: STALE`), 'acceptance reads the PULLED file and the developer\'s last report');
   ok(acc.includes('judge each id the file lists as a fix block\'s acceptance judges an issue') && acc.includes('A pulled entry whose claim fails, or whose FAILED change the diff still holds, is a gap.'), 'a pulled entry\'s gap fails the round like any other gap');
   ok(!acc.includes('is never blocking'), 'a round with a later round has no closing rule');
 
@@ -4936,7 +4950,7 @@ section('acceptance judges each pulled entry like a fix entry, and the closing a
   ok(flat(proFixGap.prompt('acceptance fix-a r1')).includes('a non-empty diff with no FIXED claim of an entry or a pulled entry, a gate not satisfied'), 'the gap list counts a pulled FIXED claim as the procedure does');
   // A confirmed pulled fix changes baseline behavior that no criterion names, so the regression rule must excuse it.
   for (const [mode, accText, blockId] of [['feature', flat(two.prompt('acceptance block-a r1')), 'block-a'], ['fix', flat(proFixGap.prompt('acceptance fix-a r1')), 'fix-a']]) {
-    ok(accText.includes(`- a behavior change that closes the defect of a backlog entry ${STATE}/PULLED-${blockId}.md lists. It is not a regression only when`), `proactive ${mode} acceptance: a confirmed pulled fix is not a regression`);
+    ok(accText.includes(`- a behavior change that closes the defect of a backlog entry ${LAUNCH_DIR}/PULLED-${blockId}.md lists. It is not a regression only when`), `proactive ${mode} acceptance: a confirmed pulled fix is not a regression`);
     ok(accText.includes(", and the code each pulled backlog entry's fix adds or changes."), `proactive ${mode} acceptance: a pulled fix is task code, as the developer's zones say`);
   }
   const focusedFixAcc = flat((await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE)).prompt('acceptance fix-a r1'));
@@ -5003,7 +5017,7 @@ section('a park that saved the block keeps its pulled entries, and every other u
     'a dead park ran no RELEASE step, so nextStep names the mark to grep for');
   const parkedPrompt = flat(parked.prompt('park:block-a'));
   ok(parkedPrompt.includes('When step 1 made a commit and the pulled list is not empty, end the **What:** with the line Pulled: <the pulled list>, whose work this entry\'s branch holds.')
-    && parkedPrompt.includes(`The pulled list is ${PULL_A}, plus each id ${STATE}/PULLED-block-a.md lists, when it exists, that is not one of ${PULL_A} and whose fix`), 'the park entry names the pulled ids the engine holds on the branch, so their statuses follow it');
+    && parkedPrompt.includes(`The pulled list is ${PULL_A}, plus each id ${LAUNCH_DIR}/PULLED-block-a.md lists, when it exists, that is not one of ${PULL_A} and whose fix`), 'the park entry names the pulled ids the engine holds on the branch, so their statuses follow it');
   ok(parkedPrompt.includes('Once this entry is skipped, or set stale while its block is rebuilt from todo, remove only that line.'), 'the Pulled line says how a discarded park releases its entries');
   const focusedPark = flat((await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 })).prompt('park:block-a'));
   ok(focusedPark !== '' && !focusedPark.includes('PULLED') && !focusedPark.includes('Pulled:'), 'a focused feature park names no pulled file and no Pulled line');
@@ -5035,9 +5049,9 @@ section('a park names each unreported pulled entry its commit holds, releases th
 {
   // The round-1 developer may have marked entries before it died, and only its PULLED file names them.
   const dead = flat((await run({ develop: null, park: PARK_OK }, PRO_ONE_BLOCK)).prompt('park:block-a'));
-  ok(dead.includes(`The pulled list is empty, plus each id ${STATE}/PULLED-block-a.md lists, when it exists, that no report or verdict of the run names and whose fix, as its entry in ${BACKLOG}/<the id without its last "-<n>">.md describes it, \`git -C E:/repo diff aipg-unfinished/`),
+  ok(dead.includes(`The pulled list is empty, plus each id ${LAUNCH_DIR}/PULLED-block-a.md lists, when it exists, that no report or verdict of the run names and whose fix, as its entry in ${BACKLOG}/<the id without its last "-<n>">.md describes it, \`git -C E:/repo diff aipg-unfinished/`),
     'a dead round-1 developer\'s park names on its Pulled line each marked entry whose fix its commit holds');
-  ok(dead.includes(`4. RELEASE, whatever steps 1 to 3 did. READ ${STATE}/PULLED-block-a.md if it exists.`) && dead.includes('For each id the file lists that no report or verdict of the run names and that no "Pulled:" line step 3 wrote names, nothing closes that line, so remove it'),
+  ok(dead.includes(`4. RELEASE, whatever steps 1 to 3 did. READ ${LAUNCH_DIR}/PULLED-block-a.md if it exists.`) && dead.includes('For each id the file lists that no report or verdict of the run names and that no "Pulled:" line step 3 wrote names, nothing closes that line, so remove it'),
     'and removes the pulled line of every other entry its PULLED file lists');
   const known = flat((await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: { ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, true], [PULL_B, false]]) }, park: PARK_OK }, { ...PRO_ONE_BLOCK, maxRounds: 1 })).prompt('park:block-a'));
   ok(known.includes(`For each id the file lists that is not one of ${PULL_A}, ${PULL_B} and that no "Pulled:" line`), 'the park leaves alone each entry a report or a verdict of the run names');
@@ -5054,7 +5068,7 @@ section('a commit halt on an accepted block tells the operator to fold the backl
   const hooked = { ...ACC_C, commit_subject: 'rewritten by a hook' };
   const held = await run({ ...C_RUN, develop: { ...DEV_C, pulled_results: [{ issue_id: PULL_A, status: 'FIXED' }] }, acceptance: { ...hooked, pulled_checks: pulledChecks([[PULL_A, true]]) } }, { ...COMMIT_ONE, changePolicy: 'proactive' });
   const reason = String(held.out.haltReason ?? '');
-  ok(reason.includes(`also run \`plan-edit.mjs args --backlog ${BACKLOG} --fold-only\`, which writes this run's statuses into the backlog files and prints nothing, and only then set each pulled entry ${STATE}/PULLED-${C_BLOCK.id}.md lists that ${STATE}/acceptance-review-${C_BLOCK.id}-r1.md confirmed closed to \`fixed\` or \`stale\`.`),
+  ok(reason.includes(`also run \`plan-edit.mjs args --backlog ${BACKLOG} --fold-only\`, which writes this run's statuses into the backlog files and prints nothing, and only then set each pulled entry ${LAUNCH_DIR}/PULLED-${C_BLOCK.id}.md lists that ${LAUNCH_DIR}/acceptance-review-${C_BLOCK.id}-r1.md confirmed closed to \`fixed\` or \`stale\`.`),
     'the fold comes before the hand edit, so a later fold never overwrites it');
   ok(!reason.includes('fix issue'), 'a feature block names no fix issue');
   eq(pulledSync(held.out), `${PULL_A}:status=needs-attention,${PULL_A}:pulled=null`, 'the run syncs the entry as not landed, which that fold applies');
@@ -5065,30 +5079,69 @@ section('a commit halt on an accepted block tells the operator to fold the backl
 // ---------------------------------------------------------------------------------------------
 // Each agent confirms what it is handed: an amendment, a SPEC decline, an unreported entry and the staged index
 // ---------------------------------------------------------------------------------------------
-section('an amendment header names its launch, which round 1 counts from the AMENDED file and the engine hands to later rounds');
+section('an amendment header and a question heading name the launch, which the engine takes from launchDir');
 {
-  const twoRounds = (r1) => ({ develop: (label) => (/r1$/.test(label) ? r1 : { ...DEV_OK, launch_number: -1 }), quality: firstRound(FLAGGED, CLEAN), acceptance: ACC_PASS });
+  const twoRounds = (r1) => ({ develop: (label) => (/r1$/.test(label) ? r1 : DEV_OK), quality: firstRound(FLAGGED, CLEAN), acceptance: ACC_PASS });
+  // A launch_number an old developer still returns is ignored, since the launch folder holds the number.
   const r = await run(twoRounds({ ...DEV_OK, launch_number: 3 }), ONE_BLOCK);
   const r1 = flat(r.prompt('develop block-a r1'));
   const r2 = flat(r.prompt('develop block-a r2'));
-  ok(r1.includes('`## Plan amendment: block-a r1, launch <the launch_number you report>`'), 'round 1 heads an amendment with the launch number it reports');
-  ok(r2.includes('`## Plan amendment: block-a r2, launch 3`'), 'a later round heads it with the number round 1 reported');
-  ok(r1.includes(`2. Before you change ${STATE}/AMENDED-block-a.md, report launch_number as one past the highest n that a "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output: launch_number. 3. When ${STATE}/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1 re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose defect the current code does not reproduce, with its pointer line in ${STATE}/DECISIONS.md, the line that names its block id, round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match that pointer by its block id, round and defect file:line alone. Output: the rewritten ${STATE}/AMENDED-block-a.md and ${STATE}/DECISIONS.md.`),
-    'round 1 counts the launch and re-checks every earlier launch\'s amendment as it re-checks a DISMISSED line, an unnumbered one included');
-  ok(r2 !== '' && !r2.includes('report launch_number as one past'), 'a later round counts no launch');
+  for (const [round, text] of [[1, r1], [2, r2]]) {
+    ok(text.includes(`\`## Plan amendment: block-a r${round}, launch 2\``) && text.includes(`under the heading \`## Question: block-a r${round}, launch 2\``),
+      `round ${round} heads an amendment and a question with the number of launchDir launch-2`);
+  }
+  ok(!r1.includes('launch_number') && !r2.includes('launch_number'), 'no round is told to count or report a launch number');
+  const twelve = await run(twoRounds(DEV_OK), { ...ONE_BLOCK, launchDir: 'E:/r/runs/t/launch-12/' });
+  ok(flat(twelve.prompt('develop block-a r2')).includes('`## Plan amendment: block-a r2, launch 12`'), 'a launchDir with a trailing slash still names its launch number');
+  ok(r1.includes(`2. When ${STATE}/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1 re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose defect the current code does not reproduce, with its pointer line in ${STATE}/DECISIONS.md, the line that names its block id, round, launch and defect file:line. An amendment whose header names no launch has a pointer that names none, so match that pointer by its block id, round and defect file:line alone. Output: the rewritten ${STATE}/AMENDED-block-a.md and ${STATE}/DECISIONS.md.`),
+    'round 1 re-checks every earlier launch\'s amendment as it re-checks a DISMISSED line, an unnumbered one included');
   ok(!r2.includes('Report baseline_dirty_files=-1'), 'a later round is not told to report the round-1 fields');
   const schema = r.calls.find((c) => c.label === 'develop block-a r1')?.opts.schema;
-  ok(['launch_number', 'baseline_index_tree'].every((f) => schema?.required?.includes(f)), 'the developer schema requires the launch number and the baseline index tree');
-  const ROUND1_ONLY = ['baseline_dirty_files', 'baseline_index_tree', 'launch_number', 'earlier_files'];
+  ok(schema?.required?.includes('baseline_index_tree') && !schema.required.includes('launch_number') && !('launch_number' in schema.properties),
+    'the developer schema requires the baseline index tree and holds no launch number');
+  const ROUND1_ONLY = ['baseline_dirty_files', 'baseline_index_tree', 'earlier_files'];
   const laterSchema = r.calls.find((c) => c.label === 'develop block-a r2')?.opts.schema;
   ok(ROUND1_ONLY.every((f) => schema.required.includes(f) && f in schema.properties), 'the round-1 developer schema declares and requires every round-1 field');
   ok(ROUND1_ONLY.every((f) => !laterSchema.required.includes(f) && !(f in laterSchema.properties)), 'a later-round developer schema declares and requires none of them');
-  for (const bad of [undefined, 0, 1.5, '2']) {
-    const u = await run(twoRounds({ ...DEV_OK, launch_number: bad }), ONE_BLOCK);
-    ok(flat(u.prompt('develop block-a r2')).includes('`## Plan amendment: block-a r2, launch unrecorded`')
-      && u.logs.some((l) => /block-a r1: developer reported no launch number/.test(l)),
-    `a round-1 launch_number of ${JSON.stringify(bad)} is logged and leaves later headers unrecorded`);
+}
+
+section('a launch writes its round files in its own launch folder, and its ledgers stay in the stateDir');
+// A relaunch numbered its rounds from 1 and wrote them where the earlier launch had, so it replaced that launch's
+// reviews, risk files, PULLED list, commit message and sweep report.
+{
+  const missing = await throwsWith(ENGINE, { args: { ...baseArgs, launchDir: undefined } });
+  ok(missing.startsWith('Missing args.launchDir:') && missing.includes("args <planPath> --reserve 'E:/r/runs/t'"),
+    `a launch with no launchDir throws and names the --reserve flag: ${missing.slice(0, 120)}`);
+  for (const [what, launchDir] of [['another stateDir', 'E:/r/runs/other/launch-2'], ['a folder below the stateDir\'s launch folder', 'E:/r/runs/t/launch-2/x'], ['a folder not named launch-<n>', 'E:/r/runs/t/round-2']]) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, launchDir } });
+    ok(msg.startsWith('Invalid args.launchDir:'), `a launchDir in ${what} throws: ${msg.slice(0, 80)}`);
   }
+  const r = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, ONE_BLOCK);
+  ok(flat(r.prompt('quality block-a r1')).includes(`WRITE your findings to ${LAUNCH_DIR}/gate/quality-review-block-a-r1.md (create ${LAUNCH_DIR}/gate/ if needed).`),
+    'the round-1 quality reviewer writes its review in the launch folder\'s gate/');
+  ok(flat(r.prompt('acceptance block-a r2')).includes(`7. WRITE ${LAUNCH_DIR}/acceptance-review-block-a-r2.md (create ${LAUNCH_DIR}/ if needed)`),
+    'the acceptance verifier writes its review in the launch folder');
+  const d1 = flat(r.prompt('develop block-a r1'));
+  ok(d1.includes(`record each judgment in ${LAUNCH_DIR}/risk-block-a-r1.md.`), 'the round-1 developer writes its risk file in the launch folder');
+  ok(d1.includes(`${STATE}/gate/DISMISSED-block-a.md`) && d1.includes(`${STATE}/AMENDED-block-a.md`)
+    && !d1.includes(`${LAUNCH_DIR}/gate/DISMISSED-`) && !d1.includes(`${LAUNCH_DIR}/AMENDED-`),
+    'and its ledgers stay in the stateDir');
+  ok(r.out.reviewTrail.includes(`quality-review-<id>-rN.md in ${LAUNCH_DIR}/gate/`) && r.out.reviewTrail.includes(`risk-<id>-rN.md in ${LAUNCH_DIR}/`),
+    'the review trail names the launch folder');
+  ok(r.logs.some((l) => l.startsWith('develop: 1/1 block(s) to build') && l.includes(`round files in ${LAUNCH_DIR} [`)), 'the launch line names the launch folder');
+
+  // Every round file any prompt of a launch names lies in that launch's folder.
+  const ROUND_FILE = /E:\/r\/runs\/t\/[^\s`'")]*?(?:quality-review-|acceptance-review-|risk-|PULLED-|commit-|SWEEP\.md)[^\s`'")]*/g;
+  const runs = [
+    r,
+    await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, { ...ONE_BLOCK, sweep: 'goal-coverage', goal: 'g' }),
+    await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE),
+    await run(C_RUN, COMMIT_ONE),
+    await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...PRO_ONE_BLOCK, maxRounds: 1 }),
+  ];
+  const named = runs.flatMap((one) => one.calls.flatMap((c) => c.prompt.match(ROUND_FILE) ?? []));
+  ok(named.length > 0, `the prompts name round files (${named.length})`);
+  eq(named.filter((p) => !p.startsWith(`${LAUNCH_DIR}/`)).join(', '), '', 'and each one lies in the launch folder');
 }
 
 section('a SPEC decline rests on the plan, so the blind reviewer skips it and acceptance checks it against the plan');
@@ -5145,7 +5198,7 @@ section('acceptance confirms the staged index still holds the tree the run last 
     const moved = await run({ ...GREEN_RUN, acceptance: acc, park: PARK_OK });
     eq(moved.out.status, 'BLOCKED (the staged index may hold work no reviewer read: the developer did not confirm its work stayed unstaged, or acceptance found the index changed outside acceptance)',
       `${what} verdict that found the index changed halts as staging-unconfirmed`);
-    ok(String(moved.out.haltReason ?? '').includes(`found in round 1 that the staged index no longer holds tree c0ffee0000000000000000000000000000000001, the tree id this run last recorded for the index, so work that no reviewer read may sit in the accepted baseline (see E:/r/runs/t/acceptance-review-block-a-r1.md).`),
+    ok(String(moved.out.haltReason ?? '').includes(`found in round 1 that the staged index no longer holds tree c0ffee0000000000000000000000000000000001, the tree id this run last recorded for the index, so work that no reviewer read may sit in the accepted baseline (see E:/r/runs/t/launch-2/acceptance-review-block-a-r1.md).`),
       `${what} verdict's halt names the tree it expected`);
     ok(String(moved.out.haltReason ?? '').includes(note), `${what} verdict's halt says whether acceptance reported its own staging`);
     ok(String(moved.out.haltReason ?? '').includes('Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage what no acceptance staged before resuming.'),
@@ -5192,7 +5245,7 @@ section('an index halt names a reported commit and its revert, and says when no 
     'a mismatch reported with no recorded tree says no tree was recorded');
   const unwritten = await run({ ...GREEN_RUN, acceptance: { ...ACC_FAIL, index_matched: false, wrote_file: false }, park: PARK_OK });
   const unwrittenReason = String(unwritten.out.haltReason ?? '');
-  ok(unwrittenReason.includes('(it did not confirm writing E:/r/runs/t/acceptance-review-block-a-r1.md, so that file may not exist)') && !unwrittenReason.includes('(see E:/r/runs/t/acceptance-review-block-a-r1.md)'),
+  ok(unwrittenReason.includes('(it did not confirm writing E:/r/runs/t/launch-2/acceptance-review-block-a-r1.md, so that file may not exist)') && !unwrittenReason.includes('(see E:/r/runs/t/launch-2/acceptance-review-block-a-r1.md)'),
     'an index halt from a verdict that did not confirm its file says that file may not exist');
   // An agent's own commit moves HEAD, so `git diff --cached` shows nothing and only the history finds it.
   ok(reason.includes('HEAD before this block was the HEAD this launch started from, so a newer commit holds work no acceptance landed: list each with `git -C E:/repo log --oneline` and revert it with `git -C E:/repo revert <sha>`.'),
@@ -5256,7 +5309,7 @@ section('develop hands each later agent what an earlier agent settled');
   const idle = nextOf((await run(GREEN_RUN, { ...baseArgs, plans: BLOCKS.map((b) => ({ ...b, status: 'done' })) })).out);
   ok(idle !== '' && !idle.includes('audit every judgment call'), 'a run that built no block names no ledger');
   const guide = flat(readFileSync(join(REPO_ROOT, 'workflows/develop/CLAUDE.md'), 'utf8'));
-  ok(guide.includes('the files in `backlogFiles`, `SWEEP.md` and the path of each `DISMISSED-<id>.md` that `nextStep` names and that exists, so the user can audit every judgment call.'),
+  ok(guide.includes('the files in `backlogFiles`, this launch\'s `SWEEP.md` (§8) and the path of each `DISMISSED-<id>.md` that `nextStep` names and that exists, so the user can audit every judgment call.'),
     'the guide\'s surfaced list names each ledger');
 }
 
@@ -5417,12 +5470,12 @@ section('a prompt drops the PULLED read when round 1 took no entry');
 {
   const PRO_DEV = (list) => ({ ...DEV_OK, earlier_files: false, dismissed_count: 0, plan_amendments: 0, pulled_results: list });
   const rounds = (develop) => run({ develop, quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS) }, PRO_ONE_BLOCK);
-  const READ_PULLED = `READ ${STATE}/PULLED-block-a.md if it exists.`;
+  const READ_PULLED = `READ ${LAUNCH_DIR}/PULLED-block-a.md if it exists.`;
 
   const none = await rounds(PRO_DEV([]));
-  ok(flat(none.prompt('develop block-a r2')).includes(`PULLED ENTRIES. Round 1 took no backlog entry beside this block, so ${STATE}/PULLED-block-a.md lists none. Take no new entry, and report an empty pulled_results.`),
+  ok(flat(none.prompt('develop block-a r2')).includes(`PULLED ENTRIES. Round 1 took no backlog entry beside this block, so ${LAUNCH_DIR}/PULLED-block-a.md lists none. Take no new entry, and report an empty pulled_results.`),
     'a later developer is told round 1 took none');
-  ok(flat(none.prompt('acceptance block-a r1')).includes(`PULLED ENTRIES. ${STATE}/PULLED-block-a.md lists no entry, since the block's developer took none. Return an empty pulled_checks.`),
+  ok(flat(none.prompt('acceptance block-a r1')).includes(`PULLED ENTRIES. ${LAUNCH_DIR}/PULLED-block-a.md lists no entry, since the block's developer took none. Return an empty pulled_checks.`),
     'acceptance is told the PULLED file lists none');
   const took = await rounds(PRO_DEV([{ issue_id: PULL_A, status: 'FIXED' }]));
   ok(flat(took.prompt('develop block-a r2')).includes('when it exists, lists the backlog entries round 1 took') && flat(took.prompt('acceptance block-a r1')).includes(READ_PULLED),

@@ -113,7 +113,9 @@ reads the earlier launch's text as the new round's. Every engine holds `REPLACE_
 `REPLACE_NOTE` names a file an interrupted attempt of the same launch left, and its test passes that note
 to `pinWriteNotes`. investigate keeps `REPLACE_NOTE` for its option files in the stateDir, and its review
 and determination sites in the launch folder carry `REVIEW_REPLACE_NOTE` and `DETERMINATION_REPLACE_NOTE`,
-since an earlier round of the same launch may also have written the determination. A Read-first note
+since an earlier round of the same launch may also have written the determination. develop keeps
+`REPLACE_NOTE` for its park's message file under `scratch/`, and its round files in the launch folder carry
+`LAUNCH_REPLACE_NOTE`, so its test pins each note in its own call. A Read-first note
 sits at each site that replaces a file in full, apart from develop's risk
 file, whose read step says `risk-check.mjs` leaves an existing file in place, since the tool writes none.
 `WROTE_NOTE` sits once in each prompt whose return attests a file the agent writes with the Write tool.
@@ -182,8 +184,9 @@ against (halt); an unreachable feature does not (flag).
   acceptance commits each block it accepted, and the accepted baseline is HEAD.
 - **The blind reviewer is blind by *placement*.** Run-state lives outside the target repo so it cannot
   reach the issue files, and the blind prompt's only run-state paths point into its own
-  `runs/<runId>/gate/` (its review files + DISMISSED ledgers). Never hand it a path into
-  `runs/<runId>/` outside `gate/` — NEEDS-USER, AMENDED, critiques and issue files all live there.
+  `runs/<runId>/gate/` (the DISMISSED ledgers) and `runs/<runId>/launch-<n>/gate/` (its launch's review
+  files). Never hand it a path into `runs/<runId>/` outside those two — NEEDS-USER, AMENDED, acceptance
+  reviews, critiques and issue files all live there.
 - **audit's defects kind hunts defects only.** Its inventory feeds an autonomous fixer, and an
   improvement list never converges. Improvements are audit's enhancements kind, which deliberately has no
   fix-mode output.

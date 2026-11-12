@@ -76,8 +76,9 @@ the one under the list's kind.
     file out of step 17 ("Playbook" step 6). Output: each such file at `status: skip` or left out.
 16. Confirm the gates are green in the user's checkout ("Playbook" step 6). Output: the gates' green result.
 17. Build the triaged issue files through `../develop/CLAUDE.md` §0 steps 2 to 33, with those files as its
-    plan files and its step 5 done by steps 12 to 15 of this list. Its steps 4, 6 to 8 and 12, which author,
-    refine and approve a plan file, do not run for an issue file, the file this list's step 2 writes
+    plan files, its step 2 taking the `runId` and `root` this list already uses, and its `stateDir` when
+    this run set one, and its step 5 done by steps 12 to 15 of this list. Its steps 4, 6 to 8 and 12, which
+    author, refine and approve a plan file, do not run for an issue file, the file this list's step 2 writes
     included, since develop §2 step 1 sends an issue file from its triage to develop §2 step 3. Start with
     one file, or a `runOnly` that names one block ("Playbook" step 6, "External inventory (skip the review)",
     `../develop/CLAUDE.md` §2 step 1). Output: the output of each develop §0 step that ran.
@@ -368,13 +369,16 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
 6. **Build the triaged files with develop.**
    - Each triaged issue file with findings is one fix-mode block.
      `node <plan-edit.mjs> args <issueFile> [<issueFile> ...] --pack <target.repo>` prints one args
-     object for all of them, with small blocks packed into shared passes. Clean-marker files are not
-     plans, so leave them out. A file with no `- decision: ACTIONABLE` entry after triage is not a plan
-     either: set its block `status: skip` (or leave it out). Start with one file, or `runOnly` naming
+     object for all of them, with small blocks packed into shared passes. develop §0 step 13 runs it with
+     `--reserve <stateDir>`, which adds the launch folder develop takes as `launchDir`. Clean-marker files
+     are not plans, so leave them out. A file with no `- decision: ACTIONABLE` entry after triage is not a
+     plan either: set its block `status: skip` (or leave it out). Start with one file, or `runOnly` naming
      one block, to sanity-check cost and quality.
    - Before launch, confirm the gates are green in the user's checkout.
-   - Then follow `../develop/CLAUDE.md` §0 from its step 2, with its step 5 being this Playbook's step 5,
-     and `commit` as develop §4 "Choosing the delivery" settles it. Its steps 4, 6 to 8 and 12, which
+   - Then follow `../develop/CLAUDE.md` §0 from its step 2, with its step 2 taking this audit's `runId` and
+     `root`, and its `stateDir` when the audit set one, since the two engines share one state dir
+     (develop §8). Its step 5 is this Playbook's step 5,
+     and `commit` is as develop §4 "Choosing the delivery" settles it. Its steps 4, 6 to 8 and 12, which
      author, refine and approve a plan file, do not run for an issue file, a hand-authored one included,
      since develop §2 step 1 sends an issue file from its triage to develop §2 step 3. The fixes build in
      a run worktree and land on the user's branch.

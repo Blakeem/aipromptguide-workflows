@@ -6,101 +6,101 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 33438 | every block accepts first time |
-| quality | 1 | 1 | 8388 | every block accepts first time |
-| acceptance | 1 | 1 | 13566 | every block accepts first time |
-| develop | 2 | 1 | 33863 | every block accepts first time |
-| acceptance | 2 | 2 | 13847 | every block accepts first time |
-| final-sweep | 1 | 1 | 4728 | every block accepts first time |
-| develop | 3 | 2 | 37015 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 3 | 15049 | a feature block accepts under the proactive policy |
-| final-sweep | 2 | 1 | 4719 | a feature block accepts under the proactive policy |
-| develop | 4 | 3 | 32198 | quality flags the first round |
-| acceptance | 4 | 1 | 13565 | quality flags the first round |
-| develop | 5 | 3 | 32568 | quality flags the first round |
-| acceptance | 5 | 2 | 13846 | quality flags the first round |
-| develop | 6 | 3 | 32194 | acceptance finds gaps, then passes |
-| acceptance | 6 | 1 | 13563 | acceptance finds gaps, then passes |
-| develop | 7 | 3 | 32564 | acceptance finds gaps, then passes |
-| acceptance | 7 | 2 | 13844 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 18379 | a later round is judged low risk |
-| acceptance | 9 | 2 | 18660 | a later round is judged low risk |
-| quality | 2 | 1 | 9172 | the developer declines a finding |
-| acceptance | 10 | 1 | 15416 | the developer declines a finding |
-| develop | 8 | 3 | 31020 | the gate never goes green |
-| develop-closing | 1 | 1 | 32642 | the gate never goes green |
-| quality | 3 | 1 | 8448 | the gate never goes green |
-| acceptance | 11 | 4 | 16845 | the gate never goes green |
-| park | 1 | 1 | 10572 | the gate never goes green |
-| develop | 9 | 3 | 31445 | the gate never goes green |
-| develop-closing | 2 | 1 | 33012 | the gate never goes green |
-| acceptance | 12 | 5 | 17126 | the gate never goes green |
-| acceptance | 13 | 1 | 13618 | a parked block, and the run carries on |
-| acceptance | 14 | 1 | 13673 | a parked block, and the run carries on |
-| acceptance | 15 | 1 | 13728 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 33660 | a parked block, and the run carries on |
-| acceptance | 16 | 4 | 21876 | a parked block, and the run carries on |
-| develop | 10 | 1 | 33420 | an ordered run stops at a parked block |
-| acceptance | 17 | 1 | 13560 | an ordered run stops at a parked block |
-| develop | 11 | 3 | 32176 | an ordered run stops at a parked block |
-| acceptance | 18 | 1 | 13557 | an ordered run stops at a parked block |
-| acceptance | 19 | 1 | 13612 | an ordered run stops at a parked block |
-| acceptance | 20 | 1 | 13667 | an ordered run stops at a parked block |
-| acceptance | 21 | 1 | 13722 | an ordered run stops at a parked block |
-| develop-closing | 4 | 1 | 33642 | an ordered run stops at a parked block |
-| acceptance | 22 | 4 | 21870 | an ordered run stops at a parked block |
-| park | 2 | 1 | 10584 | an ordered run stops at a parked block |
-| develop | 12 | 4 | 42705 | a fix block closes its issues |
-| acceptance | 23 | 6 | 21916 | a fix block closes its issues |
-| final-sweep | 3 | 1 | 4719 | a fix block closes its issues |
-| develop | 13 | 5 | 46181 | a fix block closes its issues under the proactive policy |
-| acceptance | 24 | 7 | 23423 | a fix block closes its issues under the proactive policy |
-| develop | 14 | 4 | 36628 | a fix block that continues no park closes its issues |
-| acceptance | 25 | 6 | 19234 | a fix block that continues no park closes its issues |
-| develop | 15 | 5 | 42844 | a proactive fix block that continues no park closes its issues and a pulled entry |
-| acceptance | 26 | 7 | 22498 | a proactive fix block that continues no park closes its issues and a pulled entry |
-| acceptance | 27 | 7 | 19509 | a proactive fix block that continues no park and pulled nothing closes its issues |
-| acceptance | 28 | 7 | 23437 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 16 | 6 | 37028 | a proactive fix block starts round 2 from the statuses it last reported |
-| acceptance | 29 | 7 | 23236 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 17 | 4 | 43101 | a pass of two fix blocks closes its issues |
-| acceptance | 30 | 6 | 22201 | a pass of two fix blocks closes its issues |
-| final-sweep | 4 | 1 | 4749 | a pass of two fix blocks closes its issues |
-| acceptance | 31 | 6 | 21915 | every issue is already fixed |
-| develop | 18 | 4 | 42687 | an ordered run stops on a fix block that closes nothing |
-| park | 3 | 1 | 10887 | passed with a regression, not staged |
-| park | 4 | 1 | 10333 | acceptance stages a rejected block |
-| park | 5 | 1 | 10740 | the quality reviewer fails a block without its file |
-| park | 6 | 1 | 10740 | acceptance fails a block without its file |
-| park | 7 | 1 | 10678 | the developer staged its own work |
-| park | 8 | 1 | 10739 | the index changed outside acceptance |
-| park | 9 | 1 | 10770 | developer never got its block |
-| park | 10 | 1 | 10316 | acceptance never got its block |
-| park | 11 | 1 | 10606 | the developer dies |
-| park | 12 | 1 | 10261 | the quality reviewer dies |
-| park | 13 | 1 | 10639 | the acceptance verifier dies |
-| park | 14 | 1 | 10155 | developer escalates |
-| park | 15 | 1 | 10145 | developer escalates in an ordered run |
-| acceptance | 32 | 6 | 24369 | log line cap before the sweep |
-| acceptance | 33 | 4 | 21656 | a closing acceptance lands the block |
-| develop-closing | 5 | 1 | 34030 | a closing acceptance lands the block |
-| acceptance | 34 | 5 | 21937 | a closing acceptance lands the block |
-| acceptance | 35 | 4 | 16899 | a closing pass gets a blind review |
-| acceptance | 36 | 5 | 17180 | a closing pass gets a blind review |
-| acceptance | 37 | 4 | 21949 | a closing acceptance finds a blocking gap |
-| park | 16 | 1 | 10722 | a closing acceptance finds a blocking gap |
-| acceptance | 38 | 5 | 22230 | a closing acceptance finds a blocking gap |
-| park | 17 | 1 | 10722 | a closing acceptance finds a blocking gap |
-| develop | 19 | 7 | 33609 | every block commits first time |
-| quality | 4 | 1 | 8341 | every block commits first time |
-| acceptance | 39 | 8 | 15105 | every block commits first time |
-| develop | 20 | 7 | 34034 | every block commits first time |
-| acceptance | 40 | 9 | 15386 | every block commits first time |
-| final-sweep | 5 | 1 | 5040 | every block commits first time |
-| develop | 21 | 8 | 42907 | a fix block commits |
-| acceptance | 41 | 10 | 23672 | a fix block commits |
-| final-sweep | 6 | 1 | 4947 | a fix block commits |
-| park | 18 | 1 | 10339 | acceptance commits a rejected block |
+| develop | 1 | 1 | 33461 | every block accepts first time |
+| quality | 1 | 1 | 8633 | every block accepts first time |
+| acceptance | 1 | 1 | 13887 | every block accepts first time |
+| develop | 2 | 1 | 33886 | every block accepts first time |
+| acceptance | 2 | 2 | 14168 | every block accepts first time |
+| final-sweep | 1 | 1 | 4887 | every block accepts first time |
+| develop | 3 | 2 | 37054 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 3 | 15388 | a feature block accepts under the proactive policy |
+| final-sweep | 2 | 1 | 4878 | a feature block accepts under the proactive policy |
+| develop | 4 | 3 | 32509 | quality flags the first round |
+| acceptance | 4 | 1 | 13895 | quality flags the first round |
+| develop | 5 | 3 | 32879 | quality flags the first round |
+| acceptance | 5 | 2 | 14176 | quality flags the first round |
+| develop | 6 | 3 | 32505 | acceptance finds gaps, then passes |
+| acceptance | 6 | 1 | 13893 | acceptance finds gaps, then passes |
+| develop | 7 | 3 | 32875 | acceptance finds gaps, then passes |
+| acceptance | 7 | 2 | 14174 | acceptance finds gaps, then passes |
+| acceptance | 8 | 1 | 18754 | a later round is judged low risk |
+| acceptance | 9 | 2 | 19035 | a later round is judged low risk |
+| quality | 2 | 1 | 9417 | the developer declines a finding |
+| acceptance | 10 | 1 | 15737 | the developer declines a finding |
+| develop | 8 | 3 | 31313 | the gate never goes green |
+| develop-closing | 1 | 1 | 32935 | the gate never goes green |
+| quality | 3 | 1 | 8693 | the gate never goes green |
+| acceptance | 11 | 4 | 17166 | the gate never goes green |
+| park | 1 | 1 | 10617 | the gate never goes green |
+| develop | 9 | 3 | 31738 | the gate never goes green |
+| develop-closing | 2 | 1 | 33305 | the gate never goes green |
+| acceptance | 12 | 5 | 17447 | the gate never goes green |
+| acceptance | 13 | 1 | 13957 | a parked block, and the run carries on |
+| acceptance | 14 | 1 | 14021 | a parked block, and the run carries on |
+| acceptance | 15 | 1 | 14085 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 33962 | a parked block, and the run carries on |
+| acceptance | 16 | 4 | 22287 | a parked block, and the run carries on |
+| develop | 10 | 1 | 33443 | an ordered run stops at a parked block |
+| acceptance | 17 | 1 | 13881 | an ordered run stops at a parked block |
+| develop | 11 | 3 | 32487 | an ordered run stops at a parked block |
+| acceptance | 18 | 1 | 13887 | an ordered run stops at a parked block |
+| acceptance | 19 | 1 | 13951 | an ordered run stops at a parked block |
+| acceptance | 20 | 1 | 14015 | an ordered run stops at a parked block |
+| acceptance | 21 | 1 | 14079 | an ordered run stops at a parked block |
+| develop-closing | 4 | 1 | 33944 | an ordered run stops at a parked block |
+| acceptance | 22 | 4 | 22281 | an ordered run stops at a parked block |
+| park | 2 | 1 | 10629 | an ordered run stops at a parked block |
+| develop | 12 | 4 | 42728 | a fix block closes its issues |
+| acceptance | 23 | 6 | 22237 | a fix block closes its issues |
+| final-sweep | 3 | 1 | 4878 | a fix block closes its issues |
+| develop | 13 | 5 | 46220 | a fix block closes its issues under the proactive policy |
+| acceptance | 24 | 7 | 23762 | a fix block closes its issues under the proactive policy |
+| develop | 14 | 4 | 36651 | a fix block that continues no park closes its issues |
+| acceptance | 25 | 6 | 19555 | a fix block that continues no park closes its issues |
+| develop | 15 | 5 | 42883 | a proactive fix block that continues no park closes its issues and a pulled entry |
+| acceptance | 26 | 7 | 22837 | a proactive fix block that continues no park closes its issues and a pulled entry |
+| acceptance | 27 | 7 | 19839 | a proactive fix block that continues no park and pulled nothing closes its issues |
+| acceptance | 28 | 7 | 23776 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 16 | 6 | 37348 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 29 | 7 | 23584 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 17 | 4 | 43117 | a pass of two fix blocks closes its issues |
+| acceptance | 30 | 6 | 22522 | a pass of two fix blocks closes its issues |
+| final-sweep | 4 | 1 | 4908 | a pass of two fix blocks closes its issues |
+| acceptance | 31 | 6 | 22236 | every issue is already fixed |
+| develop | 18 | 4 | 42710 | an ordered run stops on a fix block that closes nothing |
+| park | 3 | 1 | 10941 | passed with a regression, not staged |
+| park | 4 | 1 | 10378 | acceptance stages a rejected block |
+| park | 5 | 1 | 10785 | the quality reviewer fails a block without its file |
+| park | 6 | 1 | 10785 | acceptance fails a block without its file |
+| park | 7 | 1 | 10714 | the developer staged its own work |
+| park | 8 | 1 | 10784 | the index changed outside acceptance |
+| park | 9 | 1 | 10806 | developer never got its block |
+| park | 10 | 1 | 10352 | acceptance never got its block |
+| park | 11 | 1 | 10679 | the developer dies |
+| park | 12 | 1 | 10334 | the quality reviewer dies |
+| park | 13 | 1 | 10712 | the acceptance verifier dies |
+| park | 14 | 1 | 10201 | developer escalates |
+| park | 15 | 1 | 10191 | developer escalates in an ordered run |
+| acceptance | 32 | 6 | 24690 | log line cap before the sweep |
+| acceptance | 33 | 4 | 22031 | a closing acceptance lands the block |
+| develop-closing | 5 | 1 | 34332 | a closing acceptance lands the block |
+| acceptance | 34 | 5 | 22312 | a closing acceptance lands the block |
+| acceptance | 35 | 4 | 17238 | a closing pass gets a blind review |
+| acceptance | 36 | 5 | 17519 | a closing pass gets a blind review |
+| acceptance | 37 | 4 | 22324 | a closing acceptance finds a blocking gap |
+| park | 16 | 1 | 10767 | a closing acceptance finds a blocking gap |
+| acceptance | 38 | 5 | 22605 | a closing acceptance finds a blocking gap |
+| park | 17 | 1 | 10767 | a closing acceptance finds a blocking gap |
+| develop | 19 | 7 | 33632 | every block commits first time |
+| quality | 4 | 1 | 8586 | every block commits first time |
+| acceptance | 39 | 8 | 15520 | every block commits first time |
+| develop | 20 | 7 | 34057 | every block commits first time |
+| acceptance | 40 | 9 | 15801 | every block commits first time |
+| final-sweep | 5 | 1 | 5199 | every block commits first time |
+| develop | 21 | 8 | 42930 | a fix block commits |
+| acceptance | 41 | 10 | 24087 | a fix block commits |
+| final-sweep | 6 | 1 | 5106 | a fix block commits |
+| park | 18 | 1 | 10384 | acceptance commits a rejected block |
 
 ## develop · variant 1 · schema 1
 
@@ -110,7 +110,7 @@ this file is stale.
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows.
@@ -123,10 +123,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -144,10 +144,7 @@ these actions in order:
   1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line against the current code, and remove each line
      whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
      dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-a.md.
-  2. Before you change E:/flow/runs/flow/AMENDED-block-a.md, report launch_number as one past the highest n that a
-     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
-     launch_number.
-  3. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
+  2. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
      re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
      quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
      defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
@@ -265,16 +262,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r1.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-a-r1.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -382,14 +379,14 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
     Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
-      `## Plan amendment: block-a r1, launch <the launch_number you report>`
+      `## Plan amendment: block-a r1, launch 1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the launch, the defect's
     file:line, and the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-a.md (all
-      the detail the user needs to decide) under the heading `## Question: block-a r1`, and set
+      the detail the user needs to decide) under the heading `## Question: block-a r1, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -420,7 +417,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
-    "launch_number",
     "earlier_files",
     "build_passed",
     "test_outcome",
@@ -451,10 +447,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_index_tree": {
       "type": "string",
       "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
@@ -543,11 +535,11 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Judge the code PURELY ON ITS OWN MERITS.
-Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
-E:/flow/runs/flow/gate/ may also hold other blocks' review and DISMISSED files.
+Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/ and E:/flow/runs/flow/launch-1/gate/.
+Both may also hold other blocks' files.
 Before you review, read no file there. At the WRITE step, once your findings are final,
-Read E:/flow/runs/flow/gate/quality-review-block-a-r1.md if it exists, so the Write tool accepts the overwrite, then replace its entire content.
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+Read E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r1.md if it exists, so the Write tool accepts the overwrite, then replace its entire content.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/gate/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 TARGET REPO: E:/repo
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
 Of the gates, run only the test command, and only for ONE targeted test that confirms a suspected defect.
@@ -634,7 +626,7 @@ cited by line. Those four checks and the nit list bound your review of such a hu
 A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
 with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
 
-WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+WRITE your findings to E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/launch-1/gate/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Group them by tier, highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
 harm (for a finding at medium or above), and a fix direction you checked against the code it would change. When you found nothing, write
 exactly "No findings." Then return wrote_file (true ONLY if you wrote that file), clean (true if you
@@ -681,7 +673,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -692,10 +684,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -783,7 +775,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -799,7 +791,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -883,7 +875,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond this block and the fixes the ZONE ROUTING below allows.
@@ -896,11 +888,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -918,10 +910,7 @@ these actions in order:
   1. When E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, re-check each line against the current code, and remove each line
      whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
      dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-b.md.
-  2. Before you change E:/flow/runs/flow/AMENDED-block-b.md, report launch_number as one past the highest n that a
-     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
-     launch_number.
-  3. When E:/flow/runs/flow/AMENDED-block-b.md exists, re-check each amendment, each another agent's claim, as action 1
+  2. When E:/flow/runs/flow/AMENDED-block-b.md exists, re-check each amendment, each another agent's claim, as action 1
      re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
      quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
      defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
@@ -1042,16 +1031,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-b-r1.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-b-r1.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-b-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -1159,14 +1148,14 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
     Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
-      `## Plan amendment: block-b r1, launch <the launch_number you report>`
+      `## Plan amendment: block-b r1, launch 1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the launch, the defect's
     file:line, and the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-b.md (all
-      the detail the user needs to decide) under the heading `## Question: block-b r1`, and set
+      the detail the user needs to decide) under the heading `## Question: block-b r1, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -1197,7 +1186,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
-    "launch_number",
     "earlier_files",
     "build_passed",
     "test_outcome",
@@ -1228,10 +1216,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_index_tree": {
       "type": "string",
       "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
@@ -1322,7 +1306,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -1333,10 +1317,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -1427,7 +1411,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -1443,7 +1427,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -1538,7 +1522,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-a, block-b
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
@@ -1558,11 +1542,11 @@ PROCEDURE (read-only except step 4):
    expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
-4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
+4. WRITE E:/flow/runs/flow/launch-1/SWEEP.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block that gives a fix direction you checked against the code it would change) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
-with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
-(0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
+with wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/SWEEP.md, and gap_count = the number of gaps you wrote to it
+(0 when none). Each gap's detail goes only in E:/flow/runs/flow/launch-1/SWEEP.md.
 ~~~~
 
 ~~~~json
@@ -1603,7 +1587,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it with the change that has the best long-term result: correct, simple, maintainable and consistent
 with the repo. Leave a change that another block of the plan owns to that block. Match conventions;
@@ -1617,10 +1601,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -1638,10 +1622,7 @@ these actions in order:
   1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line against the current code, and remove each line
      whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
      dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-a.md.
-  2. Before you change E:/flow/runs/flow/AMENDED-block-a.md, report launch_number as one past the highest n that a
-     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
-     launch_number.
-  3. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
+  2. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
      re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
      quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
      defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
@@ -1665,9 +1646,8 @@ block alone fills that. For each entry you take:
      another developer after the tool ran, so skip that entry. When the entry carries a line
      that starts with "**Parked with:**", delete that line, since the tool lists such an entry only once
      the block that line names is done or skip.
-  b. List its id, one id per line, in E:/flow/runs/flow/PULLED-block-a.md (create E:/flow/runs/flow/ if needed), which holds
-     the ids of every entry you take. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. When you take none, create no file, and empty it
-     when an earlier launch left one.
+  b. List its id, one id per line, in E:/flow/runs/flow/launch-1/PULLED-block-a.md (create E:/flow/runs/flow/launch-1/ if needed), which holds
+     the ids of every entry you take. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. When you take none, create no file.
   c. Build its fix as a fix block builds an ACTIONABLE entry: as its checked **Fix:** line instructs,
      with a pinning test where the fix warrants one. A **Fix:** line you verify
      is defective goes under DECISION MATRIX rule 6a.
@@ -1786,16 +1766,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r1.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-a-r1.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -1908,14 +1888,14 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
     Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
-      `## Plan amendment: block-a r1, launch <the launch_number you report>`
+      `## Plan amendment: block-a r1, launch 1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the launch, the defect's
     file:line, and the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-a.md (all
-      the detail the user needs to decide) under the heading `## Question: block-a r1`, and set
+      the detail the user needs to decide) under the heading `## Question: block-a r1, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -1946,7 +1926,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
-    "launch_number",
     "earlier_files",
     "build_passed",
     "test_outcome",
@@ -2003,10 +1982,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_index_tree": {
       "type": "string",
       "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
@@ -2097,7 +2072,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -2108,10 +2083,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -2127,7 +2102,7 @@ accepts the overwrite, then replace its entire content.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-a.md does not exist, so no amendment excuses a criterion.
 
-PULLED ENTRIES. READ E:/flow/runs/flow/PULLED-block-a.md if it exists. Each line is the id of a ready backlog entry this
+PULLED ENTRIES. READ E:/flow/runs/flow/launch-1/PULLED-block-a.md if it exists. Each line is the id of a ready backlog entry this
 block's round-1 developer took beside its block and built in the same unstaged diff. The developer last
 reported:
      (no pulled entry)
@@ -2161,7 +2136,7 @@ so it is a regression. Not a regression:
     that a "PROACTIVE block-a:" line in E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you
     confirm from the code that the baseline behavior it removes was itself that defect, that the change
     alters no other behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code or in connected code.
-  - a behavior change that closes the defect of a backlog entry E:/flow/runs/flow/PULLED-block-a.md lists. It is not a
+  - a behavior change that closes the defect of a backlog entry E:/flow/runs/flow/launch-1/PULLED-block-a.md lists. It is not a
     regression only when you confirm from the code that the baseline behavior it removes was that
     entry's defect and that the change alters no other behavior.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
@@ -2215,7 +2190,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -2231,7 +2206,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -2347,7 +2322,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-a
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
@@ -2367,11 +2342,11 @@ PROCEDURE (read-only except step 4):
    expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
-4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
+4. WRITE E:/flow/runs/flow/launch-1/SWEEP.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block that gives a fix direction you checked against the code it would change) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
-with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
-(0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
+with wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/SWEEP.md, and gap_count = the number of gaps you wrote to it
+(0 when none). Each gap's detail goes only in E:/flow/runs/flow/launch-1/SWEEP.md.
 ~~~~
 
 ~~~~json
@@ -2412,7 +2387,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows.
@@ -2425,11 +2400,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
-A prior review flagged issues in E:/flow/runs/flow/gate/quality-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
+A prior review flagged issues in E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 E:/flow/runs/flow/gate/DISMISSED-block-a.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
@@ -2466,7 +2441,7 @@ code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
-2. BUILD: READ E:/flow/runs/flow/gate/quality-review-block-a-r1.md
+2. BUILD: READ E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
    log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
@@ -2541,16 +2516,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r2.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-a-r2.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -2665,7 +2640,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     file:line, and the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-a.md (all
-      the detail the user needs to decide) under the heading `## Question: block-a r2`, and set
+      the detail the user needs to decide) under the heading `## Question: block-a r2, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -2801,7 +2776,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -2812,10 +2787,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -2874,7 +2849,7 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/gate/quality-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r1.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -2903,7 +2878,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -2919,7 +2894,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r2.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -3003,7 +2978,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond this block and the fixes the ZONE ROUTING below allows.
@@ -3016,12 +2991,12 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
-A prior review flagged issues in E:/flow/runs/flow/gate/quality-review-block-b-r1.md. Your earlier work is already in the UNSTAGED
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
+A prior review flagged issues in E:/flow/runs/flow/launch-1/gate/quality-review-block-b-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 E:/flow/runs/flow/gate/DISMISSED-block-b.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
@@ -3058,7 +3033,7 @@ code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
-2. BUILD: READ E:/flow/runs/flow/gate/quality-review-block-b-r1.md
+2. BUILD: READ E:/flow/runs/flow/launch-1/gate/quality-review-block-b-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
    log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
    Then RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
@@ -3136,16 +3111,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-b-r2.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-b-r2.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -3260,7 +3235,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     file:line, and the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-b.md (all
-      the detail the user needs to decide) under the heading `## Question: block-b r2`, and set
+      the detail the user needs to decide) under the heading `## Question: block-b r2, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -3396,7 +3371,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -3407,10 +3382,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -3469,7 +3444,7 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/gate/quality-review-block-b-r1.md
+     E:/flow/runs/flow/launch-1/gate/quality-review-block-b-r1.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -3501,7 +3476,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -3517,7 +3492,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r2.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-b-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -3601,7 +3576,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows.
@@ -3614,11 +3589,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
-A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
+A prior review flagged issues in E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 E:/flow/runs/flow/gate/DISMISSED-block-a.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
@@ -3655,7 +3630,7 @@ code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
-2. BUILD: READ E:/flow/runs/flow/acceptance-review-block-a-r1.md
+2. BUILD: READ E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
    log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
@@ -3730,16 +3705,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r2.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-a-r2.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -3854,7 +3829,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     file:line, and the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-a.md (all
-      the detail the user needs to decide) under the heading `## Question: block-a r2`, and set
+      the detail the user needs to decide) under the heading `## Question: block-a r2, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -3990,7 +3965,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -4001,10 +3976,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -4063,7 +4038,7 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -4092,7 +4067,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -4108,7 +4083,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r2.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -4192,7 +4167,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond this block and the fixes the ZONE ROUTING below allows.
@@ -4205,12 +4180,12 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
-A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-b-r1.md. Your earlier work is already in the UNSTAGED
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
+A prior review flagged issues in E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 E:/flow/runs/flow/gate/DISMISSED-block-b.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
@@ -4247,7 +4222,7 @@ code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
-2. BUILD: READ E:/flow/runs/flow/acceptance-review-block-b-r1.md
+2. BUILD: READ E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
    log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
    Then RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
@@ -4325,16 +4300,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-b-r2.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-b-r2.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -4449,7 +4424,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     file:line, and the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-b.md (all
-      the detail the user needs to decide) under the heading `## Question: block-b r2`, and set
+      the detail the user needs to decide) under the heading `## Question: block-b r2, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -4585,7 +4560,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -4596,10 +4571,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -4658,7 +4633,7 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-b-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -4690,7 +4665,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -4706,7 +4681,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r2.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-b-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -4792,7 +4767,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -4803,10 +4778,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -4865,7 +4840,7 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/gate/quality-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r1.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -4883,20 +4858,20 @@ PROCEDURE:
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
-     E:/flow/runs/flow/risk-block-a-r2.md
+     E:/flow/runs/flow/launch-1/risk-block-a-r2.md
    The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
    that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
-     round 2, base in E:/flow/runs/flow/risk-block-a-r1.md, snapshot in E:/flow/runs/flow/risk-block-a-r2.md:
+     round 2, base in E:/flow/runs/flow/launch-1/risk-block-a-r1.md, snapshot in E:/flow/runs/flow/launch-1/risk-block-a-r2.md:
        git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
-   SWEEP CHECK. When E:/flow/runs/flow/risk-block-a-r2.md, the file of the latest round named above, exists, run
-   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   SWEEP CHECK. When E:/flow/runs/flow/launch-1/risk-block-a-r2.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
@@ -4926,7 +4901,7 @@ RISK QUESTIONS - answer each one for a change:
     could falsify?
 Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -4942,7 +4917,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r2.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -5028,7 +5003,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -5039,10 +5014,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -5101,7 +5076,7 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/gate/quality-review-block-b-r1.md
+     E:/flow/runs/flow/launch-1/gate/quality-review-block-b-r1.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -5122,20 +5097,20 @@ PROCEDURE:
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r2-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r2-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
-     E:/flow/runs/flow/risk-block-b-r2.md
+     E:/flow/runs/flow/launch-1/risk-block-b-r2.md
    The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
    that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
-     round 2, base in E:/flow/runs/flow/risk-block-b-r1.md, snapshot in E:/flow/runs/flow/risk-block-b-r2.md:
+     round 2, base in E:/flow/runs/flow/launch-1/risk-block-b-r1.md, snapshot in E:/flow/runs/flow/launch-1/risk-block-b-r2.md:
        git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
-   SWEEP CHECK. When E:/flow/runs/flow/risk-block-b-r2.md, the file of the latest round named above, exists, run
-   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   SWEEP CHECK. When E:/flow/runs/flow/launch-1/risk-block-b-r2.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-b-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
@@ -5165,7 +5140,7 @@ RISK QUESTIONS - answer each one for a change:
     could falsify?
 Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -5181,7 +5156,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r2.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-b-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -5265,11 +5240,11 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Judge the code PURELY ON ITS OWN MERITS.
-Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
-E:/flow/runs/flow/gate/ may also hold other blocks' review and DISMISSED files.
+Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/ and E:/flow/runs/flow/launch-1/gate/.
+Both may also hold other blocks' files.
 Before you review, read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there. At the WRITE step, once your findings are final,
-Read E:/flow/runs/flow/gate/quality-review-block-a-r1.md if it exists, so the Write tool accepts the overwrite, then replace its entire content.
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+Read E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r1.md if it exists, so the Write tool accepts the overwrite, then replace its entire content.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/gate/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 TARGET REPO: E:/repo
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
 Of the gates, run only the test command, and only for ONE targeted test that confirms a suspected defect.
@@ -5364,7 +5339,7 @@ cited by line. Those four checks and the nit list bound your review of such a hu
 A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
 with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
 
-WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+WRITE your findings to E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/launch-1/gate/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Group them by tier, highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
 harm (for a finding at medium or above), and a fix direction you checked against the code it would change. When you found nothing, write
 exactly "No findings." Then return wrote_file (true ONLY if you wrote that file), clean (true if you
@@ -5411,7 +5386,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -5422,10 +5397,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -5532,7 +5507,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -5548,7 +5523,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -5632,7 +5607,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows.
@@ -5645,10 +5620,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
 E:/flow/runs/flow/gate/DISMISSED-block-a.md does not exist, so you have declined nothing in THIS block yet.
@@ -5761,16 +5736,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r2.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-a-r2.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -5885,7 +5860,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     file:line, and the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-a.md (all
-      the detail the user needs to decide) under the heading `## Question: block-a r2`, and set
+      the detail the user needs to decide) under the heading `## Question: block-a r2, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -6019,7 +5994,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows.
@@ -6032,10 +6007,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
 develop round follows you. A blind review follows you when the block's changes since its last blind
 review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
@@ -6161,16 +6136,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r6.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-a-r6.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r6.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r6.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -6286,7 +6261,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     file:line, and the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-a.md (all
-      the detail the user needs to decide) under the heading `## Question: block-a r6`, and set
+      the detail the user needs to decide) under the heading `## Question: block-a r6, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -6428,11 +6403,11 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Judge the code PURELY ON ITS OWN MERITS.
-Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
-E:/flow/runs/flow/gate/ may also hold other blocks' review and DISMISSED files.
+Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/ and E:/flow/runs/flow/launch-1/gate/.
+Both may also hold other blocks' files.
 Before you review, read no file there. At the WRITE step, once your findings are final,
-Read E:/flow/runs/flow/gate/quality-review-block-a-r6.md if it exists, so the Write tool accepts the overwrite, then replace its entire content.
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+Read E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r6.md if it exists, so the Write tool accepts the overwrite, then replace its entire content.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/gate/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 TARGET REPO: E:/repo
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
 Of the gates, run only the test command, and only for ONE targeted test that confirms a suspected defect.
@@ -6519,7 +6494,7 @@ cited by line. Those four checks and the nit list bound your review of such a hu
 A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
 with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
 
-WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r6.md (create E:/flow/runs/flow/gate/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+WRITE your findings to E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r6.md (create E:/flow/runs/flow/launch-1/gate/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Group them by tier, highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
 harm (for a finding at medium or above), and a fix direction you checked against the code it would change. When you found nothing, write
 exactly "No findings." Then return wrote_file (true ONLY if you wrote that file), clean (true if you
@@ -6567,7 +6542,7 @@ This closing pass's blind code review ran when the block's changes owed one, and
 when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -6578,10 +6553,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -6676,7 +6651,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which makes it a blocking gap, since no round follows to send to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r6.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r6.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -6700,7 +6675,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file. Append each not blocking gap to the backlog as the first bullet says.
    • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r6.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r6.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -6806,7 +6781,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -6860,7 +6835,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r6.md, then every other finding and gap in it, each copied verbatim> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/launch-1/acceptance-review-block-a-r6.md, then every other finding and gap in it, each copied verbatim> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
@@ -6922,7 +6897,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond this block and the fixes the ZONE ROUTING below allows.
@@ -6935,11 +6910,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
 E:/flow/runs/flow/gate/DISMISSED-block-b.md does not exist, so you have declined nothing in THIS block yet.
@@ -7055,16 +7030,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-b-r2.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-b-r2.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -7179,7 +7154,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     file:line, and the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-b.md (all
-      the detail the user needs to decide) under the heading `## Question: block-b r2`, and set
+      the detail the user needs to decide) under the heading `## Question: block-b r2, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -7313,7 +7288,7 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond this block and the fixes the ZONE ROUTING below allows.
@@ -7326,11 +7301,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
 develop round follows you. A blind review follows you when the block's changes since its last blind
 review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
@@ -7459,16 +7434,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-b-r6.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-b-r6.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r6.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r6.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r6.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-b-r6.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -7584,7 +7559,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     file:line, and the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-b.md (all
-      the detail the user needs to decide) under the heading `## Question: block-b r6`, and set
+      the detail the user needs to decide) under the heading `## Question: block-b r6, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -7729,7 +7704,7 @@ This closing pass's blind code review ran when the block's changes owed one, and
 when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -7740,10 +7715,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -7841,7 +7816,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which makes it a blocking gap, since no round follows to send to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r6.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-b-r6.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -7865,7 +7840,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file. Append each not blocking gap to the backlog as the first bullet says.
    • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r6.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-b-r6.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -7964,7 +7939,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -7975,10 +7950,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -8037,8 +8012,8 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-a-r1.md
-     E:/flow/runs/flow/acceptance-review-block-a-r2.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -8067,7 +8042,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r3.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r3.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -8083,7 +8058,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r3.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r3.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -8169,7 +8144,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -8180,10 +8155,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -8242,9 +8217,9 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-a-r1.md
-     E:/flow/runs/flow/acceptance-review-block-a-r2.md
-     E:/flow/runs/flow/acceptance-review-block-a-r3.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r3.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -8273,7 +8248,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r4.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r4.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -8289,7 +8264,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r4.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r4.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -8375,7 +8350,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -8386,10 +8361,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -8448,10 +8423,10 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-a-r1.md
-     E:/flow/runs/flow/acceptance-review-block-a-r2.md
-     E:/flow/runs/flow/acceptance-review-block-a-r3.md
-     E:/flow/runs/flow/acceptance-review-block-a-r4.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r3.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r4.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -8480,7 +8455,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r5.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r5.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -8496,7 +8471,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r5.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r5.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -8580,7 +8555,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows.
@@ -8593,10 +8568,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
 develop round follows you. A blind review follows you when the block's changes since its last blind
 review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
@@ -8637,7 +8612,7 @@ code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
-2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/acceptance-review-block-a-r5.md. Every finding and gap in it, and each failure
+2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/launch-1/acceptance-review-block-a-r5.md. Every finding and gap in it, and each failure
    the gate run below shows, is your work list. Route each item through the DECISION
    MATRIX below. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. Where the matrix says FIX, answer the RISK QUESTIONS in CLASSIFY below
    for that fix before you write any code for it. When the fix is not low risk, change no code for it. Append one entry for it instead, in RECORD's shape below,
@@ -8723,16 +8698,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r6.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-a-r6.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r6.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r6.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -8848,7 +8823,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     file:line, and the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-a.md (all
-      the detail the user needs to decide) under the heading `## Question: block-a r6`, and set
+      the detail the user needs to decide) under the heading `## Question: block-a r6, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -8993,7 +8968,7 @@ This closing pass's blind code review ran when the block's changes owed one, and
 when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -9004,10 +8979,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -9073,11 +9048,11 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-a-r1.md
-     E:/flow/runs/flow/acceptance-review-block-a-r2.md
-     E:/flow/runs/flow/acceptance-review-block-a-r3.md
-     E:/flow/runs/flow/acceptance-review-block-a-r4.md
-     E:/flow/runs/flow/acceptance-review-block-a-r5.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r3.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r4.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r5.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -9095,20 +9070,20 @@ PROCEDURE:
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r6-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r6-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
-     E:/flow/runs/flow/risk-block-a-r6.md
+     E:/flow/runs/flow/launch-1/risk-block-a-r6.md
    The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
    that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
-     round 6, base in E:/flow/runs/flow/risk-block-a-r5.md, snapshot in E:/flow/runs/flow/risk-block-a-r6.md:
+     round 6, base in E:/flow/runs/flow/launch-1/risk-block-a-r5.md, snapshot in E:/flow/runs/flow/launch-1/risk-block-a-r6.md:
        git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 5: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 6: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
-   SWEEP CHECK. When E:/flow/runs/flow/risk-block-a-r6.md, the file of the latest round named above, exists, run
-   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r6.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   SWEEP CHECK. When E:/flow/runs/flow/launch-1/risk-block-a-r6.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r6.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
@@ -9138,7 +9113,7 @@ RISK QUESTIONS - answer each one for a change:
     could falsify?
 Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r6.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r6.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -9162,7 +9137,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file. Append each not blocking gap to the backlog as the first bullet says.
    • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r6.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r6.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -9259,7 +9234,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows.
@@ -9272,10 +9247,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -9293,10 +9268,7 @@ these actions in order:
   1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line against the current code, and remove each line
      whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
      dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-a.md.
-  2. Before you change E:/flow/runs/flow/AMENDED-block-a.md, report launch_number as one past the highest n that a
-     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
-     launch_number.
-  3. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
+  2. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
      re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
      quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
      defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
@@ -9414,16 +9386,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r1.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-a-r1.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -9531,14 +9503,14 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
     Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
-      `## Plan amendment: block-a r1, launch <the launch_number you report>`
+      `## Plan amendment: block-a r1, launch 1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the launch, the defect's
     file:line, and the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
-      the detail the user needs to decide) under the heading `## Question: block-a r1`, and set
+      the detail the user needs to decide) under the heading `## Question: block-a r1, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -9569,7 +9541,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
-    "launch_number",
     "earlier_files",
     "build_passed",
     "test_outcome",
@@ -9600,10 +9571,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_index_tree": {
       "type": "string",
       "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
@@ -9694,7 +9661,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -9705,10 +9672,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -9796,7 +9763,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -9812,7 +9779,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -9896,7 +9863,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows.
@@ -9909,11 +9876,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
-A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
+A prior review flagged issues in E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 E:/flow/runs/flow/gate/DISMISSED-block-a.md does not exist, so you have declined nothing in THIS block yet.
 Make the smallest change that does the task, as a contractor in code that others depend on.
@@ -9950,7 +9917,7 @@ code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
-2. BUILD: READ E:/flow/runs/flow/acceptance-review-block-a-r1.md
+2. BUILD: READ E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
    log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
@@ -10025,16 +9992,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r2.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-a-r2.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -10149,7 +10116,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     file:line, and the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
-      the detail the user needs to decide) under the heading `## Question: block-a r2`, and set
+      the detail the user needs to decide) under the heading `## Question: block-a r2, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -10285,7 +10252,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -10296,10 +10263,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -10358,7 +10325,7 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -10387,7 +10354,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -10403,7 +10370,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r2.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -10489,7 +10456,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -10500,10 +10467,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -10562,8 +10529,8 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-a-r1.md
-     E:/flow/runs/flow/acceptance-review-block-a-r2.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -10592,7 +10559,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r3.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r3.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -10608,7 +10575,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r3.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r3.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -10694,7 +10661,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -10705,10 +10672,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -10767,9 +10734,9 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-a-r1.md
-     E:/flow/runs/flow/acceptance-review-block-a-r2.md
-     E:/flow/runs/flow/acceptance-review-block-a-r3.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r3.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -10798,7 +10765,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r4.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r4.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -10814,7 +10781,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r4.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r4.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -10900,7 +10867,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -10911,10 +10878,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -10973,10 +10940,10 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-a-r1.md
-     E:/flow/runs/flow/acceptance-review-block-a-r2.md
-     E:/flow/runs/flow/acceptance-review-block-a-r3.md
-     E:/flow/runs/flow/acceptance-review-block-a-r4.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r3.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r4.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -11005,7 +10972,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r5.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r5.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -11021,7 +10988,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r5.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r5.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -11105,7 +11072,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows.
@@ -11118,10 +11085,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
 develop round follows you. A blind review follows you when the block's changes since its last blind
 review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
@@ -11162,7 +11129,7 @@ code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
-2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/acceptance-review-block-a-r5.md. Every finding and gap in it, and each failure
+2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/launch-1/acceptance-review-block-a-r5.md. Every finding and gap in it, and each failure
    the gate run below shows, is your work list. Route each item through the DECISION
    MATRIX below. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. Where the matrix says FIX, answer the RISK QUESTIONS in CLASSIFY below
    for that fix before you write any code for it. When the fix is not low risk, change no code for it. Append one entry for it instead, in RECORD's shape below,
@@ -11248,16 +11215,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r6.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-a-r6.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r6.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r6.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -11373,7 +11340,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     file:line, and the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
-      the detail the user needs to decide) under the heading `## Question: block-a r6`, and set
+      the detail the user needs to decide) under the heading `## Question: block-a r6, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -11518,7 +11485,7 @@ This closing pass's blind code review ran when the block's changes owed one, and
 when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -11529,10 +11496,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -11598,11 +11565,11 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-a-r1.md
-     E:/flow/runs/flow/acceptance-review-block-a-r2.md
-     E:/flow/runs/flow/acceptance-review-block-a-r3.md
-     E:/flow/runs/flow/acceptance-review-block-a-r4.md
-     E:/flow/runs/flow/acceptance-review-block-a-r5.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r3.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r4.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r5.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -11620,20 +11587,20 @@ PROCEDURE:
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r6-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r6-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
-     E:/flow/runs/flow/risk-block-a-r6.md
+     E:/flow/runs/flow/launch-1/risk-block-a-r6.md
    The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
    that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
-     round 6, base in E:/flow/runs/flow/risk-block-a-r5.md, snapshot in E:/flow/runs/flow/risk-block-a-r6.md:
+     round 6, base in E:/flow/runs/flow/launch-1/risk-block-a-r5.md, snapshot in E:/flow/runs/flow/launch-1/risk-block-a-r6.md:
        git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 5: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 6: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
-   SWEEP CHECK. When E:/flow/runs/flow/risk-block-a-r6.md, the file of the latest round named above, exists, run
-   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r6.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   SWEEP CHECK. When E:/flow/runs/flow/launch-1/risk-block-a-r6.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r6.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
@@ -11663,7 +11630,7 @@ RISK QUESTIONS - answer each one for a change:
     could falsify?
 Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r6.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r6.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -11687,7 +11654,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file. Append each not blocking gap to the backlog as the first bullet says.
    • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r6.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r6.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -11793,7 +11760,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -11847,7 +11814,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r6.md, then every other finding and gap in it, each copied verbatim> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/launch-1/acceptance-review-block-a-r6.md, then every other finding and gap in it, each copied verbatim> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
@@ -11909,7 +11876,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 
 You are the FIXER. Resolve the verified issues in the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
@@ -11924,11 +11891,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -11996,10 +11963,7 @@ these actions in order:
   1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
      whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
      dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
-  2. Before you change E:/flow/runs/flow/AMENDED-block-c.md, report launch_number as one past the highest n that a
-     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
-     launch_number.
-  3. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
+  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
      re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
      quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
      defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
@@ -12130,16 +12094,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-c-r1.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-c-r1.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -12247,14 +12211,14 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
     Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c.md:
-      `## Plan amendment: block-c r1, launch <the launch_number you report>`
+      `## Plan amendment: block-c r1, launch 1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the launch, the defect's
     file:line, and the path E:/flow/runs/flow/AMENDED-block-c.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-c.md (all
-      the detail the user needs to decide) under the heading `## Question: block-c r1`, and set
+      the detail the user needs to decide) under the heading `## Question: block-c r1, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -12285,7 +12249,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
-    "launch_number",
     "earlier_files",
     "results",
     "restore_failed",
@@ -12319,10 +12282,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_index_tree": {
       "type": "string",
       "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
@@ -12447,7 +12406,7 @@ You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix bloc
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
 instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
@@ -12459,10 +12418,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -12601,7 +12560,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -12625,7 +12584,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    returned a fix_check with actually_fixed=true for every such entry that names it, or []. Delete no branch: the user reviews the staged work
    before committing it, so each branch stays until that commit, and a landing the user rejects can be
    rebuilt from it. Every other verdict returns branches_kept=[].
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-c-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -12752,7 +12711,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-c
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
@@ -12772,11 +12731,11 @@ PROCEDURE (read-only except step 4):
    expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
-4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
+4. WRITE E:/flow/runs/flow/launch-1/SWEEP.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block that gives a fix direction you checked against the code it would change) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
-with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
-(0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
+with wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/SWEEP.md, and gap_count = the number of gaps you wrote to it
+(0 when none). Each gap's detail goes only in E:/flow/runs/flow/launch-1/SWEEP.md.
 ~~~~
 
 ~~~~json
@@ -12817,7 +12776,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 
 You are the FIXER. Resolve the verified issues in the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
@@ -12832,11 +12791,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -12904,10 +12863,7 @@ these actions in order:
   1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
      whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
      dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
-  2. Before you change E:/flow/runs/flow/AMENDED-block-c.md, report launch_number as one past the highest n that a
-     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
-     launch_number.
-  3. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
+  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
      re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
      quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
      defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
@@ -12931,9 +12887,8 @@ block alone fills that. For each entry you take:
      another developer after the tool ran, so skip that entry. When the entry carries a line
      that starts with "**Parked with:**", delete that line, since the tool lists such an entry only once
      the block that line names is done or skip.
-  b. List its id, one id per line, in E:/flow/runs/flow/PULLED-block-c.md (create E:/flow/runs/flow/ if needed), which holds
-     the ids of every entry you take. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. When you take none, create no file, and empty it
-     when an earlier launch left one.
+  b. List its id, one id per line, in E:/flow/runs/flow/launch-1/PULLED-block-c.md (create E:/flow/runs/flow/launch-1/ if needed), which holds
+     the ids of every entry you take. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. When you take none, create no file.
   c. Build its fix as a fix block builds an ACTIONABLE entry: as its checked **Fix:** line instructs,
      with a pinning test where the fix warrants one. A **Fix:** line you verify
      is defective goes under DECISION MATRIX rule 6a.
@@ -13066,16 +13021,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-c-r1.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-c-r1.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -13188,14 +13143,14 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
     Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c.md:
-      `## Plan amendment: block-c r1, launch <the launch_number you report>`
+      `## Plan amendment: block-c r1, launch 1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the launch, the defect's
     file:line, and the path E:/flow/runs/flow/AMENDED-block-c.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-c.md (all
-      the detail the user needs to decide) under the heading `## Question: block-c r1`, and set
+      the detail the user needs to decide) under the heading `## Question: block-c r1, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -13226,7 +13181,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
-    "launch_number",
     "earlier_files",
     "results",
     "restore_failed",
@@ -13286,10 +13240,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_index_tree": {
       "type": "string",
       "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
@@ -13414,7 +13364,7 @@ You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix bloc
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
 instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
@@ -13426,10 +13376,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -13453,7 +13403,7 @@ that the developers of the parked block whose work that entry continues OVERRODE
 amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
 criterion that no amendment you confirmed excuses must hold as its block's text states it.
 
-PULLED ENTRIES. READ E:/flow/runs/flow/PULLED-block-c.md if it exists. Each line is the id of a ready backlog entry this
+PULLED ENTRIES. READ E:/flow/runs/flow/launch-1/PULLED-block-c.md if it exists. Each line is the id of a ready backlog entry this
 block's round-1 developer took beside its block and built in the same unstaged diff. The developer last
 reported:
      (no pulled entry)
@@ -13489,7 +13439,7 @@ so it is a regression. Not a regression:
     that a "PROACTIVE block-c:" line in E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you
     confirm from the code that the baseline behavior it removes was itself that defect, that the change
     alters no other behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
-  - a behavior change that closes the defect of a backlog entry E:/flow/runs/flow/PULLED-block-c.md lists. It is not a
+  - a behavior change that closes the defect of a backlog entry E:/flow/runs/flow/launch-1/PULLED-block-c.md lists. It is not a
     regression only when you confirm from the code that the baseline behavior it removes was that
     entry's defect and that the change alters no other behavior.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
@@ -13584,7 +13534,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -13608,7 +13558,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    returned a fix_check with actually_fixed=true for every such entry that names it, or []. Delete no branch: the user reviews the staged work
    before committing it, so each branch stays until that commit, and a landing the user rejects can be
    rebuilt from it. Every other verdict returns branches_kept=[].
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-c-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -13745,7 +13695,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the FIXER. Resolve the verified issues in the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
@@ -13760,11 +13710,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -13783,10 +13733,7 @@ these actions in order:
   1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
      whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
      dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
-  2. Before you change E:/flow/runs/flow/AMENDED-block-c.md, report launch_number as one past the highest n that a
-     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
-     launch_number.
-  3. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
+  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
      re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
      quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
      defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
@@ -13917,16 +13864,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-c-r1.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-c-r1.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -14034,14 +13981,14 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
     Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c.md:
-      `## Plan amendment: block-c r1, launch <the launch_number you report>`
+      `## Plan amendment: block-c r1, launch 1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the launch, the defect's
     file:line, and the path E:/flow/runs/flow/AMENDED-block-c.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-c.md (all
-      the detail the user needs to decide) under the heading `## Question: block-c r1`, and set
+      the detail the user needs to decide) under the heading `## Question: block-c r1, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -14072,7 +14019,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
-    "launch_number",
     "earlier_files",
     "results",
     "restore_failed",
@@ -14106,10 +14052,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_index_tree": {
       "type": "string",
       "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
@@ -14234,7 +14176,7 @@ You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix bloc
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
 instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
@@ -14246,10 +14188,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -14369,7 +14311,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -14389,7 +14331,7 @@ PROCEDURE:
      file and return pass=false.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 9. LANDED BRANCHES: round 1 restored no branch, since no entry of this block continues a parked block's work, so no branch landed. Delete no branch and return branches_kept=[].
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-c-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -14505,7 +14447,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the FIXER. Resolve the verified issues in the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
@@ -14520,11 +14462,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -14559,10 +14501,7 @@ these actions in order:
   1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
      whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
      dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
-  2. Before you change E:/flow/runs/flow/AMENDED-block-c.md, report launch_number as one past the highest n that a
-     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
-     launch_number.
-  3. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
+  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
      re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
      quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
      defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
@@ -14586,9 +14525,8 @@ block alone fills that. For each entry you take:
      another developer after the tool ran, so skip that entry. When the entry carries a line
      that starts with "**Parked with:**", delete that line, since the tool lists such an entry only once
      the block that line names is done or skip.
-  b. List its id, one id per line, in E:/flow/runs/flow/PULLED-block-c.md (create E:/flow/runs/flow/ if needed), which holds
-     the ids of every entry you take. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. When you take none, create no file, and empty it
-     when an earlier launch left one.
+  b. List its id, one id per line, in E:/flow/runs/flow/launch-1/PULLED-block-c.md (create E:/flow/runs/flow/launch-1/ if needed), which holds
+     the ids of every entry you take. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. When you take none, create no file.
   c. Build its fix as a fix block builds an ACTIONABLE entry: as its checked **Fix:** line instructs,
      with a pinning test where the fix warrants one. A **Fix:** line you verify
      is defective goes under DECISION MATRIX rule 6a.
@@ -14721,16 +14659,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-c-r1.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-c-r1.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -14843,14 +14781,14 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
     Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c.md:
-      `## Plan amendment: block-c r1, launch <the launch_number you report>`
+      `## Plan amendment: block-c r1, launch 1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the launch, the defect's
     file:line, and the path E:/flow/runs/flow/AMENDED-block-c.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-c.md (all
-      the detail the user needs to decide) under the heading `## Question: block-c r1`, and set
+      the detail the user needs to decide) under the heading `## Question: block-c r1, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -14881,7 +14819,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
-    "launch_number",
     "earlier_files",
     "results",
     "restore_failed",
@@ -14941,10 +14878,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_index_tree": {
       "type": "string",
       "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
@@ -15069,7 +15002,7 @@ You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix bloc
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
 instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
@@ -15081,10 +15014,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -15108,7 +15041,7 @@ that the developers of the parked block whose work that entry continues OVERRODE
 amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
 criterion that no amendment you confirmed excuses must hold as its block's text states it.
 
-PULLED ENTRIES. READ E:/flow/runs/flow/PULLED-block-c.md if it exists. Each line is the id of a ready backlog entry this
+PULLED ENTRIES. READ E:/flow/runs/flow/launch-1/PULLED-block-c.md if it exists. Each line is the id of a ready backlog entry this
 block's round-1 developer took beside its block and built in the same unstaged diff. The developer last
 reported:
      - old-run-blk-0a1b2c3d-1: FIXED
@@ -15144,7 +15077,7 @@ so it is a regression. Not a regression:
     that a "PROACTIVE block-c:" line in E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you
     confirm from the code that the baseline behavior it removes was itself that defect, that the change
     alters no other behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
-  - a behavior change that closes the defect of a backlog entry E:/flow/runs/flow/PULLED-block-c.md lists. It is not a
+  - a behavior change that closes the defect of a backlog entry E:/flow/runs/flow/launch-1/PULLED-block-c.md lists. It is not a
     regression only when you confirm from the code that the baseline behavior it removes was that
     entry's defect and that the change alters no other behavior.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
@@ -15234,7 +15167,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -15254,7 +15187,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
      file and return pass=false.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 9. LANDED BRANCHES: round 1 restored no branch, since no entry of this block continues a parked block's work, so no branch landed. Delete no branch and return branches_kept=[].
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-c-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -15393,7 +15326,7 @@ You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix bloc
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
 instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
@@ -15405,10 +15338,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -15424,7 +15357,7 @@ accepts the overwrite, then replace its entire content.
 
 AMENDMENTS: E:/flow/runs/flow/AMENDED-block-c.md does not exist, so no amendment excuses an issue.
 
-PULLED ENTRIES. E:/flow/runs/flow/PULLED-block-c.md lists no entry, since the block's developer took none. Return an empty pulled_checks.
+PULLED ENTRIES. E:/flow/runs/flow/launch-1/PULLED-block-c.md lists no entry, since the block's developer took none. Return an empty pulled_checks.
 
 EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
 (actually_fixed=false), an unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED or left unreported, a touched entry that is not ACTIONABLE,
@@ -15530,7 +15463,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -15550,7 +15483,7 @@ PROCEDURE:
      file and return pass=false.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 9. LANDED BRANCHES: round 1 restored no branch, since no entry of this block continues a parked block's work, so no branch landed. Delete no branch and return branches_kept=[].
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-c-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -15689,7 +15622,7 @@ You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix bloc
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
 instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
@@ -15701,10 +15634,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -15728,7 +15661,7 @@ that the developers of the parked block whose work that entry continues OVERRODE
 amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
 criterion that no amendment you confirmed excuses must hold as its block's text states it.
 
-PULLED ENTRIES. READ E:/flow/runs/flow/PULLED-block-c.md if it exists. Each line is the id of a ready backlog entry this
+PULLED ENTRIES. READ E:/flow/runs/flow/launch-1/PULLED-block-c.md if it exists. Each line is the id of a ready backlog entry this
 block's round-1 developer took beside its block and built in the same unstaged diff. The developer last
 reported:
      - old-run-blk-0a1b2c3d-1: FIXED
@@ -15764,7 +15697,7 @@ so it is a regression. Not a regression:
     that a "PROACTIVE block-c:" line in E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you
     confirm from the code that the baseline behavior it removes was itself that defect, that the change
     alters no other behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
-  - a behavior change that closes the defect of a backlog entry E:/flow/runs/flow/PULLED-block-c.md lists. It is not a
+  - a behavior change that closes the defect of a backlog entry E:/flow/runs/flow/launch-1/PULLED-block-c.md lists. It is not a
     regression only when you confirm from the code that the baseline behavior it removes was that
     entry's defect and that the change alters no other behavior.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
@@ -15859,7 +15792,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -15883,7 +15816,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    returned a fix_check with actually_fixed=true for every such entry that names it, or []. Delete no branch: the user reviews the staged work
    before committing it, so each branch stays until that commit, and a landing the user rejects can be
    rebuilt from it. Every other verdict returns branches_kept=[].
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-c-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -16020,7 +15953,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the FIXER. Resolve the verified issues in the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
@@ -16035,18 +15968,18 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
-PULLED ENTRIES. E:/flow/runs/flow/PULLED-block-c.md, when it exists, lists the backlog entries round 1 took beside
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
+PULLED ENTRIES. E:/flow/runs/flow/launch-1/PULLED-block-c.md, when it exists, lists the backlog entries round 1 took beside
 this block. Take no new entry. Close a review gap on a pulled entry like any other gap, or revert that
 entry's change surgically and report it FAILED. Report each entry the PULLED file lists in pulled_results: FIXED when your change closes it, STALE
 when its defect no longer exists, FAILED when you reverted its change or could not fix it. Your earlier rounds last reported:
      - old-run-blk-0a1b2c3d-1: FIXED
 Report each listed status again unless this round's work changes it.
-A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-c-r1.md. Your earlier work is already in the UNSTAGED
+A prior review flagged issues in E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 E:/flow/runs/flow/gate/DISMISSED-block-c.md does not exist, so you have declined nothing in THIS block yet.
 You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below
@@ -16095,7 +16028,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    as round 1 would.
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
-3. BUILD: READ E:/flow/runs/flow/acceptance-review-block-c-r1.md
+3. BUILD: READ E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
    log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
    FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
@@ -16180,16 +16113,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-c-r2.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-c-r2.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-c-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -16309,7 +16242,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     file:line, and the path E:/flow/runs/flow/AMENDED-block-c.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-c.md (all
-      the detail the user needs to decide) under the heading `## Question: block-c r2`, and set
+      the detail the user needs to decide) under the heading `## Question: block-c r2, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -16498,7 +16431,7 @@ You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix bloc
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
 instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
@@ -16510,10 +16443,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -16537,7 +16470,7 @@ that the developers of the parked block whose work that entry continues OVERRODE
 amendments the same way before it excuses a criterion of a block that entry's "- origin:" line names. A
 criterion that no amendment you confirmed excuses must hold as its block's text states it.
 
-PULLED ENTRIES. READ E:/flow/runs/flow/PULLED-block-c.md if it exists. Each line is the id of a ready backlog entry this
+PULLED ENTRIES. READ E:/flow/runs/flow/launch-1/PULLED-block-c.md if it exists. Each line is the id of a ready backlog entry this
 block's round-1 developer took beside its block and built in the same unstaged diff. The developer last
 reported:
      - old-run-blk-0a1b2c3d-1: FIXED
@@ -16573,7 +16506,7 @@ so it is a regression. Not a regression:
     that a "PROACTIVE block-c:" line in E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you
     confirm from the code that the baseline behavior it removes was itself that defect, that the change
     alters no other behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
-  - a behavior change that closes the defect of a backlog entry E:/flow/runs/flow/PULLED-block-c.md lists. It is not a
+  - a behavior change that closes the defect of a backlog entry E:/flow/runs/flow/launch-1/PULLED-block-c.md lists. It is not a
     regression only when you confirm from the code that the baseline behavior it removes was that
     entry's defect and that the change alters no other behavior.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
@@ -16632,7 +16565,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    claim you cannot confirm is actually_fixed=false and fails acceptance exactly like an unclosed FIXED claim.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-c-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -16668,7 +16601,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-c-r2.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -16691,7 +16624,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    returned a fix_check with actually_fixed=true for every such entry that names it, or []. Delete no branch: the user reviews the staged work
    before committing it, so each branch stays until that commit, and a landing the user rejects can be
    rebuilt from it. Every other verdict returns branches_kept=[].
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-c-r2.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-c-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -16830,7 +16763,7 @@ You are the FIXER. Resolve the verified issues in the output of each command bel
   node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/one.md' 'block-c'
   node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/two.md' 'block-d'
 Run every one, each redirected to its own file under E:/flow/runs/flow/scratch/ (create it if needed), never
-inside the target repo or E:/flow/runs/flow/gate/, and read those files, since the Bash display cuts long output.
+inside the target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read those files, since the Bash display cuts long output.
 Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP.
 Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
@@ -16845,11 +16778,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c-plus-1
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -16917,10 +16850,7 @@ these actions in order:
   1. When E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md exists, re-check each line against the current code, and remove each line
      whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
      dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md.
-  2. Before you change E:/flow/runs/flow/AMENDED-block-c-plus-1.md, report launch_number as one past the highest n that a
-     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
-     launch_number.
-  3. When E:/flow/runs/flow/AMENDED-block-c-plus-1.md exists, re-check each amendment, each another agent's claim, as action 1
+  2. When E:/flow/runs/flow/AMENDED-block-c-plus-1.md exists, re-check each amendment, each another agent's claim, as action 1
      re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
      quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
      defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
@@ -17051,16 +16981,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-c-plus-1-r1.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-c-plus-1-r1.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-plus-1-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-plus-1-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-plus-1-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-plus-1-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-c-plus-1-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -17170,14 +17100,14 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
     Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c-plus-1.md:
-      `## Plan amendment: block-c-plus-1 r1, launch <the launch_number you report>`
+      `## Plan amendment: block-c-plus-1 r1, launch 1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the launch, the defect's
     file:line, and the path E:/flow/runs/flow/AMENDED-block-c-plus-1.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-c-plus-1.md (all
-      the detail the user needs to decide) under the heading `## Question: block-c-plus-1 r1`, and set
+      the detail the user needs to decide) under the heading `## Question: block-c-plus-1 r1, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -17208,7 +17138,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
-    "launch_number",
     "earlier_files",
     "results",
     "restore_failed",
@@ -17242,10 +17171,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_index_tree": {
       "type": "string",
       "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
@@ -17372,7 +17297,7 @@ change since the block's last blind review or last clean risk audit low risk, wh
   node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/one.md' 'block-c'
   node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/two.md' 'block-d'
 Run every one, each redirected to its own file under E:/flow/runs/flow/scratch/ (create it if needed), never
-inside the target repo or E:/flow/runs/flow/gate/, and read those files, since the Bash display cuts long output.
+inside the target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read those files, since the Bash display cuts long output.
 Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP.
 Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
 instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
@@ -17384,10 +17309,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c-plus-1   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -17530,7 +17455,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-plus-1-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-c-plus-1-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -17554,7 +17479,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    returned a fix_check with actually_fixed=true for every such entry that names it, or []. Delete no branch: the user reviews the staged work
    before committing it, so each branch stays until that commit, and a landing the user rejects can be
    rebuilt from it. Every other verdict returns branches_kept=[].
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-c-plus-1-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-c-plus-1-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -17681,7 +17606,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-c-plus-1
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
@@ -17701,11 +17626,11 @@ PROCEDURE (read-only except step 4):
    expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
-4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
+4. WRITE E:/flow/runs/flow/launch-1/SWEEP.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block that gives a fix direction you checked against the code it would change) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
-with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
-(0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
+with wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/SWEEP.md, and gap_count = the number of gaps you wrote to it
+(0 when none). Each gap's detail goes only in E:/flow/runs/flow/launch-1/SWEEP.md.
 ~~~~
 
 ~~~~json
@@ -17748,7 +17673,7 @@ You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix bloc
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
 instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
@@ -17760,10 +17685,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -17902,7 +17827,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -17926,7 +17851,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    returned a fix_check with actually_fixed=true for every such entry that names it, or []. Delete no branch: the user reviews the staged work
    before committing it, so each branch stays until that commit, and a landing the user rejects can be
    rebuilt from it. Every other verdict returns branches_kept=[].
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-c-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -18042,7 +17967,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the FIXER. Resolve the verified issues in the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
@@ -18057,11 +17982,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -18129,10 +18054,7 @@ these actions in order:
   1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
      whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
      dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
-  2. Before you change E:/flow/runs/flow/AMENDED-block-c.md, report launch_number as one past the highest n that a
-     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
-     launch_number.
-  3. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
+  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
      re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
      quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
      defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
@@ -18263,16 +18185,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-c-r1.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-c-r1.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -18380,14 +18302,14 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
     Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c.md:
-      `## Plan amendment: block-c r1, launch <the launch_number you report>`
+      `## Plan amendment: block-c r1, launch 1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the launch, the defect's
     file:line, and the path E:/flow/runs/flow/AMENDED-block-c.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
-      the detail the user needs to decide) under the heading `## Question: block-c r1`, and set
+      the detail the user needs to decide) under the heading `## Question: block-c r1, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -18418,7 +18340,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "relayed_request",
     "baseline_dirty_files",
     "baseline_index_tree",
-    "launch_number",
     "earlier_files",
     "results",
     "restore_failed",
@@ -18452,10 +18373,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_index_tree": {
       "type": "string",
       "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
@@ -18587,7 +18504,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -18641,7 +18558,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the line "Halted: acceptance passed the block but flagged a regression and staged nothing, so its work must never be staged as it is.", then this halt reason, copied verbatim: Acceptance PASSED block block-a in round 1 but flagged a regression and staged nothing (see E:/flow/runs/flow/acceptance-review-block-a-r1.md). Its work was left UNSTAGED and is flagged as a regression, so never stage it as it is., then every finding and gap in E:/flow/runs/flow/acceptance-review-block-a-r1.md, copied verbatim> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the line "Halted: acceptance passed the block but flagged a regression and staged nothing, so its work must never be staged as it is.", then this halt reason, copied verbatim: Acceptance PASSED block block-a in round 1 but flagged a regression and staged nothing (see E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md). Its work was left UNSTAGED and is flagged as a regression, so never stage it as it is., then every finding and gap in E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md, copied verbatim> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
@@ -18712,7 +18629,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -18766,7 +18683,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the line "Halted: acceptance rejected the block but staged it anyway; inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage this block's files.", then this halt reason, copied verbatim: Acceptance REJECTED block block-a in round 1 but reported staged=true (see E:/flow/runs/flow/acceptance-review-block-a-r1.md), so work it failed may now sit in the accepted baseline. Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage this block's files before resuming.> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the line "Halted: acceptance rejected the block but staged it anyway; inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage this block's files.", then this halt reason, copied verbatim: Acceptance REJECTED block block-a in round 1 but reported staged=true (see E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md), so work it failed may now sit in the accepted baseline. Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage this block's files before resuming.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
@@ -18837,7 +18754,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -18891,7 +18808,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Quality reviewer for block block-a reported findings in round 1 but did not confirm writing E:/flow/runs/flow/gate/quality-review-block-a-r1.md, so there is no review file for the next stage to read. Check whether that file exists before resuming.> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Quality reviewer for block block-a reported findings in round 1 but did not confirm writing E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r1.md, so there is no review file for the next stage to read. Check whether that file exists before resuming.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
@@ -18962,7 +18879,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19016,7 +18933,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Acceptance verifier for block block-a failed the block in round 1 but did not confirm writing E:/flow/runs/flow/acceptance-review-block-a-r1.md, so there is no review file for the next stage to read. Check whether that file exists before resuming.> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Acceptance verifier for block block-a failed the block in round 1 but did not confirm writing E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md, so there is no review file for the next stage to read. Check whether that file exists before resuming.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
@@ -19087,7 +19004,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19212,7 +19129,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19266,7 +19183,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the line "Halted: the staged index may hold work no reviewer read, since the developer did not confirm its work stayed unstaged or acceptance found the index changed outside acceptance; inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` for self-staged work.", then this halt reason, copied verbatim: Acceptance for block block-a found in round 1 that the staged index no longer holds tree c0ffee0000000000000000000000000000000001, the tree id this run last recorded for the index, so work that no reviewer read may sit in the accepted baseline (see E:/flow/runs/flow/acceptance-review-block-a-r1.md). It still reported staged=true, so its own staging may sit there too. Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage what no acceptance staged before resuming.> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the line "Halted: the staged index may hold work no reviewer read, since the developer did not confirm its work stayed unstaged or acceptance found the index changed outside acceptance; inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` for self-staged work.", then this halt reason, copied verbatim: Acceptance for block block-a found in round 1 that the staged index no longer holds tree c0ffee0000000000000000000000000000000001, the tree id this run last recorded for the index, so work that no reviewer read may sit in the accepted baseline (see E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md). It still reported staged=true, so its own staging may sit there too. Inspect `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001` and unstage what no acceptance staged before resuming.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
@@ -19337,7 +19254,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19463,7 +19380,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19588,7 +19505,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19642,7 +19559,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a' --ledger 'E:/flow/runs/flow/gate/DISMISSED-block-a.md' --amended 'E:/flow/runs/flow/AMENDED-block-a.md'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Developer for block block-a returned nothing in round 1 (agent skipped or died) — no work can be assumed either way. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Developer for block block-a returned nothing in round 1 (agent skipped or died) — no work can be assumed either way. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` with `--reserve 'E:/flow/runs/flow'` to build the blocks still todo, in either order.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
@@ -19714,7 +19631,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19768,7 +19685,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Quality reviewer for block block-a returned nothing in round 1 (agent skipped or died) — that is NOT a clean review. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Quality reviewer for block block-a returned nothing in round 1 (agent skipped or died) — that is NOT a clean review. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` with `--reserve 'E:/flow/runs/flow'` to build the blocks still todo, in either order.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
@@ -19839,7 +19756,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19893,7 +19810,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Acceptance verifier for block block-a returned nothing in round 1 (agent skipped or died) — that is NOT a gap verdict. It may have staged the block's files before it died: check `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001 --stat` for them before you pick the route the held-park rule gives this block. Any such work is in the branch's first parent, the staged index, so it is outside the park's branch diff, and that branch then does not hold all of the block's work. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Acceptance verifier for block block-a returned nothing in round 1 (agent skipped or died) — that is NOT a gap verdict. It may have staged the block's files before it died: check `git -C E:/repo diff --cached c0ffee0000000000000000000000000000000001 --stat` for them before you pick the route the held-park rule gives this block. Any such work is in the branch's first parent, the staged index, so it is outside the park's branch diff, and that branch then does not hold all of the block's work. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` with `--reserve 'E:/flow/runs/flow'` to build the blocks still todo, in either order.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
@@ -19964,7 +19881,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -20018,7 +19935,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a' --ledger 'E:/flow/runs/flow/gate/DISMISSED-block-a.md' --amended 'E:/flow/runs/flow/AMENDED-block-a.md'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the latest `## Question: block-a r<n>` entry in E:/flow/runs/flow/question-block-a.md, copied verbatim> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the latest `## Question: block-a r<n>, launch 1` entry in E:/flow/runs/flow/question-block-a.md, copied verbatim> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
@@ -20090,7 +20007,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -20144,7 +20061,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a' --ledger 'E:/flow/runs/flow/gate/DISMISSED-block-a.md' --amended 'E:/flow/runs/flow/AMENDED-block-a.md'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the latest `## Question: block-a r<n>` entry in E:/flow/runs/flow/NEEDS-USER.md, copied verbatim> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the latest `## Question: block-a r<n>, launch 1` entry in E:/flow/runs/flow/NEEDS-USER.md, copied verbatim> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
@@ -20209,7 +20126,7 @@ You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix bloc
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
 instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
@@ -20221,10 +20138,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -20561,7 +20478,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -20585,7 +20502,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    returned a fix_check with actually_fixed=true for every such entry that names it, or []. Delete no branch: the user reviews the staged work
    before committing it, so each branch stays until that commit, and a landing the user rejects can be
    rebuilt from it. Every other verdict returns branches_kept=[].
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-c-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -20704,7 +20621,7 @@ This closing pass's blind code review ran when the block's changes owed one, and
 when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -20715,10 +20632,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -20784,7 +20701,7 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -20802,20 +20719,20 @@ PROCEDURE:
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
-     E:/flow/runs/flow/risk-block-a-r2.md
+     E:/flow/runs/flow/launch-1/risk-block-a-r2.md
    The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
    that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
-     round 2, base in E:/flow/runs/flow/risk-block-a-r1.md, snapshot in E:/flow/runs/flow/risk-block-a-r2.md:
+     round 2, base in E:/flow/runs/flow/launch-1/risk-block-a-r1.md, snapshot in E:/flow/runs/flow/launch-1/risk-block-a-r2.md:
        git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
-   SWEEP CHECK. When E:/flow/runs/flow/risk-block-a-r2.md, the file of the latest round named above, exists, run
-   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   SWEEP CHECK. When E:/flow/runs/flow/launch-1/risk-block-a-r2.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
@@ -20845,7 +20762,7 @@ RISK QUESTIONS - answer each one for a change:
     could falsify?
 Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -20869,7 +20786,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file. Append each not blocking gap to the backlog as the first bullet says.
    • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r2.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -20966,7 +20883,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond this block and the fixes the ZONE ROUTING below allows.
@@ -20979,11 +20896,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Round 1 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
 develop round follows you. A blind review follows you when the block's changes since its last blind
 review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
@@ -21024,7 +20941,7 @@ code, BUILD's run is the one you report.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
-2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/acceptance-review-block-b-r1.md. Every finding and gap in it, and each failure
+2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md. Every finding and gap in it, and each failure
    the gate run below shows, is your work list. Route each item through the DECISION
    MATRIX below. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. Where the matrix says FIX, answer the RISK QUESTIONS in CLASSIFY below
    for that fix before you write any code for it. When the fix is not low risk, change no code for it. Append one entry for it instead, in RECORD's shape below,
@@ -21113,16 +21030,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-b-r2.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-b-r2.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-b-r2.md' --repo 'E:/repo' --snapshot <that tree id> --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -21238,7 +21155,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     file:line, and the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-b.md (all
-      the detail the user needs to decide) under the heading `## Question: block-b r2`, and set
+      the detail the user needs to decide) under the heading `## Question: block-b r2, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -21383,7 +21300,7 @@ This closing pass's blind code review ran when the block's changes owed one, and
 when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -21394,10 +21311,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
-This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -21463,7 +21380,7 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-b-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -21484,20 +21401,20 @@ PROCEDURE:
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r2-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r2-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
-     E:/flow/runs/flow/risk-block-b-r2.md
+     E:/flow/runs/flow/launch-1/risk-block-b-r2.md
    The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
    that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
-     round 2, base in E:/flow/runs/flow/risk-block-b-r1.md, snapshot in E:/flow/runs/flow/risk-block-b-r2.md:
+     round 2, base in E:/flow/runs/flow/launch-1/risk-block-b-r1.md, snapshot in E:/flow/runs/flow/launch-1/risk-block-b-r2.md:
        git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
-   SWEEP CHECK. When E:/flow/runs/flow/risk-block-b-r2.md, the file of the latest round named above, exists, run
-   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   SWEEP CHECK. When E:/flow/runs/flow/launch-1/risk-block-b-r2.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-b-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
@@ -21527,7 +21444,7 @@ RISK QUESTIONS - answer each one for a change:
     could falsify?
 Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -21551,7 +21468,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file. Append each not blocking gap to the backlog as the first bullet says.
    • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r2.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-b-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -21651,7 +21568,7 @@ This closing pass's blind code review ran when the block's changes owed one, and
 when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -21662,10 +21579,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -21731,8 +21648,8 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-a-r1.md
-     E:/flow/runs/flow/gate/quality-review-block-a-r2.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r2.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -21761,7 +21678,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which makes it a blocking gap, since no round follows to send to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -21785,7 +21702,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file. Append each not blocking gap to the backlog as the first bullet says.
    • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r2.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -21885,7 +21802,7 @@ This closing pass's blind code review ran when the block's changes owed one, and
 when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -21896,10 +21813,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
-This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -21965,8 +21882,8 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-b-r1.md
-     E:/flow/runs/flow/gate/quality-review-block-b-r2.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md
+     E:/flow/runs/flow/launch-1/gate/quality-review-block-b-r2.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -21998,7 +21915,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which makes it a blocking gap, since no round follows to send to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -22022,7 +21939,7 @@ PROCEDURE:
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file. Append each not blocking gap to the backlog as the first bullet says.
    • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r2.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-b-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -22122,7 +22039,7 @@ This closing pass's blind code review ran when the block's changes owed one, and
 when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -22133,10 +22050,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -22206,7 +22123,7 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -22224,20 +22141,20 @@ PROCEDURE:
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
-     E:/flow/runs/flow/risk-block-a-r2.md
+     E:/flow/runs/flow/launch-1/risk-block-a-r2.md
    The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
    that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
-     round 2, base in E:/flow/runs/flow/risk-block-a-r1.md, snapshot in E:/flow/runs/flow/risk-block-a-r2.md:
+     round 2, base in E:/flow/runs/flow/launch-1/risk-block-a-r1.md, snapshot in E:/flow/runs/flow/launch-1/risk-block-a-r2.md:
        git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
-   SWEEP CHECK. When E:/flow/runs/flow/risk-block-a-r2.md, the file of the latest round named above, exists, run
-   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   SWEEP CHECK. When E:/flow/runs/flow/launch-1/risk-block-a-r2.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
@@ -22267,7 +22184,7 @@ RISK QUESTIONS - answer each one for a change:
     could falsify?
 Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -22291,7 +22208,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file. Append each not blocking gap to the backlog as the first bullet says.
    • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r2.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -22397,7 +22314,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -22451,7 +22368,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1."> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/launch-1/acceptance-review-block-a-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1."> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
@@ -22516,7 +22433,7 @@ This closing pass's blind code review ran when the block's changes owed one, and
 when it found issues. When none ran, the developer judged each change since the block's last blind review or last clean risk audit
 low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -22527,10 +22444,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
-This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -22600,7 +22517,7 @@ PROCEDURE:
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
-     E:/flow/runs/flow/acceptance-review-block-b-r1.md
+     E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md
    For each finding or gap in them, confirm that the current code closes it, the edit that closes it breaks nothing under the
    REGRESSION step below, and a grep finds no
    sibling path that carries the same mechanism. Every other finding or gap counts as a gap. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, is closed, since the engine runs a blind review
@@ -22621,20 +22538,20 @@ PROCEDURE:
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r2-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r2-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
-     E:/flow/runs/flow/risk-block-b-r2.md
+     E:/flow/runs/flow/launch-1/risk-block-b-r2.md
    The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
    that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
    snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
    first lines of the files named beside each command:
-     round 2, base in E:/flow/runs/flow/risk-block-b-r1.md, snapshot in E:/flow/runs/flow/risk-block-b-r2.md:
+     round 2, base in E:/flow/runs/flow/launch-1/risk-block-b-r1.md, snapshot in E:/flow/runs/flow/launch-1/risk-block-b-r2.md:
        git -C E:/repo diff --stat <base> <snapshot>, then git -C E:/repo diff <base> <snapshot> -- <file> for each file it lists, one file per command
    Each round's developer returned the tree id it wrote on its risk file's first line:
      round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
      round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
    Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
    returned. A file whose line differs, or whose round returned none, counts as a missing file.
-   SWEEP CHECK. When E:/flow/runs/flow/risk-block-b-r2.md, the file of the latest round named above, exists, run
-   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
+   SWEEP CHECK. When E:/flow/runs/flow/launch-1/risk-block-b-r2.md, the file of the latest round named above, exists, run
+   `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-b-r2.md' --repo 'E:/repo' --snapshot a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 --base a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`. This risk tool checks the file's
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
@@ -22664,7 +22581,7 @@ RISK QUESTIONS - answer each one for a change:
     could falsify?
 Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -22688,7 +22605,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file. Append each not blocking gap to the backlog as the first bullet says.
    • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r2.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-b-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -22794,7 +22711,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -22848,7 +22765,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md' --block 'block-b' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-b-7d7451b3^1 aipg-unfinished/flow-block-b-7d7451b3` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-b-7d7451b3' --origin 'E:/flow/plans/bus.md#block-b'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-b-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1."> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/launch-1/acceptance-review-block-b-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1."> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even
@@ -22910,7 +22827,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows.
@@ -22923,10 +22840,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are COMMITTED (the accepted baseline is HEAD), so nothing is staged. The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -22945,10 +22862,7 @@ these actions in order:
   1. When E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, re-check each line against the current code, and remove each line
      whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
      dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-a.md.
-  2. Before you change E:/flow/runs/flow/AMENDED-block-a.md, report launch_number as one past the highest n that a
-     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
-     launch_number.
-  3. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
+  2. When E:/flow/runs/flow/AMENDED-block-a.md exists, re-check each amendment, each another agent's claim, as action 1
      re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
      quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
      defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
@@ -23066,16 +22980,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-a-r1.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-a-r1.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-a-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -23183,14 +23097,14 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
     Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
-      `## Plan amendment: block-a r1, launch <the launch_number you report>`
+      `## Plan amendment: block-a r1, launch 1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the launch, the defect's
     file:line, and the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-a.md (all
-      the detail the user needs to decide) under the heading `## Question: block-a r1`, and set
+      the detail the user needs to decide) under the heading `## Question: block-a r1, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -23222,7 +23136,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_dirty_files",
     "baseline_staged_files",
     "baseline_index_tree",
-    "launch_number",
     "earlier_files",
     "build_passed",
     "test_outcome",
@@ -23257,10 +23170,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_index_tree": {
       "type": "string",
       "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
@@ -23349,11 +23258,11 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Judge the code PURELY ON ITS OWN MERITS.
-Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
-E:/flow/runs/flow/gate/ may also hold other blocks' review and DISMISSED files.
+Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/ and E:/flow/runs/flow/launch-1/gate/.
+Both may also hold other blocks' files.
 Before you review, read no file there. At the WRITE step, once your findings are final,
-Read E:/flow/runs/flow/gate/quality-review-block-a-r1.md if it exists, so the Write tool accepts the overwrite, then replace its entire content.
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+Read E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r1.md if it exists, so the Write tool accepts the overwrite, then replace its entire content.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/gate/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 TARGET REPO: E:/repo
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
 Of the gates, run only the test command, and only for ONE targeted test that confirms a suspected defect.
@@ -23440,7 +23349,7 @@ cited by line. Those four checks and the nit list bound your review of such a hu
 A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
 with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
 
-WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+WRITE your findings to E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/launch-1/gate/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Group them by tier, highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
 harm (for a finding at medium or above), and a fix direction you checked against the code it would change. When you found nothing, write
 exactly "No findings." Then return wrote_file (true ONLY if you wrote that file), clean (true if you
@@ -23487,7 +23396,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -23498,10 +23407,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -23589,7 +23498,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -23606,18 +23515,18 @@ PROCEDURE:
      (nothing to add). Say so in your file. Make no commit, and return committed=true, commit_sha "", commit_subject "", tree_matches=true and tree_clean as step 9 says.
    • Otherwise → return pass=false (do NOT stage or commit, and return committed=false and commit_sha ""); the gaps you wrote drive the next develop round.
 9. COMMIT, on a pass whose diff is not empty: write the block's title, which is the JSON string
-   "block-a", decoded, as the one line of E:/flow/runs/flow/commit-block-a.txt (create E:/flow/runs/flow/
-   if needed), with no quotes, no other line and no trailer. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Run `git -C E:/repo write-tree` and keep the
-   tree id it prints. Run `git -C E:/repo commit -F E:/flow/runs/flow/commit-block-a.txt`.
+   "block-a", decoded, as the one line of E:/flow/runs/flow/launch-1/commit-block-a.txt (create E:/flow/runs/flow/launch-1/
+   if needed), with no quotes, no other line and no trailer. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. Run `git -C E:/repo write-tree` and keep the
+   tree id it prints. Run `git -C E:/repo commit -F E:/flow/runs/flow/launch-1/commit-block-a.txt`.
    Never pass `--no-verify`, `--no-gpg-sign` or `--amend`. When the commit fails, such as when a hook or
-   signing refuses it, append its full output to E:/flow/runs/flow/acceptance-review-block-a-r1.md, leave the work staged, and
+   signing refuses it, append its full output to E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md, leave the work staged, and
    return committed=false, commit_sha "", commit_subject "" and tree_matches=false. When it succeeds,
    return committed=true, commit_sha from `git -C E:/repo log -1 --format=%H`, commit_subject from
    `git -C E:/repo log -1 --format=%s`, and tree_matches=true only when
    `git -C E:/repo log -1 --format=%T` prints the tree id you kept. When it prints another, append both
-   tree ids to E:/flow/runs/flow/acceptance-review-block-a-r1.md, the kept one first. On every pass, return tree_clean=true
+   tree ids to E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md, the kept one first. On every pass, return tree_clean=true
    only when `git -C E:/repo status --porcelain` then prints nothing.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -23726,7 +23635,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond this block and the fixes the ZONE ROUTING below allows.
@@ -23739,11 +23648,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are COMMITTED (the accepted baseline is HEAD), so nothing is staged. The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -23762,10 +23671,7 @@ these actions in order:
   1. When E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, re-check each line against the current code, and remove each line
      whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
      dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-b.md.
-  2. Before you change E:/flow/runs/flow/AMENDED-block-b.md, report launch_number as one past the highest n that a
-     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
-     launch_number.
-  3. When E:/flow/runs/flow/AMENDED-block-b.md exists, re-check each amendment, each another agent's claim, as action 1
+  2. When E:/flow/runs/flow/AMENDED-block-b.md exists, re-check each amendment, each another agent's claim, as action 1
      re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
      quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
      defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
@@ -23886,16 +23792,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-b-r1.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-b-r1.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-b-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-b-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -24003,14 +23909,14 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
     Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
-      `## Plan amendment: block-b r1, launch <the launch_number you report>`
+      `## Plan amendment: block-b r1, launch 1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the launch, the defect's
     file:line, and the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-b.md (all
-      the detail the user needs to decide) under the heading `## Question: block-b r1`, and set
+      the detail the user needs to decide) under the heading `## Question: block-b r1, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -24042,7 +23948,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_dirty_files",
     "baseline_staged_files",
     "baseline_index_tree",
-    "launch_number",
     "earlier_files",
     "build_passed",
     "test_outcome",
@@ -24077,10 +23982,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_index_tree": {
       "type": "string",
       "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
@@ -24171,7 +24072,7 @@ You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -24182,10 +24083,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -24276,7 +24177,7 @@ PROCEDURE:
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -24293,18 +24194,18 @@ PROCEDURE:
      (nothing to add). Say so in your file. Make no commit, and return committed=true, commit_sha "", commit_subject "", tree_matches=true and tree_clean as step 9 says.
    • Otherwise → return pass=false (do NOT stage or commit, and return committed=false and commit_sha ""); the gaps you wrote drive the next develop round.
 9. COMMIT, on a pass whose diff is not empty: write the block's title, which is the JSON string
-   "block-b", decoded, as the one line of E:/flow/runs/flow/commit-block-b.txt (create E:/flow/runs/flow/
-   if needed), with no quotes, no other line and no trailer. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Run `git -C E:/repo write-tree` and keep the
-   tree id it prints. Run `git -C E:/repo commit -F E:/flow/runs/flow/commit-block-b.txt`.
+   "block-b", decoded, as the one line of E:/flow/runs/flow/launch-1/commit-block-b.txt (create E:/flow/runs/flow/launch-1/
+   if needed), with no quotes, no other line and no trailer. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. Run `git -C E:/repo write-tree` and keep the
+   tree id it prints. Run `git -C E:/repo commit -F E:/flow/runs/flow/launch-1/commit-block-b.txt`.
    Never pass `--no-verify`, `--no-gpg-sign` or `--amend`. When the commit fails, such as when a hook or
-   signing refuses it, append its full output to E:/flow/runs/flow/acceptance-review-block-b-r1.md, leave the work staged, and
+   signing refuses it, append its full output to E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md, leave the work staged, and
    return committed=false, commit_sha "", commit_subject "" and tree_matches=false. When it succeeds,
    return committed=true, commit_sha from `git -C E:/repo log -1 --format=%H`, commit_subject from
    `git -C E:/repo log -1 --format=%s`, and tree_matches=true only when
    `git -C E:/repo log -1 --format=%T` prints the tree id you kept. When it prints another, append both
-   tree ids to E:/flow/runs/flow/acceptance-review-block-b-r1.md, the kept one first. On every pass, return tree_clean=true
+   tree ids to E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md, the kept one first. On every pass, return tree_clean=true
    only when `git -C E:/repo status --porcelain` then prints nothing.
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -24424,7 +24325,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-a, block-b
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
@@ -24447,11 +24348,11 @@ PROCEDURE (read-only except step 4):
      block-b: `git -C E:/repo show --stat b1c2d3e4f5061728394a5b6c7d8e9f0123456789`
    A block an earlier launch accepted has its commit before these, in `git -C E:/repo log --stat`. Do these
    commits and the earlier ones plausibly cover every block's acceptance? Look for suspiciously-untouched areas the GOAL names.
-4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
+4. WRITE E:/flow/runs/flow/launch-1/SWEEP.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block that gives a fix direction you checked against the code it would change) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
-with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
-(0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
+with wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/SWEEP.md, and gap_count = the number of gaps you wrote to it
+(0 when none). Each gap's detail goes only in E:/flow/runs/flow/launch-1/SWEEP.md.
 ~~~~
 
 ~~~~json
@@ -24492,7 +24393,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 
 You are the FIXER. Resolve the verified issues in the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line,
@@ -24507,11 +24408,11 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are COMMITTED (the accepted baseline is HEAD), so nothing is staged. The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -24580,10 +24481,7 @@ these actions in order:
   1. When E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, re-check each line against the current code, and remove each line
      whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
      dismissal hides a finding in rebuilt code. Output: the rewritten E:/flow/runs/flow/gate/DISMISSED-block-c.md.
-  2. Before you change E:/flow/runs/flow/AMENDED-block-c.md, report launch_number as one past the highest n that a
-     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
-     launch_number.
-  3. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
+  2. When E:/flow/runs/flow/AMENDED-block-c.md exists, re-check each amendment, each another agent's claim, as action 1
      re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
      quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
      defect the current code does not reproduce, with its pointer line in E:/flow/runs/flow/DECISIONS.md, the line that names
@@ -24714,16 +24612,16 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below, and record each judgment in E:/flow/runs/flow/risk-block-c-r1.md. First take a snapshot of the working
+   QUESTIONS below, and record each judgment in E:/flow/runs/flow/launch-1/risk-block-c-r1.md. First take a snapshot of the working
    tree after your last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
-   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
+   Delete the temporary index file once the last command has printed the tree id. Then run `node 'E:/flow/tools/risk-check.mjs' 'E:/flow/runs/flow/launch-1/risk-block-c-r1.md' --repo 'E:/repo' --snapshot <that tree id> --base <the tree id STEP 0 printed>`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a Snapshot: line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a Snapshot: line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
@@ -24831,14 +24729,14 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
     Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c.md:
-      `## Plan amendment: block-c r1, launch <the launch_number you report>`
+      `## Plan amendment: block-c r1, launch 1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the launch, the defect's
     file:line, and the path E:/flow/runs/flow/AMENDED-block-c.md, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/question-block-c.md (all
-      the detail the user needs to decide) under the heading `## Question: block-c r1`, and set
+      the detail the user needs to decide) under the heading `## Question: block-c r1, launch 1`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -24870,7 +24768,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_dirty_files",
     "baseline_staged_files",
     "baseline_index_tree",
-    "launch_number",
     "earlier_files",
     "results",
     "restore_failed",
@@ -24908,10 +24805,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "baseline_index_tree": {
       "type": "string",
       "description": "the tree id `git write-tree` printed at STEP 0, before you touched anything."
-    },
-    "launch_number": {
-      "type": "integer",
-      "description": "the launch number your prompt says how to count from the AMENDED file."
     },
     "earlier_files": {
       "type": "boolean",
@@ -25036,7 +24929,7 @@ You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix bloc
 This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review or last clean risk audit low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+target repo or under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line, a **Fix:**
 instruction and, from a review, an **Evidence:** line with what the review confirmed. You judge the work against it; you never implement it. An entry's **Triage:** line, when it has one, holds the user's decision on that entry. It settles each choice the entry's **Fix:** line leaves open, and it wins where the two differ. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. An entry of this block that carries a line that starts with "**Parked with:**" counts as not ACTIONABLE too, since the code it names sits on that block's branch or is not built yet. An entry of this block whose "- status:" reads fixed or stale was closed by an earlier run. In every step below the developer works no such entry and returns no result for it, and acceptance does not count one as left unreported.
@@ -25048,10 +24941,10 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -25190,7 +25083,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    that developer handed on, which is a gap.
    Write each gap it finds in your review file and return risk_misclassified=true, which sends the next round to a blind review.
    Otherwise return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+7. WRITE E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/launch-1/ if needed) BEFORE step 8. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -25210,16 +25103,16 @@ prints a block), and, for a feature or section block, the reachability of its wo
      file and return pass=false.
    • Otherwise → return pass=false (do NOT stage or commit, and return committed=false and commit_sha ""); the gaps you wrote drive the next develop round.
 9. COMMIT, on a pass whose diff is not empty: write the block's title, which is the JSON string
-   "block-c", decoded, as the one line of E:/flow/runs/flow/commit-block-c.txt (create E:/flow/runs/flow/
-   if needed), with no quotes, no other line and no trailer. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Run `git -C E:/repo write-tree` and keep the
-   tree id it prints. Run `git -C E:/repo commit -F E:/flow/runs/flow/commit-block-c.txt`.
+   "block-c", decoded, as the one line of E:/flow/runs/flow/launch-1/commit-block-c.txt (create E:/flow/runs/flow/launch-1/
+   if needed), with no quotes, no other line and no trailer. The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. Run `git -C E:/repo write-tree` and keep the
+   tree id it prints. Run `git -C E:/repo commit -F E:/flow/runs/flow/launch-1/commit-block-c.txt`.
    Never pass `--no-verify`, `--no-gpg-sign` or `--amend`. When the commit fails, such as when a hook or
-   signing refuses it, append its full output to E:/flow/runs/flow/acceptance-review-block-c-r1.md, leave the work staged, and
+   signing refuses it, append its full output to E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md, leave the work staged, and
    return committed=false, commit_sha "", commit_subject "" and tree_matches=false. When it succeeds,
    return committed=true, commit_sha from `git -C E:/repo log -1 --format=%H`, commit_subject from
    `git -C E:/repo log -1 --format=%s`, and tree_matches=true only when
    `git -C E:/repo log -1 --format=%T` prints the tree id you kept. When it prints another, append both
-   tree ids to E:/flow/runs/flow/acceptance-review-block-c-r1.md, the kept one first. On every pass, return tree_clean=true
+   tree ids to E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md, the kept one first. On every pass, return tree_clean=true
    only when `git -C E:/repo status --porcelain` then prints nothing.
 10. DELETE LANDED BRANCHES, only on a pass that returns regression=false, committed=true, commit_subject equal to the block's title, tree_matches=true and tree_clean=true:
    for each distinct branch that the "- branch:" line of each ACTIONABLE entry whose "- status:" is absent, open or needs-attention and that carries a "- branch:" line names, when this verdict
@@ -25227,7 +25120,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    work. Every other branch, and every branch on any other verdict, stays, since the operator may reject
    the work and rebuild it from the branch. Return branches_kept = each branch this step ran
    `git branch -D` on that `git -C E:/repo rev-parse --verify --quiet refs/heads/<branch>` still resolves after it, or [].
-Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-c-r1.md this round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
@@ -25379,7 +25272,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-c
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
@@ -25401,11 +25294,11 @@ PROCEDURE (read-only except step 4):
      block-c: `git -C E:/repo show --stat c1d2e3f405162738495a6b7c8d9e0f1234567890`
    A block an earlier launch accepted has its commit before these, in `git -C E:/repo log --stat`. Do these
    commits and the earlier ones plausibly cover every block's acceptance? Look for suspiciously-untouched areas the GOAL names.
-4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
+4. WRITE E:/flow/runs/flow/launch-1/SWEEP.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block that gives a fix direction you checked against the code it would change) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
-with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
-(0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
+with wrote_file=true ONLY if you wrote E:/flow/runs/flow/launch-1/SWEEP.md, and gap_count = the number of gaps you wrote to it
+(0 when none). Each gap's detail goes only in E:/flow/runs/flow/launch-1/SWEEP.md.
 ~~~~
 
 ~~~~json
@@ -25455,7 +25348,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -25507,7 +25400,7 @@ PROCEDURE:
      node 'E:/flow/tools/plan-entry.mjs' new --file 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md' --block 'block-a' --run 'flow' --file-ref '<the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>' --category unfinished --size <trivial|small|medium|large: the work the gaps below leave> --decision <ACTIONABLE|NEEDS_USER> --branch 'aipg-unfinished/flow-block-a-d48cf78a' --origin 'E:/flow/plans/bus.md#block-a'
    Its --decision value follows the decision sentence at the end of this step.
    It prints the new entry's id on its first line. Read the file, since the Edit tool refuses a file its agent has not read, then with the Edit tool replace the entry's placeholder title with "unfinished: <block title>",
-   its **What:** placeholder with <the line "Halted: acceptance rejected the block but staged or committed it anyway; inspect `git -C E:/repo diff --cached` and `git -C E:/repo log -1`, then unstage this block's files or revert its commit with `git -C E:/repo revert <sha>`.", then this halt reason, copied verbatim: Acceptance REJECTED block block-a in round 1 but reported commit a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 (see E:/flow/runs/flow/acceptance-review-block-a-r1.md), so work it failed may now sit in the accepted baseline. Inspect `git -C E:/repo show --stat a1b2c3d4e5f60718293a4b5c6d7e8f9012345678` and revert it with `git -C E:/repo revert a1b2c3d4e5f60718293a4b5c6d7e8f9012345678` before resuming.> and its **Fix:** placeholder with this text:
+   its **What:** placeholder with <the line "Halted: acceptance rejected the block but staged or committed it anyway; inspect `git -C E:/repo diff --cached` and `git -C E:/repo log -1`, then unstage this block's files or revert its commit with `git -C E:/repo revert <sha>`.", then this halt reason, copied verbatim: Acceptance REJECTED block block-a in round 1 but reported commit a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 (see E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md), so work it failed may now sit in the accepted baseline. Inspect `git -C E:/repo show --stat a1b2c3d4e5f60718293a4b5c6d7e8f9012345678` and revert it with `git -C E:/repo revert a1b2c3d4e5f60718293a4b5c6d7e8f9012345678` before resuming.> and its **Fix:** placeholder with this text:
      Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    Then run `node 'E:/flow/tools/plan-entry.mjs' check 'E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md'` and fix each problem it prints.
    When step 1 made no commit, this park saved no work to restore, so pass no --branch, even

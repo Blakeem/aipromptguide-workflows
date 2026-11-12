@@ -45,13 +45,14 @@ const FIX_BLOCK = { id: 'block-c', planPath: BUS, mode: 'fix', gate: 'green' };
 const BACKLOG = 'E:/flow/backlog/repo-0a1b2c3d';
 const base = {
   runId: 'flow', root: 'E:/flow', target: TARGET, gates: GATES, backlogDir: BACKLOG, blockTool: 'E:/flow/tools/plan-block.mjs',
+  launchDir: 'E:/flow/runs/flow/launch-1',
   goal: 'move every caller onto the new client', sweep: 'goal-coverage', plans: BLOCKS,
 };
 
 // Agent returns carrying every attestation the engine reads. `review_needed` gates a later round's blind
 // review, and `unstaged_confirmed` is a HALT here rather than a warning — hence its own scenario below.
 // `earlier_files: false` with both counts 0 makes the traced prompts show the absent-file wording.
-const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, dismissed_count: 0, backlog_entries: 0, backlog_blocks: [], review_needed: true, risk_snapshot: 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', baseline_index_tree: 'c0ffee0000000000000000000000000000000001', launch_number: 1, earlier_files: false };
+const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, dismissed_count: 0, backlog_entries: 0, backlog_blocks: [], review_needed: true, risk_snapshot: 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', baseline_index_tree: 'c0ffee0000000000000000000000000000000001', earlier_files: false };
 const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, contested_dismissals: 0 };
 const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, contested_dismissals: 0 };
 const ACC_PASS = { wrote_file: true, pass: true, staged: true, index_matched: true, index_tree: 'c0ffee0000000000000000000000000000000001', earlier_reviews_read: 0, reachable: true, regression: false, evidence_recorded: true, gap_count: 0, backlog_entries: 0, backlog_blocks: [] };
@@ -115,6 +116,12 @@ export default {
   engine: 'workflows/develop/develop-cycle.mjs',
   out: 'workflows/develop/FLOW.md',
   title: 'develop-cycle',
+  allowUncovered: {
+    throws: [{
+      prefix: 'Missing args.launchDir: pass the launchDir',
+      reason: "launchDirOf's missing-arg branch, a copy every launch-folder engine holds byte for byte; develop's own check before it throws first, naming plan-edit.mjs's --reserve flag",
+    }],
+  },
   scenarios: [
     // ---- arg validation, in the order the engine checks it ---------------------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
@@ -156,6 +163,10 @@ export default {
     // has nowhere to record what a block leaves, and a folder inside the repo would join the diff the reviewers judge.
     { name: 'no backlog folder', when: 'backlogDir is missing or relative', args: { ...base, backlogDir: 'backlog' } },
     { name: 'backlog folder inside the repo', when: 'backlogDir lies inside target.repo', args: { ...base, backlogDir: 'E:/repo/backlog' } },
+    // Each launch writes its round files in its own launch folder, so a launch without one, or with a folder
+    // outside the stateDir, would write where another launch did.
+    { name: 'no launch folder', when: 'args.launchDir is missing or blank', args: { ...base, launchDir: undefined } },
+    { name: 'launch folder outside the stateDir', when: 'args.launchDir is not a launch-<n> folder directly inside the stateDir', args: { ...base, launchDir: 'E:/flow/runs/other/launch-1' } },
     { name: 'notes folder inside the repo', when: 'notes.dir lies inside target.repo', args: { ...base, notes: { dir: 'E:/repo/notes', survey: 'E:/aipg/tools/EXIT-SURVEY.md' } } },
     { name: 'notes folder inside the run-state', when: 'notes.dir lies inside runs/<runId>/', args: { ...base, notes: { dir: 'E:/flow/runs/flow/gate', survey: 'E:/aipg/tools/EXIT-SURVEY.md' } } },
 

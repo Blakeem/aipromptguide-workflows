@@ -28,6 +28,9 @@ Use these paths wherever the guide says "this checkout" or "the tool's own direc
   `${CLAUDE_PLUGIN_ROOT}/workflows/develop/develop-cycle.mjs`
 - develop's `blockTool` arg: the args tool below prints it, so the spread args carry it, and develop
   throws without it. Never pass it by hand.
+- develop's `launchDir` arg: the args tool below prints it when develop's pre-launch step passes
+  `--reserve <stateDir>`, so the spread args carry it, and develop throws without it. Never pass it by
+  hand.
 - Args, status and triage tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/plan-edit.mjs`
 - Onboarding tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/onboard.mjs`
 - Project-settings tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs`

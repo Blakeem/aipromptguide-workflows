@@ -27,6 +27,9 @@ Use these paths wherever the guide says "this checkout" or "the tool's own direc
   `plans/<runId>/`. Never the plugin install dir, which is version-swapped on update.
 - `blockTool` arg: the args tool below prints it, so the spread args carry it, and the engine throws
   without it. Never pass it by hand.
+- `launchDir` arg: the args tool below prints it when the guide's pre-launch step passes
+  `--reserve <stateDir>`, so the spread args carry it, and the engine throws without it. Never pass it
+  by hand.
 - Args tool (operator-side, before every launch, also applies finished runs' statuses):
   `${CLAUDE_PLUGIN_ROOT}/tools/plan-edit.mjs`
 - Onboarding tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/onboard.mjs`

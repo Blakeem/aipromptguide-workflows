@@ -143,7 +143,8 @@ Claude reads `workflows/develop/CLAUDE.md` and follows it.
 3. You approve the final plan text.
 4. develop builds the blocks.
 5. Before each launch, `tools/plan-edit.mjs args` writes the results of every finished run into the
-   plan file's `status:` lines. A relaunch then builds only what is still `todo`.
+   plan file's `status:` lines. A relaunch then builds only what is still `todo`. Its `--reserve` flag
+   gives each launch a new folder for its review files, so a relaunch keeps every earlier review.
 
 For a debug inventory, triage the issue files first. Each one is a fix-mode plan file develop builds
 directly.
@@ -152,16 +153,16 @@ Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the 
 
 ## Reviewing the result
 
-Run the tests yourself and read `git diff --cached`. The run folder `runs/<runId>/` holds the
-acceptance reviews, the quality reviews under `gate/`, the developer's risk answers for each round
-(`risk-<id>-rN.md`, which starts with the round's snapshot and ends with its sweep of each changed
-name), each block's declined findings (`gate/DISMISSED-<id>.md`), any plan amendment
-(`AMENDED-<id>.md`), the questions that stopped an ordered run (`NEEDS-USER.md`), an unordered
-run's question for one block (`question-<id>.md`, which the park also copies into that block's backlog
-entry), the
-defaults the developer took, a pointer to each plan amendment and each fix the developer made to a
-problem the code already had that its block did not require (`DECISIONS.md`), the backlog entries a
-block's developer took under `proactive` (`PULLED-<id>.md`), and the sweep result (`SWEEP.md`).
+Run the tests yourself and read `git diff --cached`. The run folder `runs/<runId>/` holds one folder per
+launch, `launch-<n>/`. Each launch folder holds that launch's acceptance reviews, its quality reviews under
+`gate/`, the developer's risk answers for each round (`risk-<id>-rN.md`, which starts with the round's
+snapshot and ends with its sweep of each changed name), the backlog entries a block's developer took under
+`proactive` (`PULLED-<id>.md`), and the sweep result (`SWEEP.md`). The run folder itself holds each block's
+declined findings (`gate/DISMISSED-<id>.md`), any plan amendment (`AMENDED-<id>.md`), the questions that
+stopped an ordered run (`NEEDS-USER.md`), an unordered run's question for one block (`question-<id>.md`,
+which the park also copies into that block's backlog entry), and the defaults the developer took, a
+pointer to each plan amendment and each fix the developer made to a problem the code already had that its
+block did not require (`DECISIONS.md`).
 The run's summary names each `DISMISSED-<id>.md` file, so you can audit every finding a developer
 declined.
 

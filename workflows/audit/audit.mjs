@@ -1087,7 +1087,7 @@ const auditDefects = async () => {
     'Set each issue file\'s developer model with `node <plan-edit.mjs> set <file> <block-id> model=<model>`, where `<plan-edit.mjs>` is `tools/plan-edit.mjs` of the aipg checkout or installed plugin, never of your cwd.',
     'Set `status: skip` on each issue file with no `- decision: ACTIONABLE` entry, or leave that file out of the build.',
     'Confirm the gates are green in the user\'s checkout.',
-    'Build the triaged files with develop-cycle.mjs in fix mode, launched with the args `node <plan-edit.mjs> args <the issue files that keep an ACTIONABLE entry> --pack <target.repo>` prints (start with one file to sanity-check cost and quality). Each later `args` call folds the finished runs\' statuses back first.',
+    `Build the triaged files with develop-cycle.mjs in fix mode, under this run's \`runId\` and \`root\`, and its \`stateDir\` when this run set one, so develop's state dir is this run's state dir. Launch it with the args \`node <plan-edit.mjs> args <the issue files that keep an ACTIONABLE entry> --pack <target.repo> --reserve '${STATE_DIR}'\` prints, where \`--reserve\` reserves develop's launch folder in that state dir (start with one file to sanity-check cost and quality). Each later \`args\` call folds the finished runs' statuses back first.`,
   ];
 
   return {

@@ -882,7 +882,7 @@ section('the defects nextStep numbers its steps, and sets the model, skip and ga
   const steps = ['\n2. Triage by EDITING those files', '\n3. Set each issue file\'s developer model with `node <plan-edit.mjs> set <file> <block-id> model=<model>`, where `<plan-edit.mjs>` is `tools/plan-edit.mjs` of the aipg checkout or installed plugin, never of your cwd.',
     '\n4. Set `status: skip` on each issue file with no `- decision: ACTIONABLE` entry, or leave that file out of the build.',
     '\n5. Confirm the gates are green in the user\'s checkout.',
-    '\n6. Build the triaged files with develop-cycle.mjs in fix mode, launched with the args `node <plan-edit.mjs> args <the issue files that keep an ACTIONABLE entry> --pack <target.repo>` prints'];
+    '\n6. Build the triaged files with develop-cycle.mjs in fix mode, under this run\'s `runId` and `root`, and its `stateDir` when this run set one, so develop\'s state dir is this run\'s state dir. Launch it with the args `node <plan-edit.mjs> args <the issue files that keep an ACTIONABLE entry> --pack <target.repo> --reserve \'E:/r/runs/t\'` prints, where `--reserve` reserves develop\'s launch folder'];
   for (const s of steps) ok(at(s) > 0, `nextStep holds the step: ${s.trim().slice(0, 60)}`);
   ok(steps.every((s, i) => i === 0 || at(steps[i - 1]) < at(s)), 'in that order');
   ok(next.endsWith('\nworkflows/audit/CLAUDE.md §0 "After a defects run" holds each of these steps with its output, and the steps after the build.'), 'and ends on the guide checklist by its heading');

@@ -102,7 +102,7 @@ const ROADMAP = [
   '',
 ].join('\n');
 
-const DEV_OK = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, dismissed_count: 0, plan_obtained: true, backlog_entries: 0, backlog_blocks: [], review_needed: true, risk_snapshot: 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', baseline_index_tree: 'c0ffee0000000000000000000000000000000001', launch_number: 1, earlier_files: true };
+const DEV_OK = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, dismissed_count: 0, plan_obtained: true, backlog_entries: 0, backlog_blocks: [], review_needed: true, risk_snapshot: 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', baseline_index_tree: 'c0ffee0000000000000000000000000000000001', earlier_files: true };
 const DEV_FIX = { ...DEV_OK, results: [{ issue_id: 'f-1', status: 'FIXED' }, { issue_id: 'f-2', status: 'STALE' }] };
 const CLEAN = { wrote_file: true, clean: true, issue_count: 0, contested_dismissals: 0 };
 const ACC_PASS = { wrote_file: true, pass: true, staged: true, index_matched: true, index_tree: 'c0ffee0000000000000000000000000000000001', reachable: true, regression: false, evidence_recorded: true, gap_count: 0, plan_obtained: true };
@@ -112,7 +112,7 @@ const ACC_FIX = { wrote_file: true, pass: true, staged: true, index_matched: tru
 const PARK_OK = { saved: true, cleared: true, gates_green: true, commit_sha: 'd1e2f3a4b5c60718293a4b5c6d7e8f9012345678', entry_written: true };
 
 const launch = (args, respond) => runEngine(DEVELOP, {
-  args: { ...args, runId: 'bus', root: 'E:/state', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, backlogDir: 'E:/state/backlog/repo-0a1b2c3d', maxRounds: 1 },
+  args: { ...args, runId: 'bus', root: 'E:/state', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, backlogDir: 'E:/state/backlog/repo-0a1b2c3d', launchDir: 'E:/state/runs/bus/launch-1', maxRounds: 1 },
   respond,
 });
 const RESPOND = {

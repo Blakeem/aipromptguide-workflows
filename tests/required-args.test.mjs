@@ -51,7 +51,7 @@ const UNIT     = { id: 'u1', hash: 'h', files: [{ path: 'a.js', loc: 10 }] };
 // Each row carries its own planPath, as every row `plan-edit.mjs args` prints does, and a row without one
 // throws.
 const DEVELOP_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b' }, backlogDir: 'E:/r/backlog/repo-0a1b2c3d',
-  blockTool: 'E:/r/tools/plan-block.mjs',
+  blockTool: 'E:/r/tools/plan-block.mjs', launchDir: 'E:/r/runs/t/launch-1',
   plans: [{ id: 'block-a', planPath: 'plans/bus.md', mode: 'feature', gate: 'build-only' },
     { id: 'block-b', planPath: 'plans/bus.md', mode: 'section', gate: 'build-only' }] };
 // refine converges a plan FILE and builds nothing, so it takes no gates at all. `planPath` carries the
@@ -81,7 +81,7 @@ const SWEEP = [
     engine: 'workflows/develop/develop-cycle.mjs',
     baseArgs: DEVELOP_ARGS,
     respond: {},
-    required: ['runId', 'root', 'target.repo', 'gates.build', 'plans', 'backlogDir', 'blockTool',
+    required: ['runId', 'root', 'target.repo', 'gates.build', 'plans', 'backlogDir', 'blockTool', 'launchDir',
       // Both baseline blocks are gate:"build-only", which needs no test command — so this one needs a
       // variant whose block actually asks for verification, and that block must be TODO: the guard is
       // scoped to the PENDING slice, so a done/skip block asking for green must NOT demand the command.
@@ -190,6 +190,7 @@ for (const { engine, baseArgs, respond, required } of SWEEP) {
     ['changePolicy', 'changePolicy:"lenient"', { ...DEVELOP_ARGS, changePolicy: 'lenient' }],
     ['backlogDir', 'a relative folder', { ...DEVELOP_ARGS, backlogDir: 'backlog/repo-0a1b2c3d' }],
     ['backlogDir', 'a folder inside target.repo', { ...DEVELOP_ARGS, backlogDir: 'E:/repo/backlog' }],
+    ['launchDir', 'a launch folder of another stateDir', { ...DEVELOP_ARGS, launchDir: 'E:/r/runs/other/launch-1' }],
   ];
   for (const [path, what, args] of VALUES) {
     const msg = await throwsWith(engine, { args, respond: {} });

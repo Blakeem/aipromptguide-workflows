@@ -1,7 +1,7 @@
 export const meta = {
   name: 'develop-cycle',
-  description: 'Plan-driven build engine, one approved plan FILE as the bus: implement the todo BLOCKS of that file — each a "## Plan: <id>" block the user approved — where the block\'s `mode` picks the frame the engine holds (feature = one bounded feature, wired in and reachable; section = one slice of a breadth-spanning goal, every call site converted; fix = a triaged issue inventory, every ACTIONABLE entry verified and closed). Per block: develop → BLIND pure-code review (must pass, apart from the closing pass, whose acceptance sorts its findings) on the block\'s first build and wherever the developer judges a change not low risk → plan-aware acceptance + regression review + an audit of the developer\'s risk judgment (stages on pass, and in commit mode commits), looped per round, then one closing pass when the last round fails, whose acceptance lands the block when no gap it finds is blocking and sends each gap it leaves to the backlog; the accepted baseline advances block by block. A block whose closing acceptance finds a blocking gap is PARKED — its work saved as a commit on a branch that one backlog entry links, and cleared from the tree — after which an UNORDERED run CONTINUES and an ORDERED one STOPS (its later blocks depend on this one). Agents exchange messages as verbatim files; the harness only routes block ids, paths + verdicts.',
-  whenToUse: 'Build the todo blocks of ONE approved plan file: bounded features (mode:"feature" — a new MCP tool/API endpoint/page/form, a contained enhancement, a design-needing bugfix), the ordered sections of a breadth-spanning goal (mode:"section" — a migration, upgrade, port, subsystem refactor), and/or triaged issue inventories (mode:"fix" — a block whose "### [<id>]" entries are the verified defects to close). The orchestrating agent authors the plan file OUTSIDE this engine (plan mode, then refine, then the user approves the final text), and the operator derives the args with `tools/plan-edit.mjs args <planPath>`, spreads the object it prints and adds backlogDir, the folder `tools/project-settings.mjs backlog` prints. Requires a CLEAN unstaged working tree; each accepted block is STAGED, and committed only when args.commit is true. Reuse one runId across resumes.',
+  description: 'Plan-driven build engine, one approved plan FILE as the bus: implement the todo BLOCKS of that file — each a "## Plan: <id>" block the user approved — where the block\'s `mode` picks the frame the engine holds (feature = one bounded feature, wired in and reachable; section = one slice of a breadth-spanning goal, every call site converted; fix = a triaged issue inventory, every ACTIONABLE entry verified and closed). Per block: develop → BLIND pure-code review (must pass, apart from the closing pass, whose acceptance sorts its findings) on the block\'s first build and wherever the developer judges a change not low risk → plan-aware acceptance + regression review + an audit of the developer\'s risk judgment (stages on pass, and in commit mode commits), looped per round, then one closing pass when the last round fails, whose acceptance lands the block when no gap it finds is blocking and sends each gap it leaves to the backlog; the accepted baseline advances block by block. A block whose closing acceptance finds a blocking gap is PARKED — its work saved as a commit on a branch that one backlog entry links, and cleared from the tree — after which an UNORDERED run CONTINUES and an ORDERED one STOPS (its later blocks depend on this one). Each launch writes its round files (the reviews, the risk files, PULLED-<id>.md, commit-<id>.txt and SWEEP.md) in its own launch folder, the required launchDir arg that `plan-edit.mjs args --reserve <stateDir>` reserves in the stateDir, so no launch replaces a round file an earlier launch wrote, while the ledgers and questions stay in the stateDir. Agents exchange messages as verbatim files; the harness only routes block ids, paths + verdicts.',
+  whenToUse: 'Build the todo blocks of ONE approved plan file: bounded features (mode:"feature" — a new MCP tool/API endpoint/page/form, a contained enhancement, a design-needing bugfix), the ordered sections of a breadth-spanning goal (mode:"section" — a migration, upgrade, port, subsystem refactor), and/or triaged issue inventories (mode:"fix" — a block whose "### [<id>]" entries are the verified defects to close). The orchestrating agent authors the plan file OUTSIDE this engine (plan mode, then refine, then the user approves the final text), and the operator derives the args with `tools/plan-edit.mjs args <planPath> --reserve <stateDir>`, spreads the object it prints, launchDir included, and adds backlogDir, the folder `tools/project-settings.mjs backlog` prints. Requires a CLEAN unstaged working tree; each accepted block is STAGED, and committed only when args.commit is true. Reuse one runId across resumes.',
   phases: [
     { title: 'Develop', detail: 'Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues, and works within the run\'s changePolicy in six phases, in this order. PATTERNS follows the repo\'s existing patterns. BUILD builds the block, then runs the gate. In a round that answers a review, a feature or section block\'s BUILD routes each finding and gap in it through the decision matrix in place of the build, and a fix block\'s BUILD routes them beside its entry rules. HARDEN handles edge cases, failure messages, logging, a test per risky path and cleanup at every tier in the code its round added or changed. SIBLINGS covers each sibling path of a fix. SELF-REVIEW applies the blind reviewer\'s severity scale, reach step and checklist to the code its round changed or read, since each earlier round had its own self-review and each blind review judges the entire block diff. CLASSIFY answers four risk questions (systems, paths, critical code, assumptions) for each change its round made, writes risk-<id>-rN.md through tools/risk-check.mjs, which holds the file\'s format, reruns each search of its Sweep section in its plain and source-escaped forms and prints whether every answer is low risk. Its Sweep section holds a search for each changed name or phrase that a line outside the round\'s hunks holds (a changed or removed one by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text such as a citation, a section number or punctuation) and, for an added, removed or renamed field of an agent\'s return schema, for each sentence that lists that agent\'s return fields. With --base, the tree the round\'s diff starts from, the tool prints an uncovered: line for each name shaped like a code name that the round\'s removed lines hold and its added lines do not, that a line outside the hunks holds and that no search covers. A removed or renamed one needs a search with scope ., and one the round only stopped using needs none. CLASSIFY returns review_needed from the tool\'s last line, true when any change is not low risk. Each phase after BUILD runs a targeted test while it works, the gate runs once more after the last phase that changed code, and a phase with nothing to do for its round\'s changes is skipped. It leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision. changePolicy sets the routing over three code zones: task code (the code its block\'s required changes add or change, plus in a fix block the sibling paths of each ACTIONABLE entry\'s root cause, apart from code its block\'s text excludes or another block owns, plus under proactive the code each pulled backlog entry\'s fix adds or changes), connected code (what a reach step from the task code finds, apart from code its block\'s text excludes or another block owns) and other code. Under both policies it hunts only task code, fixes every finding there at every tier, a defect the accepted baseline already had included, and fixes each finding its diff introduces or exposes in connected code. Only a feature or section block also fixes a defect the accepted baseline already had in connected code that its diff neither introduces nor exposes, and only when that fix is low risk. A proactive block fixes any such defect, and a focused block only one in a function or method that holds task code. Other code is never changed. A finding its diff introduces or exposes there is closed at its source in task or connected code, or escalated when only a change in other code closes it. It logs to DECISIONS.md, as a FOCUSED or PROACTIVE line, each fix of a defect the accepted baseline already had that no requirement of its block names. Each real defect at low or above that the accepted baseline already had and that its zone routing leaves unchanged, under rule 2 or as a sibling path, apart from one in code another block owns, goes to its block\'s file in the project\'s backlog folder (args.backlogDir), a fix-mode plan file a later run builds, the ACTIONABLE entries without triage and the rest once the user triages them. A proactive developer also records there each cleanup outside task code that it noticed and did not make, such as a nit. Under both policies it also records a feature or refactor outside its block\'s scope, and each choice it escalated and proceeded past by a default. It sets each entry\'s decision by one rule: ACTIONABLE for a defect or cleanup with one clear, small fix that changes no user-visible behavior, stored data or public contract, and NEEDS_USER for every other entry. When a block\'s last allowed round ends without a passed acceptance, one more developer, the closing pass, makes each fix of the last review\'s findings and gaps that is low risk and records each one that is not as a backlog entry naming the fix. No develop round follows it, and a blind review follows it only when its changes owe one. Under proactive, the round-1 developer also takes the ready backlog entries in the files its block changes that tools/plan-pull.mjs lists and that fit its capacity, marks each with a pulled line, lists them in PULLED-<id>.md and builds their fixes beside its block.' },
     { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), reports every finding the diff introduces or exposes at every tier, from critical down to nit, under both change policies, and writes quality-review-<id>-rN.md. Clean means no finding and no contested dismissal. Runs in a block\'s first round with a satisfied gate in a launch, and in a later round only when a round since the block\'s last blind review returned review_needed true or no boolean, or the previous acceptance verdict returned risk_misclassified. Otherwise the round goes from the developer straight to acceptance. The closing pass gets one by the same rule, whatever its gate, and its findings go to the closing acceptance with no develop round between.' },
@@ -28,7 +28,7 @@ if (!A || !Array.isArray(A.plans) || !A.plans.length) {
   throw new Error(`args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries; got ${shape}. "plan-edit.mjs args <planPath>" prints an object: spread it into the args, so its "plans" array becomes args.plans. Never nest that object under "plans". There is no single-plan or inline-plan fallback.`);
 }
 if (!A.runId) {
-  throw new Error('args must include at least { runId, root, target, gates, backlogDir, blockTool, plans:[{id, planPath, mode, gate, status}] }; got typeof=' + (typeof args));
+  throw new Error('args must include at least { runId, root, target, gates, backlogDir, blockTool, launchDir, plans:[{id, planPath, mode, gate, status}] }; got typeof=' + (typeof args));
 }
 // The main agent supplies root (#4). No in-engine agent detects it.
 if (!A.root) {
@@ -76,7 +76,7 @@ if (A.reviewSeverity !== undefined) {
 // Retired args throw, never ignored: each served only a hand-built payload, which skips the status fold
 // `plan-edit.mjs args` applies. Below num(): the cross-engine bound sweep passes refine's top-level planPath.
 if (A.startAt !== undefined) {
-  throw new Error(`args.startAt is retired: relaunch with fresh "plan-edit.mjs args <planPath>", which applies the finished runs' statuses so the run builds only the blocks still todo, or name the blocks to build in args.runOnly. Got startAt ${JSON.stringify(A.startAt)}.`);
+  throw new Error(`args.startAt is retired: relaunch with fresh "plan-edit.mjs args <planPath> --reserve <stateDir>", which applies the finished runs' statuses so the run builds only the blocks still todo, or name the blocks to build in args.runOnly. Got startAt ${JSON.stringify(A.startAt)}.`);
 }
 if (A.planPath !== undefined) {
   throw new Error(`The top-level args.planPath is retired: every "plans" row that "plan-edit.mjs args <planPath>" prints carries its own planPath, so spread the object it prints and drop this key. Got planPath ${JSON.stringify(A.planPath)}.`);
@@ -221,6 +221,39 @@ if (!isAbsolute(BACKLOG_DIR)) {
 if (insideRepo(BACKLOG_DIR)) {
   throw new Error(`args.backlogDir is inside the target repo. The developer's writes there would join the unstaged diff that the blind reviewer judges, acceptance stages and park clears. Got ${BACKLOG_DIR}, inside ${REPO}. Pass the folder that \`${backlogCommand('<dir>')}\` prints for a <dir> outside the target repo.`);
 }
+// Copy of the launch folder check each engine with a launch folder holds, since an engine cannot import: a test pins the copies equal.
+// A launch writes its records only in the folder `tools/launch.mjs reserve` made for it, so no launch writes
+// where another did. Static lead clauses: gen-flows labels each throw node from them.
+const launchDirOf = (value, stateDir) => {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new Error(`Missing args.launchDir: pass the launchDir that the reserve command of the workflow guide's pre-launch step prints, a newly reserved one for every launch but a replay, which passes the replayed launch's own with resumeFromRunId. Got ${JSON.stringify(value)}.`);
+  }
+  const dir = value.trim().replace(/\\/g, '/').replace(/\/+$/, '');
+  // reserve may get another spelling of the stateDir, so both sides drop `.`, `..` and repeated slashes. Windows folds case in a drive or UNC path.
+  const key = (p) => {
+    const lead = /^(?:[a-zA-Z]:\/|\/\/|\/)?/.exec(p)[0];
+    const segments = [];
+    for (const segment of p.slice(lead.length).split('/')) {
+      if (segment === '..') segments.pop();
+      else if (segment && segment !== '.') segments.push(segment);
+    }
+    const path = `${lead}${segments.join('/')}`;
+    return lead.length > 1 ? path.toLowerCase() : path;
+  };
+  const cut = dir.lastIndexOf('/');
+  if (cut < 0 || key(dir.slice(0, cut)) !== key(stateDir) || !/^launch-[1-9]\d*$/.test(dir.slice(cut + 1))) {
+    throw new Error(`Invalid args.launchDir: it must be a folder named launch-<n> directly inside the stateDir ${stateDir}, as \`node <launch.mjs> reserve <stateDir>\` prints it. Got ${JSON.stringify(value)}.`);
+  }
+  return dir;
+};
+// develop reserves its launch folder through its args command, so a missing folder names that command's flag.
+if (typeof A.launchDir !== 'string' || !A.launchDir.trim()) {
+  throw new Error(`Missing args.launchDir: run \`node '${toolPath('plan-edit.mjs')}' args <planPath> --reserve '${STATE_DIR}'\`, with the other flags the develop guide's pre-launch step names, and spread the object it prints, whose launchDir is a newly reserved launch folder. Every launch reserves its own. Got ${JSON.stringify(A.launchDir)}.`);
+}
+// Each launch writes its round files in its own folder, so a relaunch never replaces a review, a risk file or a
+// sweep report that an earlier launch wrote. The ledgers and questions stay in the stateDir across launches.
+const LAUNCH_DIR  = launchDirOf(A.launchDir, STATE_DIR);
+const LAUNCH_N    = Number(LAUNCH_DIR.slice(LAUNCH_DIR.lastIndexOf('-') + 1));   // names the launch in each amendment and question heading
 // args.notes = { dir, survey } makes every agent answer the exit survey in its own file under dir.
 const notesArg = (value) => {
   if (value === undefined) return null;
@@ -242,7 +275,7 @@ if (NOTES && insideRepo(NOTES.dir)) {
 }
 const insideState = (p) => pathKey(p) === pathKey(STATE_DIR) || pathKey(p).startsWith(`${pathKey(STATE_DIR)}/`);
 if (NOTES && insideState(NOTES.dir)) {
-  throw new Error(`args.notes.dir is inside the run-state folder. The blind reviewer's prompt names the notes folder, and no run-state path outside ${STATE_DIR}/gate may enter it. Got ${NOTES.dir}, inside ${STATE_DIR}. Pass a folder outside it, such as <root>/runs/<runId>-notes.`);
+  throw new Error(`args.notes.dir is inside the run-state folder. The blind reviewer's prompt names the notes folder, and no run-state path outside ${STATE_DIR}/gate and ${LAUNCH_DIR}/gate may enter it. Got ${NOTES.dir}, inside ${STATE_DIR}. Pass a folder outside it, such as <root>/runs/<runId>-notes.`);
 }
 // The read-only backlog query a proactive round-1 developer runs. It holds no write verb, so its allowlist rule grants none.
 const PULL_TOOL = toolPath('plan-pull.mjs');
@@ -435,27 +468,30 @@ const planCommandsLine = (p) => (p.blocks
   : `Its plan command was ${quotedCommands(p)}. Run it yourself`);
 const blockRef = (p) => (p.blocks ? passRef(p) : `the output of:  ${blockCommand(p)}
 Run it. Redirect its output to a file under ${STATE_DIR}/scratch/ (create it if needed), never inside the
-target repo or ${GATE_DIR}/, and read that file, since the Bash display cuts long output. That output is
+target repo or under ${GATE_DIRS}, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP. The full plan file is at
 ${p.planPath} if you need a neighbouring block for context; your block is ONLY "${p.id}"`);
 const passRef = (p) => `the output of each command below, one block per command:
 ${blockCommands(p).map((c) => `  ${c}`).join('\n')}
 Run every one, each redirected to its own file under ${STATE_DIR}/scratch/ (create it if needed), never
-inside the target repo or ${GATE_DIR}/, and read those files, since the Bash display cuts long output.
+inside the target repo or under ${GATE_DIRS}, and read those files, since the Bash display cuts long output.
 Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP.
 Your blocks are ONLY ${p.blocks.map((b) => `"${b.id}"`).join(', ')}`;
 
-// Blindness is placement, not instruction (#3). STATE_DIR holds acceptance reviews, AMENDED files,
-// NEEDS-USER and DECISIONS, all routes to plan text. No run-state path outside GATE_DIR ever enters the blind reviewer's prompt.
-const GATE_DIR       = `${STATE_DIR}/gate`;                     // everything the BLIND quality reviewer reads or writes
-const qualityFile    = (id, r) => `${GATE_DIR}/quality-review-${slug(id)}-r${r}.md`;
-const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
+// Blindness is placement, not instruction (#3). LAUNCH_DIR holds acceptance reviews and STATE_DIR the AMENDED
+// files, NEEDS-USER and DECISIONS, all routes to plan text. No run-state path outside GATE_DIR and QUALITY_DIR ever
+// enters the blind reviewer's prompt.
+const GATE_DIR       = `${STATE_DIR}/gate`;                     // the DISMISSED ledgers the BLIND quality reviewer reads
+const QUALITY_DIR    = `${LAUNCH_DIR}/gate`;                    // the review files the BLIND quality reviewer writes
+const GATE_DIRS      = `${GATE_DIR}/ or ${QUALITY_DIR}/`;
+const qualityFile    = (id, r) => `${QUALITY_DIR}/quality-review-${slug(id)}-r${r}.md`;
+const acceptanceFile = (id, r) => `${LAUNCH_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
 // A halt points the operator at the acceptance file only when acceptance confirmed writing it.
 const acceptanceCite = (verdictReturn, id, r) => (verdictReturn.wrote_file === true
   ? `see ${acceptanceFile(id, r)}`
   : `it did not confirm writing ${acceptanceFile(id, r)}, so that file may not exist`);
-// The developer's own judgment of its round, so it stays outside GATE_DIR, where it would anchor the blind reviewer.
-const riskFile       = (id, r) => `${STATE_DIR}/risk-${slug(id)}-r${r}.md`;
+// The developer's own judgment of its round, outside both gate folders, where it would anchor the blind reviewer.
+const riskFile       = (id, r) => `${LAUNCH_DIR}/risk-${slug(id)}-r${r}.md`;
 const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;            // full detail; for the user (may halt the run) — GLOBAL/cumulative
 // Only an ordered run halts on a developer's question. An unordered run carries on past it, so the question
 // goes to a file of its block's own, which park copies into the block's backlog entry.
@@ -468,13 +504,13 @@ const dismissedName  = (id) => `DISMISSED-${slug(id)}.md`;
 const dismissedFile  = (id) => `${GATE_DIR}/${dismissedName(id)}`;  // terse ledger; developer → reviewers (anti-spin) — PER BLOCK
 // MATRIX 6a overrides, read by acceptance and the sweep. It quotes plan text, so it stays outside GATE_DIR.
 const amendedFile    = (id) => `${STATE_DIR}/AMENDED-${slug(id)}.md`;
-const commitFile     = (id) => `${STATE_DIR}/commit-${slug(id)}.txt`;  // commit mode: the block's title, the commit's message
+const commitFile     = (id) => `${LAUNCH_DIR}/commit-${slug(id)}.txt`;  // commit mode: the block's title, the commit's message
 // The ids of the backlog entries a proactive round-1 developer took beside its block, which acceptance judges.
-const pulledFile     = (id) => `${STATE_DIR}/PULLED-${slug(id)}.md`;
+const pulledFile     = (id) => `${LAUNCH_DIR}/PULLED-${slug(id)}.md`;
 // Park's copy of the repo's index, so building the branch's commit never writes the index that holds the accepted baseline.
 const parkIndexFile  = (id) => `${STATE_DIR}/scratch/park-${slug(id)}.index`;
 const parkMessageFile = (id) => `${STATE_DIR}/scratch/park-${slug(id)}.msg`;  // the branch commit's message, so no shell quoting touches the title
-const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;                 // final whole-goal completeness sweep
+const SWEEP_FILE     = `${LAUNCH_DIR}/SWEEP.md`;                // final whole-goal completeness sweep
 // A closed inventory is what lets a fix loop converge, so an entry found mid-run goes to the backlog and never joins the running inventory.
 // One fixed file per source block, so its triage never waits on another block's relaunch. Every run on the
 // project shares the folder, and two (runId, block id) pairs can slug and join alike, such as run "a" with
@@ -577,7 +613,7 @@ const RELAYED_REQUEST = { type: 'boolean', description: 'true when your context 
 // `round1` false drops the fields only round 1 reports. It defaults true so tests/static.test.mjs, which calls this with no arguments, sweeps every round-1 field.
 const developSchema = (mode, closing, round1 = true) => ({
   type: 'object',
-  required: ['plan_obtained', 'relayed_request', ...(round1 ? ['baseline_dirty_files', ...(COMMIT ? ['baseline_staged_files'] : []), 'baseline_index_tree', 'launch_number', 'earlier_files'] : []), ...(mode === 'fix' ? ['results', ...(round1 ? ['restore_failed', 'restored_branches'] : [])] : []), 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments', 'dismissed_count', 'backlog_entries', 'backlog_blocks', 'review_needed', 'risk_snapshot', ...(closing ? ['recorded_entries'] : []), ...(PROACTIVE ? ['pulled_results'] : [])],
+  required: ['plan_obtained', 'relayed_request', ...(round1 ? ['baseline_dirty_files', ...(COMMIT ? ['baseline_staged_files'] : []), 'baseline_index_tree', 'earlier_files'] : []), ...(mode === 'fix' ? ['results', ...(round1 ? ['restore_failed', 'restored_branches'] : [])] : []), 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments', 'dismissed_count', 'backlog_entries', 'backlog_blocks', 'review_needed', 'risk_snapshot', ...(closing ? ['recorded_entries'] : []), ...(PROACTIVE ? ['pulled_results'] : [])],
   properties: {
     // Proactive only: the statuses of the backlog entries round 1 took beside the block, in the shape of fix results.
     ...(PROACTIVE ? {
@@ -604,8 +640,6 @@ const developSchema = (mode, closing, round1 = true) => ({
       } : {}),
       // The first acceptance of a launch confirms the index against it, since no earlier acceptance recorded one.
       baseline_index_tree: { type: 'string', description: 'the tree id `git write-tree` printed at STEP 0, before you touched anything.' },
-      // A launch has no id of its own, so its number is counted from the amendment headers earlier launches wrote.
-      launch_number: { type: 'integer', description: 'the launch number your prompt says how to count from the AMENDED file.' },
       // A later stage calls a file absent only when no earlier launch left it and no developer round wrote it.
       earlier_files: { type: 'boolean', description: 'true when this block\'s DISMISSED file or AMENDED file existed before you wrote anything, else false.' },
     } : {}),
@@ -625,7 +659,7 @@ const developSchema = (mode, closing, round1 = true) => ({
     } : {}),
     // Required, since an omitted judgment must never read as low risk. The engine treats a non-boolean as true.
     review_needed:     { type: 'boolean', description: 'your CLASSIFY phase\'s verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)' },
-    // Acceptance compares it with the risk file's first line, so a file an earlier launch left never passes as this round's.
+    // Acceptance compares it with the risk file's first line, so a file an interrupted attempt left never passes as this round's.
     risk_snapshot:     { type: 'string', description: 'the tree id you wrote on the `Snapshot:` first line of your risk file this round, or "" when you wrote no risk file' },
     ...(closing ? {
       recorded_entries: { type: 'array', items: { type: 'string' }, description: 'the id of each backlog entry you listed for a finding or gap whose fix is not low risk, whether you appended it or the dedup found it already there ([] when none)' },
@@ -795,7 +829,9 @@ const SWEEP_SCHEMA = {
 // Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
 // A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
-const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
+// Each launch passes the launch folder its args command reserves.
+const LAUNCH = `start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts. That pre-launch command is node '${toolPath('plan-edit.mjs')}' args with --reserve '${STATE_DIR}' beside its other flags, and the launchDir it prints reaches the args with the rest of its object`;
+const FRESH_ARGS = `fresh \`plan-edit.mjs args\` with \`--reserve '${STATE_DIR}'\``;
 const ENV = `${GOAL ? `GOAL (this run's ONE goal, split into the plan file's blocks): ${GOAL}\n` : ''}TARGET REPO: ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})
 ${REFERENCE_P ? `REFERENCE (a COMPLETED example to mirror for the canonical pattern): ${REFERENCE_P}\n` : ''}CONVENTIONS (match these): ${CONVENTIONS}
 ${CONVENTION_FILES_BLOCK}GATES (the commands that define "it works"):
@@ -803,12 +839,14 @@ ${CONVENTION_FILES_BLOCK}GATES (the commands that define "it works"):
   test:  ${GATES.test ?? '(none)'}${GATES.testSetup ? `\n  test setup: ${GATES.testSetup}` : ''}
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under ${STATE_DIR}/scratch/, never under ${GATE_DIR}/.
+Write every scratch file, such as a plan block or a test log, under ${STATE_DIR}/scratch/, never under ${GATE_DIRS}.
 ${FILE_WRITE_NOTE}`;
 
-// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to
+// A relaunch with the same runId finds the earlier launch's files in the stateDir, and the Write tool refuses to
 // overwrite a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
 const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
+// A launch folder holds no earlier launch's file, so only an interrupted attempt of the same launch leaves one there.
+const LAUNCH_REPLACE_NOTE = 'The file exists before you write it only when an interrupted attempt of this launch left it, so Read it first, if it exists, and then replace its entire content.';
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 
 // A file key, not a mode: suite:scoped allows the mid-run red a test-first migration expects.
@@ -848,10 +886,11 @@ const PROSE_HUNK_READ = `Check a hunk that changes only prose, such as comments,
 const CLOSING_ROUND = MAX_ROUNDS + 1;
 // A halt reason names the closing pass, since its file-name number exceeds the round budget the operator set.
 const roundName = (round) => (round === CLOSING_ROUND ? `the closing pass (round ${round} in its file names)` : `round ${round}`);
-// Names the round so an agent that finds no file for a round does not take the gap for an error.
-const ROUND_NOTE = (round) => `${round === CLOSING_ROUND
+// Names the round so an agent that finds no file for a round does not take the gap for an error. The blind
+// reviewer's prompt passes QUALITY_DIR, since no run-state path outside its two gate folders may enter it (#3).
+const ROUND_NOTE = (round, dir = LAUNCH_DIR) => `${round === CLOSING_ROUND
   ? `This is the closing pass, numbered round ${round} in its file names, after round ${MAX_ROUNDS} of at most ${MAX_ROUNDS}.`
-  : `This is round ${round} of at most ${MAX_ROUNDS}.`} Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it.`;
+  : `This is round ${round} of at most ${MAX_ROUNDS}.`} Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in ${dir}/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.`;
 
 // Every agent also loads the user's CLAUDE.md and auto memory, either of which may set scope another way.
 // The prompt's own scope rules, 6a's PRECEDENCE included, carry the policy out, so they are not "other".
@@ -976,7 +1015,7 @@ const parkedWithLine = (id) => `"**Parked with:** block ${id}. Hold this entry u
 
 // Case 7's proceeding branch also writes DISMISSED: the blind reviewer never sees DECISIONS (see
 // GATE_DIR), so it would flag the escalated default every round until the block parks (#5).
-const MATRIX = (p, round, launch) => {
+const MATRIX = (p, round) => {
   const { id, mode } = p;
   return `DECISION MATRIX — for each ambiguity or finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
@@ -1065,14 +1104,14 @@ ${PROACTIVE ? `  • CLEANUP (this run's change policy): append ONE entry for ea
     takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
     Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to ${amendedFile(id)}:
-      \`## Plan amendment: ${id} r${round}, launch ${round === 1 ? '<the launch_number you report>' : launch ?? 'unrecorded'}\`
+      \`## Plan amendment: ${id} r${round}, launch ${LAUNCH_N}\`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to ${DECISIONS}: the block id, the round, the launch, the defect's
     file:line, and the path ${amendedFile(id)}, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
     - You CANNOT proceed without the answer: append a FULL, self-contained entry to ${questionFile(id)} (all
-      the detail the user needs to decide) under the heading \`## Question: ${id} r${round}\`, and set
+      the detail the user needs to decide) under the heading \`## Question: ${id} r${round}, launch ${LAUNCH_N}\`, and set
       needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to ${DECISIONS} (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
@@ -1240,7 +1279,7 @@ ${snapshotCommands(snapshotIndex(id, round))}
    ${SNAPSHOT_DELETE} Then run \`${riskCheckCommand(riskFile(id, round), '<that tree id>', base)}\`. This risk tool
    holds the file's format. When the file is missing, it prints the format and a skeleton and writes no file,
    so write the file from that skeleton. Otherwise it
-   names each problem in the file, such as a format error, a ${SNAPSHOT_LINE} line an earlier launch left, or a hit
+   names each problem in the file, such as a format error, a ${SNAPSHOT_LINE} line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
    constant, field, message or rule phrase this round changed, ${SWEEP_NEED}. ${UNCOVERED_RULE} Search a changed or removed rule phrase, message or name ${SWEEP_SEARCH}. A
@@ -1292,7 +1331,7 @@ ${CHECKLIST}`;
 // =============================================================================
 // Role prompts. DEVELOP_FRAME and ACCEPTANCE_FRAME switch on mode. The blind critic sees no plan.
 // =============================================================================
-const featureDevelop = (p, round, { opening, ledgerNote, zones, staging, rework, launch, classifyBase }) => `
+const featureDevelop = (p, round, { opening, ledgerNote, zones, staging, rework, classifyBase }) => `
 You are the DEVELOPER. Implement ${blockRef(p)}. ${PROACTIVE ? `Build it ${PROACTIVE_BUILD} Match conventions;` : 'Build it minimally and surgically; match conventions;'}
 ${SCOPE_LINE.feature}.
 ${POLICY_LINE}
@@ -1318,10 +1357,10 @@ ${PHASE_NOTES}
 5. ${SELF_REVIEW(p.mode)}
 6. ${CLASSIFY_STEP(p.id, round, classifyBase)}
 7. ${staging}
-8. ${MATRIX(p, round, launch)}
+8. ${MATRIX(p, round)}
 Return ONLY the decision fields via the schema (no prose report).`;
 
-const sectionDevelop = (p, round, { opening, ledgerNote, zones, staging, rework, launch, classifyBase }) => {
+const sectionDevelop = (p, round, { opening, ledgerNote, zones, staging, rework, classifyBase }) => {
   const gateExpectation = p.gate === 'red-baseline'
     ? 'red-baseline — AUTHOR this block\'s tests; they MUST FAIL because the code is not converted yet. Report test_outcome="failed-expected" once they run and fail for the RIGHT reason (asserting the not-yet-built target behavior), or "failed-unexpected" if they fail for a wrong reason (parse error, missing fixture).'
     : p.gate === 'build-only'
@@ -1357,7 +1396,7 @@ ${PHASE_NOTES}
 5. ${SELF_REVIEW(p.mode)}
 6. ${CLASSIFY_STEP(p.id, round, classifyBase)}
 7. ${staging}
-8. ${MATRIX(p, round, launch)}
+8. ${MATRIX(p, round)}
 Return ONLY the decision fields via the schema (no prose report).`;
 };
 
@@ -1378,7 +1417,7 @@ const pulledLine = (ids) => `Pulled: ${ids}, whose work this entry's branch hold
 // status, so a later round's BUILD keeps the entry rules beside its rework.
 // The statuses a developer last reported, as `[id, status]` pairs, one indented line each.
 const reportedLines = (pairs, none) => pairs.map(([id, status]) => `     - ${id}: ${status}`).join('\n') || `     (${none})`;
-const fixDevelop = (p, round, { opening, ledgerNote, zones, staging, rework, launch, lastFix, classifyBase }) => `
+const fixDevelop = (p, round, { opening, ledgerNote, zones, staging, rework, lastFix, classifyBase }) => `
 You are the FIXER. Resolve the verified issues in ${blockRef(p)}. Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own \`- decision:\` line,
 a **Fix:** instruction and, from a review, an **Evidence:** line. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. ${TRIAGE_RULE} Change nothing on
@@ -1427,7 +1466,7 @@ ${reportedLines(lastFix, 'no entry reported yet')}
 6. ${SELF_REVIEW(p.mode)}
 7. ${CLASSIFY_STEP(p.id, round, classifyBase)}
 8. ${staging}
-9. ${MATRIX(p, round, launch)}
+9. ${MATRIX(p, round)}
 Return ONLY the decision fields via the schema (no prose report).`;
 
 const DEVELOP_FRAME = { feature: featureDevelop, section: sectionDevelop, fix: fixDevelop };
@@ -1562,9 +1601,8 @@ block alone fills that. For each entry you take:
      another developer after the tool ran, so skip that entry. When the entry carries a line
      that starts with "**Parked with:**", delete that line, since the tool lists such an entry only once
      the block that line names is done or skip.
-  b. List its id, one id per line, in ${pulledFile(p.id)} (create ${STATE_DIR}/ if needed), which holds
-     the ids of every entry you take. ${REPLACE_NOTE} When you take none, create no file, and empty it
-     when an earlier launch left one.
+  b. List its id, one id per line, in ${pulledFile(p.id)} (create ${LAUNCH_DIR}/ if needed), which holds
+     the ids of every entry you take. ${LAUNCH_REPLACE_NOTE} When you take none, create no file.
   c. Build its fix as a fix block builds an ACTIONABLE entry: as its checked **Fix:** line instructs,
      with a pinning test where the fix warrants one. A **Fix:** line you verify
      is defective goes under DECISION MATRIX rule 6a.
@@ -1579,10 +1617,7 @@ these actions in order:
   1. When ${dismissedFile(p.id)} exists, re-check each line against the current code, and remove each line
      whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's
      dismissal hides a finding in rebuilt code. Output: the rewritten ${dismissedFile(p.id)}.
-  2. Before you change ${amendedFile(p.id)}, report launch_number as one past the highest n that a
-     "launch <n>" in its headers names, or 1 when the file does not exist or no header names one. Output:
-     launch_number.
-  3. When ${amendedFile(p.id)} exists, re-check each amendment, each another agent's claim, as action 1
+  2. When ${amendedFile(p.id)} exists, re-check each amendment, each another agent's claim, as action 1
      re-checks a DISMISSED line: reproduce its defect against the file:line it cites and the clause it
      quotes, and remove each amendment whose quoted clause your block's text no longer holds or whose
      defect the current code does not reproduce, with its pointer line in ${DECISIONS}, the line that names
@@ -1595,9 +1630,8 @@ entry's change surgically and report it FAILED.${pulledTriage(p)} ${PULLED_REPOR
 ${reportedLines(lastPulled, 'no pulled entry')}
 Report each listed status again unless this round's work changes it.`);
 
-// `launch` is the number this block's round-1 developer counted, or null before round 1 reports or when it reported none.
 // `lastFix` and `lastPulled` are the `[id, status]` pairs the developer last reported, which a later round starts from.
-const developPrompt = (p, round, reviewPath, launch, { lastFix = [], lastPulled = [], pulledNone = false, dismissedNone = false, base = null } = {}) => {
+const developPrompt = (p, round, reviewPath, { lastFix = [], lastPulled = [], pulledNone = false, dismissedNone = false, base = null } = {}) => {
   const closing = round === CLOSING_ROUND;
   // Identical in every frame — only the task lines in DEVELOP_FRAME switch on mode.
   // Commit mode also counts staged files, since acceptance's commit would carry them unreviewed.
@@ -1650,18 +1684,18 @@ block.`;
    this block needs, including one an earlier block changed.`;
   const zones = `${POLICY_STANCE[CHANGE_POLICY]}\n${CODE_ZONES(p.mode)}\n${ZONE_ROUTING(p.mode)}`;
   const classifyBase = round === 1 ? STEP0_TREE : base;
-  return DEVELOP_FRAME[p.mode](p, round, { opening, ledgerNote, zones, staging, rework, launch, lastFix, classifyBase });
+  return DEVELOP_FRAME[p.mode](p, round, { opening, ledgerNote, zones, staging, rework, lastFix, classifyBase });
 };
 
 // BLIND: no plan, spec, goal or criteria, so one frame serves every mode.
 const qualityPrompt = (p, round, absent) => `
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Judge the code PURELY ON ITS OWN MERITS.
-Never open a plan file, an issue inventory, or any run-state path outside ${GATE_DIR}/.
-${GATE_DIR}/ may also hold other blocks' review and DISMISSED files.
+Never open a plan file, an issue inventory, or any run-state path outside ${GATE_DIR}/ and ${QUALITY_DIR}/.
+Both may also hold other blocks' files.
 Before you review, read ${absent.dismissed ? 'no file there' : `only ${dismissedFile(p.id)} there`}. At the WRITE step, once your findings are final,
 Read ${qualityFile(p.id, round)} if it exists, so the Write tool accepts the overwrite, then replace its entire content.
-${ROUND_NOTE(round)}
+${ROUND_NOTE(round, QUALITY_DIR)}
 TARGET REPO: ${REPO}
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
 Of the gates, run only the test command, and only for ONE targeted test that confirms a suspected defect.
@@ -1703,7 +1737,7 @@ cited by line. Those four checks and the nit list bound your review of such a hu
 A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
 with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
 
-WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE}
+WRITE your findings to ${qualityFile(p.id, round)} (create ${QUALITY_DIR}/ if needed). ${LAUNCH_REPLACE_NOTE} ${WROTE_NOTE}
 Group them by tier, highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
 harm (for a finding at medium or above), and ${FIX_DIRECTION}. When you found nothing, write
 exactly "No findings." Then return wrote_file (true ONLY if you wrote that file), clean (true if you
@@ -1729,7 +1763,7 @@ ${earlierReviews.map((path) => `     ${path}`).join('\n') || '     (none: no rev
 // covers it before any acceptance runs.
 const roundHunksCommand = (id, round) => `round ${round}, base in ${riskFile(id, round - 1)}, snapshot in ${riskFile(id, round)}:
        git -C ${REPO} diff --stat <base> <snapshot>, then git -C ${REPO} diff <base> <snapshot> -- <file> for each file it lists, one file per command`;
-// A file an earlier launch left, or one its round never rewrote, carries another tree id than the one the
+// A file an interrupted attempt of this launch left, or one its round never rewrote, carries another tree id than the one the
 // round's developer returned, so the returned id ties each file to its round. `riskSnapshots` maps a round to
 // that id, or to null when the developer returned no tree id.
 const snapshotRounds = (riskRounds) => [...new Set(riskRounds.flatMap((r) => [r - 1, r]))].sort((a, b) => a - b);
@@ -1886,8 +1920,8 @@ const NO_OP_COMMIT = COMMIT ? ' Make no commit, and return committed=true, commi
 // re-stages files, which leaves the tree clean.
 const commitStep = (p, round) => (COMMIT ? `
 9. COMMIT, on a pass whose diff is not empty: write the block's title, which is the JSON string
-   ${JSON.stringify(p.title)}, decoded, as the one line of ${commitFile(p.id)} (create ${STATE_DIR}/
-   if needed), with no quotes, no other line and no trailer. ${REPLACE_NOTE} Run \`git -C ${REPO} write-tree\` and keep the
+   ${JSON.stringify(p.title)}, decoded, as the one line of ${commitFile(p.id)} (create ${LAUNCH_DIR}/
+   if needed), with no quotes, no other line and no trailer. ${LAUNCH_REPLACE_NOTE} Run \`git -C ${REPO} write-tree\` and keep the
    tree id it prints. Run \`git -C ${REPO} commit -F ${commitFile(p.id)}\`.
    Never pass \`--no-verify\`, \`--no-gpg-sign\` or \`--amend\`. When the commit fails, such as when a hook or
    signing refuses it, append its full output to ${acceptanceFile(p.id, round)}, leave the work staged, and
@@ -2015,7 +2049,7 @@ ${unreportedIssues.map((id) => `     - ${id}`).join('\n') || '     (none: it rep
    ${ACC_SUITE_LINE} If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. ${riskAuditStep(p.id, riskRounds, round, riskSnapshots, indexTree)}
-7. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE step 8${STEP8_GAP_NOTE(round, absent.pulled)}. ${REPLACE_NOTE} ${WROTE_NOTE} It holds the
+7. WRITE ${acceptanceFile(p.id, round)} (create ${LAUNCH_DIR}/ if needed) BEFORE step 8${STEP8_GAP_NOTE(round, absent.pulled)}. ${LAUNCH_REPLACE_NOTE} ${WROTE_NOTE} It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap with ${FIX_DIRECTION} — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -2104,7 +2138,7 @@ PROCEDURE:
 5. ${gateStep}
    ${roundGateRun('acceptance', p.id, round)}
 6. ${riskAuditStep(p.id, riskRounds, round, riskSnapshots, indexTree)}
-7. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE step 8${STEP8_GAP_NOTE(round, absent.pulled)}. ${REPLACE_NOTE} ${WROTE_NOTE} It holds the
+7. WRITE ${acceptanceFile(p.id, round)} (create ${LAUNCH_DIR}/ if needed) BEFORE step 8${STEP8_GAP_NOTE(round, absent.pulled)}. ${LAUNCH_REPLACE_NOTE} ${WROTE_NOTE} It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + ${FIX_DIRECTION}) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -2158,7 +2192,7 @@ const closingRecordNote = (p, recorded) => {
  * acceptance that found a blocking gap and wrote its review file, so the blocking gaps lead.
  */
 function parkWhat(p, { escalated, userOnly, kind, haltText, closingRecorded, lastReviewPath }) {
-  const question = `the latest \`## Question: ${p.id} r<n>\` entry in ${questionFile(p.id)}, copied verbatim`;
+  const question = `the latest \`## Question: ${p.id} r<n>, launch ${LAUNCH_N}\` entry in ${questionFile(p.id)}, copied verbatim`;
   if (userOnly && kind === 'needs-user') return question;
   if (escalated) return `the line "Halted: ${parkReason(kind, p.id)}.", ${kind === 'plan-unreadable' ? `then the cause: run ${quotedCommands(p)} yourself, and for each command write the line "Cause: <the command> exited <its exit code>: <the first line of its error output>", or "Cause: <the command> exited 0, so it reads the plan now" when it exits 0, ` : ''}then this halt reason, copied verbatim: ${haltText}${lastReviewPath ? `, then every finding and gap in ${lastReviewPath}, copied verbatim` : ''}${userOnly ? `, then ${question}` : ''}`;
   return `the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of ${lastReviewPath}, then every other finding and gap in it, each copied verbatim${closingRecordNote(p, closingRecorded)}`;
@@ -2366,7 +2400,7 @@ PROCEDURE (read-only except step 4):
 2. Run the gates and record the real outcome. ${GATE_RUN('sweep')} If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
    expected, say which failures look expected vs surprising.
 3. ${spotCheckStep(commits)} Look for suspiciously-untouched areas the GOAL names.
-4. WRITE ${SWEEP_FILE}. ${REPLACE_NOTE} ${WROTE_NOTE} It holds the suite result, then each gap (title + file:line evidence + a suggested
+4. WRITE ${SWEEP_FILE} (create ${LAUNCH_DIR}/ if needed). ${LAUNCH_REPLACE_NOTE} ${WROTE_NOTE} It holds the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block that gives ${FIX_DIRECTION}) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
 with wrote_file=true ONLY if you wrote ${SWEEP_FILE}, and gap_count = the number of gaps you wrote to it
@@ -2406,7 +2440,7 @@ if (pending.some((p) => p.gate === 'green') && (typeof A.gates?.test !== 'string
   throw new Error('args.gates.test is required when any block being built has gate:"green": the shell command that runs the verification (non-zero exit = fail). A block that legitimately has none takes gate:"build-only" instead.');
 }
 
-const reviewTrail = `Numbered review files show every iteration: quality-review-<id>-rN.md in ${GATE_DIR}/ — the blind reviewer's whole world, which is why nothing carrying the plan lives in it — and acceptance-review-<id>-rN.md in ${STATE_DIR}/; ${COMMIT ? 'a git commit' : 'git staging'} marks each accepted block.`;
+const reviewTrail = `Numbered review files show every iteration of this launch: quality-review-<id>-rN.md in ${QUALITY_DIR}/ — the blind reviewer's whole world beside the ledgers in ${GATE_DIR}/, which is why nothing carrying the plan lives in either — and acceptance-review-<id>-rN.md and risk-<id>-rN.md in ${LAUNCH_DIR}/. Each earlier launch's round files stay in its own launch-<n> folder of ${STATE_DIR}/; ${COMMIT ? 'a git commit' : 'git staging'} marks each accepted block.`;
 
 // A terminal, not a throw: an all-done relaunch is legitimate, and the caller must tell it from bad args.
 if (!pending.length) {
@@ -2446,7 +2480,7 @@ if (!pending.length) {
   };
 }
 
-logLine(`develop: ${pending.length}/${ALL_PLANS.length} block(s) to build${runOnly ? ` (runOnly: ${runOnly.join(', ')})` : ''} [maxRounds=${MAX_ROUNDS}, ordered=${ORDERED}, suite=${SUITE}, changePolicy=${CHANGE_POLICY}, commit=${COMMIT}]`);
+logLine(`develop: ${pending.length}/${ALL_PLANS.length} block(s) to build${runOnly ? ` (runOnly: ${runOnly.join(', ')})` : ''}, round files in ${LAUNCH_DIR} [maxRounds=${MAX_ROUNDS}, ordered=${ORDERED}, suite=${SUITE}, changePolicy=${CHANGE_POLICY}, commit=${COMMIT}]`);
 logLine(`develop: roles ${ROLE_KEYS.map((r) => `${r}=${M[r] ?? '(developer)'}/${EF[r] ?? '(developer)'}`).join(', ')}`);
 
 const ledger = [];               // in-memory, returned to the orchestrator (NOT a written file — #6)
@@ -2477,8 +2511,8 @@ const landingStates = new Map();
 // fix block can build is rebuilt from todo instead, which the halt reason's resume hint says (parkBuildable).
 const deadAgentRecovery = (p) => (parkBuildable(p)
   ? `Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, ${ORDERED
-    ? 'work that entry first, as the develop guide\'s "Working the backlog" says, then relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, since they depend on this block.'
-    : 'work that entry as the develop guide\'s "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.'}`
+    ? `work that entry first, as the develop guide's "Working the backlog" says, then relaunch with ${FRESH_ARGS} to build the blocks still todo, since they depend on this block.`
+    : `work that entry as the develop guide's "Working the backlog" says, and relaunch with ${FRESH_ARGS} to build the blocks still todo, in either order.`}`
   : 'Its work, if any, is parked on a branch that the park\'s backlog entry links, and the block stays blocked.');
 // A hand flip of a plan-file status made before this fold is overwritten by the run's own status edit (develop guide §2 step 5).
 const RUN_FOLDED = "`plan-edit.mjs args` has applied this run's statuses";
@@ -2486,7 +2520,7 @@ const RUN_FOLDED = "`plan-edit.mjs args` has applied this run's statuses";
 // their output, so a skipped one shows before the clear.
 const SET_ASIDE_STEPS = `SET IT ASIDE without touching ${COMMIT ? 'HEAD, which holds every accepted block as a commit' : 'the staged index, which holds every accepted block'}, in these steps. (1) Note what \`git -C ${REPO} diff --cached --stat\` prints, then remove the untracked build output and caches, since they regenerate. When \`git -C ${REPO} status --porcelain\` then lists no \`??\` file and \`git -C ${REPO} diff\` is empty, the tree is settled and no later step applies. Output: the noted \`--stat\` text. (2) Mark each remaining \`??\` untracked file with \`git -C ${REPO} add -N -- <file>\`, so the patch carries the new files too. Output: \`git -C ${REPO} status --porcelain\` lists no \`??\` line. (3) Create the state dir if needed (\`mkdir -p ${STATE_DIR}\`) and save \`git -C ${REPO} diff --binary > ${STATE_DIR}/set-aside-<n>.patch\` with an n no file there uses. SAVE BEFORE YOU CLEAR: when that patch does not exist or is empty, stop and clear nothing. Output: the patch path, holding a non-empty patch. (4) Restore the modified tracked files with \`git -C ${REPO} checkout -- <files>\`, and drop each intent-to-add file with \`git -C ${REPO} rm -f -q -- <file>\`. (5) Confirm \`git -C ${REPO} status --porcelain\` lists no \`??\` file, \`git -C ${REPO} diff\` is empty and \`git -C ${REPO} diff --cached --stat\` prints what step 1 noted. Output: those three results. (6) When the dirt was a tracked file the provision command rewrote, such as a lockfile, also fix the command and save it again with \`project-settings.mjs set --provision\`. (7) When the dirt was an earlier interrupted develop run's unfinished block, finish the develop guide's section 7 "Run killed mid-block" steps before you relaunch. Restore the patch later with a plain \`git -C ${REPO} apply <patch>\`, never \`--3way\`, which stages what it restores. An unpathed \`git reset\`, \`git rm\` or \`git stash\` touches the index, which holds the accepted baseline.`;
 // These halts record their block blocked, and a status flip made before the first fold is overwritten.
-const RELAUNCH_STEPS = (settled) => `This run recorded the block as \`blocked\`, so once ${settled} is settled, relaunch in these steps. (1) Run \`plan-edit.mjs args\`, which applies that status. (2) Set this block's \`status:\` back to \`todo\`. (3) Run \`plan-edit.mjs args\` again. Output: the launch args. (4) Relaunch with those args.`;
+const RELAUNCH_STEPS = (settled) => `This run recorded the block as \`blocked\`, so once ${settled} is settled, relaunch in these steps. (1) Run \`plan-edit.mjs args\`, which applies that status. (2) Set this block's \`status:\` back to \`todo\`. (3) Run \`plan-edit.mjs args\` again with \`--reserve '${STATE_DIR}'\`, which also reserves the relaunch's launch folder. Output: the launch args. (4) Relaunch with those args.`;
 // A branch that no longer applies holds work only the user can rebuild on the new baseline or drop. The work
 // stays on the branch, since putting it in the baseline would skip both reviews. A skipped entry's origin
 // blocks stay backlogged until their status is set by hand, since that entry never syncs fixed.
@@ -2773,7 +2807,7 @@ function inspectStatus(p, round, landing) {
   const pulledNote = PROACTIVE
     ? ` When you set it \`done\`, also run \`plan-edit.mjs args --backlog ${BACKLOG_DIR} --fold-only\`, which writes this run's statuses into the backlog files and prints nothing, and only then set each pulled entry ${pulledFile(p.id)} lists that ${acceptanceFile(p.id, round)} confirmed closed to \`fixed\` or \`stale\`.`
     : '';
-  return `This run recorded the block as \`blocked\`. Once ${RUN_FOLDED}, set its \`status:\` to \`done\` when the accepted baseline holds its reviewed work as you want it, or, once you ${landedRecovery(landing).reject}, to \`todo\` to rebuild it.${issueNote}${pulledNote} Then relaunch with fresh \`plan-edit.mjs args\`.`;
+  return `This run recorded the block as \`blocked\`. Once ${RUN_FOLDED}, set its \`status:\` to \`done\` when the accepted baseline holds its reviewed work as you want it, or, once you ${landedRecovery(landing).reject}, to \`todo\` to rebuild it.${issueNote}${pulledNote} Then relaunch with ${FRESH_ARGS}.`;
 }
 
 /**
@@ -2912,7 +2946,7 @@ for (const p of pending) {
   if (budget.total && budget.remaining() < MIN_PLAN_BUDGET) {
     halted = true;   // so the reason + resume instruction surface in the return value
     haltKind = 'budget';
-    haltReason = `Stopped before block ${p.id}: ~${Math.round(budget.remaining() / 1000)}k tokens remain (< minPlanBudget). Relaunch with fresh \`plan-edit.mjs args\`: it applies this run's statuses, so the relaunch builds only the blocks still todo.`;
+    haltReason = `Stopped before block ${p.id}: ~${Math.round(budget.remaining() / 1000)}k tokens remain (< minPlanBudget). Relaunch with ${FRESH_ARGS}: it applies this run's statuses, so the relaunch builds only the blocks still todo.`;
     logLine(`⏸ ${haltReason}`);
     break;
   }
@@ -2921,7 +2955,7 @@ for (const p of pending) {
   if (statusRoom() < 1) {
     halted = true;
     haltKind = 'log-cap';
-    haltReason = `Stopped before block ${p.id}: Claude Code keeps only a run's first ${LOG_CAP} log lines, and this block's status line could fall past them. Relaunch with fresh \`plan-edit.mjs args\`: it applies this run's statuses, so the relaunch builds only the blocks still todo.`;
+    haltReason = `Stopped before block ${p.id}: Claude Code keeps only a run's first ${LOG_CAP} log lines, and this block's status line could fall past them. Relaunch with ${FRESH_ARGS}: it applies this run's statuses, so the relaunch builds only the blocks still todo.`;
     break;
   }
 
@@ -2949,8 +2983,6 @@ for (const p of pending) {
   const unreviewedRounds = [];
   // Per round, the tree id its developer returned as risk_snapshot, or null, which acceptance reads as no risk file.
   const riskSnapshots = {};
-  // The launch number the round-1 developer counted from the AMENDED file, which every later round's amendment header names.
-  let launchNumber = null;
   // A round since the last blind review judged a change not low risk or returned no boolean judgment.
   let riskDue = false;
   // An acceptance verdict since the last blind review found a risk judgment wrong.
@@ -2987,12 +3019,12 @@ for (const p of pending) {
     // Two call sites, so the flow map draws the closing pass as a node of its own.
     let dev;
     if (!closing) {
-      dev = await callAgent(developPrompt(p, round, reviewPath, launchNumber, lastReports(round)), roleOpts('develop', {
+      dev = await callAgent(developPrompt(p, round, reviewPath, lastReports(round)), roleOpts('develop', {
         model: devModel, effort: devEffort, schema: developSchema(p.mode, false, round === 1), phase: 'Develop', label: `develop ${p.id} r${round}`,
       }));
     } else {
       logLine(`  ↻ ${p.id}: round ${MAX_ROUNDS} ended without a passed acceptance → closing pass (r${round}), with no develop round after it`);
-      dev = await callAgent(developPrompt(p, round, reviewPath, launchNumber, lastReports(round)), roleOpts('develop', {
+      dev = await callAgent(developPrompt(p, round, reviewPath, lastReports(round)), roleOpts('develop', {
         model: devModel, effort: devEffort, schema: developSchema(p.mode, true, false), phase: 'Develop', label: `develop-closing ${p.id}`,
       }));
     }
@@ -3062,10 +3094,6 @@ for (const p of pending) {
           logLine(`  ✋ ${p.id}: ${stagedCount} file(s) already staged in ${REPO} → halting before any review agent (commit or unstage them — git -C ${REPO} diff --cached --stat)`);
           break;
         }
-      }
-      launchNumber = Number.isInteger(dev.launch_number) && dev.launch_number >= 1 ? dev.launch_number : null;
-      if (launchNumber === null) {
-        logLine(`  ⚠ ${p.id} r1: developer reported no launch number (launch_number=${JSON.stringify(dev.launch_number)}) → later rounds' amendment headers name no launch`);
       }
       // Only an index no acceptance of this launch has recorded falls back to the developer's report.
       if (indexTree === null) {
@@ -3395,7 +3423,7 @@ for (const p of pending) {
           const { landed, view, reject } = landedRecovery(landing, acceptedTree);
           halted = true;
           haltKind = 'acceptance-regression';
-          haltReason = `Block ${p.id} was ${landed} by acceptance while the SAME verdict reported regression=true — a self-contradictory return (${acceptanceCite(acc, p.id, round)}). Its work is now the baseline every later block would be judged against, so the run stops here. Inspect \`${view}\`, then keep or reject the work as workflows/develop/CLAUDE.md §6 describes for acceptance-regression. Edit the block's plan-file status only after ${RUN_FOLDED} (keep → done, reject → ${reject}, then todo), and relaunch with fresh \`plan-edit.mjs args\`: the plan file selects the todo blocks.${landingText(failedChecks)}`;
+          haltReason = `Block ${p.id} was ${landed} by acceptance while the SAME verdict reported regression=true — a self-contradictory return (${acceptanceCite(acc, p.id, round)}). Its work is now the baseline every later block would be judged against, so the run stops here. Inspect \`${view}\`, then keep or reject the work as workflows/develop/CLAUDE.md §6 describes for acceptance-regression. Edit the block's plan-file status only after ${RUN_FOLDED} (keep → done, reject → ${reject}, then todo), and relaunch with ${FRESH_ARGS}: the plan file selects the todo blocks.${landingText(failedChecks)}`;
           logLine(`  ✋ ${p.id}: ${landing?.claimed ? 'committed' : 'staged'} while self-reporting a REGRESSION → halting the run (inspect ${view})`);
         } else if (failedChecks.length) {
           halted = true;
@@ -3421,7 +3449,7 @@ for (const p of pending) {
       halted = true;
       rec.status = 'done-unstaged (verifier passed but did NOT stage)';
       haltKind = 'passed-unstaged';
-      haltReason = `Block ${p.id} passed acceptance but its work was left UNSTAGED. Stage its files (git -C ${REPO} add <files>)${COMMIT ? ` and commit them with the block's title as the entire message (git -C ${REPO} commit -F <a file holding that title>)` : ''} so the baseline advances, then relaunch: the next \`plan-edit.mjs args\` marks the block done.`;
+      haltReason = `Block ${p.id} passed acceptance but its work was left UNSTAGED. Stage its files (git -C ${REPO} add <files>)${COMMIT ? ` and commit them with the block's title as the entire message (git -C ${REPO} commit -F <a file holding that title>)` : ''} so the baseline advances, then relaunch with ${FRESH_ARGS}, which marks the block done.`;
       logLine(`  ✋ ${p.id}: acceptance passed but NOT staged → halting (staging boundary)`);
       break;
     }

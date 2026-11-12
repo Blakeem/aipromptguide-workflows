@@ -555,7 +555,7 @@ section('args prints blockTool, the plan-block.mjs beside the plan-edit.mjs that
   const real = join(dir, 'real');
   const link = join(dir, 'link');
   mkdirSync(join(real, 'tools'), { recursive: true });
-  for (const name of ['plan-edit.mjs', 'plan-block.mjs', 'plugin-access.mjs']) copyFileSync(join(REPO_ROOT, 'tools', name), join(real, 'tools', name));
+  for (const name of ['plan-edit.mjs', 'plan-block.mjs', 'launch.mjs', 'plugin-access.mjs']) copyFileSync(join(REPO_ROOT, 'tools', name), join(real, 'tools', name));
   const cliArgs = (script) => {
     try {
       const out = execFileSync(process.execPath, [script, 'args', plan], { encoding: 'utf8', stdio: 'pipe', env: { ...process.env, CLAUDE_CONFIG_DIR: config } });
@@ -601,7 +601,7 @@ section('an orphaned plugin copy refuses every verb before it runs, and an impor
   const before = read(plan);
   const dir = tmpDir();
   mkdirSync(join(dir, 'tools'), { recursive: true });
-  for (const name of ['plan-edit.mjs', 'plan-block.mjs', 'plugin-access.mjs']) copyFileSync(join(REPO_ROOT, 'tools', name), join(dir, 'tools', name));
+  for (const name of ['plan-edit.mjs', 'plan-block.mjs', 'launch.mjs', 'plugin-access.mjs']) copyFileSync(join(REPO_ROOT, 'tools', name), join(dir, 'tools', name));
   const script = join(dir, 'tools', 'plan-edit.mjs');
   const at = (...argv) => {
     try {
@@ -1278,6 +1278,42 @@ section('--backlog with nothing ready fails, and a missing folder adds nothing')
   eq(JSON.parse(out).plans.map((r) => r.id).join(','), 'given', 'the folder adds no row');
   ok(/no backlog folder at/.test(notes), `and the note says so: ${notes.trim()}`);
   ok(/usage:/.test(argsWith(configWith([])).err ?? ''), 'no plan and no --backlog is still a usage error');
+}
+
+section('--reserve reserves a launch folder only when args prints launch args, and adds it as launchDir');
+// develop writes its round files in the launch folder, so each launch needs a new one, and a call that prints
+// no args must leave none behind for a later reserve to skip past.
+{
+  const plan = fixture();
+  const stateDir = join(tmpDir(), 'runs', 't');
+  const slashed = stateDir.replace(/\\/g, '/');
+  const first = argsWith(configWith([]), plan, '--reserve', stateDir);
+  ok(!first.err, `it succeeds: ${first.err ?? ''}`);
+  eq(JSON.parse(first.out ?? '{}').launchDir, `${slashed}/launch-1`, 'the first call prints the stateDir\'s launch-1 as launchDir');
+  ok(existsSync(join(stateDir, 'launch-1')), 'and creates that folder, the stateDir with it');
+  eq(JSON.parse(argsWith(configWith([]), plan, '--reserve', stateDir).out ?? '{}').launchDir, `${slashed}/launch-2`, 'a second call prints the next folder');
+  ok(!('launchDir' in JSON.parse(argsWith(configWith([]), plan).out ?? '{}')), 'without --reserve the object has no launchDir');
+
+  const backlog = tmpDir();
+  backlogFile(backlog, 'idle', 'todo', [{ id: 'd-1', file: 'a.js', decision: 'NEEDS_USER', status: 'open' }]);
+  const idleState = join(tmpDir(), 'runs', 'idle');
+  const idle = argsWith(configWith([]), '--backlog', backlog, '--reserve', idleState);
+  ok(/nothing to build$/.test(idle.err ?? ''), `--backlog with no ready file still ends with nothing to build: ${idle.err ?? ''}`);
+  ok(!existsSync(idleState), 'and reserves no launch folder');
+  const broken = argsWith(configWith([]), join(tmpDir(), 'no-such-plan.md'), '--reserve', idleState);
+  ok(broken.err && !existsSync(idleState), `a failed call reserves nothing: ${broken.err ?? ''}`);
+
+  const before = read(plan);
+  // A run record with a status edit for this plan, so a check placed after the fold's write would change the plan.
+  const relative = argsWith(configWith([record({ blocks: [[status('bus-parser', 'done', plan)]] })]), plan, '--reserve', 'runs/t');
+  ok(/--reserve needs an absolute stateDir/.test(relative.err ?? ''), `a relative stateDir is refused: ${relative.err ?? ''}`);
+  eq(read(plan), before, 'and no plan file is written');
+  ok(/usage:/.test(argsWith(configWith([]), plan, '--fold-only', '--reserve', stateDir).err ?? ''), '--reserve refuses --fold-only, which prints no args');
+  ok(/usage:/.test(argsWith(configWith([]), plan, '--reserve').err ?? ''), '--reserve with no stateDir is a usage error');
+  ok(!existsSync(join(stateDir, 'launch-3')), 'and no refused call reserved a folder');
+
+  const cli = execFileSync(process.execPath, [CLI, 'args', plan, '--reserve', stateDir], { encoding: 'utf8', env: { ...process.env, CLAUDE_CONFIG_DIR: configWith([]) } });
+  eq(JSON.parse(cli).launchDir, `${slashed}/launch-3`, 'the CLI prints the next folder too');
 }
 
 section('a status edit whose value is null removes that key\'s line, with its own line ending, and a repeat is a no-op');

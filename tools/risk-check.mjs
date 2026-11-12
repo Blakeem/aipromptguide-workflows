@@ -332,7 +332,7 @@ export function checkText(text, { file, snapshot, found, scopeMatches, top, roun
   // Process
   const errors = [...parsed.errors];
   if (parsed.snapshot && parsed.snapshot !== snapshot) {
-    errors.unshift(`line 1 holds the snapshot ${parsed.snapshot}, not ${snapshot}. A file an earlier launch left, or one written before the round's last change, is replaced in full`);
+    errors.unshift(`line 1 holds the snapshot ${parsed.snapshot}, not ${snapshot}. A file an interrupted attempt of this launch left, or one written before the round's last change, is replaced in full`);
   }
   const sweep = sweepProblems(parsed.searches, { found: foundOnce, scopeMatches, top });
   const errorLines = [...errors, ...sweep.errors].map((e) => `error: ${e}`);
@@ -342,7 +342,7 @@ export function checkText(text, { file, snapshot, found, scopeMatches, top, roun
   const uncovered = checksNames ? uncoveredLines(roundReaders(), parsed.searches, foundOnce) : [];
 
   // Output
-  // A file with a format error or another launch's snapshot is rewritten, and only the run on a missing file showed the format.
+  // A file with a format error or another attempt's snapshot is rewritten, and only the run on a missing file showed the format.
   const formatHelp = errors.length ? ['', FORMAT] : [];
   const riskLine = parsed.lowRisk === null ? [] : [`low risk: ${parsed.lowRisk ? 'yes' : 'no'}`];
   return problemCount

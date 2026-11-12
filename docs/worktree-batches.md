@@ -47,8 +47,9 @@ stdout carries exactly one value — the worktree path the verb acted on — so
 `target=$(node tools/wt.mjs prep …)` is safe; everything human-readable goes to stderr.
 
 At stage 3, each engine run is ordinary, except that `git stash` is refused (see `refs/stash`
-below): same workflow, same args, only `target.repo` differs (and `root` stays shared, so all
-runs of the batch report into the same runs/ area under distinct runIds).
+below): same workflow, same args, only `target.repo` differs, and for develop the `launchDir` that
+each chain's pre-launch `plan-edit.mjs args --reserve <its stateDir>` prints (and `root` stays shared,
+so all runs of the batch report into the same runs/ area under distinct runIds).
 
 ## Removal
 

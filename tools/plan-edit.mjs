@@ -9,7 +9,7 @@
 //
 //   node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>
 //   node tools/plan-edit.mjs move <src.md|src-name> <issue-id> <dest.md|dest-name> <block-id>
-//   node tools/plan-edit.mjs args [<plan.md|plan-name> ...] [--expect <wf-run-id>] [--backlog <dir>] [--pack <repo> [--loc-cap <n>] | --fold-only]
+//   node tools/plan-edit.mjs args [<plan.md|plan-name> ...] [--expect <wf-run-id>] [--backlog <dir>] [--pack <repo> [--loc-cap <n>] | --fold-only] [--reserve <stateDir>]
 //
 // It parses nothing of its own. plan-block.mjs locates the metadata runs and reports their positions in the
 // RAW bytes, so a BOM'd or CRLF file splices without corruption, and the edited text goes back through that
@@ -33,6 +33,7 @@ import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } fr
 import { homedir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { reserve } from './launch.mjs';
 import { PLUGIN_ROOT, orphanRefusal } from './plugin-access.mjs';
 import { RUN_KEYS, TITLE_SPLIT_RE, listObject, parseBlocks, parseFileKeys, resolveRoadmap, validate } from './plan-block.mjs';
 
@@ -43,7 +44,7 @@ const USAGE = `usage:
   node tools/plan-edit.mjs move <src.md|src-name> <issue-id> <dest.md|dest-name> <block-id>
       cut one "### [<id>]" entry and append it, verbatim, to the end of a fix-mode block.
   node tools/plan-edit.mjs args [<plan.md|plan-name> ...] [--expect <wf-run-id>] [--backlog <dir>]
-                            [--pack <repo> [--loc-cap <lines>] | --fold-only]
+                            [--pack <repo> [--loc-cap <lines>] | --fold-only] [--reserve <stateDir>]
       fold every finished develop run's status edits into the plan files, then print develop's
       args { goal, ordered, suite, sweep, plans, blockTool }, where blockTool is the plan-block.mjs
       beside this tool. --expect fails unless that run's record exists.
@@ -62,6 +63,9 @@ const USAGE = `usage:
       files their open ACTIONABLE issues name, so one set of agents builds several small blocks.
       A pass runs on the strongest model and the highest effort among its members.
       --fold-only writes the same folds and cuts, sets no done file to todo, and prints nothing.
+      --reserve reserves the next launch-<n> folder in the absolute <stateDir> once the args are
+      built and written, and adds it to the printed object as launchDir. It reserves nothing when
+      the command fails or finds nothing to build, and it refuses --fold-only.
       All-or-nothing: one bad edit in any file writes no file at all.
 
 a bare plan-name resolves to <CLAUDE_CONFIG_DIR | ~/.claude>/plans/<name>.md`;
@@ -1039,13 +1043,18 @@ function runArgs(argv, note, invokedScript) {
   for (let i = 0; i < argv.length; i++) {
     if (!argv[i].startsWith('--')) { paths.push(argv[i]); continue; }
     if (argv[i] === '--fold-only') { flags[argv[i]] = true; continue; }
-    if (!['--expect', '--backlog', '--pack', '--loc-cap'].includes(argv[i]) || !argv[i + 1]) throw new Error(USAGE);
+    if (!['--expect', '--backlog', '--pack', '--loc-cap', '--reserve'].includes(argv[i]) || !argv[i + 1]) throw new Error(USAGE);
     flags[argv[i]] = argv[++i];
   }
   const cap = flags['--loc-cap'] === undefined ? DEFAULT_LOC_CAP : Number(flags['--loc-cap']);
   const foldOnly = flags['--fold-only'] === true;
+  const stateDir = flags['--reserve'] ?? null;
   if ((!paths.length && !flags['--backlog']) || !Number.isInteger(cap) || cap < 1 || (flags['--loc-cap'] && !flags['--pack'])) throw new Error(USAGE);
-  if (foldOnly && flags['--pack']) throw new Error(USAGE);
+  if (foldOnly && (flags['--pack'] || stateDir !== null)) throw new Error(USAGE);
+  // Checked before any write, so a bad flag value leaves every plan file and the stateDir untouched.
+  if (stateDir !== null && !isAbsolute(stateDir)) {
+    throw new Error(`--reserve needs an absolute stateDir, since develop compares launchDir with its own absolute stateDir. Got ${JSON.stringify(stateDir)}.`);
+  }
   const expect = flags['--expect'] ?? null;
   const configDir = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
   const records = findRunRecords(configDir).map(readRunRecord).filter(Boolean);
@@ -1084,7 +1093,9 @@ function runArgs(argv, note, invokedScript) {
 
   // Output
   flush();
-  return `${JSON.stringify({ ...args, blockTool }, null, 2)}\n`;
+  // Reserved last, so a run that prints no args leaves no launch folder behind.
+  const launch = stateDir === null ? {} : { launchDir: reserve(stateDir).launchDir };
+  return `${JSON.stringify({ ...args, blockTool, ...launch }, null, 2)}\n`;
 }
 
 // =============================================================================
