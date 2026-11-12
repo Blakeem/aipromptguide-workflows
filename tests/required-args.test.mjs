@@ -117,9 +117,9 @@ const SWEEP = [
   },
   {
     engine: 'workflows/decide/decide-cycle.mjs',
-    baseArgs: { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/requirements.md' },
+    baseArgs: { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/requirements.md', launchDir: 'E:/r/runs/t/launch-1' },
     respond: {},
-    required: ['runId', 'root', 'planPath'],
+    required: ['runId', 'root', 'planPath', 'launchDir'],
   },
   {
     engine: 'workflows/docs/docs-cycle.mjs',
@@ -131,9 +131,9 @@ const SWEEP = [
   {
     engine: 'workflows/brainstorm/brainstorm-cycle.mjs',
     baseArgs: { runId: 't', root: 'E:/r', brief: 'Design a landing page for a developer tool',
-      lenses: ['minimalist', 'bold editorial'] },
+      lenses: ['minimalist', 'bold editorial'], launchDir: 'E:/r/runs/t/launch-1' },
     respond: {},
-    required: ['runId', 'root', 'brief', 'lenses'],
+    required: ['runId', 'root', 'brief', 'lenses', 'launchDir'],
   },
   {
     engine: 'workflows/investigate/investigate-cycle.mjs',

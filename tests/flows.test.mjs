@@ -168,7 +168,7 @@ section('a terminal with parens and quotes survives into quoted Mermaid; its em 
     scenarios: [{
       name: 'awkward label',
       when: 'anything',
-      args: { runId: 't', root: 'E:/r', brief: 'b', lenses: ['one'] },
+      args: { runId: 't', root: 'E:/r', launchDir: 'E:/r/runs/t/launch-1', brief: 'b', lenses: ['one'] },
       respond: { generate: { entry: 'i.md', summary: 's' } },
       terminal: 'wrapped up — "done" (all lenses)',
     }],
@@ -469,7 +469,7 @@ section('a label matching no known role is a hard error naming the label');
 section('spec validation rejects what would produce a silently wrong map');
 {
   const base = { engine: 'workflows/brainstorm/brainstorm-cycle.mjs', out: 'x.md', title: 'v' };
-  const sc = { name: 'n', when: 'w', args: { runId: 't', root: 'E:/r', brief: 'b', lenses: ['a'] }, terminal: 'done' };
+  const sc = { name: 'n', when: 'w', args: { runId: 't', root: 'E:/r', launchDir: 'E:/r/runs/t/launch-1', brief: 'b', lenses: ['a'] }, terminal: 'done' };
 
   eq(await errorFrom(() => buildGraph({ ...base, engine: 'workflows/nope/nope.mjs', scenarios: [sc] })) !== '', true,
     'an engine path that does not exist');
@@ -509,7 +509,7 @@ section('an uncovered throw site is reported, with the reason when one is allowe
   };
   const g = await buildGraph(spec);
   eq(g.coverage.throws.covered, 1, 'one site reached');
-  eq(g.coverage.throws.uncovered.length, 11, 'the other eleven are reported, not ignored');
+  eq(g.coverage.throws.uncovered.length, 13, 'the other thirteen are reported, not ignored');
   const allowed = g.coverage.throws.uncovered.filter((t) => t.reason);
   eq(allowed.length, 1, 'exactly the one allowUncovered names');
   eq(allowed[0].reason, 'covered by the sibling spec', 'and its reason rides along');

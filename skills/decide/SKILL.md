@@ -18,6 +18,8 @@ Work its `## 0. Checklist` top to bottom.
 Use these paths wherever the guide says "this checkout" or "the tool's own directory":
 
 - Engine `scriptPath`: `${CLAUDE_PLUGIN_ROOT}/workflows/decide/decide-cycle.mjs`
+- Launch tool (operator-side, the reserve command of the guide's §0 step 10):
+  `${CLAUDE_PLUGIN_ROOT}/tools/launch.mjs`
 - `root` arg: `${CLAUDE_PLUGIN_DATA}`. Runs land in its `runs/<runId>/`. Never the plugin install dir,
   which is version-swapped on update.
 

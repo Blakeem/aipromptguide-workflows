@@ -1,16 +1,16 @@
 export const meta = {
   name: 'brainstorm-cycle',
-  description: 'Divergent creative generation, lean/file-bus design: fan out ONE generator per lens, each producing a COMPLETE, fully-committed variation (design or idea) written to its own folder — NO AI review, the USER judges. The harness only routes paths; agents never see each other. Use it to explore a wide solution space (web/slideshow designs, product ideas, business-plan angles) so the user can pick one or cherry-pick elements across variations.',
+  description: 'Divergent creative generation, lean/file-bus design: fan out ONE generator per lens, each producing a COMPLETE, fully-committed variation (design or idea) written to its own folder — NO AI review, the USER judges. Each launch writes every lens folder in its own launch folder, the required launchDir arg that tools/launch.mjs reserves in the stateDir, so no launch replaces a file an earlier launch wrote. The harness only routes paths; agents never see each other. Use it to explore a wide solution space (web/slideshow designs, product ideas, business-plan angles) so the user can pick one or cherry-pick elements across variations.',
   whenToUse: 'Generate several DISTINCT, fully-realized variations of one creative thing so a human can compare and combine them. The main agent settles the brief + the LENSES with the user beforehand (each lens = one variation axis, e.g. "minimalist", "bold/editorial", "efficiency-first", "robustness-first"), optionally authors a shared brief/requirements file in PLAN MODE for a complex problem, then runs this engine. This is intentionally LOOSE: no scoring, no review, no convergence — divergence only. To converge ON a conclusion from options, use decide-cycle; to build a chosen variation, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.',
   phases: [
-    { title: 'Generate', detail: 'One generator per lens (CONCURRENT). Each reads the shared brief (verbatim) + its lens, produces a complete variation fully committed to that lens, and writes it into runs/<runId>/variations/<lens>/. Returns only the entry path, a one-line differentiator and whether its context holds a relayed user request. No review, no staging.' },
+    { title: 'Generate', detail: 'One generator per lens (CONCURRENT). Each reads the shared brief (verbatim) + its lens, produces a complete variation fully committed to that lens, and writes it into <launchDir>/variations/<lens>/. Returns only the entry path, a one-line differentiator and whether its context holds a relayed user request. No review, no staging.' },
   ],
 };
 
 // =============================================================================
 // Config — everything problem-specific arrives via args so the engine stays general.
-// Brainstorm is DIVERGENT and read-only w.r.t. any target repo: it writes ONLY into the run-state
-// dir (variations/<lens>/), never the repo, and never stages or commits. There is NO review stage —
+// Brainstorm is DIVERGENT and read-only w.r.t. any target repo: it writes ONLY into its launch folder
+// (variations/<lens>/), never the repo, and never stages or commits. There is NO review stage —
 // the user is the judge (see WORKFLOW-PRINCIPLES.md: generative workflows honor only the core
 // principles). The main agent picks the lenses + (optional) brief with the user BEFOREHAND (#4) —
 // the engine spawns no setup/loader/scribe agent.
@@ -24,7 +24,7 @@ try {
   throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
 }
 if (!A || !A.runId) {
-  throw new Error('args must include at least { runId, root, lenses, brief|planPath }; got typeof=' + (typeof args));
+  throw new Error('args must include at least { runId, root, launchDir, lenses, brief|planPath }; got typeof=' + (typeof args));
 }
 if (!A.root) {
   throw new Error('args.root is required: pass the ABSOLUTE path the run-state should hang off (normally this workflow tool\'s own directory).');
@@ -99,7 +99,34 @@ const slug        = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').r
 
 const REPO        = TARGET.repo ? abs(TARGET.repo) : '';
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}`);
-const VAR_DIR     = `${STATE_DIR}/variations`;
+// Copy of the launch folder check each engine with a launch folder holds, since an engine cannot import: a test pins the copies equal.
+// A launch writes its records only in the folder `tools/launch.mjs reserve` made for it, so no launch writes
+// where another did. Static lead clauses: gen-flows labels each throw node from them.
+const launchDirOf = (value, stateDir) => {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new Error(`Missing args.launchDir: pass the launchDir that the reserve command of the workflow guide's pre-launch step prints, a newly reserved one for every launch but a replay, which passes the replayed launch's own with resumeFromRunId. Got ${JSON.stringify(value)}.`);
+  }
+  const dir = value.trim().replace(/\\/g, '/').replace(/\/+$/, '');
+  // reserve may get another spelling of the stateDir, so both sides drop `.`, `..` and repeated slashes. Windows folds case in a drive or UNC path.
+  const key = (p) => {
+    const lead = /^(?:[a-zA-Z]:\/|\/\/|\/)?/.exec(p)[0];
+    const segments = [];
+    for (const segment of p.slice(lead.length).split('/')) {
+      if (segment === '..') segments.pop();
+      else if (segment && segment !== '.') segments.push(segment);
+    }
+    const path = `${lead}${segments.join('/')}`;
+    return lead.length > 1 ? path.toLowerCase() : path;
+  };
+  const cut = dir.lastIndexOf('/');
+  if (cut < 0 || key(dir.slice(0, cut)) !== key(stateDir) || !/^launch-[1-9]\d*$/.test(dir.slice(cut + 1))) {
+    throw new Error(`Invalid args.launchDir: it must be a folder named launch-<n> directly inside the stateDir ${stateDir}, as \`node <launch.mjs> reserve <stateDir>\` prints it. Got ${JSON.stringify(value)}.`);
+  }
+  return dir;
+};
+// A launch carries no state, so every lens folder it writes lies here, a re-run of failed lenses included.
+const LAUNCH_DIR  = launchDirOf(A.launchDir, STATE_DIR);
+const VAR_DIR     = `${LAUNCH_DIR}/variations`;
 const lensDir     = (id) => `${VAR_DIR}/${id}`;
 
 // Shared brief: a single source of truth (#11), read VERBATIM by every generator (#2). Either a file
@@ -143,14 +170,16 @@ const GENERATE_SCHEMA = {
   },
 };
 
-// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite
-// a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
-const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
+// A replay meets the files its interrupted attempt left in the launch folder, and the Write tool refuses to
+// overwrite a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
+const REPLACE_NOTE = 'The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content.';
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 // Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
 // A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
-const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
+// Every relaunch reserves a new launch folder.
+const LAUNCH = `start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts. That pre-launch command is node <launch.mjs> reserve '${STATE_DIR}', and launchDir is the folder it prints`;
+const NEW_LAUNCH_DIR = `a newly reserved launchDir in place of ${LAUNCH_DIR}`;
 
 // =============================================================================
 // Generator prompt — divergent, fully committed, writes one folder, reviews nothing.
@@ -172,9 +201,9 @@ PROCEDURE:
    ${lensDir(lens.id)}/index.<ext> (the extension the format implies, e.g. .md/.html), any supporting
    files alongside it. For each file: ${REPLACE_NOTE} ${WROTE_NOTE} ${FILE_WRITE_NOTE}
 3. LIST every file in ${lensDir(lens.id)}/ in a final "Files in this folder" section of your entry file,
-   in that file's own format: one line per file with its path relative to the folder. An earlier run with
-   this runId may have left files there, so mark each file you did not write in this run "(earlier run,
-   not part of this variation)".
+   in that file's own format: one line per file with its path relative to the folder. An interrupted
+   attempt of this launch, which a replay meets, may have left files there, so mark each file you did not
+   write in this attempt "(interrupted attempt, not part of this variation)".
 4. Do NOT review or critique your work, modify the target repo, stage, or commit. The file(s) in your
    folder are your ONLY output.
 Return the entry path + a ONE-LINE differentiator via the schema.`;
@@ -194,7 +223,7 @@ const results = await parallel(LENSES.map((lens) => () =>
 // A run launched inside a user turn relays that message to every generator, so no variation is trustworthy.
 const relayedLensIds = results.filter((v) => v?.relayed).map((v) => v.lens);
 if (relayedLensIds.length) {
-  throw new Error(`A user request was relayed into the context of the generator for ${relayedLensIds.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}.`);
+  throw new Error(`A user request was relayed into the context of the generator for ${relayedLensIds.join(', ')} ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch with the same args and runId and ${NEW_LAUNCH_DIR}, from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}.`);
 }
 
 const variations = results.filter(Boolean).filter((v) => v.entry);
@@ -209,6 +238,6 @@ return {
   variations: variations.map((v) => ({ lens: v.lens, focus: v.focus, entry: v.entry, summary: v.summary })),
   failed: failedLensIds.map((id) => ({ id, stage: 'generate' })),
   nextStep: variations.length
-    ? `Present the ${variations.length} of ${LENSES.length} variation(s) that landed under ${VAR_DIR}/: relay each one's entry path with its one-line summary, open the entries as needed, and walk the user through the distinct take of each. This is divergent — there is no winner; the user picks one, asks for a hybrid, or cherry-picks elements. To turn a chosen direction into a built feature, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle; to have the AI conclude among options with a decision matrix, use decide-cycle.${failedLensIds.length ? ` Tell the user these lenses produced NOTHING: ${failedLensIds.join(', ')} — offer to re-run just those with the same runId. To relaunch, ${LAUNCH}.` : ''}`
-    : `NOTHING was produced: every generator failed or returned no entry (${failedLensIds.join(', ')}). There is nothing to present — do NOT describe variations. Tell the user the batch produced no output, then re-run those lenses with the same runId (check the brief/planPath is readable and each lens focus is sane first). To relaunch, ${LAUNCH}.`,
+    ? `Present the ${variations.length} of ${LENSES.length} variation(s) that landed under ${VAR_DIR}/: relay each one's entry path with its one-line summary, open the entries as needed, and walk the user through the distinct take of each. This is divergent — there is no winner; the user picks one, asks for a hybrid, or cherry-picks elements. To turn a chosen direction into a built feature, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle; to have the AI conclude among options with a decision matrix, use decide-cycle.${failedLensIds.length ? ` Tell the user these lenses produced NOTHING: ${failedLensIds.join(', ')} — offer to re-run just those with the same runId and ${NEW_LAUNCH_DIR}, so the re-run writes them in its own launch folder while the variations above stay in ${VAR_DIR}/. To relaunch, ${LAUNCH}.` : ''}`
+    : `NOTHING was produced: every generator failed or returned no entry (${failedLensIds.join(', ')}). There is nothing to present — do NOT describe variations. Tell the user the batch produced no output, then re-run those lenses with the same runId and ${NEW_LAUNCH_DIR} (check the brief/planPath is readable and each lens focus is sane first). To relaunch, ${LAUNCH}.`,
 };

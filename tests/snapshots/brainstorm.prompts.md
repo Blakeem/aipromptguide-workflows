@@ -6,8 +6,8 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| generate | 1 | 1 | 2026 | three lenses |
-| generate | 2 | 1 | 2042 | three lenses |
+| generate | 1 | 1 | 2166 | three lenses |
+| generate | 2 | 1 | 2182 | three lenses |
 
 ## generate · variant 1 · schema 1
 
@@ -30,13 +30,13 @@ OUTPUT FORMAT: a single self-contained Markdown document.
 PROCEDURE:
 1. Produce the COMPLETE variation, fully realized, not an outline (unless the format IS an outline). Make
    the lens's influence obvious and concrete.
-2. WRITE it into E:/flow/runs/flow/variations/minimalist/ (create it): the main artifact at
-   E:/flow/runs/flow/variations/minimalist/index.<ext> (the extension the format implies, e.g. .md/.html), any supporting
-   files alongside it. For each file: The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
-3. LIST every file in E:/flow/runs/flow/variations/minimalist/ in a final "Files in this folder" section of your entry file,
-   in that file's own format: one line per file with its path relative to the folder. An earlier run with
-   this runId may have left files there, so mark each file you did not write in this run "(earlier run,
-   not part of this variation)".
+2. WRITE it into E:/flow/runs/flow/launch-1/variations/minimalist/ (create it): the main artifact at
+   E:/flow/runs/flow/launch-1/variations/minimalist/index.<ext> (the extension the format implies, e.g. .md/.html), any supporting
+   files alongside it. For each file: The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+3. LIST every file in E:/flow/runs/flow/launch-1/variations/minimalist/ in a final "Files in this folder" section of your entry file,
+   in that file's own format: one line per file with its path relative to the folder. An interrupted
+   attempt of this launch, which a replay meets, may have left files there, so mark each file you did not
+   write in this attempt "(interrupted attempt, not part of this variation)".
 4. Do NOT review or critique your work, modify the target repo, stage, or commit. The file(s) in your
    folder are your ONLY output.
 Return the entry path + a ONE-LINE differentiator via the schema.
@@ -88,13 +88,13 @@ OUTPUT FORMAT: a single self-contained Markdown document.
 PROCEDURE:
 1. Produce the COMPLETE variation, fully realized, not an outline (unless the format IS an outline). Make
    the lens's influence obvious and concrete.
-2. WRITE it into E:/flow/runs/flow/variations/bold-editorial/ (create it): the main artifact at
-   E:/flow/runs/flow/variations/bold-editorial/index.<ext> (the extension the format implies, e.g. .md/.html), any supporting
-   files alongside it. For each file: The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
-3. LIST every file in E:/flow/runs/flow/variations/bold-editorial/ in a final "Files in this folder" section of your entry file,
-   in that file's own format: one line per file with its path relative to the folder. An earlier run with
-   this runId may have left files there, so mark each file you did not write in this run "(earlier run,
-   not part of this variation)".
+2. WRITE it into E:/flow/runs/flow/launch-1/variations/bold-editorial/ (create it): the main artifact at
+   E:/flow/runs/flow/launch-1/variations/bold-editorial/index.<ext> (the extension the format implies, e.g. .md/.html), any supporting
+   files alongside it. For each file: The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+3. LIST every file in E:/flow/runs/flow/launch-1/variations/bold-editorial/ in a final "Files in this folder" section of your entry file,
+   in that file's own format: one line per file with its path relative to the folder. An interrupted
+   attempt of this launch, which a replay meets, may have left files there, so mark each file you did not
+   write in this attempt "(interrupted attempt, not part of this variation)".
 4. Do NOT review or critique your work, modify the target repo, stage, or commit. The file(s) in your
    folder are your ONLY output.
 Return the entry path + a ONE-LINE differentiator via the schema.

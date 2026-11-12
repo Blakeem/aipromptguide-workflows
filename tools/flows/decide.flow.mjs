@@ -8,10 +8,12 @@
 // decider's and the reviewer's: one status string, four writers, so each needs its own edge), and each
 // throw site.
 
+const LAUNCH_DIR = 'E:/flow/runs/flow/launch-1';
 const base = {
   runId: 'flow',
   root: 'E:/flow',
   planPath: 'E:/flow/plans/flow/requirements.md',
+  launchDir: LAUNCH_DIR,
 };
 
 const OPEN      = { wrote_file: true, relayed_request: false };
@@ -106,7 +108,11 @@ export default {
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { investigate: 'ultra' } } },
     { name: 'agentTypes names an unknown role', when: 'agentTypes is not an object, carries a key outside investigate | decide | review, or maps one to a blank name', args: { ...base, agentTypes: { analyst: 'my-analyst' } } },
     { name: 'notes missing a path', when: 'notes lacks dir or survey, or names a relative path', args: { ...base, notes: { dir: 'E:/flow/notes' } } },
-    { name: 'no planPath', when: 'args carry no planPath', args: { runId: 'flow', root: 'E:/flow' } },
+    { name: 'no planPath', when: 'args carry no planPath', args: { runId: 'flow', root: 'E:/flow', launchDir: LAUNCH_DIR } },
+    // Each launch writes every file in its own launch folder, so a launch without one, or with a folder
+    // outside the stateDir, would write where another launch did.
+    { name: 'no launch folder', when: 'args.launchDir is missing or blank', args: { ...base, launchDir: undefined } },
+    { name: 'launch folder outside the stateDir', when: 'args.launchDir is not a launch-<n> folder directly inside the stateDir', args: { ...base, launchDir: 'E:/flow/runs/other/launch-1' } },
     // A run launched inside a user turn relays that message to every agent, and the first agent says so.
     { name: 'a user request is relayed', when: 'the opening investigator reports a user request relayed into its context', args: base, respond: { ...CLEAN, 'investigate i1': { ...OPEN, relayed_request: true } } },
   ],

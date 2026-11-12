@@ -20,8 +20,8 @@ A deliberately **lean, loose** workflow built on the shared [Workflow Principles
   requirements file you write in plan mode for a complex problem). Nothing is paraphrased between agents.
 - **The harness only routes.** The script fans out and passes folder paths and control signals, never
   paraphrased content.
-- **Your repo is untouched.** Variations land in `runs/<runId>/variations/`. Nothing is written to,
-  staged, or committed in your codebase. You adopt what you like afterward.
+- **Your repo is untouched.** Variations land in `runs/<runId>/launch-<n>/variations/`. Nothing is written
+  to, staged, or committed in your codebase. You adopt what you like afterward.
 
 To have the AI *conclude* among options with a weighted decision matrix, use the sibling
 [`decide-cycle`](../decide/). To *build* a chosen direction, author a plan file for
@@ -62,11 +62,13 @@ Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the 
 
 ## Reviewing the result
 
-Variations land under `runs/<runId>/variations/<lens>/`. Open each entry and compare. Each entry file
-ends with a list of every file in its folder. The list marks each file an earlier run with the same
-`runId` left there. There are no
-review or status files (it's divergent and you're the judge). Pick one, combine elements, then either build
-it from a [`develop-cycle`](../develop/) plan file or copy it into your repo yourself.
+Variations land under `runs/<runId>/launch-<n>/variations/<lens>/`. Each launch writes in its own
+`launch-<n>/` folder, so a relaunch keeps every variation of an earlier launch, and a re-run of the lenses
+that failed writes them in its own folder. Open each entry and compare. Each entry file ends with a list of
+every file in its folder. The list marks each file that an interrupted attempt of the same launch left
+there. There are no review or status files (it's divergent and you're the judge). Pick one, combine
+elements, then either build it from a [`develop-cycle`](../develop/) plan file or copy it into your repo
+yourself.
 
 ---
 

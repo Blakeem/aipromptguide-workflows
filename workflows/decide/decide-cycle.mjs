@@ -1,6 +1,6 @@
 export const meta = {
   name: 'decide-cycle',
-  description: 'Convergent decision, lean/file-bus design, as a bounded chain with no loop back. An OPENING INVESTIGATOR searches for every option worth weighing and writes investigations/i1.md. Then up to maxInvestigators - 1 CHALLENGERS run one at a time: each reads the rubric and every earlier investigation file, tries to replace the leading option by rejecting one assumption it rests on, tries to improve any option, a combination of options included, and writes its own file of contributions. Every investigator records each defect it finds in an option as it goes, and a recorded defect counts as a contribution with or without a fix. The chain stops at the first challenger that shows it can add nothing, or at maxInvestigators. ONE DECIDER then scores the options the investigation files hold and the do-nothing option in one weighted matrix, builds no option of its own, and writes decision.md, a ranked list. ONE FINAL REVIEWER first hunts defects in what would be built under the three top-ranked options and in the contributions no later investigator read, then verifies decision.md against the sources, reruns the saved scripts, recomputes the totals, records each defect it shows as a con or a ruled-out entry, corrects each error it can prove in place and writes review.md with its defects, its edits and its flags. The run starts at most maxInvestigators + 2 agents. The harness only routes paths + counts; rich content lives in files.',
+  description: 'Convergent decision, lean/file-bus design, as a bounded chain with no loop back. An OPENING INVESTIGATOR searches for every option worth weighing and writes investigations/i1.md. Then up to maxInvestigators - 1 CHALLENGERS run one at a time: each reads the rubric and every earlier investigation file, tries to replace the leading option by rejecting one assumption it rests on, tries to improve any option, a combination of options included, and writes its own file of contributions. Every investigator records each defect it finds in an option as it goes, and a recorded defect counts as a contribution with or without a fix. The chain stops at the first challenger that shows it can add nothing, or at maxInvestigators. ONE DECIDER then scores the options the investigation files hold and the do-nothing option in one weighted matrix, builds no option of its own, and writes decision.md, a ranked list. ONE FINAL REVIEWER first hunts defects in what would be built under the three top-ranked options and in the contributions no later investigator read, then verifies decision.md against the sources, reruns the saved scripts, recomputes the totals, records each defect it shows as a con or a ruled-out entry, corrects each error it can prove in place and writes review.md with its defects, its edits and its flags. The run starts at most maxInvestigators + 2 agents. Each launch writes every file, the investigation files, scripts/, decision.md and review.md, in its own launch folder, the required launchDir arg that tools/launch.mjs reserves in the stateDir, so no launch replaces a file an earlier launch wrote. The harness only routes paths + counts; rich content lives in files.',
   whenToUse: 'Have the AI reach a JUSTIFIED, RANKED answer among approaches, weighing real trade-offs. Rank 1 is the top answer, and the user may combine the entries marked as combinable. The main agent authors the REQUIREMENTS (non-negotiable constraints + weighted criteria, the rubric every agent judges against) in PLAN MODE and approves them with the user, then runs this engine. To explore open-ended creative variations for a HUMAN to pick (no AI verdict) use brainstorm-cycle; to find an answer that already exists against pass/fail criteria use investigate-cycle; to BUILD a pick, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.',
   phases: [
     { title: 'Investigate', detail: 'A serial chain of at most maxInvestigators agents. The opening investigator reads the requirements (verbatim), searches the web, and the codebase when target.repo is passed, for every option worth weighing and writes investigations/i1.md: the options with their pros and cons, each defect it finds and does not fix written as a con, the assumptions the leader rests on, the standing and the directions searched. Each challenger k reads the requirements and every earlier investigation file in order, tries to replace the leader and to improve any option, a combination of options included, records each defect it comes across, and writes investigations/i<k>.md with its contributions. The chain stops at the first challenger that returns contributed false (dry) or after maxInvestigators agents (cap).' },
@@ -25,7 +25,7 @@ try {
   throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
 }
 if (!A || !A.runId) {
-  throw new Error('args must include at least { runId, root, planPath }; got typeof=' + (typeof args));
+  throw new Error('args must include at least { runId, root, planPath, launchDir }; got typeof=' + (typeof args));
 }
 if (!A.root) {
   throw new Error('args.root is required: pass the ABSOLUTE path the run-state should hang off (normally this workflow tool\'s own directory).');
@@ -125,11 +125,38 @@ const callAgent = (prompt, opts) => agent(NOTES
 
 const REPO        = TARGET.repo ? abs(TARGET.repo) : '';
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}`);
-const INV_DIR     = `${STATE_DIR}/investigations`;
+// Copy of the launch folder check each engine with a launch folder holds, since an engine cannot import: a test pins the copies equal.
+// A launch writes its records only in the folder `tools/launch.mjs reserve` made for it, so no launch writes
+// where another did. Static lead clauses: gen-flows labels each throw node from them.
+const launchDirOf = (value, stateDir) => {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new Error(`Missing args.launchDir: pass the launchDir that the reserve command of the workflow guide's pre-launch step prints, a newly reserved one for every launch but a replay, which passes the replayed launch's own with resumeFromRunId. Got ${JSON.stringify(value)}.`);
+  }
+  const dir = value.trim().replace(/\\/g, '/').replace(/\/+$/, '');
+  // reserve may get another spelling of the stateDir, so both sides drop `.`, `..` and repeated slashes. Windows folds case in a drive or UNC path.
+  const key = (p) => {
+    const lead = /^(?:[a-zA-Z]:\/|\/\/|\/)?/.exec(p)[0];
+    const segments = [];
+    for (const segment of p.slice(lead.length).split('/')) {
+      if (segment === '..') segments.pop();
+      else if (segment && segment !== '.') segments.push(segment);
+    }
+    const path = `${lead}${segments.join('/')}`;
+    return lead.length > 1 ? path.toLowerCase() : path;
+  };
+  const cut = dir.lastIndexOf('/');
+  if (cut < 0 || key(dir.slice(0, cut)) !== key(stateDir) || !/^launch-[1-9]\d*$/.test(dir.slice(cut + 1))) {
+    throw new Error(`Invalid args.launchDir: it must be a folder named launch-<n> directly inside the stateDir ${stateDir}, as \`node <launch.mjs> reserve <stateDir>\` prints it. Got ${JSON.stringify(value)}.`);
+  }
+  return dir;
+};
+// Each launch reruns the chain from the opening investigator and carries no state, so every file it writes lies here.
+const LAUNCH_DIR  = launchDirOf(A.launchDir, STATE_DIR);
+const INV_DIR     = `${LAUNCH_DIR}/investigations`;
 const invFile     = (k) => `${INV_DIR}/i${k}.md`;
-const SCRIPTS_DIR = `${STATE_DIR}/scripts`;
-const DECISION_FILE = `${STATE_DIR}/decision.md`;
-const REVIEW_FILE = `${STATE_DIR}/review.md`;
+const SCRIPTS_DIR = `${LAUNCH_DIR}/scripts`;
+const DECISION_FILE = `${LAUNCH_DIR}/decision.md`;
+const REVIEW_FILE = `${LAUNCH_DIR}/review.md`;
 
 // Requirements: the FIXED rubric of non-negotiable constraints and weighted criteria, read verbatim
 // (#2/#11) by every agent. It lives in a file (planPath).
@@ -201,14 +228,18 @@ const REVIEW_SCHEMA = {
   },
 };
 
-// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite
-// a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
-const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
+// A replay meets the files its interrupted attempt left in the launch folder, and the Write tool refuses to
+// overwrite a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
+const REPLACE_NOTE = 'The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content.';
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 // Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
 // A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
-const LAUNCH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
+const LAUNCH_PATH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
+// A relaunch reserves a new launch folder. A replay keeps its launch's folder, so its pre-launch command reserves none.
+const LAUNCH = `${LAUNCH_PATH}. That pre-launch command is node <launch.mjs> reserve '${STATE_DIR}', and launchDir is the folder it prints`;
+const REPLAY = `${LAUNCH_PATH}. A replay keeps its launchDir, so that pre-launch command is ${REPO ? `git -C '${REPO}' status --short` : 'node --version'}, which reserves no launch folder`;
+const NEW_LAUNCH_DIR = `a newly reserved launchDir in place of ${LAUNCH_DIR}`;
 
 // =============================================================================
 // Shared prompt fragments
@@ -454,13 +485,13 @@ Return via the schema.`;
 // =============================================================================
 // Run state
 // =============================================================================
-const RESUME = `Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache. To re-invoke, ${LAUNCH}.`;
+const RESUME = `Replay with the same args and runId, launchDir ${LAUNCH_DIR} included, plus the Workflow tool's resumeFromRunId, so the finished agents return from cache and the dead agent runs again. To replay, ${REPLAY}.`;
 const agents = { investigate: 0, decide: 0, review: 0 };   // agents started per phase
 const investigationFiles = [];  // every attested investigation file, in chain order
 let stop = '';                  // why the chain ended: '' (halted inside it) | dry | cap
 let haltKind = '';              // '' (not halted) | 'write-unattested'
 let haltReason = '';
-let decisionFile = '';          // named only once its writer attested, since a same-runId relaunch can leave a stale file there
+let decisionFile = '';          // named only once its writer attested, since an interrupted attempt of this launch can leave a file there
 let reviewFile = '';
 let ranking = [];
 let flip = '';
@@ -486,7 +517,7 @@ run: {
   if (!opened) throw new Error(`Opening investigator returned nothing (investigate i1: agent skipped or died). ${RESUME}`);
   // A run launched inside a user turn relays that message to every agent, so the first agent stops it before any later one.
   if (opened.relayed_request === true) {
-    throw new Error(`A user request was relayed into the context of the opening investigator ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}.`);
+    throw new Error(`A user request was relayed into the context of the opening investigator ahead of its task. The Workflow runtime does this when the run is launched inside a user turn, and it relays the message to every agent. Relaunch with the same args and runId and ${NEW_LAUNCH_DIR}, from a notification turn, as the root CLAUDE.md rule "Launch from a notification turn" says: ${LAUNCH}.`);
   }
   if (opened.wrote_file !== true) { unattested('opening investigator', invFile(1)); break run; }
   investigationFiles.push(invFile(1));
@@ -567,7 +598,7 @@ const defectsNote = defects
 // With nothing ranked there is no rank 1 to present or build, so that hand-back names only the ruled-out options.
 const decidedStep = ranking.length
   ? `Present the ranking under \`## Ranking\` in ${DECISION_FILE}, with ${reviewNote}. ${flipNote}${checksNote}Rank 1 is the top answer, and the user may combine the entries marked as combinable. When rank 1 is the do-nothing option, the answer is not to act. To build a pick, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle (several picks become several blocks of one plan file).${defectsNote}`
-  : `No option passes every non-negotiable: present \`## Ruled out\` in ${DECISION_FILE}, with ${reviewNote}. ${checksNote}Refine the requirements with the user before a relaunch. To relaunch, ${LAUNCH}.`;
+  : `No option passes every non-negotiable: present \`## Ruled out\` in ${DECISION_FILE}, with ${reviewNote}. ${checksNote}Refine the requirements with the user, then relaunch with the same runId and ${NEW_LAUNCH_DIR}. To relaunch, ${LAUNCH}.`;
 
 return {
   runId: RUN_ID,
@@ -590,6 +621,6 @@ return {
   investigationFiles,
   failed: [],
   nextStep: halted
-    ? `Run halted — ${haltReason} Check that file, then relaunch with the same args and no resumeFromRunId: a resume replays the cached return and halts the same way. The relaunch reruns the chain from the opening investigator and replaces each file it reaches. To relaunch, ${LAUNCH}.`
+    ? `Run halted — ${haltReason} Check that file, then relaunch with the same args and runId, ${NEW_LAUNCH_DIR} and no resumeFromRunId: a resume replays the cached return and halts the same way. The relaunch reruns the chain from the opening investigator in its own launch folder. To relaunch, ${LAUNCH}.`
     : decidedStep,
 };

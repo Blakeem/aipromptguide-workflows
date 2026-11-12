@@ -20,7 +20,7 @@ flowchart TD
   t3(["decided with flags (the final reviewer flags N judgment calls for the user)"])
   t4(["BLOCKED (an agent did not confirm writing its file)"])
   x1[/"throw: Invalid args JSON"/]
-  x2[/"throw: args must include at least { runId, root, planPath }"/]
+  x2[/"throw: args must include at least { runId, root, planPath, launchDir }"/]
   x3[/"throw: args.root is required"/]
   x4[/"throw: Retired arg"/]
   x5[/"throw: Invalid numeric arg"/]
@@ -29,12 +29,14 @@ flowchart TD
   x8[/"throw: Illegal role value in a role map"/]
   x9[/"throw: Invalid agentTypes arg"/]
   x10[/"throw: Invalid notes arg"/]
-  x11[/"throw: args.planPath is required"/]
-  x12[/"throw: Opening investigator returned nothing"/]
-  x13[/"throw: A user request was relayed into the context of the opening investigator ahead of its task"/]
-  x14[/"throw: Challenger returned nothing"/]
-  x15[/"throw: Decider returned nothing"/]
-  x16[/"throw: Reviewer returned nothing"/]
+  x11[/"throw: Missing args.launchDir"/]
+  x12[/"throw: Invalid args.launchDir"/]
+  x13[/"throw: args.planPath is required"/]
+  x14[/"throw: Opening investigator returned nothing"/]
+  x15[/"throw: A user request was relayed into the context of the opening investigator ahead of its task"/]
+  x16[/"throw: Challenger returned nothing"/]
+  x17[/"throw: Decider returned nothing"/]
+  x18[/"throw: Reviewer returned nothing"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -47,23 +49,25 @@ flowchart TD
   S0 --> x9
   S0 --> x10
   S0 --> x11
+  S0 --> x12
+  S0 --> x13
   a1 --> a2
   a1 --> a3
   a1 --> t4
-  a1 --> x12
-  a1 --> x13
+  a1 --> x14
+  a1 --> x15
   a2 ==>|"next item"| a2
   a2 --> a3
   a2 --> t4
-  a2 --> x14
+  a2 --> x16
   a3 --> a4
   a3 --> t4
-  a3 --> x15
+  a3 --> x17
   a4 --> t1
   a4 --> t2
   a4 --> t3
   a4 --> t4
-  a4 --> x16
+  a4 --> x18
 ```
 
 ## Phases
@@ -83,7 +87,7 @@ flowchart TD
 | decided with flags (the final reviewer flags N judgment calls for the user) | the final reviewer flags judgment calls it cannot prove wrong | derived |
 | BLOCKED (an agent did not confirm writing its file) | the opening investigator does not confirm writing i1.md · a challenger does not confirm writing its investigation file · the decider does not confirm writing decision.md · the final reviewer does not confirm writing review.md | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 25) |
-| throw: args must include at least { runId, root, planPath } | args carry no runId | throw (line 28) |
+| throw: args must include at least { runId, root, planPath, launchDir } | args carry no runId | throw (line 28) |
 | throw: args.root is required | args.root is missing | throw (line 31) |
 | throw: Retired arg | args carry an arg the chain retired, such as lenses or checkTool | throw (line 46) |
 | throw: Invalid numeric arg | maxInvestigators is not a number | throw (line 59) |
@@ -92,13 +96,15 @@ flowchart TD
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 83) |
 | throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside investigate \| decide \| review, or maps one to a blank name | throw (line 97) |
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 115) |
-| throw: args.planPath is required | args carry no planPath | throw (line 137) |
-| throw: Opening investigator returned nothing | the opening investigator dies | throw (line 486) |
-| throw: A user request was relayed into the context of the opening investigator ahead of its task | the opening investigator reports a user request relayed into its context | throw (line 489) |
-| throw: Challenger returned nothing | a challenger dies | throw (line 498) |
-| throw: Decider returned nothing | the decider dies | throw (line 519) |
-| throw: Reviewer returned nothing | the final reviewer dies | throw (line 533) |
+| throw: Missing args.launchDir | args.launchDir is missing or blank | throw (line 133) |
+| throw: Invalid args.launchDir | args.launchDir is not a launch-&lt;n&gt; folder directly inside the stateDir | throw (line 149) |
+| throw: args.planPath is required | args carry no planPath | throw (line 164) |
+| throw: Opening investigator returned nothing | the opening investigator dies | throw (line 517) |
+| throw: A user request was relayed into the context of the opening investigator ahead of its task | the opening investigator reports a user request relayed into its context | throw (line 520) |
+| throw: Challenger returned nothing | a challenger dies | throw (line 529) |
+| throw: Decider returned nothing | the decider dies | throw (line 550) |
+| throw: Reviewer returned nothing | the final reviewer dies | throw (line 564) |
 
 ## Coverage
 
-26 scenarios · 4/4 roles · 16/16 throw sites · 1/1 halt statuses · 20 terminal states.
+28 scenarios · 4/4 roles · 18/18 throw sites · 1/1 halt statuses · 22 terminal states.

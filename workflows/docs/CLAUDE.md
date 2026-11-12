@@ -167,7 +167,8 @@ No mid-run questions — frame it with the user first:
 - **Relaunch vs. new run.** A run into a folder that already holds a set (the same `runId` without
   `outDir`, or the same `outDir` under any `runId`) gathers into and re-curates that set. For a new
   set, point `outDir` at a new directory. Without `outDir`, a new `runId` gives a new folder. Never
-  clear a folder that holds a set.
+  clear a folder that holds a set. docs takes no `launchDir`, unlike the engines that write each launch's
+  records in a launch folder, since every file it writes belongs to the doc set it curates in place.
 
 ## 4. Sources — the doc sets to pull
 

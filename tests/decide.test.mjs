@@ -7,9 +7,14 @@ import { pinRoleMaps, pinWriteNotes, pinFileWriteNote } from './role-map-pin.mjs
 
 const ENGINE = 'workflows/decide/decide-cycle.mjs';
 const S = 'E:/r/runs/t';
-const I = (k) => `${S}/investigations/i${k}.md`;
+// Every file a launch writes lies in its launch folder.
+const L = `${S}/launch-1`;
+const I = (k) => `${L}/investigations/i${k}.md`;
 
-const baseArgs = { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/requirements.md' };
+const baseArgs = { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/requirements.md', launchDir: L };
+const LAUNCH_PATH = 'start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts';
+const RELAUNCH = `${LAUNCH_PATH}. That pre-launch command is node <launch.mjs> reserve '${S}', and launchDir is the folder it prints`;
+const REPLACE_NOTE = 'The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content.';
 const run = (respond, args = baseArgs) => runEngine(ENGINE, { args, respond });
 
 const OPEN      = { wrote_file: true, relayed_request: false };
@@ -35,8 +40,8 @@ section('every challenger contributing runs the chain to maxInvestigators, then 
   eq(out.status, 'decided (the final reviewer made no edit and raised no flag)', 'status');
   ok(out.halted === false && out.haltReason === '', 'not halted');
   eq(out.chosen, 'in-process LRU', 'chosen is rank 1\'s title');
-  eq(out.decisionFile, `${S}/decision.md`, 'decisionFile');
-  eq(out.reviewFile, `${S}/review.md`, 'reviewFile');
+  eq(out.decisionFile, `${L}/decision.md`, 'decisionFile');
+  eq(out.reviewFile, `${L}/review.md`, 'reviewFile');
   eq(JSON.stringify(out.investigationFiles), JSON.stringify([I(1), I(2), I(3), I(4)]), 'investigationFiles lists every investigation file in chain order');
   ok(Array.isArray(out.failed) && out.failed.length === 0, 'failed is an empty array, since no agent is auxiliary');
   eq(calls.map((c) => c.opts.phase).join(','), 'Investigate,Investigate,Investigate,Investigate,Decide,Review', 'each agent runs under its phase');
@@ -112,7 +117,7 @@ section('the ranking index is sorted by rank and drops an entry it cannot relay'
   eq(out.ranking.map((r) => r.title).join(','), 'in-process LRU,redis,unranked', 'sorted by rank, an unranked entry last, a blank or non-object entry dropped');
   const empty = await run({ ...CLEAN, review: { ...REVIEW, ranking: [] } });
   eq(empty.out.chosen, '', 'an empty ranking chooses nothing');
-  ok(flat(empty.out.nextStep).startsWith(`No option passes every non-negotiable: present \`## Ruled out\` in ${S}/decision.md, with the edits under \`## Edits\``),
+  ok(flat(empty.out.nextStep).startsWith(`No option passes every non-negotiable: present \`## Ruled out\` in ${L}/decision.md, with the edits under \`## Edits\``),
     `and the hand-back says no option passes: ${String(empty.out.nextStep).slice(0, 90)}`);
   ok(!/Rank 1|To build a pick|Present the ranking/.test(empty.out.nextStep), 'and names no rank 1 to present or build');
 }
@@ -132,8 +137,8 @@ section('an unattested write halts before the next agent, and the return names o
   const cases = [
     ['the opening investigator', { 'investigate i1': { ...OPEN, wrote_file: false } }, 'investigate i1', I(1), []],
     ['challenger i3', { 'investigate i': (label) => (label === 'investigate i3' ? { ...CHALLENGE, wrote_file: false } : CHALLENGE) }, 'investigate i3', I(3), [I(1), I(2)]],
-    ['the decider', { decide: { ...DECIDE, wrote_file: false } }, 'decide', `${S}/decision.md`, [I(1), I(2), I(3), I(4)]],
-    ['the final reviewer', { review: { ...REVIEW, wrote_file: false } }, 'review', `${S}/review.md`, [I(1), I(2), I(3), I(4)]],
+    ['the decider', { decide: { ...DECIDE, wrote_file: false } }, 'decide', `${L}/decision.md`, [I(1), I(2), I(3), I(4)]],
+    ['the final reviewer', { review: { ...REVIEW, wrote_file: false } }, 'review', `${L}/review.md`, [I(1), I(2), I(3), I(4)]],
   ];
   for (const [who, override, last, file, files] of cases) {
     const { out, labels } = await run({ ...CLEAN, ...override });
@@ -141,7 +146,9 @@ section('an unattested write halts before the next agent, and the return names o
     eq(out.status, 'BLOCKED (an agent did not confirm writing its file)', `${who}: the halt status`);
     ok(out.halted === true && out.haltReason.includes(file), `${who}: haltReason names ${file}: ${out.haltReason}`);
     eq(JSON.stringify(out.investigationFiles), JSON.stringify(files), `${who}: investigationFiles holds only the attested files`);
-    ok(flat(out.nextStep).includes('relaunch with the same args and no resumeFromRunId'), `${who}: nextStep says to relaunch without a resume`);
+    ok(flat(out.nextStep).includes(`relaunch with the same args and runId, a newly reserved launchDir in place of ${L} and no resumeFromRunId`),
+      `${who}: nextStep says to relaunch in a new launch folder without a resume`);
+    ok(flat(out.nextStep).includes(`To relaunch, ${RELAUNCH}.`), `${who}: and names the reserve command`);
   }
   const { out: chainHalt } = await run({ ...CLEAN, 'investigate i': { ...CHALLENGE, wrote_file: false } });
   ok(chainHalt.investigators.stop === '' && chainHalt.decisionFile === '' && chainHalt.reviewFile === '' && chainHalt.chosen === '',
@@ -149,7 +156,7 @@ section('an unattested write halts before the next agent, and the return names o
   const { out: decHalt } = await run({ ...CLEAN, decide: { ...DECIDE, wrote_file: false } });
   ok(decHalt.investigators.stop === 'cap' && decHalt.decisionFile === '' && decHalt.ranking.length === 0, 'a decider halt keeps the chain\'s stop and names no decision');
   const { out: revHalt } = await run({ ...CLEAN, review: { ...REVIEW, wrote_file: false } });
-  ok(revHalt.decisionFile === `${S}/decision.md` && revHalt.reviewFile === '', 'a reviewer halt names the attested decision and no review');
+  ok(revHalt.decisionFile === `${L}/decision.md` && revHalt.reviewFile === '', 'a reviewer halt names the attested decision and no review');
 }
 
 section('an agent that returns nothing throws, with the resume instruction');
@@ -163,9 +170,10 @@ section('an agent that returns nothing throws, with the resume instruction');
   for (const [who, override, lead] of cases) {
     const msg = await throwsWith(ENGINE, { args: baseArgs, respond: { ...CLEAN, ...override } });
     ok(msg.startsWith(lead), `${who} throws: ${msg.slice(0, 70)}`);
-    ok(msg.includes('same runId') && msg.includes('resumeFromRunId'), `${who}: the message says to relaunch with the same runId and resumeFromRunId`);
-    ok(msg.includes('To re-invoke, start the pre-launch command with run_in_background') && msg.includes('the turn its notification starts.'),
-      `${who}: the message names the notification-turn launch path`);
+    ok(msg.includes(`Replay with the same args and runId, launchDir ${L} included, plus the Workflow tool's resumeFromRunId`),
+      `${who}: the message says to replay with the same launchDir and resumeFromRunId`);
+    ok(msg.includes(`To replay, ${LAUNCH_PATH}. A replay keeps its launchDir, so that pre-launch command is node --version, which reserves no launch folder.`),
+      `${who}: the message names the notification-turn launch path and a pre-launch command that reserves no folder`);
   }
 }
 
@@ -186,10 +194,10 @@ section('each retired arg and each retired role key throws at launch, naming it'
     const types = await throwsWith(ENGINE, { args: { ...baseArgs, agentTypes: { [key]: 'my-agent' } }, respond: CLEAN });
     ok(types.startsWith('Invalid agentTypes arg') && types.includes(`"${key}"`), `agentTypes.${key} throws naming the key: ${types.slice(0, 90)}`);
   }
-  const missing = await throwsWith(ENGINE, { args: { runId: 't', root: 'E:/r' }, respond: CLEAN });
+  const missing = await throwsWith(ENGINE, { args: { runId: 't', root: 'E:/r', launchDir: L }, respond: CLEAN });
   ok(missing.startsWith('args.planPath is required'), `the rubric is a planPath only: ${missing.slice(0, 60)}`);
   const noRun = await throwsWith(ENGINE, { args: {}, respond: CLEAN });
-  ok(noRun.includes('{ runId, root, planPath }'), `the missing-runId message names the required args: ${noRun.slice(0, 70)}`);
+  ok(noRun.includes('{ runId, root, planPath, launchDir }'), `the missing-runId message names the required args: ${noRun.slice(0, 70)}`);
 }
 
 section('each prompt names the files its agent reads, in chain order');
@@ -210,8 +218,8 @@ section('each prompt names the files its agent reads, in chain order');
   const dec = flat(dry.prompt('decide'));
   ok(dec.includes(I(2)) && !dec.includes(I(3)), 'after a dry stop the decider names only the files the chain wrote');
   const review = flat(prompt('review'));
-  ok(review.includes(`THE DECISION FILE (read it verbatim): ${S}/decision.md`), 'the reviewer reads the decision file');
-  ok(review.includes(`WRITE ${S}/review.md.`), 'and writes the review file');
+  ok(review.includes(`THE DECISION FILE (read it verbatim): ${L}/decision.md`), 'the reviewer reads the decision file');
+  ok(review.includes(`WRITE ${L}/review.md.`), 'and writes the review file');
 }
 
 section('the shared rubric text holds the scoring rules and the three rules the chain adds, in every prompt');
@@ -224,7 +232,7 @@ section('the shared rubric text holds the scoring rules and the three rules the 
     'When not acting is possible, a DO-NOTHING option is scored on the same rubric.',
     'Prefer the SIMPLEST option that meets all requirements.',
     'Cite each factual claim to its original source',
-    `Save any script it ran under ${S}/scripts/ (create it if needed) with a file name that no file there holds yet, and never change a script already there, so a later agent can rerun it and get the result its citer got.`,
+    `Save any script it ran under ${L}/scripts/ (create it if needed) with a file name that no file there holds yet, and never change a script already there, so a later agent can rerun it and get the result its citer got.`,
     'DEFECT RULE: a defect is a concrete failure of an option as stated: the input or path that triggers it, the step that fails and the wrong result, with its source or a trace through the option\'s text.',
     'Record each defect you find in an option you read, verify or build on at the moment you find it, where your procedure says. An investigator also fixes the defect when a fix is within its reach.',
     'For an option that is a design of software or a process, the defect test is each of five hostile inputs: a failure, a concurrent edit, a human-set value, state saved before the change',
@@ -239,10 +247,10 @@ section('the shared rubric text holds the scoring rules and the three rules the 
     // A defect counts without a fix now, so the old clause would tell a challenger to stop on a known defect.
     ok(!text.includes('a contribution when it also fixes it'), `${c.label}: the prompt holds no fix-only defect clause`);
   }
-  ok(flat(calls.find((c) => c.label === 'review').prompt).includes(`Rerun each script under ${S}/scripts/ and each testbed command such a cell rests on.`),
+  ok(flat(calls.find((c) => c.label === 'review').prompt).includes(`Rerun each script under ${L}/scripts/ and each testbed command such a cell rests on.`),
     'with a testbed the reviewer reruns the testbed commands too');
   const plain = flat((await run(CLEAN)).prompt('review'));
-  ok(plain.includes(`Rerun each script under ${S}/scripts/ such a cell rests on.`), 'without one it reruns the saved scripts');
+  ok(plain.includes(`Rerun each script under ${L}/scripts/ such a cell rests on.`), 'without one it reruns the saved scripts');
 }
 
 section('the challenger carries the contribution rule and the early-stop proof');
@@ -353,7 +361,7 @@ section('the reviewer\'s defects count reaches the return, the log line and the 
   const found = await run({ ...CLEAN, review: { ...REVIEW, defects: 2, edits: 3 } });
   eq(found.out.defects, 2, 'defects returns the count');
   ok(found.logs.some((l) => l.includes('the final reviewer showed 2 defect(s), made 3 edit(s)')), 'the log line names the defects');
-  ok(flat(found.out.nextStep).includes(`Carry each defect under \`## Defects\` in ${S}/review.md, with its fix when it names one, into the plan file of any pick it names.`),
+  ok(flat(found.out.nextStep).includes(`Carry each defect under \`## Defects\` in ${L}/review.md, with its fix when it names one, into the plan file of any pick it names.`),
     `nextStep says to carry each defect into the plan file: ${flat(found.out.nextStep).slice(-140)}`);
   eq(found.out.status, 'decided with corrections (the final reviewer made 3 edits)', 'a defect\'s edits count under edits, so the terminal is unchanged');
   const none = await run(CLEAN);
@@ -393,13 +401,13 @@ section('the hand-back presents the ranking, a fragile flip check and the checks
 {
   const { out } = await run(CLEAN);
   const next = flat(out.nextStep);
-  ok(next.startsWith(`Present the ranking under \`## Ranking\` in ${S}/decision.md, with the edits under \`## Edits\` and every flag under \`## Flags\` in ${S}/review.md.`), `nextStep leads with the ranking: ${next.slice(0, 100)}`);
+  ok(next.startsWith(`Present the ranking under \`## Ranking\` in ${L}/decision.md, with the edits under \`## Edits\` and every flag under \`## Flags\` in ${L}/review.md.`), `nextStep leads with the ranking: ${next.slice(0, 100)}`);
   ok(next.includes('Rank 1 is the top answer, and the user may combine the entries marked as combinable.'), 'rank 1 and combining');
   ok(next.includes('author it as a plan file, refine it with refine-cycle, then build it with develop-cycle'), 'and how a pick is built');
   ok(!next.includes('FRAGILE') && !next.includes('## Checks for the user'), 'a robust run with no checks carries neither note');
   eq(out.flip, 'robust', 'flip returns the grade');
   const fragile = await run({ ...CLEAN, decide: { ...DECIDE, user_checks: 2 }, review: { ...REVIEW, flip: 'fragile' } });
-  ok(flat(fragile.out.nextStep).includes(`The flip check is graded FRAGILE. Present \`## Flip check\` in ${S}/decision.md`), 'a fragile grade adds the flip note');
+  ok(flat(fragile.out.nextStep).includes(`The flip check is graded FRAGILE. Present \`## Flip check\` in ${L}/decision.md`), 'a fragile grade adds the flip note');
   ok(flat(fragile.out.nextStep).includes('Present the 2 check(s) under `## Checks for the user`'), 'and checks for the user add their note');
   ok(flat(fragile.out.nextStep).includes('each names the check to run and what its result would change.'), 'and the note covers every kind of check');
   eq(fragile.out.userChecks, 2, 'userChecks returns the count');
@@ -414,7 +422,7 @@ await pinRoleMaps({
   runs: [{ args: baseArgs, respond: CLEAN, labels: { investigate: 'investigate', decide: 'decide', review: 'review' } }],
 });
 
-section("every prompt that writes a file says to Read an earlier launch's file first, and a rejected write is not a write");
+section("every prompt that writes a file says to Read a file an interrupted attempt of its launch left first, and a rejected write is not a write");
 {
   const { prompt } = await run(CLEAN);
   const sites = [
@@ -423,6 +431,53 @@ section("every prompt that writes a file says to Read an earlier launch's file f
     ['the decision file', prompt('decide'), 1, 1],
     ['the review file', prompt('review'), 1, 1],
   ];
-  pinWriteNotes(sites);
+  pinWriteNotes(sites, REPLACE_NOTE);
   pinFileWriteNote(sites);
+}
+
+section('a launch writes every file in its own launch folder, so a second launch replaces no file of the first');
+{
+  const L2 = `${S}/launch-2`;
+  const { out, calls } = await run(CLEAN, { ...baseArgs, launchDir: L2 });
+  ok(flat(calls[0].prompt).includes(`WRITE ${L2}/investigations/i1.md (create ${L2}/investigations/ if needed).`),
+    'the opening investigator writes the first investigation file inside launch-2');
+  eq(out.decisionFile, `${L2}/decision.md`, 'decisionFile lies inside launch-2');
+  eq(out.reviewFile, `${L2}/review.md`, 'reviewFile lies inside launch-2');
+  ok(out.investigationFiles.every((f) => f.startsWith(`${L2}/investigations/`)), 'every investigation file lies inside launch-2');
+  eq(out.stateDir, S, 'stateDir stays the folder that holds the launch folders');
+  // Each prompt names the files its agent writes, so a path outside launch-2 there would write over an earlier launch's file.
+  for (const c of calls) {
+    const named = flat(c.prompt).match(/E:\/r\/runs\/t\/[^\s`'"),]*/g) ?? [];
+    const outside = named.filter((p) => !p.startsWith(`${L2}/`) && p !== `${L2}`);
+    eq(outside.join(', '), '', `${c.label}: every run-state path the prompt names lies inside launch-2`);
+  }
+}
+
+section('a launch without a valid launchDir throws, naming the arg, before any agent runs');
+{
+  const { launchDir: _, ...NO_LAUNCH } = baseArgs;
+  for (const args of [NO_LAUNCH, { ...baseArgs, launchDir: ' ' }]) {
+    const msg = await throwsWith(ENGINE, { args, respond: CLEAN });
+    ok(msg.startsWith('Missing args.launchDir: pass the launchDir that the reserve command of the workflow guide\'s pre-launch step prints'),
+      `launchDir ${JSON.stringify(args.launchDir)} throws naming the arg: ${msg.slice(0, 50)}`);
+  }
+  for (const launchDir of ['E:/r/runs/other/launch-1', `${S}/launch-0`, `${L}/x`]) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, launchDir }, respond: CLEAN });
+    ok(msg.startsWith(`Invalid args.launchDir: it must be a folder named launch-<n> directly inside the stateDir ${S}`), `${launchDir} throws: ${msg.slice(0, 60)}`);
+    const { calls } = await runTrace(ENGINE, { args: { ...baseArgs, launchDir }, respond: CLEAN });
+    eq(calls.length, 0, `${launchDir}: no agent runs`);
+  }
+}
+
+section('a relaunch hand-back reserves a new launch folder, and a relayed request relaunches in one too');
+{
+  const empty = await run({ ...CLEAN, review: { ...REVIEW, ranking: [] } });
+  ok(flat(empty.out.nextStep).includes(`Refine the requirements with the user, then relaunch with the same runId and a newly reserved launchDir in place of ${L}. To relaunch, ${RELAUNCH}.`),
+    `an empty ranking's relaunch reserves a new launch folder: ${flat(empty.out.nextStep).slice(-160)}`);
+  const relayed = await throwsWith(ENGINE, { args: baseArgs, respond: { ...CLEAN, 'investigate i1': { ...OPEN, relayed_request: true } } });
+  ok(relayed.includes(`Relaunch with the same args and runId and a newly reserved launchDir in place of ${L}, from a notification turn`) && relayed.includes(`${RELAUNCH}.`),
+    `the relayed-request throw relaunches in a new launch folder: ${relayed.slice(-160)}`);
+  const withRepo = await throwsWith(ENGINE, { args: { ...baseArgs, target: { repo: 'E:/repo' } }, respond: { ...CLEAN, decide: null } });
+  ok(withRepo.includes("so that pre-launch command is git -C 'E:/repo' status --short, which reserves no launch folder"),
+    'with a target repo the replay\'s pre-launch command is its git status');
 }

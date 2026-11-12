@@ -53,7 +53,7 @@ section('a normal run reports kind:return and the engine\'s own status');
   eq(t.terminal.status, t.out.status, 'which is out.status verbatim');
   eq(t.terminal.message, '', 'no message on a return');
 
-  const noStatus = await runTrace(BRAINSTORM, { args: { runId: 't', root: 'E:/r', brief: 'b', lenses: ['a'] } });
+  const noStatus = await runTrace(BRAINSTORM, { args: { runId: 't', root: 'E:/r', launchDir: 'E:/r/runs/t/launch-1', brief: 'b', lenses: ['a'] } });
   eq(noStatus.terminal.kind, 'return', 'brainstorm returns normally');
   eq(noStatus.terminal.status, '', 'and reports \'\' — it has no status field');
 }
@@ -61,7 +61,7 @@ section('a normal run reports kind:return and the engine\'s own status');
 section('parallel: one fan-out is one group, and item indexes the thunk');
 {
   const t = await runTrace(BRAINSTORM, {
-    args: { runId: 't', root: 'E:/r', brief: 'b', lenses: ['one', 'two', 'three'] },
+    args: { runId: 't', root: 'E:/r', launchDir: 'E:/r/runs/t/launch-1', brief: 'b', lenses: ['one', 'two', 'three'] },
   });
   eq(t.calls.length, 3, 'one generator per lens');
   eq(new Set(t.calls.map((c) => c.group.id)).size, 1, 'all three share ONE group id');

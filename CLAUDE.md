@@ -56,8 +56,9 @@ the turn after starting the pre-launch command. The pre-launch command is `plan-
 `--reserve <stateDir>` for develop, `launch.mjs reserve <stateDir> --keep <planPath>` for refine
 (`plan-block.mjs <planPath> --list` on a replay), `launch.mjs reserve <stateDir> --keep options` for
 investigate's run phase, `launch.mjs reserve <stateDir> --keep issues` for audit's defects kind,
-`launch.mjs reserve <stateDir> --keep proposals` for its enhancements kind, and
-`git -C <target.repo> status --short` for the rest, investigate's replays included
+`launch.mjs reserve <stateDir> --keep proposals` for its enhancements kind,
+`launch.mjs reserve <stateDir>` for decide and brainstorm, and `git -C <target.repo> status --short` for
+docs, investigate's refine phase and the replays of investigate's run phase, decide and brainstorm
 (`node --version` when the run has no `target.repo`). Agents receive the auto-memory index the session
 loaded at its start, so a line already loaded stays in every run of that session. A `MEMORY.md` index
 line holds settled facts and pointers, and neither it nor a topic file it points to holds the plan or goal

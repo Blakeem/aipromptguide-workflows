@@ -6,9 +6,11 @@
 // "variations produced" and "every generator failed" are genuinely different outcomes and would
 // otherwise collapse into one blank end node.
 
+const LAUNCH_DIR = 'E:/flow/runs/flow/launch-1';
 const base = {
   runId: 'flow',
   root: 'E:/flow',
+  launchDir: LAUNCH_DIR,
   brief: 'Design a landing page for a developer tool',
   lenses: ['minimalist', 'bold editorial', 'playful'],
 };
@@ -44,7 +46,7 @@ export default {
       terminal: 'nothing produced (every generator failed)',
     },
 
-    // ---- the eleven throw sites, in the order the engine checks them -----------------------------
+    // ---- the thirteen throw sites, in the order the engine checks them ---------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
@@ -57,12 +59,16 @@ export default {
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { generate: 'ultra' } } },
     { name: 'agentTypes names an unknown role', when: 'agentTypes is not an object, carries a key outside generate, or maps one to a blank name', args: { ...base, agentTypes: { planner: 'my-planner' } } },
     { name: 'notes missing a path', when: 'notes lacks dir or survey, or names a relative path', args: { ...base, notes: { dir: 'E:/flow/notes' } } },
-    { name: 'no brief', when: 'neither brief nor planPath', args: { runId: 'flow', root: 'E:/flow', lenses: ['a'] } },
-    { name: 'no lenses', when: 'args.lenses is empty', args: { runId: 'flow', root: 'E:/flow', brief: 'b' } },
+    // Each launch writes every lens folder in its own launch folder, so a launch without one, or with a
+    // folder outside the stateDir, would write where another launch did.
+    { name: 'no launch folder', when: 'args.launchDir is missing or blank', args: { ...base, launchDir: undefined } },
+    { name: 'launch folder outside the stateDir', when: 'args.launchDir is not a launch-<n> folder directly inside the stateDir', args: { ...base, launchDir: 'E:/flow/runs/other/launch-1' } },
+    { name: 'no brief', when: 'neither brief nor planPath', args: { runId: 'flow', root: 'E:/flow', launchDir: LAUNCH_DIR, lenses: ['a'] } },
+    { name: 'no lenses', when: 'args.lenses is empty', args: { runId: 'flow', root: 'E:/flow', launchDir: LAUNCH_DIR, brief: 'b' } },
     {
       name: 'colliding lens ids',
       when: 'two lenses slug to one folder',
-      args: { runId: 'flow', root: 'E:/flow', brief: 'b', lenses: ['Fast path', 'fast-path'] },
+      args: { runId: 'flow', root: 'E:/flow', launchDir: LAUNCH_DIR, brief: 'b', lenses: ['Fast path', 'fast-path'] },
     },
     // A run launched inside a user turn relays that message to every generator, and a generator says so.
     { name: 'a user request is relayed', when: 'a generator reports a user request relayed into its context', args: base, respond: { generate: { ...GEN, relayed_request: true } } },

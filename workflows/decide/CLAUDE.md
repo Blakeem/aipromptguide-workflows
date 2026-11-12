@@ -33,26 +33,30 @@ condition in parentheses runs only under it.
    feedback, `notes` (§8). Output: a value for each arg chosen.
 10. Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to,
     holds no line on this run's plan or goal, and when one does, remove the line and launch from a new
-    session. Then run `git -C <target.repo> status --short` (`node --version` when the run has no
-    `target.repo`) with run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification
+    session. Then run `node <launch.mjs> reserve <stateDir>` with run_in_background, where `<launch.mjs>`
+    is `tools/launch.mjs` of this checkout and `<stateDir>` is the absolute stateDir, or on a replay
+    `git -C <target.repo> status --short` (`node --version` when the run has no `target.repo`), which
+    reserves no launch folder. Then end the turn (§7, §9, root `CLAUDE.md`, "Launch from a notification
     turn"). Output: the index checked, and that tool call is the last one of this turn.
 11. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
-    `decide-cycle.mjs` and the args steps 4 to 9 chose (§2 step 3, root `CLAUDE.md`, "Launch from a
-    notification turn"). Output: the Workflow run id (`wf_...`).
+    `decide-cycle.mjs`, the args steps 4 to 9 chose and `launchDir` set to the folder the reserve command
+    printed, or on a replay to the replayed launch's `launchDir` (§2 step 3, §8, root `CLAUDE.md`, "Launch
+    from a notification turn"). Output: the Workflow run id (`wf_...`).
 
 ### After the run
 
-12. (when the run threw because an agent returned nothing) Relaunch through steps 10 and 11 with the same
-    args and `runId` plus the Workflow tool's `resumeFromRunId`. Stop this pass of the list there, and work
-    it again from step 12 once that run ends (§6, §7). Output: the resumed run's Workflow run id.
+12. (when the run threw because an agent returned nothing) Replay through steps 10 and 11 with the args of
+    the run that threw, its `launchDir` included, plus the Workflow tool's `resumeFromRunId`. Stop this pass
+    of the list there, and work it again from step 12 once that run ends (§6, §7). Output: the resumed
+    run's Workflow run id.
 13. (when the run threw on a relayed user request) Relaunch through steps 10 and 11 with the same args and
-    `runId` and no `resumeFromRunId`. Stop this pass of the list there, and work it again from step 12 once
-    that run ends (§2 step 3, root `CLAUDE.md`, "Launch from a notification turn"). Output: the relaunch's
-    Workflow run id.
+    `runId`, a newly reserved `launchDir` and no `resumeFromRunId`. Stop this pass of the list there, and
+    work it again from step 12 once that run ends (§2 step 3, root `CLAUDE.md`, "Launch from a notification
+    turn"). Output: the relaunch's Workflow run id.
 14. (when `halted` is true) Check the file `haltReason` names (§6, §7). Output: that file's state, checked.
-15. (when `halted` is true) Relaunch through steps 10 and 11 with the same args and no `resumeFromRunId`.
-    Stop this pass of the list there, and work it again from step 12 once that run ends (§7). Output: the
-    relaunch's Workflow run id.
+15. (when `halted` is true) Relaunch through steps 10 and 11 with the same args and `runId`, a newly
+    reserved `launchDir` and no `resumeFromRunId`. Stop this pass of the list there, and work it again from
+    step 12 once that run ends (§7). Output: the relaunch's Workflow run id.
 16. (when `ranking` is empty, since no option passes every must) Present `## Ruled out` in `decision.md`
     (§5, the return's `nextStep`). Output: each ruled-out option presented with its evidence.
 17. (when `ranking` is not empty) Present the ranking under `## Ranking` in `decision.md`. Rank 1 is the top
@@ -110,10 +114,10 @@ rubric file (written in plan mode, approved by the user: the one human gate)
   -> return
 ```
 
-Every agent writes only its own file and the scripts it saves under `scripts/`, apart from the final
-reviewer, which also corrects `decision.md` in place and logs each correction under `review.md`'s
-`## Edits`. The investigation files, `decision.md`'s `## Changes to investigation facts` section and
-`review.md` together are the run's edit log.
+Every path above lies in the launch's own folder (§9). Every agent writes only its own file and the
+scripts it saves under `scripts/`, apart from the final reviewer, which also corrects `decision.md` in
+place and logs each correction under `review.md`'s `## Edits`. The investigation files, `decision.md`'s
+`## Changes to investigation facts` section and `review.md` together are the run's edit log.
 
 The steps:
 
@@ -313,19 +317,21 @@ An unhalted run ends on one of three:
 There is no needs-attention terminal and no `NEEDS-USER.md`, since no stage loops: a question only the user
 can settle goes under `## Checks for the user`.
 
-**Resume.** The engine keeps no state across invocations. For a thrown dead agent, relaunch with the same args
-and `runId` plus the `Workflow` tool's `resumeFromRunId`, so the finished agents replay from cache. For an
-unattested write, check the file `haltReason` names, then relaunch with the same args and no
-`resumeFromRunId`, since a resume replays the cached return and halts the same way. A same-runId relaunch
-reruns the chain from the opening investigator and replaces each file it reaches, and it leaves an earlier
-launch's higher-numbered investigation files and its `scripts/` files in place. Starting over takes a new
-runId, so the earlier run's files stay intact. Never clear `runs/<runId>/`. Relay the return's
-`decisionFile` and `investigationFiles`, never a listing of the folder.
+**Resume.** The engine keeps no state across invocations. For a thrown dead agent, replay with the same args
+and `runId`, `launchDir` included, plus the `Workflow` tool's `resumeFromRunId`, so the finished agents
+replay from cache. For an unattested write, check the file `haltReason` names, then relaunch with the same
+args and `runId`, a newly reserved `launchDir` and no `resumeFromRunId`, since a resume replays the cached
+return and halts the same way. A relaunch reruns the chain from the opening investigator in its own launch
+folder, so every file of an earlier launch stays as it was (§9). Never clear `runs/<runId>/`. Relay the
+return's `decisionFile` and `investigationFiles`, never a listing of the folder.
 
 ## 8. Args reference
 
 Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` inline.
-- **Required:** `runId` · `root` (§3) · `planPath` (absolute path to the rubric file).
+- **Required:** `runId` · `root` (§3) · `planPath` (absolute path to the rubric file) · `launchDir` (the
+  absolute path of the `launch-<n>` folder that `node <launch.mjs> reserve <stateDir>` prints, newly
+  reserved for every launch but a replay, which passes the replayed launch's own. The engine **throws** when
+  it is missing or blank, and when it is not a folder named `launch-<n>` directly inside the stateDir).
 - **Optional:** `maxInvestigators` (default 4, from 1 to 10, the most investigators the chain runs.
   It **throws** outside that range or on a non-number) · `context` (extra framing / domain facts) ·
   `testbed` (§3) · `target.repo` (absolute, read-only context) · `target.lang`/`target.framework`
@@ -350,11 +356,17 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
 
 ## 9. State files and return (`runs/<runId>/`, outside every repo)
 
-- `investigations/i<k>.md`: investigator k's file (§5).
-- `scripts/`: every script a measurement ran, so a later agent can rerun it.
-- `decision.md`: the decider's ranking, options, matrix, flip check, ruled-out options, changes to
-  investigation facts and checks for the user, with the final reviewer's corrections in place.
-- `review.md`: the final reviewer's `## Defects`, `## Edits` and `## Flags`.
+- `launch-<n>/`: one folder per launch, which the pre-launch command `node <launch.mjs> reserve <stateDir>`
+  creates one past the highest `launch-<n>` in the stateDir and prints as `launchDir`. A launch carries no
+  state from an earlier one and writes every file below only in its own launch folder, so no launch
+  replaces a file an earlier launch wrote, and a file there exists before its writer runs only when an
+  interrupted attempt of the same launch left it. Files that an engine from before launch folders left
+  directly in the stateDir stay where they are.
+- `launch-<n>/investigations/i<k>.md`: investigator k's file (§5).
+- `launch-<n>/scripts/`: every script a measurement of the launch ran, so a later agent can rerun it.
+- `launch-<n>/decision.md`: the decider's ranking, options, matrix, flip check, ruled-out options, changes
+  to investigation facts and checks for the user, with the final reviewer's corrections in place.
+- `launch-<n>/review.md`: the final reviewer's `## Defects`, `## Edits` and `## Flags`.
 
 The return carries `runId`, `status`, `halted`, `haltReason`, `chosen` (rank 1's title), `ranking` (the
 reviewer's index when it attested its file, else the decider's), `flip` (`dominant`, `robust` or `fragile`,
@@ -364,8 +376,10 @@ from the same agent as `ranking`, or empty when that agent returned none of the 
 `reviewFile`, `investigationFiles`, `failed` (always an empty array, since no agent is auxiliary) and
 `nextStep`. `defects`, `edits` and `flags` are the final reviewer's counts, and a defect's edits count under
 `edits`, so a defect picks no terminal of its own. `decisionFile`, `reviewFile` and `investigationFiles` name
-only files whose writer attested. `nextStep` says to present the ranking with the review's edits and flags,
-adds the flip check when the grade is fragile and the checks for the user when there are any, and says how a
-pick is built. When `defects` is above zero it also says to carry each defect under `## Defects` in
-`review.md`, with its fix when it names one, into the plan file of any pick it names. When no option passes
-every must, it says to present `## Ruled out` and refine the rubric.
+only files whose writer attested, each in the launch folder. `nextStep` says to present the ranking with the
+review's edits and flags, adds the flip check when the grade is fragile and the checks for the user when there
+are any, and says how a pick is built. When `defects` is above zero it also says to carry each defect under
+`## Defects` in `review.md`, with its fix when it names one, into the plan file of any pick it names. When no
+option passes every must, it says to present `## Ruled out` and refine the rubric, then relaunch with a newly
+reserved `launchDir`. A halted run's `nextStep` names a relaunch with a newly reserved `launchDir`, and a
+thrown dead agent's error names a replay that passes the same `launchDir`.

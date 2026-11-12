@@ -37,7 +37,7 @@ A **bounded chain** built on the shared [Workflow Principles](../../principles/)
   the group ranks simplest first. The simplest option has the fewest parts to run and maintain once it is
   in place, such as components, steps and rules. The smaller build breaks a tie that remains.
 - **Measured claims can be rerun.** A measurement cites its exact command and result, and any script it ran
-  is saved in the run folder. The final reviewer reruns each script behind the scores it verifies.
+  is saved in the launch's folder. The final reviewer reruns each script behind the scores it verifies.
 - **A defect hunt in the top options.** The final reviewer first tests what would be built under each of
   the top three options. It checks that the parts of a combination fit together. It also checks what the
   last investigator added, since no later investigator read it. Each defect it shows lowers the option's
@@ -101,10 +101,11 @@ Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the 
 
 ## Reviewing the result
 
-`runs/<runId>/` holds each investigator's file (`investigations/i<k>.md`), the decider's ranking and matrix
-(`decision.md`) and the final reviewer's defects, edits and flags (`review.md`). The scripts behind each
-measurement are in `scripts/`. Read the flags first, since each one is a judgment the reviewer could not
-prove either way. Then build a pick from a [`develop-cycle`](../develop/) plan file.
+Each launch writes its files in its own folder, `runs/<runId>/launch-<n>/`, so a relaunch keeps every file
+of an earlier launch. That folder holds each investigator's file (`investigations/i<k>.md`), the decider's
+ranking and matrix (`decision.md`) and the final reviewer's defects, edits and flags (`review.md`). The
+scripts behind each measurement are in `scripts/`. Read the flags first, since each one is a judgment the
+reviewer could not prove either way. Then build a pick from a [`develop-cycle`](../develop/) plan file.
 
 ---
 

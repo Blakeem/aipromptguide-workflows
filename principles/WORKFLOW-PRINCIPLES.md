@@ -509,6 +509,23 @@ rules and apply only where they fit.
   run-state, so a halted run keeps its ledgers and user notes, and a new `runId` never reads stale
   ones. `DISMISSED-<id>.md`, `NEEDS-USER.md` and `DECISIONS.md` are cumulative across every launch of
   one `runId`. Choosing the `runId` is pre-run setup (#4), not an engine job.
+  Six engines write each launch's record files in a launch folder of its own: refine, investigate's run
+  phase, develop, audit, decide and brainstorm. The pre-launch command `tools/launch.mjs reserve
+  <stateDir>` creates the next `<stateDir>/launch-<n>/` and prints it, and develop reserves it through
+  `plan-edit.mjs args --reserve <stateDir>`. Each such engine takes that folder as its required `launchDir`
+  arg and throws when it is missing or is not a `launch-<n>` folder directly inside its own stateDir. A
+  launch writes its records only there: refine's critique files, investigate's reviews and determination,
+  develop's round files, audit's review and candidates files, and every file decide and brainstorm write.
+  So no launch replaces a record an earlier launch wrote, and a file in a launch folder exists before its
+  writer runs only when an interrupted attempt of the same launch left it. The state a later launch reads
+  stays in the stateDir: refine's `DISMISSED-PLAN.md` and `NEEDS-USER.md`, investigate's `options/`,
+  `DISQUALIFIED.md`, `SEARCHED.md` and `NEEDS-USER.md`, develop's `gate/DISMISSED-<id>.md`,
+  `AMENDED-<id>.md`, `NEEDS-USER.md`, `question-<id>.md` and `DECISIONS.md`, and audit's issue and proposal
+  files. decide and brainstorm carry no state from one launch to the next. A `--keep <path>` of the reserve
+  command copies a file or folder into the launch folder's `kept/` as it was before the launch. A replay
+  passes the replayed launch's `launchDir`, and every other launch passes a newly reserved one. docs takes
+  no launch folder, since every file it writes belongs to the doc set it curates in place, and a new set
+  goes to a new `outDir`.
 - **Shared return fields.** Every return of every engine carries `nextStep` and `failed`.
   - `nextStep` is a non-empty string holding the operator's next action, such as present, triage,
     relaunch or replay, with the files and caveats that action needs. It names the id of every `failed`

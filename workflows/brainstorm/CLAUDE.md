@@ -34,18 +34,22 @@ condition in parentheses runs only under it.
    the user wants the agents' feedback, `notes` (§6). Output: a value for each arg chosen.
 9. Check that the `MEMORY.md` index this session loaded at its start, and each topic file it points to,
    holds no line on this run's plan or goal, and when one does, remove the line and launch from a new
-   session. Then run `git -C <target.repo> status --short` (`node --version` when the run has no
-   `target.repo`) with run_in_background, then end the turn (root `CLAUDE.md`, "Launch from a notification
-   turn"). Output: the index checked, and that tool call is the last one of this turn.
+   session. Then run `node <launch.mjs> reserve <stateDir>` with run_in_background, where `<launch.mjs>` is
+   `tools/launch.mjs` of this checkout and `<stateDir>` is the absolute stateDir, or on a replay
+   `git -C <target.repo> status --short` (`node --version` when the run has no `target.repo`), which
+   reserves no launch folder. Then end the turn (§7, root `CLAUDE.md`, "Launch from a notification turn").
+   Output: the index checked, and that tool call is the last one of this turn.
 10. In the turn the notification starts, call Workflow with `scriptPath` set to the absolute path of
-    `brainstorm-cycle.mjs` and the args steps 5 to 8 chose (§2 step 3, root `CLAUDE.md`, "Launch from a
-    notification turn"). Output: the Workflow run id (`wf_...`).
+    `brainstorm-cycle.mjs`, the args steps 5 to 8 chose and `launchDir` set to the folder the reserve
+    command printed, or on a replay to the replayed launch's `launchDir` (§2 step 3, §6, root `CLAUDE.md`,
+    "Launch from a notification turn"). Output: the Workflow run id (`wf_...`).
 
 ### After the run
 
 11. (when the run threw on a relayed user request) Relaunch through steps 9 and 10 with the same args and
-    `runId`. Stop this pass of the list there, and work it again from step 11 once that run ends (§2, root
-    `CLAUDE.md`, "Launch from a notification turn"). Output: the relaunch's Workflow run id.
+    `runId` and a newly reserved `launchDir`. Stop this pass of the list there, and work it again from step
+    11 once that run ends (§2, root `CLAUDE.md`, "Launch from a notification turn"). Output: the relaunch's
+    Workflow run id.
 12. (when `count` is 0) Tell the user the batch produced no output, and describe no variation (the return's
     `nextStep`). Output: the user told.
 13. (when `count` is 0) Check that the brief or the `planPath` file is readable and that each lens focus is
@@ -58,10 +62,12 @@ condition in parentheses runs only under it.
 15. (when `count` is above 0 and `failed` is not empty) Tell the user that the lenses `failed` names produced
     nothing, and offer to re-run just those with the same `runId` (the return's `nextStep`). Output: the
     offer, made to the user.
-16. (when the user accepts step 15's offer) Relaunch through steps 9 and 10 with the same args and `runId`
-    and `lenses` set to each entry of step 6's `lenses` value whose id `failed` names. Stop this pass of the
-    list there, and work it again from step 11 once that run ends (the return's `nextStep`). Output: the
-    relaunch's Workflow run id.
+16. (when the user accepts step 15's offer) Relaunch through steps 9 and 10 with the same args and `runId`,
+    a newly reserved `launchDir` and `lenses` set to each entry of step 6's `lenses` value whose id `failed`
+    names. The relaunch writes those lenses in its own launch folder, and the lenses that landed stay in the
+    `variationsDir` of the run that offered the re-run, so present each lens from the `variationsDir` of the
+    run that produced it (§3, "Relaunch vs. new run"). Stop this pass of the list there, and work it again
+    from step 11 once that run ends (the return's `nextStep`). Output: the relaunch's Workflow run id.
 17. (when the user picks a direction to build) Build it through `../develop/CLAUDE.md` §0 from its step 1
     through step 43, writing at its step 6 a plan file for that direction (§1, §5, the return's
     `nextStep`). Output: develop §0 step 37's summary.
@@ -99,7 +105,7 @@ everything with the user first:
    **requirements** every generator works from: author them in **`EnterPlanMode`**, `ExitPlanMode` to
    approve, and pass that file as `planPath` (absolute). All lenses read it verbatim (#2/#11).
 3. **Run** the engine (one shot). It fans out one generator per lens into
-   `runs/<runId>/variations/<lens>/` and returns each entry path + a one-line differentiator.
+   `<launchDir>/variations/<lens>/` and returns each entry path + a one-line differentiator.
 4. **Present** the variations: follow the return's `nextStep`. It names how many variations landed,
    the files to show, every lens that produced nothing and where a chosen direction goes next.
 
@@ -112,12 +118,15 @@ everything with the user first:
   distinct **after slugging** — a collision throws rather than sending two generators into one
   `variations/<lens>/` folder; give near-identical lenses explicit `{ id, focus }`.
 - **`brief` OR `planPath` — one REQUIRED.**
-- **Relaunch vs. new run.** A re-run with the same `runId` overwrites same-named files in each lens folder
-  but leaves unrelated files from an earlier run in place — an old `index.html` survives a re-run that
-  writes `index.md`. Each generator lists every file in its folder in a final "Files in this folder"
-  section of its entry file and marks each file an earlier run left, so the stale one is visible when
-  you present the entry. Use a new `runId` (or `stateDir`) whenever
-  `outputFormat`/`kind` changes, when you want a clean folder, or to keep an old batch.
+- **`launchDir` — REQUIRED:** the folder that the pre-launch command `node <launch.mjs> reserve <stateDir>`
+  prints (§0 step 9, §7).
+- **Relaunch vs. new run.** Each launch writes every lens folder in its own launch folder (§7), so a
+  relaunch with the same `runId` keeps every variation of an earlier launch. A re-run of only the failed
+  lenses writes them in its own launch folder, and the lenses that landed stay in the earlier launch's
+  folder. A lens folder holds a file before its generator runs only when an interrupted attempt of the same
+  launch left it, which a replay meets. Each generator lists every file in its folder in a final "Files in
+  this folder" section of its entry file and marks each file an interrupted attempt left, so such a file is
+  visible when you present the entry. Use a new `runId` for a new creative problem.
 
 ## 4. Roles (in the engine)
 
@@ -133,9 +142,9 @@ One role. The JS conductor only fans out and passes paths (#1); each generator i
 
 - **Divergence, not convergence.** No scoring, no review, no "best" — the user judges. If you find
   yourself wanting an AI verdict, you want `decide-cycle`.
-- **Output is read-state, not the repo.** Variations live under `runs/<runId>/variations/` (gitignored);
-  the engine never writes to, stages, or commits the target repo. To adopt one, you copy it into the
-  repo afterward (or build it via a `develop-cycle` plan file).
+- **Output is read-state, not the repo.** Variations live under `runs/<runId>/launch-<n>/variations/`
+  (gitignored); the engine never writes to, stages, or commits the target repo. To adopt one, you copy it
+  into the repo afterward (or build it via a `develop-cycle` plan file).
 - **Brief verbatim, single source (#2/#11).** Every generator reads the same brief from one place — a
   `planPath` file or the inline `brief`. References are handed as paths, never pasted.
 - **Thin return (#8).** Each generator returns only the entry path, a one-line differentiator and
@@ -145,7 +154,10 @@ One role. The JS conductor only fans out and passes paths (#1); each generator i
 
 Full schema + defaults: the Config block atop `brainstorm-cycle.mjs`. Pass `args` inline.
 - **Required:** `runId` · `root` (§3) · `lenses` (array of axes) · `brief` (inline string) **or**
-  `planPath` (absolute path to a brief/requirements file).
+  `planPath` (absolute path to a brief/requirements file) · `launchDir` (the absolute path of the
+  `launch-<n>` folder that `node <launch.mjs> reserve <stateDir>` prints, newly reserved for every launch
+  but a replay, which passes the replayed launch's own. The engine **throws** when it is missing or blank,
+  and when it is not a folder named `launch-<n>` directly inside the stateDir).
 - **Optional:** `outputFormat` (what each variation IS — e.g. `"a single self-contained HTML file"`,
   `"a 1-page Markdown proposal"`; default a Markdown doc) · `kind` (noun for the thing, e.g. `"web
   design"`, `"product idea"`) · `constraints` (shared, applied to every lens) · `references` (array of
@@ -169,5 +181,11 @@ Full schema + defaults: the Config block atop `brainstorm-cycle.mjs`. Pass `args
 
 ## 7. State files (`runs/<runId>/`, outside every repo)
 
-- `variations/<lens>/` — one folder per lens, holding that generator's complete variation (entry +
-  any supporting files). These ARE the output; there are no review/status/log files.
+- `launch-<n>/` — one folder per launch, which the pre-launch command `node <launch.mjs> reserve
+  <stateDir>` creates one past the highest `launch-<n>` in the stateDir and prints as `launchDir`. A launch
+  carries no state from an earlier one and writes every lens folder only in its own launch folder, so no
+  launch replaces a file an earlier launch wrote. The return's `variationsDir` names the launch's
+  `variations/` folder. Files that an engine from before launch folders left directly in the stateDir stay
+  where they are.
+- `launch-<n>/variations/<lens>/` — one folder per lens, holding that generator's complete variation
+  (entry + any supporting files). These ARE the output; there are no review/status/log files.

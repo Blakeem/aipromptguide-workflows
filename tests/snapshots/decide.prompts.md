@@ -6,16 +6,16 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| investigate i1 | 1 | 1 | 5117 | every challenger contributes |
-| investigate i | 1 | 1 | 7781 | every challenger contributes |
-| investigate i | 2 | 1 | 7824 | every challenger contributes |
-| investigate i | 3 | 1 | 7867 | every challenger contributes |
-| decide | 1 | 1 | 8205 | every challenger contributes |
-| review | 1 | 1 | 7966 | every challenger contributes |
-| decide | 2 | 1 | 8119 | a challenger contributes nothing |
-| review | 2 | 1 | 7880 | a challenger contributes nothing |
-| decide | 3 | 1 | 8076 | one investigator |
-| review | 3 | 1 | 7831 | one investigator |
+| investigate i1 | 1 | 1 | 5224 | every challenger contributes |
+| investigate i | 1 | 1 | 7906 | every challenger contributes |
+| investigate i | 2 | 1 | 7958 | every challenger contributes |
+| investigate i | 3 | 1 | 8010 | every challenger contributes |
+| decide | 1 | 1 | 8330 | every challenger contributes |
+| review | 1 | 1 | 8145 | every challenger contributes |
+| decide | 2 | 1 | 8226 | a challenger contributes nothing |
+| review | 2 | 1 | 8041 | a challenger contributes nothing |
+| decide | 3 | 1 | 8174 | one investigator |
+| review | 3 | 1 | 7983 | one investigator |
 
 ## investigate i1 · variant 1 · schema 1
 
@@ -42,7 +42,7 @@ state. When not acting is possible, a DO-NOTHING option is scored on the same ru
 Prefer the SIMPLEST option that meets all requirements. The simplest option has the fewest parts to run and maintain once it is in place (components, steps and rules), and the smaller build breaks a tie that remains. If a more complex option ranks above it, the
 evidence must show why the simpler one is inadequate.
 Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
-A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/scripts/ (create it
+A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/launch-1/scripts/ (create it
 if needed) with a file name that no file there holds yet, and never change a script already there, so a later
 agent can rerun it and get the result its citer got.
 DEFECT RULE: a defect is a concrete failure of an option as stated: the input or path that triggers it, the
@@ -56,10 +56,10 @@ as working or build on it.
 PROCEDURE:
 1. Search the web with the tools you have for the options that address the decision, including
    a simple baseline. Read the sources, search, and measure where you can. When the rubric holds
-   `## Given options`, each entry there is an option of E:/flow/runs/flow/investigations/i1.md under its own id, ahead of the
+   `## Given options`, each entry there is an option of E:/flow/runs/flow/launch-1/investigations/i1.md under its own id, ahead of the
    options you find, and is judged like the rest.
 2. Judge each option against every non-negotiable and weighted criterion of the rubric.
-WRITE E:/flow/runs/flow/investigations/i1.md (create E:/flow/runs/flow/investigations/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/investigations/i1.md (create E:/flow/runs/flow/launch-1/investigations/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 It holds these sections, in this order:
 - `## Options`: every option you weighed, each under a run-wide id (O1, O2 and so on) with a description
   of what would be built or done, its pros and its cons. Each pro and con names the non-negotiable or
@@ -119,7 +119,7 @@ state. When not acting is possible, a DO-NOTHING option is scored on the same ru
 Prefer the SIMPLEST option that meets all requirements. The simplest option has the fewest parts to run and maintain once it is in place (components, steps and rules), and the smaller build breaks a tie that remains. If a more complex option ranks above it, the
 evidence must show why the simpler one is inadequate.
 Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
-A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/scripts/ (create it
+A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/launch-1/scripts/ (create it
 if needed) with a file name that no file there holds yet, and never change a script already there, so a later
 agent can rerun it and get the result its citer got.
 DEFECT RULE: a defect is a concrete failure of an option as stated: the input or path that triggers it, the
@@ -130,7 +130,7 @@ of software or a process, the defect test is each of five hostile inputs: a fail
 defect holds until a file fixes it, the file that records it included, so never treat the defective part
 as working or build on it.
 EARLIER INVESTIGATION FILES (read each VERBATIM, in this order):
-  - E:/flow/runs/flow/investigations/i1.md
+  - E:/flow/runs/flow/launch-1/investigations/i1.md
 CONTRIBUTION: one of five kinds:
 - a NEW OPTION, which includes a COMBINATION of options that genuinely compose (no Frankenstein), naming
   each part by its option id
@@ -145,21 +145,21 @@ plain measure the rubric does not name, such as simpler, more efficient, faster,
 robustness is needed, and it cites its evidence. A DEFECT counts with or without a fix, since it records a
 failure that no later agent may build on. No size threshold applies, since several small contributions can
 lift an option over another. A FEATURE ADDED, FEATURE REMOVED or CORRECTION contribution targets one of the
-three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i1.md, unless it names the shortcoming that holds a lower option down and gives evidence that the
+three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/launch-1/investigations/i1.md, unless it names the shortcoming that holds a lower option down and gives evidence that the
 contribution resolves it. A contribution that other options can carry unchanged names each of them under
 `also fits`, by option id, and counts in each option it names. A DEFECT targets the option it is found in,
 at any standing. A DEFECT in a contribution names that contribution's id and holds against every option
 that carries it.
 
 PROCEDURE:
-1. REPLACE THE LEADER: reject one assumption under `## Leader assumptions` in E:/flow/runs/flow/investigations/i1.md and
+1. REPLACE THE LEADER: reject one assumption under `## Leader assumptions` in E:/flow/runs/flow/launch-1/investigations/i1.md and
    search for an option that does better without it. Think past the framing the earlier files share.
 2. IMPROVE: try to improve any option under the contribution rule above.
 3. Contribute one or more things whenever you can. Record each defect you come across while you replace,
    improve or verify as a DEFECT contribution. Never build a contribution on a part a recorded defect
    names unless that contribution fixes it. Never repeat a contribution an earlier file holds, and never
    edit an earlier file.
-WRITE E:/flow/runs/flow/investigations/i2.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/investigations/i2.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 It holds these sections, in this order:
 - `## Contributions`: each under an id C2.1, C2.2 and so on, with its kind, the option id it targets
   or, for a new option, the next free option id, the option ids under `also fits`, if any, what changes
@@ -174,7 +174,7 @@ It holds these sections, in this order:
   why.
 Set contributed=false only when `## Contributions` reads `None.` and `## Searched` holds at least one
 replacement attempt against the leader's assumptions, and an improvement attempt and a defect check for
-each of the three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i1.md. A defect check on a design of software or a process names each of the five hostile inputs with its
+each of the three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/launch-1/investigations/i1.md. A defect check on a design of software or a process names each of the five hostile inputs with its
 result. A defect check on the do-nothing option names no hostile inputs, and reports each defect in
 today's design that you come across as a DEFECT contribution. Each attempt and check gives the reason it adds nothing under the
 contribution rule.
@@ -228,7 +228,7 @@ state. When not acting is possible, a DO-NOTHING option is scored on the same ru
 Prefer the SIMPLEST option that meets all requirements. The simplest option has the fewest parts to run and maintain once it is in place (components, steps and rules), and the smaller build breaks a tie that remains. If a more complex option ranks above it, the
 evidence must show why the simpler one is inadequate.
 Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
-A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/scripts/ (create it
+A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/launch-1/scripts/ (create it
 if needed) with a file name that no file there holds yet, and never change a script already there, so a later
 agent can rerun it and get the result its citer got.
 DEFECT RULE: a defect is a concrete failure of an option as stated: the input or path that triggers it, the
@@ -239,8 +239,8 @@ of software or a process, the defect test is each of five hostile inputs: a fail
 defect holds until a file fixes it, the file that records it included, so never treat the defective part
 as working or build on it.
 EARLIER INVESTIGATION FILES (read each VERBATIM, in this order):
-  - E:/flow/runs/flow/investigations/i1.md
-  - E:/flow/runs/flow/investigations/i2.md
+  - E:/flow/runs/flow/launch-1/investigations/i1.md
+  - E:/flow/runs/flow/launch-1/investigations/i2.md
 CONTRIBUTION: one of five kinds:
 - a NEW OPTION, which includes a COMBINATION of options that genuinely compose (no Frankenstein), naming
   each part by its option id
@@ -255,21 +255,21 @@ plain measure the rubric does not name, such as simpler, more efficient, faster,
 robustness is needed, and it cites its evidence. A DEFECT counts with or without a fix, since it records a
 failure that no later agent may build on. No size threshold applies, since several small contributions can
 lift an option over another. A FEATURE ADDED, FEATURE REMOVED or CORRECTION contribution targets one of the
-three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i2.md, unless it names the shortcoming that holds a lower option down and gives evidence that the
+three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/launch-1/investigations/i2.md, unless it names the shortcoming that holds a lower option down and gives evidence that the
 contribution resolves it. A contribution that other options can carry unchanged names each of them under
 `also fits`, by option id, and counts in each option it names. A DEFECT targets the option it is found in,
 at any standing. A DEFECT in a contribution names that contribution's id and holds against every option
 that carries it.
 
 PROCEDURE:
-1. REPLACE THE LEADER: reject one assumption under `## Leader assumptions` in E:/flow/runs/flow/investigations/i2.md and
+1. REPLACE THE LEADER: reject one assumption under `## Leader assumptions` in E:/flow/runs/flow/launch-1/investigations/i2.md and
    search for an option that does better without it. Think past the framing the earlier files share.
 2. IMPROVE: try to improve any option under the contribution rule above.
 3. Contribute one or more things whenever you can. Record each defect you come across while you replace,
    improve or verify as a DEFECT contribution. Never build a contribution on a part a recorded defect
    names unless that contribution fixes it. Never repeat a contribution an earlier file holds, and never
    edit an earlier file.
-WRITE E:/flow/runs/flow/investigations/i3.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/investigations/i3.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 It holds these sections, in this order:
 - `## Contributions`: each under an id C3.1, C3.2 and so on, with its kind, the option id it targets
   or, for a new option, the next free option id, the option ids under `also fits`, if any, what changes
@@ -284,7 +284,7 @@ It holds these sections, in this order:
   why.
 Set contributed=false only when `## Contributions` reads `None.` and `## Searched` holds at least one
 replacement attempt against the leader's assumptions, and an improvement attempt and a defect check for
-each of the three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i2.md. A defect check on a design of software or a process names each of the five hostile inputs with its
+each of the three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/launch-1/investigations/i2.md. A defect check on a design of software or a process names each of the five hostile inputs with its
 result. A defect check on the do-nothing option names no hostile inputs, and reports each defect in
 today's design that you come across as a DEFECT contribution. Each attempt and check gives the reason it adds nothing under the
 contribution rule.
@@ -338,7 +338,7 @@ state. When not acting is possible, a DO-NOTHING option is scored on the same ru
 Prefer the SIMPLEST option that meets all requirements. The simplest option has the fewest parts to run and maintain once it is in place (components, steps and rules), and the smaller build breaks a tie that remains. If a more complex option ranks above it, the
 evidence must show why the simpler one is inadequate.
 Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
-A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/scripts/ (create it
+A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/launch-1/scripts/ (create it
 if needed) with a file name that no file there holds yet, and never change a script already there, so a later
 agent can rerun it and get the result its citer got.
 DEFECT RULE: a defect is a concrete failure of an option as stated: the input or path that triggers it, the
@@ -349,9 +349,9 @@ of software or a process, the defect test is each of five hostile inputs: a fail
 defect holds until a file fixes it, the file that records it included, so never treat the defective part
 as working or build on it.
 EARLIER INVESTIGATION FILES (read each VERBATIM, in this order):
-  - E:/flow/runs/flow/investigations/i1.md
-  - E:/flow/runs/flow/investigations/i2.md
-  - E:/flow/runs/flow/investigations/i3.md
+  - E:/flow/runs/flow/launch-1/investigations/i1.md
+  - E:/flow/runs/flow/launch-1/investigations/i2.md
+  - E:/flow/runs/flow/launch-1/investigations/i3.md
 CONTRIBUTION: one of five kinds:
 - a NEW OPTION, which includes a COMBINATION of options that genuinely compose (no Frankenstein), naming
   each part by its option id
@@ -366,21 +366,21 @@ plain measure the rubric does not name, such as simpler, more efficient, faster,
 robustness is needed, and it cites its evidence. A DEFECT counts with or without a fix, since it records a
 failure that no later agent may build on. No size threshold applies, since several small contributions can
 lift an option over another. A FEATURE ADDED, FEATURE REMOVED or CORRECTION contribution targets one of the
-three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i3.md, unless it names the shortcoming that holds a lower option down and gives evidence that the
+three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/launch-1/investigations/i3.md, unless it names the shortcoming that holds a lower option down and gives evidence that the
 contribution resolves it. A contribution that other options can carry unchanged names each of them under
 `also fits`, by option id, and counts in each option it names. A DEFECT targets the option it is found in,
 at any standing. A DEFECT in a contribution names that contribution's id and holds against every option
 that carries it.
 
 PROCEDURE:
-1. REPLACE THE LEADER: reject one assumption under `## Leader assumptions` in E:/flow/runs/flow/investigations/i3.md and
+1. REPLACE THE LEADER: reject one assumption under `## Leader assumptions` in E:/flow/runs/flow/launch-1/investigations/i3.md and
    search for an option that does better without it. Think past the framing the earlier files share.
 2. IMPROVE: try to improve any option under the contribution rule above.
 3. Contribute one or more things whenever you can. Record each defect you come across while you replace,
    improve or verify as a DEFECT contribution. Never build a contribution on a part a recorded defect
    names unless that contribution fixes it. Never repeat a contribution an earlier file holds, and never
    edit an earlier file.
-WRITE E:/flow/runs/flow/investigations/i4.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/investigations/i4.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 It holds these sections, in this order:
 - `## Contributions`: each under an id C4.1, C4.2 and so on, with its kind, the option id it targets
   or, for a new option, the next free option id, the option ids under `also fits`, if any, what changes
@@ -395,7 +395,7 @@ It holds these sections, in this order:
   why.
 Set contributed=false only when `## Contributions` reads `None.` and `## Searched` holds at least one
 replacement attempt against the leader's assumptions, and an improvement attempt and a defect check for
-each of the three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/investigations/i3.md. A defect check on a design of software or a process names each of the five hostile inputs with its
+each of the three leading options (every option when fewer stand) under `## Standing` in E:/flow/runs/flow/launch-1/investigations/i3.md. A defect check on a design of software or a process names each of the five hostile inputs with its
 result. A defect check on the do-nothing option names no hostile inputs, and reports each defect in
 today's design that you come across as a DEFECT contribution. Each attempt and check gives the reason it adds nothing under the
 contribution rule.
@@ -449,7 +449,7 @@ state. When not acting is possible, a DO-NOTHING option is scored on the same ru
 Prefer the SIMPLEST option that meets all requirements. The simplest option has the fewest parts to run and maintain once it is in place (components, steps and rules), and the smaller build breaks a tie that remains. If a more complex option ranks above it, the
 evidence must show why the simpler one is inadequate.
 Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
-A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/scripts/ (create it
+A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/launch-1/scripts/ (create it
 if needed) with a file name that no file there holds yet, and never change a script already there, so a later
 agent can rerun it and get the result its citer got.
 DEFECT RULE: a defect is a concrete failure of an option as stated: the input or path that triggers it, the
@@ -460,10 +460,10 @@ of software or a process, the defect test is each of five hostile inputs: a fail
 defect holds until a file fixes it, the file that records it included, so never treat the defective part
 as working or build on it.
 INVESTIGATION FILES (read each VERBATIM, in this order):
-  - E:/flow/runs/flow/investigations/i1.md
-  - E:/flow/runs/flow/investigations/i2.md
-  - E:/flow/runs/flow/investigations/i3.md
-  - E:/flow/runs/flow/investigations/i4.md
+  - E:/flow/runs/flow/launch-1/investigations/i1.md
+  - E:/flow/runs/flow/launch-1/investigations/i2.md
+  - E:/flow/runs/flow/launch-1/investigations/i3.md
+  - E:/flow/runs/flow/launch-1/investigations/i4.md
 You MAY search the web to fill a gap the files leave.
 
 PROCEDURE:
@@ -488,7 +488,7 @@ PROCEDURE:
    it DOMINANT when rank 1 is at least as good as rank 2 on every criterion, ROBUST when the smallest swap
    is larger than the uncertainty of the input it moves, FRAGILE when it is not. When one option ranks
    alone, say so and grade it DOMINANT.
-WRITE E:/flow/runs/flow/decision.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/decision.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 It holds these sections, in this order:
 - `## Ranking`: every option that passes every non-negotiable, best first, one line each with its rank,
   title, total, `combines with` (the ranks it genuinely composes with) and `excludes` (the ranks it is
@@ -605,7 +605,7 @@ state. When not acting is possible, a DO-NOTHING option is scored on the same ru
 Prefer the SIMPLEST option that meets all requirements. The simplest option has the fewest parts to run and maintain once it is in place (components, steps and rules), and the smaller build breaks a tie that remains. If a more complex option ranks above it, the
 evidence must show why the simpler one is inadequate.
 Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
-A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/scripts/ (create it
+A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/launch-1/scripts/ (create it
 if needed) with a file name that no file there holds yet, and never change a script already there, so a later
 agent can rerun it and get the result its citer got.
 DEFECT RULE: a defect is a concrete failure of an option as stated: the input or path that triggers it, the
@@ -616,23 +616,23 @@ of software or a process, the defect test is each of five hostile inputs: a fail
 defect holds until a file fixes it, the file that records it included, so never treat the defective part
 as working or build on it.
 INVESTIGATION FILES (read each VERBATIM, in this order):
-  - E:/flow/runs/flow/investigations/i1.md
-  - E:/flow/runs/flow/investigations/i2.md
-  - E:/flow/runs/flow/investigations/i3.md
-  - E:/flow/runs/flow/investigations/i4.md
-THE DECISION FILE (read it verbatim): E:/flow/runs/flow/decision.md
+  - E:/flow/runs/flow/launch-1/investigations/i1.md
+  - E:/flow/runs/flow/launch-1/investigations/i2.md
+  - E:/flow/runs/flow/launch-1/investigations/i3.md
+  - E:/flow/runs/flow/launch-1/investigations/i4.md
+THE DECISION FILE (read it verbatim): E:/flow/runs/flow/launch-1/decision.md
 
 PROCEDURE:
 1. DEFECT HUNT, before the source checks: test what would be built under each of the three top-ranked
-   options against the DEFECT RULE. For a combination, check that its parts fit together. Check each contribution of E:/flow/runs/flow/investigations/i4.md, since no later investigator read it.
-   A defect you show with a concrete failure, cited to the option's text, is an edit to E:/flow/runs/flow/decision.md:
+   options against the DEFECT RULE. For a combination, check that its parts fit together. Check each contribution of E:/flow/runs/flow/launch-1/investigations/i4.md, since no later investigator read it.
+   A defect you show with a concrete failure, cited to the option's text, is an edit to E:/flow/runs/flow/launch-1/decision.md:
    add it as a con under that option in `## Options` and rescore the cells it bears on, or move the
    option to `## Ruled out` when the defect breaks a non-negotiable. Then update the totals, the order,
    the `combines with` and `excludes` ranks and `## Flip check` as steps 3 to 5 say. Never write the
    fix into the option, since no agent would check a fix added after the chain. A defect in a contribution is a con of every option that carries it and bears on the cells of each. A defect that breaks a non-negotiable in a contribution an option carries rules out the option as stated.
    Flag the option without that contribution. A defect you suspect and cannot show is a flag.
 2. Open the source behind every cell of the three top-ranked options, behind every non-negotiable
-   judgment of every ranked option and behind the evidence of every `## Ruled out` entry. Rerun each script under E:/flow/runs/flow/scripts/ such a cell rests on.
+   judgment of every ranked option and behind the evidence of every `## Ruled out` entry. Rerun each script under E:/flow/runs/flow/launch-1/scripts/ such a cell rests on.
    Sample the sources behind the other cells.
 3. Recompute every total. Check that the order follows the TIE RULE: sort the ranked options by total, best first. The options whose totals lie at most M below
    the highest total, where M is 5% of the sum of every criterion's weight, form a tie group, ranked
@@ -640,7 +640,7 @@ PROCEDURE:
    Check that every option an investigation file gives an option id is ranked or ruled out, that each
    entry under the rubric's `## Given options` is such an option or a check for the user, and that each
    `combines with` and `excludes` claim agrees with the entry it names.
-4. Fix in E:/flow/runs/flow/decision.md, with the Edit tool, each error a source, a rerun or the arithmetic proves,
+4. Fix in E:/flow/runs/flow/launch-1/decision.md, with the Edit tool, each error a source, a rerun or the arithmetic proves,
    such as a wrong citation, a fact the source contradicts, a wrong total, an order that does not follow
    the totals, a missing option, a ranked option that fails a non-negotiable (move it to
    `## Ruled out`), or a ruled-out option whose failing non-negotiable a source disproves (score it in
@@ -648,11 +648,11 @@ PROCEDURE:
    to another rank or out of the ranking updates every `combines with` and `excludes` rank that names a
    moved option.
 5. When an edit changes rank 1 or rank 2, or a cell, weight or total either one rests on, redo
-   `## Flip check` in E:/flow/runs/flow/decision.md and log it as an edit. The FLIP CHECK is the smallest single change to one cell or one weight that swaps rank 1 and rank 2. Grade
+   `## Flip check` in E:/flow/runs/flow/launch-1/decision.md and log it as an edit. The FLIP CHECK is the smallest single change to one cell or one weight that swaps rank 1 and rank 2. Grade
    it DOMINANT when rank 1 is at least as good as rank 2 on every criterion, ROBUST when the smallest swap
    is larger than the uncertainty of the input it moves, FRAGILE when it is not. When one option ranks
    alone, say so and grade it DOMINANT.
-WRITE E:/flow/runs/flow/review.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/review.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 It holds these sections, in this order:
 - `## Defects`: each defect step 1 showed, with the option id, its failure and the fix it would take
   when one is within reach, or `None.`
@@ -765,7 +765,7 @@ state. When not acting is possible, a DO-NOTHING option is scored on the same ru
 Prefer the SIMPLEST option that meets all requirements. The simplest option has the fewest parts to run and maintain once it is in place (components, steps and rules), and the smaller build breaks a tie that remains. If a more complex option ranks above it, the
 evidence must show why the simpler one is inadequate.
 Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
-A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/scripts/ (create it
+A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/launch-1/scripts/ (create it
 if needed) with a file name that no file there holds yet, and never change a script already there, so a later
 agent can rerun it and get the result its citer got.
 DEFECT RULE: a defect is a concrete failure of an option as stated: the input or path that triggers it, the
@@ -776,8 +776,8 @@ of software or a process, the defect test is each of five hostile inputs: a fail
 defect holds until a file fixes it, the file that records it included, so never treat the defective part
 as working or build on it.
 INVESTIGATION FILES (read each VERBATIM, in this order):
-  - E:/flow/runs/flow/investigations/i1.md
-  - E:/flow/runs/flow/investigations/i2.md
+  - E:/flow/runs/flow/launch-1/investigations/i1.md
+  - E:/flow/runs/flow/launch-1/investigations/i2.md
 You MAY search the web to fill a gap the files leave.
 
 PROCEDURE:
@@ -802,7 +802,7 @@ PROCEDURE:
    it DOMINANT when rank 1 is at least as good as rank 2 on every criterion, ROBUST when the smallest swap
    is larger than the uncertainty of the input it moves, FRAGILE when it is not. When one option ranks
    alone, say so and grade it DOMINANT.
-WRITE E:/flow/runs/flow/decision.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/decision.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 It holds these sections, in this order:
 - `## Ranking`: every option that passes every non-negotiable, best first, one line each with its rank,
   title, total, `combines with` (the ranks it genuinely composes with) and `excludes` (the ranks it is
@@ -919,7 +919,7 @@ state. When not acting is possible, a DO-NOTHING option is scored on the same ru
 Prefer the SIMPLEST option that meets all requirements. The simplest option has the fewest parts to run and maintain once it is in place (components, steps and rules), and the smaller build breaks a tie that remains. If a more complex option ranks above it, the
 evidence must show why the simpler one is inadequate.
 Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
-A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/scripts/ (create it
+A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/launch-1/scripts/ (create it
 if needed) with a file name that no file there holds yet, and never change a script already there, so a later
 agent can rerun it and get the result its citer got.
 DEFECT RULE: a defect is a concrete failure of an option as stated: the input or path that triggers it, the
@@ -930,21 +930,21 @@ of software or a process, the defect test is each of five hostile inputs: a fail
 defect holds until a file fixes it, the file that records it included, so never treat the defective part
 as working or build on it.
 INVESTIGATION FILES (read each VERBATIM, in this order):
-  - E:/flow/runs/flow/investigations/i1.md
-  - E:/flow/runs/flow/investigations/i2.md
-THE DECISION FILE (read it verbatim): E:/flow/runs/flow/decision.md
+  - E:/flow/runs/flow/launch-1/investigations/i1.md
+  - E:/flow/runs/flow/launch-1/investigations/i2.md
+THE DECISION FILE (read it verbatim): E:/flow/runs/flow/launch-1/decision.md
 
 PROCEDURE:
 1. DEFECT HUNT, before the source checks: test what would be built under each of the three top-ranked
-   options against the DEFECT RULE. For a combination, check that its parts fit together. Check each contribution of E:/flow/runs/flow/investigations/i2.md, since no later investigator read it.
-   A defect you show with a concrete failure, cited to the option's text, is an edit to E:/flow/runs/flow/decision.md:
+   options against the DEFECT RULE. For a combination, check that its parts fit together. Check each contribution of E:/flow/runs/flow/launch-1/investigations/i2.md, since no later investigator read it.
+   A defect you show with a concrete failure, cited to the option's text, is an edit to E:/flow/runs/flow/launch-1/decision.md:
    add it as a con under that option in `## Options` and rescore the cells it bears on, or move the
    option to `## Ruled out` when the defect breaks a non-negotiable. Then update the totals, the order,
    the `combines with` and `excludes` ranks and `## Flip check` as steps 3 to 5 say. Never write the
    fix into the option, since no agent would check a fix added after the chain. A defect in a contribution is a con of every option that carries it and bears on the cells of each. A defect that breaks a non-negotiable in a contribution an option carries rules out the option as stated.
    Flag the option without that contribution. A defect you suspect and cannot show is a flag.
 2. Open the source behind every cell of the three top-ranked options, behind every non-negotiable
-   judgment of every ranked option and behind the evidence of every `## Ruled out` entry. Rerun each script under E:/flow/runs/flow/scripts/ such a cell rests on.
+   judgment of every ranked option and behind the evidence of every `## Ruled out` entry. Rerun each script under E:/flow/runs/flow/launch-1/scripts/ such a cell rests on.
    Sample the sources behind the other cells.
 3. Recompute every total. Check that the order follows the TIE RULE: sort the ranked options by total, best first. The options whose totals lie at most M below
    the highest total, where M is 5% of the sum of every criterion's weight, form a tie group, ranked
@@ -952,7 +952,7 @@ PROCEDURE:
    Check that every option an investigation file gives an option id is ranked or ruled out, that each
    entry under the rubric's `## Given options` is such an option or a check for the user, and that each
    `combines with` and `excludes` claim agrees with the entry it names.
-4. Fix in E:/flow/runs/flow/decision.md, with the Edit tool, each error a source, a rerun or the arithmetic proves,
+4. Fix in E:/flow/runs/flow/launch-1/decision.md, with the Edit tool, each error a source, a rerun or the arithmetic proves,
    such as a wrong citation, a fact the source contradicts, a wrong total, an order that does not follow
    the totals, a missing option, a ranked option that fails a non-negotiable (move it to
    `## Ruled out`), or a ruled-out option whose failing non-negotiable a source disproves (score it in
@@ -960,11 +960,11 @@ PROCEDURE:
    to another rank or out of the ranking updates every `combines with` and `excludes` rank that names a
    moved option.
 5. When an edit changes rank 1 or rank 2, or a cell, weight or total either one rests on, redo
-   `## Flip check` in E:/flow/runs/flow/decision.md and log it as an edit. The FLIP CHECK is the smallest single change to one cell or one weight that swaps rank 1 and rank 2. Grade
+   `## Flip check` in E:/flow/runs/flow/launch-1/decision.md and log it as an edit. The FLIP CHECK is the smallest single change to one cell or one weight that swaps rank 1 and rank 2. Grade
    it DOMINANT when rank 1 is at least as good as rank 2 on every criterion, ROBUST when the smallest swap
    is larger than the uncertainty of the input it moves, FRAGILE when it is not. When one option ranks
    alone, say so and grade it DOMINANT.
-WRITE E:/flow/runs/flow/review.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/review.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 It holds these sections, in this order:
 - `## Defects`: each defect step 1 showed, with the option id, its failure and the fix it would take
   when one is within reach, or `None.`
@@ -1077,7 +1077,7 @@ state. When not acting is possible, a DO-NOTHING option is scored on the same ru
 Prefer the SIMPLEST option that meets all requirements. The simplest option has the fewest parts to run and maintain once it is in place (components, steps and rules), and the smaller build breaks a tie that remains. If a more complex option ranks above it, the
 evidence must show why the simpler one is inadequate.
 Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
-A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/scripts/ (create it
+A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/launch-1/scripts/ (create it
 if needed) with a file name that no file there holds yet, and never change a script already there, so a later
 agent can rerun it and get the result its citer got.
 DEFECT RULE: a defect is a concrete failure of an option as stated: the input or path that triggers it, the
@@ -1088,7 +1088,7 @@ of software or a process, the defect test is each of five hostile inputs: a fail
 defect holds until a file fixes it, the file that records it included, so never treat the defective part
 as working or build on it.
 INVESTIGATION FILES (read each VERBATIM, in this order):
-  - E:/flow/runs/flow/investigations/i1.md
+  - E:/flow/runs/flow/launch-1/investigations/i1.md
 You MAY search the web to fill a gap the files leave.
 
 PROCEDURE:
@@ -1113,7 +1113,7 @@ PROCEDURE:
    it DOMINANT when rank 1 is at least as good as rank 2 on every criterion, ROBUST when the smallest swap
    is larger than the uncertainty of the input it moves, FRAGILE when it is not. When one option ranks
    alone, say so and grade it DOMINANT.
-WRITE E:/flow/runs/flow/decision.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/decision.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 It holds these sections, in this order:
 - `## Ranking`: every option that passes every non-negotiable, best first, one line each with its rank,
   title, total, `combines with` (the ranks it genuinely composes with) and `excludes` (the ranks it is
@@ -1230,7 +1230,7 @@ state. When not acting is possible, a DO-NOTHING option is scored on the same ru
 Prefer the SIMPLEST option that meets all requirements. The simplest option has the fewest parts to run and maintain once it is in place (components, steps and rules), and the smaller build breaks a tie that remains. If a more complex option ranks above it, the
 evidence must show why the simpler one is inadequate.
 Cite each factual claim to its original source: a file:line, a measurement (the exact command and its result), a source URL, or "own judgment" where you have none.
-A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/scripts/ (create it
+A MEASUREMENT cites its exact command and its result. Save any script it ran under E:/flow/runs/flow/launch-1/scripts/ (create it
 if needed) with a file name that no file there holds yet, and never change a script already there, so a later
 agent can rerun it and get the result its citer got.
 DEFECT RULE: a defect is a concrete failure of an option as stated: the input or path that triggers it, the
@@ -1241,20 +1241,20 @@ of software or a process, the defect test is each of five hostile inputs: a fail
 defect holds until a file fixes it, the file that records it included, so never treat the defective part
 as working or build on it.
 INVESTIGATION FILES (read each VERBATIM, in this order):
-  - E:/flow/runs/flow/investigations/i1.md
-THE DECISION FILE (read it verbatim): E:/flow/runs/flow/decision.md
+  - E:/flow/runs/flow/launch-1/investigations/i1.md
+THE DECISION FILE (read it verbatim): E:/flow/runs/flow/launch-1/decision.md
 
 PROCEDURE:
 1. DEFECT HUNT, before the source checks: test what would be built under each of the three top-ranked
-   options against the DEFECT RULE. For a combination, check that its parts fit together. Check each option of E:/flow/runs/flow/investigations/i1.md, since no later investigator read it.
-   A defect you show with a concrete failure, cited to the option's text, is an edit to E:/flow/runs/flow/decision.md:
+   options against the DEFECT RULE. For a combination, check that its parts fit together. Check each option of E:/flow/runs/flow/launch-1/investigations/i1.md, since no later investigator read it.
+   A defect you show with a concrete failure, cited to the option's text, is an edit to E:/flow/runs/flow/launch-1/decision.md:
    add it as a con under that option in `## Options` and rescore the cells it bears on, or move the
    option to `## Ruled out` when the defect breaks a non-negotiable. Then update the totals, the order,
    the `combines with` and `excludes` ranks and `## Flip check` as steps 3 to 5 say. Never write the
    fix into the option, since no agent would check a fix added after the chain. A defect in a contribution is a con of every option that carries it and bears on the cells of each. A defect that breaks a non-negotiable in a contribution an option carries rules out the option as stated.
    Flag the option without that contribution. A defect you suspect and cannot show is a flag.
 2. Open the source behind every cell of the three top-ranked options, behind every non-negotiable
-   judgment of every ranked option and behind the evidence of every `## Ruled out` entry. Rerun each script under E:/flow/runs/flow/scripts/ such a cell rests on.
+   judgment of every ranked option and behind the evidence of every `## Ruled out` entry. Rerun each script under E:/flow/runs/flow/launch-1/scripts/ such a cell rests on.
    Sample the sources behind the other cells.
 3. Recompute every total. Check that the order follows the TIE RULE: sort the ranked options by total, best first. The options whose totals lie at most M below
    the highest total, where M is 5% of the sum of every criterion's weight, form a tie group, ranked
@@ -1262,7 +1262,7 @@ PROCEDURE:
    Check that every option an investigation file gives an option id is ranked or ruled out, that each
    entry under the rubric's `## Given options` is such an option or a check for the user, and that each
    `combines with` and `excludes` claim agrees with the entry it names.
-4. Fix in E:/flow/runs/flow/decision.md, with the Edit tool, each error a source, a rerun or the arithmetic proves,
+4. Fix in E:/flow/runs/flow/launch-1/decision.md, with the Edit tool, each error a source, a rerun or the arithmetic proves,
    such as a wrong citation, a fact the source contradicts, a wrong total, an order that does not follow
    the totals, a missing option, a ranked option that fails a non-negotiable (move it to
    `## Ruled out`), or a ruled-out option whose failing non-negotiable a source disproves (score it in
@@ -1270,11 +1270,11 @@ PROCEDURE:
    to another rank or out of the ranking updates every `combines with` and `excludes` rank that names a
    moved option.
 5. When an edit changes rank 1 or rank 2, or a cell, weight or total either one rests on, redo
-   `## Flip check` in E:/flow/runs/flow/decision.md and log it as an edit. The FLIP CHECK is the smallest single change to one cell or one weight that swaps rank 1 and rank 2. Grade
+   `## Flip check` in E:/flow/runs/flow/launch-1/decision.md and log it as an edit. The FLIP CHECK is the smallest single change to one cell or one weight that swaps rank 1 and rank 2. Grade
    it DOMINANT when rank 1 is at least as good as rank 2 on every criterion, ROBUST when the smallest swap
    is larger than the uncertainty of the input it moves, FRAGILE when it is not. When one option ranks
    alone, say so and grade it DOMINANT.
-WRITE E:/flow/runs/flow/review.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/review.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 It holds these sections, in this order:
 - `## Defects`: each defect step 1 showed, with the option id, its failure and the fix it would take
   when one is within reach, or `None.`

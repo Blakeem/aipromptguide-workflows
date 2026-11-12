@@ -13,17 +13,19 @@ flowchart TD
   t1(["variations produced"])
   t2(["nothing produced (every generator failed)"])
   x1[/"throw: Invalid args JSON"/]
-  x2[/"throw: args must include at least { runId, root, lenses, brief#124;planPath }"/]
+  x2[/"throw: args must include at least { runId, root, launchDir, lenses, brief#124;planPath }"/]
   x3[/"throw: args.root is required"/]
   x4[/"throw: Invalid role map"/]
   x5[/"throw: Unknown role key in a role map"/]
   x6[/"throw: Illegal role value in a role map"/]
   x7[/"throw: Invalid agentTypes arg"/]
   x8[/"throw: Invalid notes arg"/]
-  x9[/"throw: Provide the problem framing"/]
-  x10[/"throw: args.lenses is required"/]
-  x11[/"throw: lens ids collide after slugging"/]
-  x12[/"throw: A user request was relayed into the context of the generator for ... ahead of its task"/]
+  x9[/"throw: Missing args.launchDir"/]
+  x10[/"throw: Invalid args.launchDir"/]
+  x11[/"throw: Provide the problem framing"/]
+  x12[/"throw: args.lenses is required"/]
+  x13[/"throw: lens ids collide after slugging"/]
+  x14[/"throw: A user request was relayed into the context of the generator for ... ahead of its task"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -36,16 +38,18 @@ flowchart TD
   S0 --> x9
   S0 --> x10
   S0 --> x11
+  S0 --> x12
+  S0 --> x13
   a1 --> t1
   a1 --> t2
-  a1 --> x12
+  a1 --> x14
 ```
 
 ## Phases
 
 | Phase | What happens |
 |---|---|
-| Generate | One generator per lens (CONCURRENT). Each reads the shared brief (verbatim) + its lens, produces a complete variation fully committed to that lens, and writes it into runs/&lt;runId&gt;/variations/&lt;lens&gt;/. Returns only the entry path, a one-line differentiator and whether its context holds a relayed user request. No review, no staging. |
+| Generate | One generator per lens (CONCURRENT). Each reads the shared brief (verbatim) + its lens, produces a complete variation fully committed to that lens, and writes it into &lt;launchDir&gt;/variations/&lt;lens&gt;/. Returns only the entry path, a one-line differentiator and whether its context holds a relayed user request. No review, no staging. |
 
 ## Terminal states
 
@@ -54,18 +58,20 @@ flowchart TD
 | variations produced | every generator returns a variation · one lens produces nothing | declared |
 | nothing produced (every generator failed) | no lens produced anything | declared |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 24) |
-| throw: args must include at least { runId, root, lenses, brief\|planPath } | args carry no runId | throw (line 27) |
+| throw: args must include at least { runId, root, launchDir, lenses, brief\|planPath } | args carry no runId | throw (line 27) |
 | throw: args.root is required | args.root is missing | throw (line 30) |
 | throw: Invalid role map | models is an array in place of an object | throw (line 49) |
 | throw: Unknown role key in a role map | models carries a key outside generate | throw (line 54) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 57) |
 | throw: Invalid agentTypes arg | agentTypes is not an object, carries a key outside generate, or maps one to a blank name | throw (line 71) |
 | throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 88) |
-| throw: Provide the problem framing | neither brief nor planPath | throw (line 110) |
-| throw: args.lenses is required | args.lenses is empty | throw (line 125) |
-| throw: lens ids collide after slugging | two lenses slug to one folder | throw (line 129) |
-| throw: A user request was relayed into the context of the generator for ... ahead of its task | a generator reports a user request relayed into its context | throw (line 197) |
+| throw: Missing args.launchDir | args.launchDir is missing or blank | throw (line 107) |
+| throw: Invalid args.launchDir | args.launchDir is not a launch-&lt;n&gt; folder directly inside the stateDir | throw (line 123) |
+| throw: Provide the problem framing | neither brief nor planPath | throw (line 137) |
+| throw: args.lenses is required | args.lenses is empty | throw (line 152) |
+| throw: lens ids collide after slugging | two lenses slug to one folder | throw (line 156) |
+| throw: A user request was relayed into the context of the generator for ... ahead of its task | a generator reports a user request relayed into its context | throw (line 226) |
 
 ## Coverage
 
-16 scenarios · 1/1 roles · 12/12 throw sites · 0/0 halt statuses · 14 terminal states.
+18 scenarios · 1/1 roles · 14/14 throw sites · 0/0 halt statuses · 16 terminal states.
