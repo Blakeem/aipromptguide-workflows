@@ -10,6 +10,8 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpath
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { projectName, repoKey } from '../tools/project-settings.mjs';
+import { foldsCase } from '../tools/trash.mjs';
 import { REPO_ROOT, ok, eq } from './harness.mjs';
 
 export const SCRIPT = join(REPO_ROOT, 'tools/wt.mjs');
@@ -36,16 +38,25 @@ export function runCli(cmd, args, opts = {}) {
 // Every wt child trashes into an XDG trash inside its own temp root, so no test reaches the real trash.
 export const DATA_HOME = 'xdg-data';
 export const trashEnv = (root) => ({ ...process.env, AIPG_TRASH_BACKEND: 'xdg', XDG_DATA_HOME: join(root, DATA_HOME) });
+// Every wt child puts its run worktrees in a worktree root folder inside its own temp root, so no test creates a folder
+// at a drive root or in the home folder.
+export const WT_ROOT = 'wt-root';
 let fixtureRoot = null;
 
-export function fixtureEnv() {
-  if (!fixtureRoot) throw new Error('wt-helpers: a wt child must run inside withFixture, so that its trash stays inside the fixture');
-  return trashEnv(fixtureRoot);
+function currentRoot() {
+  if (!fixtureRoot) throw new Error('wt-helpers: a wt child must run inside withFixture, so that its trash and worktrees stay inside the fixture');
+  return fixtureRoot;
 }
+
+export const fixtureEnv = () => ({ ...trashEnv(currentRoot()), AIPG_WT_ROOT: join(currentRoot(), WT_ROOT), AIPG_WT_ROOT_RULE: '' });
+
+/** The env that derives the worktree root folder by the home folder rule, inside the fixture's folder `home`. */
+export const homeRuleEnv = (home) => ({ ...fixtureEnv(), AIPG_WT_ROOT: '', AIPG_WT_ROOT_RULE: 'home', HOME: home, USERPROFILE: home });
 
 export const wt = (argv, opts = {}) => runCli(process.execPath, [SCRIPT, ...argv], { env: fixtureEnv(), ...opts });
 
 export const TRASH_STUB = pathToFileURL(join(REPO_ROOT, 'tests/fixtures/trash-stub.mjs')).href;
+export const RMDIR_STUB = pathToFileURL(join(REPO_ROOT, 'tests/fixtures/rmdir-stub.mjs')).href;
 export const GIT_OVERFLOW_STUB = pathToFileURL(join(REPO_ROOT, 'tests/fixtures/git-overflow-stub.mjs')).href;
 export const GIT_RACE_STUB = pathToFileURL(join(REPO_ROOT, 'tests/fixtures/git-race-stub.mjs')).href;
 /** wt with the fixture module `stub` preloaded in place of a module tools/wt.mjs imports. */
@@ -62,13 +73,17 @@ export function abs(path, what) {
   return path;
 }
 export const at = (base, ...parts) => join(abs(base, 'base path'), ...parts);
-/** Where `open` and `init` put a worktree when --dir is omitted. */
-export const under = (repo, ...parts) => join(abs(repo, 'repo path'), '.claude', 'worktrees', ...parts);
-/** The fixture repo's info/exclude, which `open` and `init` add the default worktree folder to. */
-export const excludeFile = (repo) => at(repo, '.git', 'info', 'exclude');
-/** How many lines of the exclude file name the default worktree folder. */
-export const excludeLines = (repo) => readOr(excludeFile(repo)).split('\n').filter((l) => l.trim() === '/.claude/worktrees/').length;
 export const git = (cwd, args) => runCli('git', ['-C', abs(cwd, 'git cwd'), ...args]);
+/** The project folder's name for `repo`, computed from the rule of tools/project-settings.mjs for its backlog folder. */
+export function projectOf(repo) {
+  const out = git(repo, ['rev-parse', '--git-common-dir']).stdout.trim();
+  const commonDir = realpathSync.native(isAbsolute(out) ? out : join(repo, out));
+  return projectName(repoKey(commonDir), foldsCase(process.platform));
+}
+/** Where `open` and `init` put a worktree when --dir is omitted: the project folder of `repo` in the fixture's worktree root folder. */
+export const under = (repo, ...parts) => join(currentRoot(), WT_ROOT, projectOf(abs(repo, 'repo path')), ...parts);
+/** The fixture repo's info/exclude, which `open` and `init` leave as it is. */
+export const excludeFile = (repo) => at(repo, '.git', 'info', 'exclude');
 
 /** The same directory can be spelled with either separator and either case on Windows. */
 export const norm = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();

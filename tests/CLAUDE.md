@@ -446,11 +446,12 @@ node tools/wt.mjs close --repo <checkout> --name <name> --into main --gate "node
 node tests/run.mjs                                                   # here, after the merge
 ```
 
-`open` cuts `aipg/<name>` from `main`, whatever branch the checkout is on. Run `close` once the change is
-committed, since finished worktrees left for later pile up in the checkout's `.claude/worktrees` folder, where
-a tool that walks the checkout reads them. `close` rebases the branch onto `main` when `main` has a commit the
-branch lacks, gates the exact commit `main` will point at, and fast-forwards `main` to it. Only then does it
-move the worktree folder to the trash and delete the branch. It refuses a worktree with modified, staged or
+`open` cuts `aipg/<name>` from `main`, whatever branch the checkout is on, in the project folder that
+`tools/wt.mjs` derives outside the checkout (`AIPG_WT_ROOT` replaces its root). Run `close` once the change is
+committed, since finished worktrees left for later pile up in that folder. `close` rebases the branch onto
+`main` when `main` has a commit the branch lacks, gates the exact commit `main` will point at, and
+fast-forwards `main` to it. Only then does it move the worktree folder to the trash, remove the project folder
+once it holds no entry and delete the branch. It refuses a worktree with modified, staged or
 untracked files, an unfinished operation or submodule git directories, a rebase that would drop a merge commit
 of the branch, and a rebase or fast-forward that would delete an ignored file. Run the suite here after the
 merge, since a worktree holds only tracked files (docs/worktree-batches.md, "untracked files"). A detached

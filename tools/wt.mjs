@@ -23,8 +23,16 @@
 // scratch trash, or a scratch path that cannot be read, exits 40 as a worktree trash does, and the same command run
 // again finishes it (see `trashScratch`).
 //
-// With no --dir, `init` and `open` put each worktree in `.claude/worktrees/` of the main worktree, or beside a bare repository, and first add that
-// folder to the repo's `info/exclude`, so `git status` in the checkout lists none. `--dir` names another parent folder instead.
+// With no --dir, `init` and `open` put each worktree in the project folder `<root>/<project>/`, outside the repo's
+// checkouts, and create both folders when missing. `<root>`, the worktree root folder, is `$AIPG_WT_ROOT` when that
+// variable is set, else `aipg-wt` at the root of the main worktree's real path on Windows, such as `E:\` or
+// `\\server\share\`, and `aipg-wt` in the home folder on every other platform. A bare repository's own path stands in
+// for its main worktree. A derived `<root>` inside one of the repo's checkouts, such as a checkout at the home folder,
+// exits 40 and names `AIPG_WT_ROOT`. `<project>` is the name `project-settings.mjs backlog` gives the repo's backlog folder. `--dir` names another parent
+// folder instead, which the tool neither adds a project folder to nor removes. Once `clean` or `close` has trashed and
+// pruned a worktree that sat directly in the project folder, it removes that folder when it holds no entry, and then a
+// derived worktree root folder when it holds no entry (see `removeEmptyFolders`). AIPG_WT_ROOT_RULE=home forces the
+// home folder rule on any platform, so tests derive the worktree root folder inside a temporary home folder.
 //
 // "after it has landed" is a precondition `clean` enforces. `clean` moves the worktree folder to the
 // operating system's trash through tools/trash.mjs and then runs `git worktree prune`. It never runs
@@ -131,18 +139,21 @@
 //       operation, whose merge or staged work did not verify, whose `--stage` has no worktree on `<into>` or
 //       staged work beside unaccepted work, whose omitted `--into` has no recorded base, or whose branch
 //       moved before its delete, a worktree being cleaned or closed whose folder holds another registered
-//       worktree, or an open or init whose info/exclude cannot be read or appended to.
+//       worktree, or an open or init whose worktree root folder or project folder cannot be created, or whose
+//       derived worktree root folder lies inside one of the repo's checkouts.
 //       Always with a one-line reason naming what to do.
 //   75  retry-later — another land holds the lock, or this land LOST it (taken over mid-gate) before it
 //       could merge, so it merged nothing. The ONLY code an orchestrator should retry.
-//   1   unexpected — bad argv, bad --repo, git missing.
+//   1   unexpected — bad argv, bad --repo, a relative AIPG_WT_ROOT, an unknown AIPG_WT_ROOT_RULE, git missing.
 //
 // Ordinary Node, not an engine: no harness globals, no deps, `node --check` applies.
 
 import { execFileSync } from 'node:child_process';
-import { appendFileSync, chmodSync, closeSync, lstatSync, mkdirSync, openSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
-import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
+import { chmodSync, closeSync, lstatSync, mkdirSync, openSync, readdirSync, readFileSync, realpathSync, rmdirSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { basename, dirname, isAbsolute, join, resolve, win32 } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { projectName, repoKey } from './project-settings.mjs';
 import { REFUSAL_CAUSES, TrashError, foldsCase, isWithin, realpathLoose, trash } from './trash.mjs';
 
 export const EXIT_OK = 0;
@@ -201,8 +212,10 @@ const chainBranch = (batch, key) => `aipg/${batch}/${key}`;
 const singleBranch = (name) => `aipg/${name}`;
 const intDir = (batch) => `aipg-int-${batch}`;
 const chainDir = (key) => `aipg-${key}`;
-const WORKTREE_PARENT = join('.claude', 'worktrees');
-const WORKTREE_EXCLUDE_LINE = '/.claude/worktrees/';
+const WT_ROOT_NAME = 'aipg-wt';
+const WT_ROOT_ENV = 'AIPG_WT_ROOT';
+const WT_RULE_ENV = 'AIPG_WT_ROOT_RULE';
+const HOME_RULE = 'home';
 
 // =============================================================================
 // Process + failure helpers
@@ -459,50 +472,117 @@ function writeHook(path) {
 // =============================================================================
 
 /**
- * `{ dir, underCheckout }`: the folder that holds the worktrees init or open creates, and whether it is the
- * default folder under the checkout. That is `--dir` if given, else `.claude/worktrees` under the main worktree, so a
- * default worktree never nests in a linked one that `close` could trash, and the `info/exclude` line matches it when
- * `--repo` names a subfolder. A bare repository has no checkout, so it keeps the folder beside it, whichever of its
- * worktrees `--repo` names.
+ * `{ dir, derived }`: the worktree root folder, and whether this tool derived it, since only a derived one is removed
+ * when empty. `env` and `platform` let a test prove each rule without creating a folder at a drive root or in the home
+ * folder. A bare repository is the main entry `git worktree list` gives, so its own path stands in for a main worktree.
  */
-function worktreeParent(repo, opt) {
+export function worktreeRoot(repo, env = process.env, platform = process.platform) {
   // Input
+  const named = env[WT_ROOT_ENV] ?? '';
+  const rule = env[WT_RULE_ENV] ?? '';
   let main = null;
 
   // Process
-  if (opt.dir !== undefined) return { dir: requireAbsolute(opt, 'dir'), underCheckout: false };
+  if (named !== '') {
+    if (!isAbsolute(named)) throw fail(`${WT_ROOT_ENV} "${named}" must be an ABSOLUTE path, since it names the folder that holds the run worktrees of every project`);
+    return { dir: resolve(named), derived: false };
+  }
+  if (rule !== '' && rule !== HOME_RULE) throw fail(`${WT_RULE_ENV} "${rule}" is not ${HOME_RULE}, the one rule it can force`);
+  if (platform !== 'win32' || rule === HOME_RULE) return { dir: join(homedir(), WT_ROOT_NAME), derived: true };
   main = listWorktrees(repo).find((e) => e.main);
-  if (main.bare) return { dir: dirname(main.path), underCheckout: false };
 
   // Output
-  return { dir: join(main.path, WORKTREE_PARENT), underCheckout: true };
+  return { dir: win32.join(win32.parse(realpathLoose(main.path)).root, WT_ROOT_NAME), derived: true };
+}
+
+/** The folder in the worktree root folder `root` that holds the run worktrees of `repo`, named as its backlog folder is. */
+const projectFolder = (repo, root) => join(root.dir, projectName(repoKey(realpathSync.native(gitCommonDir(repo))), FOLDS_CASE));
+
+/**
+ * `{ dir, root }`: the folder that holds the worktree folder `folder` that init or open creates, and the worktree root
+ * folder `worktreeRoot` gives when `dir` is the project folder in it. `root` is null for a `--dir`, which names the
+ * parent folder, so a `--dir` that ends in `folder` would nest the worktree one level deeper and is refused. A derived
+ * worktree root folder inside one of the repo's checkouts, such as a checkout at the home folder, is refused too, since
+ * that checkout's git status and every tool that walks it would read the run worktrees.
+ */
+function worktreeParent(repo, opt, folder) {
+  // Input
+  let dir = '';
+  let root = null;
+  let holder = null;
+
+  // Process
+  if (opt.dir !== undefined) {
+    dir = requireAbsolute(opt, 'dir');
+    if (foldName(basename(dir)) === foldName(folder)) {
+      throw fail(`--dir ${dir} ends in ${folder}, the name of the worktree folder itself, and --dir names the parent folder that holds it, so pass ${dirname(dir)} or another parent folder`);
+    }
+    return { dir, root };
+  }
+  root = worktreeRoot(repo);
+  if (root.derived) holder = listWorktrees(repo).find((e) => !e.bare && isWithin(realpathLoose(root.dir), realpathLoose(e.path), FOLDS_CASE));
+  if (holder) {
+    throw unsafe(`the worktree root folder ${root.dir} lies inside the checkout ${holder.path}, so that checkout's git status would list the run worktrees, and no branch or worktree was made. Set ${WT_ROOT_ENV} to the absolute path of a folder outside it.`);
+  }
+
+  // Output
+  return { dir: projectFolder(repo, root), root };
 }
 
 /**
- * Adds `/.claude/worktrees/` to the repo's `info/exclude` before the first worktree is made under the default
- * folder, so `git status` in the user's checkout lists none. It edits no `.gitignore`, which the user's team shares.
- * `--dir` is the operator's choice and the guides direct it outside the checkout, so only the default folder gets a line.
+ * Creates the worktree root folder and the project folder of `parent` when missing, before any branch exists, or exits
+ * 40 naming the folder and the cause. `git worktree add` creates a missing `--dir` itself.
  */
-function ensureWorktreeExcluded(repo, parent) {
+function createParent(parent) {
+  if (!parent.root) return;
+  for (const [folder, what] of [[parent.root.dir, 'worktree root folder'], [parent.dir, 'project folder']]) {
+    try {
+      mkdirSync(folder, { recursive: true });
+    } catch (err) {
+      throw unsafe(`cannot create the ${what} ${folder} (${err.message}), so no branch or worktree was made. To put the run worktrees of every project in another folder, set ${WT_ROOT_ENV} to its absolute path.`);
+    }
+  }
+}
+
+/**
+ * Removes `folder` when it holds no entry, and returns whether it is gone. rmdir refuses a folder that holds an entry,
+ * so an entry made after any check stays, and an empty folder holds nothing to restore from the trash.
+ */
+function removeIfEmpty(folder) {
+  try {
+    rmdirSync(folder);
+  } catch (err) {
+    if (err.code === 'ENOENT') return true;
+    if (err.code === 'ENOTEMPTY' || err.code === 'EEXIST') return false;
+    process.stderr.write(`left the folder ${folder} in place, since removing it failed: ${err.message}\n`);
+    return false;
+  }
+  process.stderr.write(`removed the empty folder ${folder}\n`);
+  return true;
+}
+
+/**
+ * Removes the project folder of `repo` when it holds no entry, and then the worktree root folder when it holds no entry
+ * and this tool derived it. `removed` is the path of the worktree a removal just pruned, and one that sat in any other
+ * folder, such as a `--dir`, leaves every folder in place. A verb that finds no worktree left passes none, so it
+ * finishes the removal an earlier stop left. A failure prints one stderr line and leaves the exit code as it was.
+ */
+function removeEmptyFolders(repo, removed = null) {
   // Input
-  let file = '';
-  let text = '';
+  let root = null;
+  let project = '';
+  try {
+    root = worktreeRoot(repo);
+    project = projectFolder(repo, root);
+  } catch (err) {
+    process.stderr.write(`left the project folder of ${repo} in place, since finding it failed: ${err.message}\n`);
+    return;
+  }
 
   // Process
-  if (!parent.underCheckout) return;
-  file = join(gitCommonDir(repo), 'info', 'exclude');
-  try {
-    text = readFileSync(file, 'utf8');
-  } catch (err) {
-    if (err.code !== 'ENOENT') throw unsafe(`cannot read ${file}, which must list ${WORKTREE_EXCLUDE_LINE} before a worktree is made under the checkout's ${WORKTREE_PARENT} folder: ${err.message}`);
-  }
-  if (text.split(/\r?\n/).some((line) => line.trim() === WORKTREE_EXCLUDE_LINE)) return;
-  try {
-    mkdirSync(dirname(file), { recursive: true });
-    appendFileSync(file, `${text === '' || text.endsWith('\n') ? '' : '\n'}${WORKTREE_EXCLUDE_LINE}\n`);
-  } catch (err) {
-    throw unsafe(`cannot add ${WORKTREE_EXCLUDE_LINE} to ${file}, so the worktrees under the checkout's ${WORKTREE_PARENT} folder would show in git status: ${err.message}`);
-  }
+  if (removed !== null && caseKey(realpathLoose(dirname(removed))) !== caseKey(realpathLoose(project))) return;
+  if (!removeIfEmpty(project) || !root.derived) return;
+  removeIfEmpty(root.dir);
 }
 
 const detachedBase = (repo) => unsafe(`--base was omitted and ${repo} is on a DETACHED HEAD — git has no machine-independent "default branch" in a local repo, so name the branch to cut from with --base`);
@@ -593,7 +673,7 @@ function init(opt) {
   // Input
   const repo = requireRepo(opt);
   const batch = requireName(opt, 'batch');
-  const parent = worktreeParent(repo, opt);
+  const parent = worktreeParent(repo, opt, intDir(batch));
 
   // Process
   // Git resolves a relative hooks path inside EACH worktree, so no single hook file could guard every chain.
@@ -609,7 +689,7 @@ function init(opt) {
     throw unsafe(`batch "${other.branch.slice('aipg/int-'.length)}" is already active in ${other.path} — one batch at a time: land it and run "clean --batch" before starting "${batch}"`);
   }
 
-  if (!mine) ensureWorktreeExcluded(repo, parent);
+  if (!mine) createParent(parent);
   const integration = mine ? mine.path : addIntegrationWorktree(repo, batch, opt.base, resolve(parent.dir, intDir(batch)));
   const hook = hookPath(integration);
   const state = hookState(hook);
@@ -1309,7 +1389,8 @@ function checkRemovable(repo, entry, mainPath, { discard = false, unlandedAdvice
  * Moves a registered worktree's folder to the trash and prunes its registration, once `checkRemovable`
  * passes with `opts`. `git worktree remove` is never run, since it deletes the folder and its ignored files
  * permanently. A folder already gone is pruned. A discard lists on stderr the work it trashed, the
- * operation whose state the prune deletes, and the detached HEAD of a rebase or bisect.
+ * operation whose state the prune deletes, and the detached HEAD of a rebase or bisect. Last, `removeEmptyFolders`
+ * removes the folders the worktree leaves empty.
  */
 function removeWorktree(repo, entry, mainPath, opts = {}) {
   // Input
@@ -1343,6 +1424,7 @@ function removeWorktree(repo, entry, mainPath, opts = {}) {
   if (listWorktrees(repo).some((e) => e.path === path)) {
     throw unsafe(`${path} is still registered after "git worktree prune". Check its entry in git -C ${shellQuote(repo)} worktree list --porcelain, then run this command again.`);
   }
+  removeEmptyFolders(repo, path);
 }
 
 function cleanChain(repo, key) {
@@ -1352,6 +1434,7 @@ function cleanChain(repo, key) {
     // Idempotent on purpose: teardown runs after every chain, including ones that never got a worktree.
     process.stderr.write(`no worktree on aipg/<batch>/${key} — nothing to remove\n`);
     git(repo, ['worktree', 'prune']);
+    removeEmptyFolders(repo);
     return;
   }
   removeWorktree(repo, entry, entries[0].path);
@@ -1367,6 +1450,7 @@ function cleanBatch(repo, batch) {
     // path it would DELETE — so with the integration worktree already gone, the hook stays.
     process.stderr.write(`no worktree on ${intBranch(batch)} — nothing to remove, and the hook was left alone (its path resolves only from a linked worktree)\n`);
     git(repo, ['worktree', 'prune']);
+    removeEmptyFolders(repo);
     return;
   }
 
@@ -1823,7 +1907,7 @@ function open(opt) {
   // Input
   const repo = requireRepo(opt);
   const name = requireSingleName(opt);
-  const parent = worktreeParent(repo, opt);
+  const parent = worktreeParent(repo, opt, chainDir(name));
   const provision = opt.provision === undefined ? undefined : requireCommand(opt, 'provision');
   const branch = singleBranch(name);
   const path = resolve(parent.dir, chainDir(name));
@@ -1843,7 +1927,7 @@ function open(opt) {
     alias = existing === branch ? '' : `, which this file system does not tell apart from ${branch}`;
     throw unsafe(`branch ${existing} already exists in ${repo}${alias}${holder ? `, and the worktree at ${holder.path} is on it, so finish that change with close` : ''}. Pick another --name, or, once its commits are merged or not needed, delete the branch with git -C ${shellQuote(repo)} branch -D ${existing}.`);
   }
-  ensureWorktreeExcluded(repo, parent);
+  createParent(parent);
   addWorktreeOnNewBranch(repo, branch, path, headsRef(base), {
     what: `cannot create the worktree for "${name}" at ${path}`,
     recovery: `Fix the cause, remove it with node ${shellQuote(WT_SCRIPT)} close --repo ${shellQuote(repo)} --name ${name} --discard, delete the branch with git -C ${shellQuote(repo)} branch -D ${branch}, then run open again.`,
@@ -1962,6 +2046,7 @@ function recordedBaseProblem(repo, targets, into) {
  */
 function closeWithoutWorktree(repo, branch, into, exists, stage) {
   // Process
+  removeEmptyFolders(repo);
   if (!exists) {
     git(repo, ['worktree', 'prune']);
     process.stderr.write(`no worktree and no branch ${branch}, so there is nothing to close\n`);
@@ -2454,6 +2539,7 @@ function closeDiscard(repo, name) {
   } else {
     git(repo, ['worktree', 'prune']);
     process.stderr.write(`no worktree is on ${branch}, so there is nothing to discard\n`);
+    removeEmptyFolders(repo);
   }
   tip = exists ? commitOf(repo, headsRef(branch)) : '';
 
@@ -2504,6 +2590,7 @@ function closeChange(repo, name, opt) {
   if (change && !change.exists && !change.entry) {
     git(repo, ['worktree', 'prune']);
     process.stderr.write(`no branch ${branch}, so there is nothing to close\n`);
+    removeEmptyFolders(repo);
     return;
   }
   if (change) throw unsafe(`open recorded no base for ${branch}, so name the branch to merge it into with --into`);
@@ -2534,7 +2621,10 @@ const USAGE = `usage:
   node tools/wt.mjs open  --repo <abs> --name <name> [--base <branch>] [--dir <abs>] [--provision "<cmd>"]
   node tools/wt.mjs close --repo <abs> --name <name> [--into <branch>] --gate "<cmd>" [--stage] [--state-dir <abs>]...
   node tools/wt.mjs close --repo <abs> --name <name> --discard [--state-dir <abs>]...
---state-dir names an engine run's state dir, whose scratch folder clean and close move to the trash last.`;
+--state-dir names an engine run's state dir, whose scratch folder clean and close move to the trash last.
+With no --dir, init and open put the worktree in <root>/<project>/, where <root> is $AIPG_WT_ROOT, else aipg-wt at the
+root of the main worktree's real path on Windows and aipg-wt in the home folder elsewhere. --dir names the parent
+folder instead. clean and close remove the project folder once it holds no entry, then a derived <root> that holds none.`;
 
 // A name becomes a ref segment AND a directory name, so a slash or a space would silently reshape both.
 const NAME_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;

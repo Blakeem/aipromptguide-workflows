@@ -274,7 +274,7 @@ for (const [what, bytes, cause] of [
   ['a store that holds an array', '[{ "changePolicy": "focused" }]\n', /does not hold a JSON object/],
   ['a store value that is a bare policy', '{ "E:/x": "focused" }\n', /maps "E:\/x" to "focused", which is not an object of repo settings/],
   ['a store value with an unknown field', '{ "E:/x": { "changePolicy": "focused", "theme": "dark" } }\n',
-    /gives "E:\/x" the field "theme", and the fields a repo takes are changePolicy, commit, provision, worktreeDir, models, efforts/],
+    /gives "E:\/x" the field "theme", and the fields a repo takes are changePolicy, commit, provision, models, efforts/],
   ['a changePolicy outside the three policies', '{ "E:/x": { "changePolicy": "lenient" } }\n',
     /gives "E:\/x" a changePolicy of "lenient", which is none of focused \| proactive \| auto/],
   ['a changePolicy of the retired name strict', '{ "E:/x": { "changePolicy": "strict" } }\n',
@@ -450,14 +450,14 @@ withFixture((fx) => {
   const repo = fx.repo('r');
   const key = keyOf(repo);
   const provisionOf = () => fx.cli('provision', '--root', fx.state, '--repo', repo);
-  eq(provisionOf().stdout, `${JSON.stringify({ key, provision: null, worktreeDir: null })}\n`, 'a repo with no store prints a null provision and a null worktreeDir');
+  eq(provisionOf().stdout, `${JSON.stringify({ key, provision: null })}\n`, 'a repo with no store prints a null provision and no worktreeDir');
   ok(!existsSync(fx.state), 'provision writes nothing');
   eq(fx.setWith(repo, '--policy', 'focused', '--commit', 'on').code, 0, 'the fixture policy and commit choice are saved');
   const saved = fx.setWith(repo, '--provision', 'pnpm install --frozen-lockfile');
   eq(saved.stdout, `set ${key} provision in ${fx.storePath}\n`, 'set names the provision it saved');
   eq(JSON.stringify(fx.store()[key]), JSON.stringify({ changePolicy: 'focused', commit: true, provision: 'pnpm install --frozen-lockfile' }),
     'the command is saved beside the policy and the commit choice');
-  eq(provisionOf().stdout, `${JSON.stringify({ key, provision: 'pnpm install --frozen-lockfile', worktreeDir: null })}\n`, 'provision prints the command');
+  eq(provisionOf().stdout, `${JSON.stringify({ key, provision: 'pnpm install --frozen-lockfile' })}\n`, 'provision prints the command');
   eq(fx.setWith(repo, '--provision', 'none').code, 0, 'set --provision none exits 0');
   eq(JSON.parse(provisionOf().stdout).provision, 'none', 'provision prints none');
   const blank = fx.setWith(repo, '--provision', ' ');
@@ -469,25 +469,40 @@ withFixture((fx) => {
   }
 });
 
-section('set --worktree-dir saves the folder that holds the run worktrees, provision prints it, and default removes it');
+section('set refuses the retired --worktree-dir, and a stored worktreeDir loads, prints nowhere and is dropped by the next write');
 withFixture((fx) => {
   const repo = fx.repo('r');
   const key = keyOf(repo);
-  const dir = join(fx.root, 'trees');
+  const other = fx.repo('other');
+  const otherKey = keyOf(other);
   const provisionOf = () => fx.cli('provision', '--root', fx.state, '--repo', repo);
-  eq(fx.setWith(repo, '--policy', 'focused', '--provision', 'none').code, 0, 'the fixture policy and provision are saved');
-  const saved = fx.setWith(repo, '--worktree-dir', dir);
-  eq(saved.stdout, `set ${key} worktreeDir in ${fx.storePath}\n`, 'set names the worktreeDir it saved');
-  eq(JSON.stringify(fx.store()[key]), JSON.stringify({ changePolicy: 'focused', provision: 'none', worktreeDir: dir }), 'the folder is saved beside the other settings');
-  eq(JSON.parse(provisionOf().stdout).worktreeDir, dir, 'provision prints the folder');
-  eq(fx.setWith(repo, '--worktree-dir', 'default').code, 0, 'set --worktree-dir default exits 0');
-  eq(JSON.stringify(fx.store()[key]), JSON.stringify({ changePolicy: 'focused', provision: 'none' }), '...and removes the field, keeping the other settings');
-  eq(JSON.parse(provisionOf().stdout).worktreeDir, null, 'provision prints null again');
-  const relative = fx.setWith(repo, '--worktree-dir', 'trees');
-  ok(relative.code === 1 && /--worktree-dir "trees" is neither an absolute path nor default/.test(relative.stderr), `a relative folder exits 1: ${relative.stderr.trim()}`);
-  writeFileSync(fx.storePath, `${JSON.stringify({ [key]: { worktreeDir: 'trees' } })}\n`);
-  const stored = provisionOf();
-  ok(stored.code === 1 && /a worktreeDir of "trees", which is not an absolute path/.test(stored.stderr), `a stored relative folder exits 1: ${stored.stderr.trim()}`);
+  mkdirSync(fx.state);
+  // A relative value too, since no verb may fail on the retired field, whatever an older version saved there.
+  const bytes = `${JSON.stringify({ [key]: { changePolicy: 'focused', provision: 'none', worktreeDir: 'trees' }, [otherKey]: { worktreeDir: join(fx.root, 'trees') } }, null, 2)}\n`;
+  writeFileSync(fx.storePath, bytes);
+  for (const value of [join(fx.root, 'trees'), 'default']) {
+    const refused = fx.setWith(repo, '--worktree-dir', value);
+    eq(refused.code, 1, `set --worktree-dir ${value} exits 1`);
+    ok(/--worktree-dir is retired.*AIPG_WT_ROOT.*Nothing was written/.test(refused.stderr), `...saying the setting is retired and where run worktrees go: ${refused.stderr.trim()}`);
+    eq(readFileSync(fx.storePath, 'utf8'), bytes, '...and leaves the store byte-identical');
+  }
+  for (const [verb, out] of [
+    ['check', `focused ${key}\n`],
+    ['commit', `missing ${key}\n`],
+    ['provision', `${JSON.stringify({ key, provision: 'none' })}\n`],
+    ['roles', '{"models":{},"efforts":{}}\n'],
+  ]) {
+    const r = fx.cli(verb, '--root', fx.state, '--repo', repo);
+    eq(r.code, 0, `${verb} exits 0 for a repo with a stored worktreeDir (${r.stderr.trim()})`);
+    eq(r.stdout, out, `...and prints no worktreeDir`);
+  }
+  eq(fx.backlog(repo).code, 0, 'backlog exits 0 for that repo');
+  eq(fx.setWith(repo, '--commit', 'on').code, 0, 'set --commit exits 0 for that repo');
+  eq(JSON.stringify(fx.store()[key]), JSON.stringify({ changePolicy: 'focused', provision: 'none', commit: true }), '...and writes its settings without the worktreeDir');
+  eq(JSON.stringify(fx.store()[otherKey]), JSON.stringify({ worktreeDir: join(fx.root, 'trees') }), "...leaving another repo's settings as they were");
+  eq(fx.setRoles(other, '--efforts', 'park=low').code, 0, 'set-roles exits 0 for a repo with a stored worktreeDir');
+  eq(JSON.stringify(fx.store()[otherKey]), JSON.stringify({ efforts: { park: 'low' } }), '...and writes its settings without the worktreeDir');
+  eq(JSON.parse(provisionOf().stdout).worktreeDir, undefined, 'provision still prints no worktreeDir');
 });
 
 section('set takes --policy and --commit together, and a repo that saved only a commit choice reads missing from check');

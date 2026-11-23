@@ -253,31 +253,27 @@ reason the code shows.
    - When `git -C <the user's checkout> worktree list --porcelain` lists no worktree on
      `aipg/<runId>`, which holds on the first launch of a `runId` and after step 6 landed it, run
      `node <project-settings.mjs> provision --root <root> --repo <the user's checkout>`. It prints
-     `provision` and `worktreeDir`, each null when unsaved. A fresh worktree holds only tracked
-     files, so on `"provision":null` work out once the command that readies one for the gates. The
-     default provision command copies every file git ignores in the user's checkout into the
-     worktree, except the folder that holds the run worktrees and what the project's own setup
-     command rebuilds, such as installed dependencies, build output and caches, and then runs that
-     setup command. When the project's checks use something outside the worktree that two runs would
-     share, two runs of that project do not run at the same time. The platform's shell runs the
-     command in the worktree. Save it with
+     `provision`, null when unsaved. A fresh worktree holds only tracked files, so on
+     `"provision":null` work out once the command that readies one for the gates. The default
+     provision command copies every file git ignores in the user's checkout into the worktree, except
+     the checkout's `.claude/worktrees` folder, where an older version made run worktrees, and what
+     the project's own setup command rebuilds, such as installed dependencies, build output and caches,
+     and then runs that setup command. When the project's checks use something outside the worktree
+     that two runs would share, two runs of that project do not run at the same time. The platform's
+     shell runs the command in the worktree. Save it with
      `node <project-settings.mjs> set --root <root> --repo <the user's checkout> --provision "<cmd>"`,
      or `--provision none` when the gates need nothing.
-   - With no `--dir`, `open` makes the run worktree in `<the user's checkout>/.claude/worktrees/`
-     and adds that folder to the repo's `info/exclude`, so `git status` in the checkout lists no run
-     worktree. When the project's files reference a path outside the checkout by a relative path,
-     that path resolves only when the worktree sits beside the checkout. So save the checkout's
-     parent folder once with
-     `node <project-settings.mjs> set --root <root> --repo <the user's checkout> --worktree-dir <the
-     checkout's parent folder>`. `--worktree-dir default` removes the saved folder. When the project's checks
-     walk the checkout's folders or search parent folders, as `docs/worktree-batches.md` describes, save a
-     folder outside the checkout instead.
+   - With no `--dir`, `open` makes the run worktree in the project folder outside the checkout,
+     `<root>/<project>/`, where `<root>` is `$AIPG_WT_ROOT` when set, else `aipg-wt` at the root of
+     the main worktree's real path on Windows and `aipg-wt` in the home folder elsewhere
+     (`docs/worktree-batches.md`). When the project's files reference a path outside the checkout by
+     a relative path, that path resolves only when the worktree sits beside the checkout, so pass
+     `--dir <the checkout's parent folder>` to each `open` of that project.
    - Then run `node <wt.mjs> open --repo <the user's checkout> --name <runId> --provision "<cmd>"`,
-     leaving `--provision` out on `none` and adding `--dir <worktreeDir>` when `worktreeDir` is set,
-     where `<wt.mjs>` is this checkout's `tools/wt.mjs`. It cuts `aipg/<runId>` from the user's
-     current branch, records that branch as the one step 6 lands on, and prints the run worktree's
-     path. A provision that fails exits 40 and keeps the worktree, so fix the command, save it
-     again, and rerun it there by hand.
+     leaving `--provision` out on `none`, where `<wt.mjs>` is this checkout's `tools/wt.mjs`. It cuts
+     `aipg/<runId>` from the user's current branch, records that branch as the one step 6 lands on,
+     and prints the run worktree's path. A provision that fails exits 40 and keeps the worktree, so
+     fix the command, save it again, and rerun it there by hand.
    - When it lists a worktree on `aipg/<runId>`, reuse it. Settle a dirty run worktree first (§4).
 
    Run step 3 with `--reserve <stateDir>` and `run_in_background`, and launch in the turn its notification

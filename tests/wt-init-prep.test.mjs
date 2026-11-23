@@ -8,7 +8,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import { join } from 'node:path';
 import { section, ok, eq } from './harness.mjs';
 import { HOOK } from '../tools/wt.mjs';
-import { SCRIPT, wt, GIT_OVERFLOW_STUB, GIT_RACE_STUB, wtStubbed, at, git, norm, firstLine, worktreePaths, sha, hookOf, withFixture, commitFile, spawnCli, hasGit, under, excludeLines } from './wt-helpers.mjs';
+import { SCRIPT, wt, GIT_OVERFLOW_STUB, GIT_RACE_STUB, wtStubbed, at, git, norm, firstLine, worktreePaths, sha, hookOf, withFixture, commitFile, spawnCli, hasGit, under } from './wt-helpers.mjs';
 
 if (!hasGit) {
   console.log('  ! SKIPPED — git is not on PATH, and every check in this file drives a real repo');
@@ -18,7 +18,7 @@ section('init cuts the integration branch, checks it out, and installs the hook'
 await withFixture(({ root, repo }) => {
   const r = wt(['init', '--repo', repo, '--batch', 'b1']);
   eq(r.code, 0, `init exits 0 (${firstLine(r.stderr)})`);
-  ok(worktreePaths(repo).includes(norm(under(repo, 'aipg-int-b1'))), 'the integration worktree sits under .claude/worktrees in the repo');
+  ok(worktreePaths(repo).includes(norm(under(repo, 'aipg-int-b1'))), 'the integration worktree sits in the project folder of the repo');
   ok(sha(repo, 'refs/heads/aipg/int-b1') !== '', 'branch aipg/int-b1 exists');
   eq(sha(repo, 'refs/heads/aipg/int-b1'), sha(repo, 'refs/heads/main'), 'with --base omitted it is cut from the CURRENT HEAD branch');
 
@@ -29,19 +29,17 @@ await withFixture(({ root, repo }) => {
   const again = wt(['init', '--repo', repo, '--batch', 'b1']);
   eq(again.code, 0, 'a second init of the SAME batch is a no-op exit 0');
   eq(worktreePaths(repo).length, 2, '...adding no second worktree');
-  eq(excludeLines(repo), 1, 'init added the .claude/worktrees line to info/exclude once');
-  eq(git(repo, ['status', '--porcelain']).stdout.trim(), '', '...so git status in the checkout lists no worktree');
+  eq(git(repo, ['status', '--porcelain']).stdout.trim(), '', 'git status in the checkout lists nothing');
 
   const other = wt(['init', '--repo', repo, '--batch', 'b2']);
   eq(other.code, 40, 'a second, DIFFERENT batch while b1 is active exits 40');
   ok(/already active/.test(other.stderr), `...naming the batch that holds it: ${firstLine(other.stderr)}`);
 });
 
-section('init with --dir adds no line to info/exclude, and prep puts a chain beside the integration worktree');
+section('prep puts a chain beside the integration worktree that init --dir placed');
 await withFixture(({ root, repo }) => {
   const alt = join(root, 'alt');
   eq(wt(['init', '--repo', repo, '--batch', 'b1', '--dir', alt]).code, 0, 'init --dir exits 0');
-  eq(excludeLines(repo), 0, 'the exclude file gained no line');
   const chain = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha']);
   eq(norm(chain.stdout.trim()), norm(join(alt, 'aipg-alpha')), 'prep follows the integration worktree into --dir');
 });
