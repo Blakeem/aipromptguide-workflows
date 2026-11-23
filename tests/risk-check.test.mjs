@@ -144,7 +144,10 @@ section('each format error is named by its line');
   has(good.replace('- Paths: no', '- Speed: no'), 'is no answer line', 'an unknown question');
   has(good.replace('## src/a.mjs:1', '## the parser'), 'a change section is named `## <path>:<line>`', 'a change section not named by its path and line');
   has(good.replace(/## Sweep[\s\S]*$/, ''), 'holds no `## Sweep` section', 'no sweep');
-  has(good.replace(/## Sweep[\s\S]*$/, '## Sweep\n'), 'holds no `search:` line', 'an empty sweep');
+  eq(parseRiskFile(good.replace(/## Sweep[\s\S]*$/, '## Sweep\n')).emptySweepLine, 9, 'a sweep heading with no search is no format error, and the parse names its line');
+  const emptyNoBase = check(repo, tree, good.replace(/## Sweep[\s\S]*$/, '## Sweep\n'));
+  ok(emptyNoBase.code === 1 && emptyNoBase.lines.some((l) => l.startsWith('error:') && l.includes('holds no `search:` line')), `an empty sweep without --base is an error: ${emptyNoBase.lines.join(' | ')}`);
+  ok(emptyNoBase.lines.includes(FORMAT), 'and it prints the format');
   has(`${good}\n## src/b.md:1\n${answers().join('\n')}\n`, 'after `## Sweep`', 'a change section after the sweep');
   has(good.replace('scope: src gen\n', ''), 'before the `scope:` line', 'a hit before its scope');
   has(good.replace('scope: src gen\n', ''), 'has no `scope:` line', 'a search with no scope');
@@ -274,6 +277,43 @@ section('with --base, each changed name a line outside the hunks holds and no se
   const lostDiff = withBase(text);
   ok(lostDiff.code === 2 && lostDiff.lines[0].startsWith(`risk-check: git diff failed from --base ${base} to --snapshot ${tree}:`),
     `a failed diff of the round exits 2 and names both trees: ${lostDiff.lines.join(' | ')}`);
+}
+
+section('with --base, a sweep heading with no search passes only when no changed name has a reader outside the hunks');
+{
+  const { repo, tree: base } = fixtureRepo({
+    'src/lib.mjs': 'export function oldHelperName(x) {\n  return x;\n}\n',
+    'src/use.mjs': "import { oldHelperName } from './lib.mjs';\n",
+    'src/test.mjs': 'const a = 1;\n',
+  });
+  const emptySweep = (tree, extra = []) => {
+    const path = join(tmpDir(), 'risk-x-r3.md');
+    writeFileSync(path, [`Snapshot: ${tree}`, '', '## src/test.mjs:1', ...answers(), '', '## Sweep', ...extra, ''].join('\n'));
+    return { path, ...run([path, '--repo', repo, '--snapshot', tree, '--base', base]) };
+  };
+  const addedOnly = writeTree(repo, { 'src/test.mjs': 'const a = 1;\nconst added_only = 2;\n' });
+  const accepted = emptySweep(addedOnly);
+  eq(accepted.lines.join('\n'), `ok: ${accepted.path}\nlow risk: yes`, `a round that changed no name takes a sweep heading with no search: ${accepted.lines.join(' | ')}`);
+  eq(accepted.code, 0, 'and exits 0');
+  const renamed = writeTree(repo, { 'src/lib.mjs': 'export function newHelperName(x) {\n  return x;\n}\n' });
+  const refused = emptySweep(renamed);
+  ok(refused.code === 1 && refused.lines.some((l) => l.startsWith('error:') && l.includes('holds no `search:` line') && l.includes('only with --base')),
+    `a renamed name with a reader outside the hunks keeps the error: ${refused.lines.join(' | ')}`);
+  ok(refused.lines.some((l) => l.startsWith('uncovered: oldHelperName')) && refused.lines.includes(FORMAT), 'and the uncovered line and the format print beside it');
+  const dropped = writeTree(repo, { 'src/lib.mjs': 'export function x() {}\n', 'src/use.mjs': 'x();\n' });
+  eq(emptySweep(dropped).code, 0, 'a name no line holds after the round needs no search either');
+  const withoutBase = (() => {
+    const path = join(tmpDir(), 'risk-x-r3.md');
+    writeFileSync(path, [`Snapshot: ${addedOnly}`, '', '## src/test.mjs:1', ...answers(), '', '## Sweep', ''].join('\n'));
+    return run([path, '--repo', repo, '--snapshot', addedOnly]);
+  })();
+  ok(withoutBase.code === 1 && withoutBase.lines.some((l) => l.includes('holds no `search:` line')), 'without --base the same file is an error, since no diff shows the names');
+  const noHeading = (() => {
+    const path = join(tmpDir(), 'risk-x-r3.md');
+    writeFileSync(path, [`Snapshot: ${addedOnly}`, '', '## src/test.mjs:1', ...answers(), ''].join('\n'));
+    return run([path, '--repo', repo, '--snapshot', addedOnly, '--base', base]);
+  })();
+  ok(noHeading.code === 1 && noHeading.lines.some((l) => l.includes('holds no `## Sweep` section')), `a file with no sweep heading is still an error with --base: ${noHeading.lines.join(' | ')}`);
 }
 
 section('with --base, a shell $ name and a code name are one name, and a name with no reader left prints nothing');

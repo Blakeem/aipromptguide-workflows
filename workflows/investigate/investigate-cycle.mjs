@@ -425,14 +425,14 @@ PROCEDURE:
      the premise or the criteria that would open search space this run could not reach. Omit the section
      only on an evidenced exhaustion.
    For no_solution ALSO: why nothing qualifies, and the SINGLE criterion the user could relax to change
-   that. That criterion IS the WHERE NEXT premise change. Append it to ${NEEDS_USER} as well, opening the entry with the line \`## r${round} investigator\`. That entry is
+   that. That criterion IS the WHERE NEXT premise change. Append it to ${NEEDS_USER} as well, opening the entry with the line \`## launch ${LAUNCH_N} r${round} investigator\`. That entry is
    informational: needs_user stays false, because the critic verifies the no_solution claim itself.${round >= LAST_ROUND
       ? `\n   If you are NOT claiming termination, OPEN the file stating the search is NOT exhaustive and this
    is a PARTIAL result. Say what stopped it (the round budget, or the escalation you are about to write
    to ${NEEDS_USER}), never that nothing more is there.`
       : ''}
 11. (when a criteria contradiction, or a call only the user can make, blocks you before you can claim
-   anything) Append a full entry to ${NEEDS_USER} that opens with the line \`## r${round} investigator\`, and
+   anything) Append a full entry to ${NEEDS_USER} that opens with the line \`## launch ${LAUNCH_N} r${round} investigator\`, and
    set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
 ${WROTE_NOTE} ${FILE_WRITE_NOTE}
@@ -535,7 +535,7 @@ fail, with the evidence you checked. Then your rulings on the new ledger lines a
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.${det ? ` Then each correction you made to ${DETERMINATION} and each defect left in it.` : ''}
 Do NOT modify any repo, stage, or commit.
-If a criteria contradiction only the user can resolve surfaces, append it to ${NEEDS_USER}, opening the entry with the line \`## r${round} critic\`, and set
+If a criteria contradiction only the user can resolve surfaces, append it to ${NEEDS_USER}, opening the entry with the line \`## launch ${LAUNCH_N} r${round} critic\`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
 no_solution): judge that claim through agree, and set needs_user=true only for a contradiction the claim
 does not state.
@@ -608,6 +608,7 @@ if (PHASE === 'refine') {
 // Only the run phase writes files, so only it takes a launch folder: a relaunch that runs a halted round
 // again writes that round's review beside, never over, the review an earlier launch wrote.
 const LAUNCH_DIR  = launchDirOf(A.launchDir, STATE_DIR);
+const LAUNCH_N    = Number(LAUNCH_DIR.slice(LAUNCH_DIR.lastIndexOf('-') + 1));   // names the launch in each NEEDS-USER.md heading
 const DETERMINATION = `${LAUNCH_DIR}/DETERMINATION.md`;     // the cross-option comparison + coverage evidence
 const reviewFile  = (r) => `${LAUNCH_DIR}/acceptance-review-r${r}.md`;
 const NEW_LAUNCH_DIR = `a newly reserved launchDir in place of ${LAUNCH_DIR}`;
@@ -762,14 +763,14 @@ while (round < LAST_ROUND) {
   if (inv.needs_user === true) {
     haltKind = 'needs-user';
     escalatedBy = 'investigator';
-    entryHeadings = `"## r${round} investigator"${crit?.needs_user === true ? ` and "## r${round} critic"` : ''}`;
+    entryHeadings = `"## launch ${LAUNCH_N} r${round} investigator"${crit?.needs_user === true ? ` and "## launch ${LAUNCH_N} r${round} critic"` : ''}`;
     haltReason = `Investigator escalated a user-only call in round ${round} (see ${NEEDS_USER}).`;
     log(`  ✋ r${round}: investigator escalated → halting (see ${NEEDS_USER})`);
     break;
   }
   if (crit?.needs_user === true) {
     haltKind = 'needs-user';
-    entryHeadings = `"## r${round} critic"${invClaim === 'no_solution' ? ` and "## r${round} investigator"` : ''}`;
+    entryHeadings = `"## launch ${LAUNCH_N} r${round} critic"${invClaim === 'no_solution' ? ` and "## launch ${LAUNCH_N} r${round} investigator"` : ''}`;
     haltReason = `Critic surfaced a criteria contradiction only the user can resolve in round ${round} (see ${NEEDS_USER}).`;
     log(`  ✋ r${round}: critic escalated → halting (see ${NEEDS_USER})`);
     break;

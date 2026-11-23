@@ -859,7 +859,11 @@ the real index, and deletes that file once it prints the tree id. The real index
 baseline, is never written. After its answers the risk file holds a `## Sweep` section with one search for
 each function, constant, field, message or rule phrase the round changed that a line outside the round's
 hunks holds, and each hit marked `updated` or `unaffected` with a few words of reason. A name the round only
-adds needs no search, since acceptance reads every hit inside the hunks. The tool reruns each search and
+adds needs no search, since acceptance reads every hit inside the hunks. A round with no changed name that a
+line outside its hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the tool
+rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its
+added lines do not and that such a line holds. Every other changed name with such a line still takes a
+search the tool does not ask for. The tool reruns each search and
 names each hit the file leaves out. The developer passes the tool `--base`, the tree the round's diff starts
 from: the tree id STEP 0 printed in round 1, and in a later round the `risk_snapshot` the round before it
 returned, or the index's tree id the engine last recorded when that round returned none. The engine leaves
@@ -897,7 +901,9 @@ snapshot is already a missing file. It checks each answer in the risk file of ea
 blind review or last clean risk audit against that round's hunks. It also checks the sweep of the latest of
 those rounds. It runs `tools/risk-check.mjs` on that round's file with the tree id the round returned and
 `--base` by the developer's rule, and each error the tool prints is a gap. So is an `uncovered:` line for a
-name the round removed or renamed, and one for a name the round only stopped using is no gap. Each changed
+name the round removed or renamed, and one for a name the round only stopped using is no gap. A `## Sweep`
+heading with no search under it is no gap only when the tool prints no error for it and no name or phrase
+the round's hunks change has a line outside them that holds it. Each changed
 name or phrase in that round's hunks that a line outside them holds needs a line, and each hit marked
 `unaffected` must still agree with the change.
 Acceptance also searches each changed or removed rule phrase, message or name by the developer's search rule
@@ -1091,8 +1097,11 @@ the same launch left it. The state dir itself holds what carries across launches
 · `AMENDED-<id>.md` · `NEEDS-USER.md` (an ordered run's questions) · `question-<id>.md` (an unordered
 run's question for one block, which park copies into its entry) · `DECISIONS.md` · each set-aside patch ·
 `scratch/` (the agents' plan block copies, test logs and park's temporary index file, never in either
-`gate/`. It lasts as long as the run worktree, since the close that lands or drops the run moves it to the
-trash, §2 step 6). The blind reviewer's prompt names no run-state path outside the two `gate/` folders.
+`gate/`. Every block of the run writes there, so each agent starts the name of a scratch file it names itself
+with its block id and round, park starts it with `park-` and the block id, and the final sweep starts with
+`sweep-`. It lasts as long as the run
+worktree, since the close that lands or drops the run moves it to the trash, §2 step 6). The blind
+reviewer's prompt names no run-state path outside the two `gate/` folders.
 An audit of kind defects and the develop runs that fix its issue files share one state dir (§4, "Relaunch
 vs. new run"), so a develop launch numbers its folder past every `launch-<n>` folder there, whichever
 engine reserved it. Files that a develop engine from before launch folders left directly in the state dir

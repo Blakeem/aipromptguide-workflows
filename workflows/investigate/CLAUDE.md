@@ -479,7 +479,10 @@ inline.
   critic did not accept has that round's file on disk too, and the stalled `nextStep` names it as an
   unaccepted determination that is not to be relayed.
 - `NEEDS-USER.md` — escalations; on a verified no-solution, which criterion the user might relax. It is
-  cumulative across relaunches. Each entry opens with `## r<round> investigator` or `## r<round> critic`,
-  and a needs-user `nextStep` names the heading of the new entries. A critic halt on a `no_solution` round
-  names the investigator's heading as well, since that round's investigator wrote an entry too.
-  An investigator halt names the critic's heading as well when that round's critic also escalated.
+  cumulative across relaunches. Each entry opens with `## launch <n> r<round> investigator` or
+  `## launch <n> r<round> critic`, where `<n>` is the number of the launch folder, so a relaunch that
+  reruns a halted round heads its entries apart from the earlier launch's. Entries an earlier engine wrote
+  keep their `## r<round> <role>` headings. A needs-user `nextStep` names the heading of the new entries.
+  A critic halt on a `no_solution` round names the investigator's heading as well, since that round's
+  investigator wrote an entry too. An investigator halt names the critic's heading as well when that
+  round's critic also escalated.

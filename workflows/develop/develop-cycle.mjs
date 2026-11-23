@@ -846,7 +846,7 @@ ${CONVENTION_FILES_BLOCK}GATES (the commands that define "it works"):
   test:  ${GATES.test ?? '(none)'}${GATES.testSetup ? `\n  test setup: ${GATES.testSetup}` : ''}
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under ${STATE_DIR}/scratch/, never under ${GATE_DIRS}.
+Write every scratch file, such as a plan block or a test log, under ${STATE_DIR}/scratch/, never under ${GATE_DIRS}. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as \`<block id>-r<round>-<name>\`, with \`park-<block id>-\` when you park a block, or with \`sweep-\` when you are the final sweep.
 ${FILE_WRITE_NOTE}`;
 
 // A relaunch with the same runId finds the earlier launch's files in the stateDir, and the Write tool refuses to
@@ -1174,6 +1174,8 @@ const SCHEMA_PROSE_HITS = `each sentence in the repo's prose that lists that age
 const SWEEP_SEARCH = 'by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation';
 // Acceptance reads every hit inside the round's own hunks, so only a hit outside them needs a sweep line.
 const SWEEP_NEED = "when a line outside the round's hunks holds it, so a name the round only adds needs none";
+// The risk tool judges an empty sweep by the names its diff finds, so it cannot see a name changed in place.
+const SWEEP_EMPTY = `A round with no changed name that a line outside the round's hunks holds leaves the \`${SWEEP_HEADING}\` heading with no search under it. With \`--base\` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.`;
 // The risk tool finds by diff only the names a round dropped, so every other changed name still takes the agent's own search.
 const UNCOVERED_RULE = `The risk tool prints an \`uncovered:\` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope \`.\`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for.`;
 const CHANGED_PATH = "a path that changed after its round's snapshot";
@@ -1292,6 +1294,7 @@ ${snapshotCommands(snapshotIndex(id, round))}
    constant, field, message or rule phrase this round changed, ${SWEEP_NEED}. ${UNCOVERED_RULE} Search a changed or removed rule phrase, message or name ${SWEEP_SEARCH}. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds ${SCHEMA_PROSE_HITS}.
+   ${SWEEP_EMPTY}
    Return review_needed=false only when the command's last line reads \`low risk: yes\`, and true otherwise.
 ${RISK_QUESTIONS}`;
 const PATTERN_STEP = `PATTERNS: before you write code, find how the repo already does the same kind of thing, such
@@ -1801,7 +1804,7 @@ const sweepCheck = (id, riskRounds, riskSnapshots, indexTree) => {
    format and its ${SNAPSHOT_LINE} line, and reruns each search of its \`${SWEEP_HEADING}\` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts \`error:\` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there ${SWEEP_NEED}. ${UNCOVERED_RULE} An \`uncovered:\` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name ${SWEEP_SEARCH}, whatever its line names. Read against the change each hit marked \`unaffected\`, each hit the
-   tool prints as \`left out:\` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked \`unaffected\` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists ${SCHEMA_PROSE_HITS}, and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.`;
+   tool prints as \`left out:\` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked \`unaffected\` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists ${SCHEMA_PROSE_HITS}, and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here. A \`${SWEEP_HEADING}\` heading with no search under it is no gap only when the tool prints no \`error:\` line for it and no name or phrase the round's hunks change has a line outside them that holds it.`;
 };
 const misclassifiedEffect = (round) => (round === CLOSING_ROUND
   ? 'makes it a blocking gap, since no round follows to send to a blind review'

@@ -7,20 +7,20 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | criteria-critic | 1 | 1 | 1900 | refine the criteria |
-| investigate | 1 | 1 | 8463 | exhaustion agreed |
-| critique | 1 | 1 | 7867 | exhaustion agreed |
-| critique | 2 | 1 | 7880 | no solution verified |
-| investigate | 2 | 1 | 9580 | exhaustion contested |
-| investigate | 3 | 1 | 9945 | exhaustion contested |
-| critique | 3 | 1 | 8175 | saturation agreed |
-| critique | 4 | 1 | 5967 | stalled |
-| investigate | 4 | 1 | 10324 | resumed quiet first round |
-| critique | 5 | 1 | 6207 | resumed quiet first round |
-| investigate | 5 | 1 | 9349 | quiet rounds |
-| investigate | 6 | 1 | 9714 | quiet rounds |
-| critique | 6 | 1 | 7299 | quiet rounds |
-| critique | 7 | 1 | 8107 | resumed search |
-| critique | 8 | 1 | 5954 | investigator escalates |
+| investigate | 1 | 1 | 8481 | exhaustion agreed |
+| critique | 1 | 1 | 7876 | exhaustion agreed |
+| critique | 2 | 1 | 7889 | no solution verified |
+| investigate | 2 | 1 | 9598 | exhaustion contested |
+| investigate | 3 | 1 | 9963 | exhaustion contested |
+| critique | 3 | 1 | 8184 | saturation agreed |
+| critique | 4 | 1 | 5976 | stalled |
+| investigate | 4 | 1 | 10342 | resumed quiet first round |
+| critique | 5 | 1 | 6216 | resumed quiet first round |
+| investigate | 5 | 1 | 9367 | quiet rounds |
+| investigate | 6 | 1 | 9732 | quiet rounds |
+| critique | 6 | 1 | 7308 | quiet rounds |
+| critique | 7 | 1 | 8116 | resumed search |
+| critique | 8 | 1 | 5963 | investigator escalates |
 
 ## criteria-critic · variant 1 · schema 1
 
@@ -226,10 +226,10 @@ PROCEDURE:
      the premise or the criteria that would open search space this run could not reach. Omit the section
      only on an evidenced exhaustion.
    For no_solution ALSO: why nothing qualifies, and the SINGLE criterion the user could relax to change
-   that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## r1 investigator`. That entry is
+   that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## launch 1 r1 investigator`. That entry is
    informational: needs_user stays false, because the critic verifies the no_solution claim itself.
 11. (when a criteria contradiction, or a call only the user can make, blocks you before you can claim
-   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r1 investigator`, and
+   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## launch 1 r1 investigator`, and
    set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
@@ -382,7 +382,7 @@ fail, with the evidence you checked. Then your rulings on the new ledger lines a
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
-If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r1 critic`, and set
+If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## launch 1 r1 critic`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
 no_solution): judge that claim through agree, and set needs_user=true only for a contradiction the claim
 does not state.
@@ -530,7 +530,7 @@ fail, with the evidence you checked. Then your rulings on the new ledger lines a
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
-If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r1 critic`, and set
+If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## launch 1 r1 critic`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
 no_solution): judge that claim through agree, and set needs_user=true only for a contradiction the claim
 does not state.
@@ -699,10 +699,10 @@ PROCEDURE:
      the premise or the criteria that would open search space this run could not reach. Omit the section
      only on an evidenced exhaustion.
    For no_solution ALSO: why nothing qualifies, and the SINGLE criterion the user could relax to change
-   that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## r2 investigator`. That entry is
+   that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## launch 1 r2 investigator`. That entry is
    informational: needs_user stays false, because the critic verifies the no_solution claim itself.
 11. (when a criteria contradiction, or a call only the user can make, blocks you before you can claim
-   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r2 investigator`, and
+   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## launch 1 r2 investigator`, and
    set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
@@ -876,13 +876,13 @@ PROCEDURE:
      the premise or the criteria that would open search space this run could not reach. Omit the section
      only on an evidenced exhaustion.
    For no_solution ALSO: why nothing qualifies, and the SINGLE criterion the user could relax to change
-   that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## r5 investigator`. That entry is
+   that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## launch 1 r5 investigator`. That entry is
    informational: needs_user stays false, because the critic verifies the no_solution claim itself.
    If you are NOT claiming termination, OPEN the file stating the search is NOT exhaustive and this
    is a PARTIAL result. Say what stopped it (the round budget, or the escalation you are about to write
    to E:/flow/runs/flow/NEEDS-USER.md), never that nothing more is there.
 11. (when a criteria contradiction, or a call only the user can make, blocks you before you can claim
-   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r5 investigator`, and
+   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## launch 1 r5 investigator`, and
    set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
@@ -1038,7 +1038,7 @@ fail, with the evidence you checked. Then your rulings on the new ledger lines a
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
-If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r1 critic`, and set
+If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## launch 1 r1 critic`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
 no_solution): judge that claim through agree, and set needs_user=true only for a contradiction the claim
 does not state.
@@ -1168,7 +1168,7 @@ fail, with the evidence you checked. Then your rulings on the new ledger lines a
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.
 Do NOT modify any repo, stage, or commit.
-If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r1 critic`, and set
+If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## launch 1 r1 critic`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
 no_solution): judge that claim through agree, and set needs_user=true only for a contradiction the claim
 does not state.
@@ -1345,10 +1345,10 @@ PROCEDURE:
      the premise or the criteria that would open search space this run could not reach. Omit the section
      only on an evidenced exhaustion.
    For no_solution ALSO: why nothing qualifies, and the SINGLE criterion the user could relax to change
-   that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## r3 investigator`. That entry is
+   that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## launch 1 r3 investigator`. That entry is
    informational: needs_user stays false, because the critic verifies the no_solution claim itself.
 11. (when a criteria contradiction, or a call only the user can make, blocks you before you can claim
-   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r3 investigator`, and
+   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## launch 1 r3 investigator`, and
    set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
@@ -1485,7 +1485,7 @@ fail, with the evidence you checked. Then your rulings on the new ledger lines a
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.
 Do NOT modify any repo, stage, or commit.
-If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r3 critic`, and set
+If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## launch 1 r3 critic`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
 no_solution): judge that claim through agree, and set needs_user=true only for a contradiction the claim
 does not state.
@@ -1652,10 +1652,10 @@ PROCEDURE:
      the premise or the criteria that would open search space this run could not reach. Omit the section
      only on an evidenced exhaustion.
    For no_solution ALSO: why nothing qualifies, and the SINGLE criterion the user could relax to change
-   that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## r3 investigator`. That entry is
+   that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## launch 1 r3 investigator`. That entry is
    informational: needs_user stays false, because the critic verifies the no_solution claim itself.
 11. (when a criteria contradiction, or a call only the user can make, blocks you before you can claim
-   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r3 investigator`, and
+   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## launch 1 r3 investigator`, and
    set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
@@ -1827,13 +1827,13 @@ PROCEDURE:
      the premise or the criteria that would open search space this run could not reach. Omit the section
      only on an evidenced exhaustion.
    For no_solution ALSO: why nothing qualifies, and the SINGLE criterion the user could relax to change
-   that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## r5 investigator`. That entry is
+   that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well, opening the entry with the line `## launch 1 r5 investigator`. That entry is
    informational: needs_user stays false, because the critic verifies the no_solution claim itself.
    If you are NOT claiming termination, OPEN the file stating the search is NOT exhaustive and this
    is a PARTIAL result. Say what stopped it (the round budget, or the escalation you are about to write
    to E:/flow/runs/flow/NEEDS-USER.md), never that nothing more is there.
 11. (when a criteria contradiction, or a call only the user can make, blocks you before you can claim
-   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## r5 investigator`, and
+   anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## launch 1 r5 investigator`, and
    set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
 A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
@@ -1980,7 +1980,7 @@ fail, with the evidence you checked. Then your rulings on the new ledger lines a
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
-If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r5 critic`, and set
+If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## launch 1 r5 critic`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
 no_solution): judge that claim through agree, and set needs_user=true only for a contradiction the claim
 does not state.
@@ -2130,7 +2130,7 @@ fail, with the evidence you checked. Then your rulings on the new ledger lines a
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
 Do NOT modify any repo, stage, or commit.
-If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r3 critic`, and set
+If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## launch 1 r3 critic`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
 no_solution): judge that claim through agree, and set needs_user=true only for a contradiction the claim
 does not state.
@@ -2260,7 +2260,7 @@ fail, with the evidence you checked. Then your rulings on the new ledger lines a
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.
 Do NOT modify any repo, stage, or commit.
-If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## r1 critic`, and set
+If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md, opening the entry with the line `## launch 1 r1 critic`, and set
 needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
 no_solution): judge that claim through agree, and set needs_user=true only for a contradiction the claim
 does not state.

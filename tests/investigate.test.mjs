@@ -397,12 +397,12 @@ section('each escalation heads its NEEDS-USER entry with its round and role, and
     'critique': CRIT,
   }, { ...baseArgs, maxRounds: 3 });
   const [i1, i2] = byLabel('investigate').map((c) => flat(c.prompt));
-  ok(/Append a full entry to \S+NEEDS-USER\.md that opens with the line `## r1 investigator`, and set needs_user=true\./.test(i1)
-    && i2.includes('that opens with the line `## r2 investigator`, and set needs_user=true.'),
+  ok(/Append a full entry to \S+NEEDS-USER\.md that opens with the line `## launch 1 r1 investigator`, and set needs_user=true\./.test(i1)
+    && i2.includes('that opens with the line `## launch 1 r2 investigator`, and set needs_user=true.'),
     'each investigator round heads its escalation with its own round');
-  ok(i1.includes('as well, opening the entry with the line `## r1 investigator`. That entry is informational'),
+  ok(i1.includes('as well, opening the entry with the line `## launch 1 r1 investigator`. That entry is informational'),
     'and heads the informational no_solution entry the same way');
-  ok(/Read the new entries headed "## r2 investigator" at the end of \S+NEEDS-USER\.md/.test(byInv.nextStep),
+  ok(/Read the new entries headed "## launch 1 r2 investigator" at the end of \S+NEEDS-USER\.md/.test(byInv.nextStep),
     `the investigator halt names the round and role of the new entries: ${byInv.nextStep.slice(0, 200)}`);
 
   const { out: byCrit, byLabel: critLabels } = await run({
@@ -410,25 +410,35 @@ section('each escalation heads its NEEDS-USER entry with its round and role, and
     'critique': (label) => (/r2$/.test(label) ? { ...CRIT, needs_user: true } : CRIT),
   }, { ...baseArgs, maxRounds: 3 });
   const [c1, c2] = critLabels('critique').map((c) => flat(c.prompt));
-  ok(/append it to \S+NEEDS-USER\.md, opening the entry with the line `## r1 critic`, and set needs_user=true\./.test(c1)
-    && c2.includes('opening the entry with the line `## r2 critic`, and set needs_user=true.'),
+  ok(/append it to \S+NEEDS-USER\.md, opening the entry with the line `## launch 1 r1 critic`, and set needs_user=true\./.test(c1)
+    && c2.includes('opening the entry with the line `## launch 1 r2 critic`, and set needs_user=true.'),
     'each critic round heads its escalation with its own round');
-  ok(/Read the new entries headed "## r2 critic" at the end of \S+NEEDS-USER\.md/.test(byCrit.nextStep),
+  ok(/Read the new entries headed "## launch 1 r2 critic" at the end of \S+NEEDS-USER\.md/.test(byCrit.nextStep),
     `the critic halt names the round and role of the new entries: ${byCrit.nextStep.slice(0, 200)}`);
 
   const { out: byCritNoSol } = await run({
     'investigate': { ...INV, claim: 'no_solution' },
     'critique': { ...CRIT, needs_user: true },
   }, { ...baseArgs, maxRounds: 3 });
-  ok(/Read the new entries headed "## r1 critic" and "## r1 investigator" at the end of \S+NEEDS-USER\.md/.test(byCritNoSol.nextStep),
+  ok(/Read the new entries headed "## launch 1 r1 critic" and "## launch 1 r1 investigator" at the end of \S+NEEDS-USER\.md/.test(byCritNoSol.nextStep),
     `a critic halt on a no_solution round also names the investigator's informational entry: ${byCritNoSol.nextStep.slice(0, 200)}`);
 
   const { out: byBoth } = await run({
     'investigate': { ...INV, needs_user: true },
     'critique': { ...CRIT, needs_user: true },
   }, { ...baseArgs, maxRounds: 3 });
-  ok(/Read the new entries headed "## r1 investigator" and "## r1 critic" at the end of \S+NEEDS-USER\.md/.test(byBoth.nextStep),
+  ok(/Read the new entries headed "## launch 1 r1 investigator" and "## launch 1 r1 critic" at the end of \S+NEEDS-USER\.md/.test(byBoth.nextStep),
     `an investigator halt also names the critic's entry when the round's critic escalated too: ${byBoth.nextStep.slice(0, 200)}`);
+
+  // A relaunch that reruns a halted round appends under the same round and role, so only the launch number tells the entries apart.
+  const { out: relaunched, byLabel: relaunchedLabels } = await run({
+    'investigate': { ...INV, needs_user: true },
+    'critique': CRIT,
+  }, { ...baseArgs, launchDir: 'E:/r/runs/t/launch-3', maxRounds: 3 });
+  ok(flat(relaunchedLabels('investigate')[0].prompt).includes('that opens with the line `## launch 3 r1 investigator`, and set needs_user=true.'),
+    'a launch-3 investigator heads its escalation with launch 3');
+  ok(/Read the new entries headed "## launch 3 r1 investigator" at the end of \S+NEEDS-USER\.md/.test(relaunched.nextStep),
+    `and its halt names launch 3: ${relaunched.nextStep.slice(0, 200)}`);
 }
 
 section('a resumed run\'s first round re-judges every verdict and ledger line against the criteria as they read now');

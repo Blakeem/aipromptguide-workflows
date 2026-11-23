@@ -6,7 +6,8 @@
 // A missing file exits 1 with the format and a skeleton printed, and the tool writes no file. A written one is
 // checked: its format, its Snapshot line against --snapshot, and each sweep search, rerun in the repo's working
 // tree in its plain and source-escaped forms. With --base, a file with no format error and a change section also
-// gets an `uncovered:` line for each changed name that no search covers. Exit 0 prints `ok: <file>`, 1 lists each
+// gets an `uncovered:` line for each changed name that no search covers, and a `## Sweep` heading with no search
+// passes when no changed name has a reader outside the round's hunks. Exit 0 prints `ok: <file>`, 1 lists each
 // problem and, after a format or Snapshot error, the format, and 2 is a usage or git error. Both 0 and 1 end
 // `low risk: yes|no` once every answer parses. tools/CLAUDE.md holds the contract. FORMAT below holds the file
 // format.
@@ -64,7 +65,9 @@ export const FORMAT = `A risk file holds, in this order:
       source string escapes it. The scope names repo paths, \`.\` for the entire repo. Each hit the search
       finds takes one line, marked updated or unaffected with its reason. A search that finds no hit holds
       its search: and scope: lines and no hit line. The <n> hits form covers every hit in one generated
-      file the gate checks.
+      file the gate checks. A round whose changed names have no reader outside its hunks may leave the
+      ${SWEEP_HEADING} heading with no block. With --base the tool accepts that unless the round removed a name
+      shaped like a code name that a line outside its hunks holds, and it cannot see any other changed name.
 A round that changed nothing holds the ${SNAPSHOT_LINE} line and the line \`${NO_CHANGES}\` alone.`;
 
 const USAGE = `usage: node tools/risk-check.mjs <risk file> --repo <repo> --snapshot <tree id> [--base <tree id>]
@@ -74,7 +77,8 @@ const USAGE = `usage: node tools/risk-check.mjs <risk file> --repo <repo> --snap
   With --base, the round's diff runs from --base to --snapshot, and each name shaped like a code name, such as
   PLUGIN_ROOT or installedSiblings, that its removed lines hold and its added lines do not, that a line of the
   --snapshot tree holds and that no search with that literal finds at each such line prints as an "uncovered:"
-  line. An "uncovered:" line is no problem and changes no exit code.
+  line. An "uncovered:" line is no problem and changes no exit code. Also with --base, a "## Sweep" heading with no
+  search passes when the round's diff holds no such name with a reader. The tool sees no other changed name.
 
 ${FORMAT}`;
 
@@ -119,7 +123,8 @@ function answerVerdict(value) {
 
 /**
  * The file's parts and each format error, by line. `changes` holds each change section's answers, `searches`
- * each sweep block, and `lowRisk` is null when an answer does not parse.
+ * each sweep block, `emptySweepLine` the line of a `## Sweep` heading with no search under it (0 when none), which
+ * only checkText can judge since it needs the round's readers, and `lowRisk` is null when an answer does not parse.
  */
 export function parseRiskFile(text) {
   // Input
@@ -170,7 +175,6 @@ export function parseRiskFile(text) {
     if (missing.length) errors.push(`the change section on line ${change.line} has no answer line for ${missing.join(', ')}`);
   }
   if (changes.length && !sweepLine) errors.push(`the file holds no \`${SWEEP_HEADING}\` section`);
-  if (sweepLine && !searches.length) errors.push(`the \`${SWEEP_HEADING}\` section on line ${sweepLine} holds no \`search:\` line`);
   for (const s of searches) {
     if (!s.scope) errors.push(`the search on line ${s.line} has no \`scope:\` line`);
   }
@@ -180,6 +184,7 @@ export function parseRiskFile(text) {
   // Output
   return {
     snapshot, errors, changes, searches,
+    emptySweepLine: sweepLine && !searches.length ? sweepLine : 0,
     lowRisk: noChangesLine && !changes.length ? true : parsed && changes.length ? verdicts.every((v) => v === false) : null,
   };
 }
@@ -334,12 +339,17 @@ export function checkText(text, { file, snapshot, found, scopeMatches, top, roun
   if (parsed.snapshot && parsed.snapshot !== snapshot) {
     errors.unshift(`line 1 holds the snapshot ${parsed.snapshot}, not ${snapshot}. A file an interrupted attempt of this launch left, or one written before the round's last change, is replaced in full`);
   }
+  const checksNames = roundReaders !== null && !parsed.errors.length && parsed.changes.length > 0;
+  const readers = checksNames ? roundReaders() : null;
+  // A sweep with no search is right only when the round changed no name that a line outside its hunks holds.
+  if (parsed.emptySweepLine && readers?.size !== 0) {
+    errors.push(`the \`${SWEEP_HEADING}\` section on line ${parsed.emptySweepLine} holds no \`search:\` line. A sweep with no search passes only with --base, when no changed name of the round has a reader outside its hunks`);
+  }
   const sweep = sweepProblems(parsed.searches, { found: foundOnce, scopeMatches, top });
   const errorLines = [...errors, ...sweep.errors].map((e) => `error: ${e}`);
   const problemCount = errorLines.length + sweep.leftOut.length;
   const problemLines = [...errorLines, ...sweep.leftOut.flat()];
-  const checksNames = roundReaders !== null && !parsed.errors.length && parsed.changes.length > 0;
-  const uncovered = checksNames ? uncoveredLines(roundReaders(), parsed.searches, foundOnce) : [];
+  const uncovered = readers ? uncoveredLines(readers, parsed.searches, foundOnce) : [];
 
   // Output
   // A file with a format error or another attempt's snapshot is rewritten, and only the run on a missing file showed the format.

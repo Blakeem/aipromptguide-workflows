@@ -283,7 +283,10 @@ word fall outside. A reader is a line of the `--snapshot` tree that holds the na
 covers a name when its text is the name and its rerun finds each reader. Each changed name with a reader and
 no covering search prints as `uncovered: <name> is held outside the round's hunks by <path>:<line> and <n>
 other line(s), ...` before the low-risk line. An `uncovered:` line is no problem, so it changes neither the
-exit code nor the `ok:` line, and the prompts say how an agent judges it. A usage error, a `--snapshot` or
+exit code nor the `ok:` line, and the prompts say how an agent judges it. A `## Sweep` heading with no search
+block is a problem, except with `--base` when the round's diff holds no removed name with a reader. The tool
+checks only the names its diff finds, so a changed message or a name changed in place still needs the
+developer's own search. A usage error, a `--snapshot` or
 `--base` the repo holds no tree for, a `--repo` outside git and a failed git call exit 2 on stderr and write
 nothing. A test compares `RISK_KEYS` with the question names develop's `RISK_QUESTIONS`
 renders, and `SNAPSHOT_LINE`, `SWEEP_HEADING` and `NO_CHANGES` with develop's own copies. The prompts keep the

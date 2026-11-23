@@ -6,101 +6,101 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 34334 | every block accepts first time |
+| develop | 1 | 1 | 35001 | every block accepts first time |
 | quality | 1 | 1 | 8633 | every block accepts first time |
-| acceptance | 1 | 1 | 14050 | every block accepts first time |
-| develop | 2 | 1 | 34759 | every block accepts first time |
-| acceptance | 2 | 2 | 14331 | every block accepts first time |
-| final-sweep | 1 | 1 | 5231 | every block accepts first time |
-| develop | 3 | 2 | 37927 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 3 | 15551 | a feature block accepts under the proactive policy |
-| final-sweep | 2 | 1 | 5222 | a feature block accepts under the proactive policy |
-| develop | 4 | 3 | 32591 | quality flags the first round |
-| acceptance | 4 | 1 | 14058 | quality flags the first round |
-| develop | 5 | 3 | 32961 | quality flags the first round |
-| acceptance | 5 | 2 | 14339 | quality flags the first round |
-| develop | 6 | 3 | 32587 | acceptance finds gaps, then passes |
-| acceptance | 6 | 1 | 14056 | acceptance finds gaps, then passes |
-| develop | 7 | 3 | 32957 | acceptance finds gaps, then passes |
-| acceptance | 7 | 2 | 14337 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 18917 | a later round is judged low risk |
-| acceptance | 9 | 2 | 19198 | a later round is judged low risk |
+| acceptance | 1 | 1 | 14317 | every block accepts first time |
+| develop | 2 | 1 | 35426 | every block accepts first time |
+| acceptance | 2 | 2 | 14598 | every block accepts first time |
+| final-sweep | 1 | 1 | 5498 | every block accepts first time |
+| develop | 3 | 2 | 38594 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 3 | 15818 | a feature block accepts under the proactive policy |
+| final-sweep | 2 | 1 | 5489 | a feature block accepts under the proactive policy |
+| develop | 4 | 3 | 33258 | quality flags the first round |
+| acceptance | 4 | 1 | 14325 | quality flags the first round |
+| develop | 5 | 3 | 33628 | quality flags the first round |
+| acceptance | 5 | 2 | 14606 | quality flags the first round |
+| develop | 6 | 3 | 33254 | acceptance finds gaps, then passes |
+| acceptance | 6 | 1 | 14323 | acceptance finds gaps, then passes |
+| develop | 7 | 3 | 33624 | acceptance finds gaps, then passes |
+| acceptance | 7 | 2 | 14604 | acceptance finds gaps, then passes |
+| acceptance | 8 | 1 | 19375 | a later round is judged low risk |
+| acceptance | 9 | 2 | 19656 | a later round is judged low risk |
 | quality | 2 | 1 | 9580 | the developer declines a finding |
-| acceptance | 10 | 1 | 15918 | the developer declines a finding |
-| develop | 8 | 3 | 31395 | the gate never goes green |
-| develop-closing | 1 | 1 | 33017 | the gate never goes green |
+| acceptance | 10 | 1 | 16185 | the developer declines a finding |
+| develop | 8 | 3 | 32062 | the gate never goes green |
+| develop-closing | 1 | 1 | 33684 | the gate never goes green |
 | quality | 3 | 1 | 8693 | the gate never goes green |
-| acceptance | 11 | 4 | 17329 | the gate never goes green |
-| park | 1 | 1 | 10617 | the gate never goes green |
-| develop | 9 | 3 | 31820 | the gate never goes green |
-| develop-closing | 2 | 1 | 33387 | the gate never goes green |
-| acceptance | 12 | 5 | 17610 | the gate never goes green |
-| acceptance | 13 | 1 | 14120 | a parked block, and the run carries on |
-| acceptance | 14 | 1 | 14184 | a parked block, and the run carries on |
-| acceptance | 15 | 1 | 14248 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 34044 | a parked block, and the run carries on |
-| acceptance | 16 | 4 | 22450 | a parked block, and the run carries on |
-| develop | 10 | 1 | 34316 | an ordered run stops at a parked block |
-| acceptance | 17 | 1 | 14044 | an ordered run stops at a parked block |
-| develop | 11 | 3 | 32569 | an ordered run stops at a parked block |
-| acceptance | 18 | 1 | 14050 | an ordered run stops at a parked block |
-| acceptance | 19 | 1 | 14114 | an ordered run stops at a parked block |
-| acceptance | 20 | 1 | 14178 | an ordered run stops at a parked block |
-| acceptance | 21 | 1 | 14242 | an ordered run stops at a parked block |
-| develop-closing | 4 | 1 | 34026 | an ordered run stops at a parked block |
-| acceptance | 22 | 4 | 22444 | an ordered run stops at a parked block |
-| park | 2 | 1 | 10629 | an ordered run stops at a parked block |
-| develop | 12 | 4 | 43702 | a fix block closes its issues |
-| acceptance | 23 | 6 | 22662 | a fix block closes its issues |
-| final-sweep | 3 | 1 | 5222 | a fix block closes its issues |
-| develop | 13 | 5 | 47194 | a fix block closes its issues under the proactive policy |
-| acceptance | 24 | 7 | 24187 | a fix block closes its issues under the proactive policy |
-| develop | 14 | 4 | 37524 | a fix block that continues no park closes its issues |
-| acceptance | 25 | 6 | 19718 | a fix block that continues no park closes its issues |
-| develop | 15 | 5 | 43857 | a proactive fix block that continues no park closes its issues and a pulled entry |
-| acceptance | 26 | 7 | 23262 | a proactive fix block that continues no park closes its issues and a pulled entry |
-| acceptance | 27 | 7 | 20002 | a proactive fix block that continues no park and pulled nothing closes its issues |
-| acceptance | 28 | 7 | 24201 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 16 | 6 | 37430 | a proactive fix block starts round 2 from the statuses it last reported |
-| acceptance | 29 | 7 | 24009 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 17 | 4 | 44091 | a pass of two fix blocks closes its issues |
-| acceptance | 30 | 6 | 22947 | a pass of two fix blocks closes its issues |
-| final-sweep | 4 | 1 | 5252 | a pass of two fix blocks closes its issues |
-| acceptance | 31 | 6 | 22661 | every issue is already fixed |
-| develop | 18 | 4 | 43684 | an ordered run stops on a fix block that closes nothing |
-| park | 3 | 1 | 10941 | passed with a regression, not staged |
-| park | 4 | 1 | 10378 | acceptance stages a rejected block |
-| park | 5 | 1 | 10785 | the quality reviewer fails a block without its file |
-| park | 6 | 1 | 10785 | acceptance fails a block without its file |
-| park | 7 | 1 | 10714 | the developer staged its own work |
-| park | 8 | 1 | 10784 | the index changed outside acceptance |
-| park | 9 | 1 | 11081 | developer never got its block |
-| park | 10 | 1 | 10352 | acceptance never got its block |
-| park | 11 | 1 | 10954 | the developer dies |
-| park | 12 | 1 | 10334 | the quality reviewer dies |
-| park | 13 | 1 | 10712 | the acceptance verifier dies |
-| park | 14 | 1 | 10476 | developer escalates |
-| park | 15 | 1 | 10466 | developer escalates in an ordered run |
-| acceptance | 32 | 6 | 25115 | log line cap before the sweep |
-| acceptance | 33 | 4 | 22194 | a closing acceptance lands the block |
-| develop-closing | 5 | 1 | 34414 | a closing acceptance lands the block |
-| acceptance | 34 | 5 | 22475 | a closing acceptance lands the block |
-| acceptance | 35 | 4 | 17401 | a closing pass gets a blind review |
-| acceptance | 36 | 5 | 17682 | a closing pass gets a blind review |
-| acceptance | 37 | 4 | 22487 | a closing acceptance finds a blocking gap |
-| park | 16 | 1 | 10767 | a closing acceptance finds a blocking gap |
-| acceptance | 38 | 5 | 22768 | a closing acceptance finds a blocking gap |
-| park | 17 | 1 | 10767 | a closing acceptance finds a blocking gap |
-| develop | 19 | 7 | 34505 | every block commits first time |
+| acceptance | 11 | 4 | 17596 | the gate never goes green |
+| park | 1 | 1 | 10884 | the gate never goes green |
+| develop | 9 | 3 | 32487 | the gate never goes green |
+| develop-closing | 2 | 1 | 34054 | the gate never goes green |
+| acceptance | 12 | 5 | 17877 | the gate never goes green |
+| acceptance | 13 | 1 | 14387 | a parked block, and the run carries on |
+| acceptance | 14 | 1 | 14451 | a parked block, and the run carries on |
+| acceptance | 15 | 1 | 14515 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 34711 | a parked block, and the run carries on |
+| acceptance | 16 | 4 | 22908 | a parked block, and the run carries on |
+| develop | 10 | 1 | 34983 | an ordered run stops at a parked block |
+| acceptance | 17 | 1 | 14311 | an ordered run stops at a parked block |
+| develop | 11 | 3 | 33236 | an ordered run stops at a parked block |
+| acceptance | 18 | 1 | 14317 | an ordered run stops at a parked block |
+| acceptance | 19 | 1 | 14381 | an ordered run stops at a parked block |
+| acceptance | 20 | 1 | 14445 | an ordered run stops at a parked block |
+| acceptance | 21 | 1 | 14509 | an ordered run stops at a parked block |
+| develop-closing | 4 | 1 | 34693 | an ordered run stops at a parked block |
+| acceptance | 22 | 4 | 22902 | an ordered run stops at a parked block |
+| park | 2 | 1 | 10896 | an ordered run stops at a parked block |
+| develop | 12 | 4 | 44369 | a fix block closes its issues |
+| acceptance | 23 | 6 | 22929 | a fix block closes its issues |
+| final-sweep | 3 | 1 | 5489 | a fix block closes its issues |
+| develop | 13 | 5 | 47861 | a fix block closes its issues under the proactive policy |
+| acceptance | 24 | 7 | 24454 | a fix block closes its issues under the proactive policy |
+| develop | 14 | 4 | 38191 | a fix block that continues no park closes its issues |
+| acceptance | 25 | 6 | 19985 | a fix block that continues no park closes its issues |
+| develop | 15 | 5 | 44524 | a proactive fix block that continues no park closes its issues and a pulled entry |
+| acceptance | 26 | 7 | 23529 | a proactive fix block that continues no park closes its issues and a pulled entry |
+| acceptance | 27 | 7 | 20269 | a proactive fix block that continues no park and pulled nothing closes its issues |
+| acceptance | 28 | 7 | 24468 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 16 | 6 | 38097 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 29 | 7 | 24276 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 17 | 4 | 44758 | a pass of two fix blocks closes its issues |
+| acceptance | 30 | 6 | 23214 | a pass of two fix blocks closes its issues |
+| final-sweep | 4 | 1 | 5519 | a pass of two fix blocks closes its issues |
+| acceptance | 31 | 6 | 22928 | every issue is already fixed |
+| develop | 18 | 4 | 44351 | an ordered run stops on a fix block that closes nothing |
+| park | 3 | 1 | 11208 | passed with a regression, not staged |
+| park | 4 | 1 | 10645 | acceptance stages a rejected block |
+| park | 5 | 1 | 11052 | the quality reviewer fails a block without its file |
+| park | 6 | 1 | 11052 | acceptance fails a block without its file |
+| park | 7 | 1 | 10981 | the developer staged its own work |
+| park | 8 | 1 | 11051 | the index changed outside acceptance |
+| park | 9 | 1 | 11348 | developer never got its block |
+| park | 10 | 1 | 10619 | acceptance never got its block |
+| park | 11 | 1 | 11221 | the developer dies |
+| park | 12 | 1 | 10601 | the quality reviewer dies |
+| park | 13 | 1 | 10979 | the acceptance verifier dies |
+| park | 14 | 1 | 10743 | developer escalates |
+| park | 15 | 1 | 10733 | developer escalates in an ordered run |
+| acceptance | 32 | 6 | 25382 | log line cap before the sweep |
+| acceptance | 33 | 4 | 22652 | a closing acceptance lands the block |
+| develop-closing | 5 | 1 | 35081 | a closing acceptance lands the block |
+| acceptance | 34 | 5 | 22933 | a closing acceptance lands the block |
+| acceptance | 35 | 4 | 17668 | a closing pass gets a blind review |
+| acceptance | 36 | 5 | 17949 | a closing pass gets a blind review |
+| acceptance | 37 | 4 | 22945 | a closing acceptance finds a blocking gap |
+| park | 16 | 1 | 11034 | a closing acceptance finds a blocking gap |
+| acceptance | 38 | 5 | 23226 | a closing acceptance finds a blocking gap |
+| park | 17 | 1 | 11034 | a closing acceptance finds a blocking gap |
+| develop | 19 | 7 | 35172 | every block commits first time |
 | quality | 4 | 1 | 8586 | every block commits first time |
-| acceptance | 39 | 8 | 15683 | every block commits first time |
-| develop | 20 | 7 | 34930 | every block commits first time |
-| acceptance | 40 | 9 | 15964 | every block commits first time |
-| final-sweep | 5 | 1 | 5543 | every block commits first time |
-| develop | 21 | 8 | 43904 | a fix block commits |
-| acceptance | 41 | 10 | 24512 | a fix block commits |
-| final-sweep | 6 | 1 | 5450 | a fix block commits |
-| park | 18 | 1 | 10384 | acceptance commits a rejected block |
+| acceptance | 39 | 8 | 15950 | every block commits first time |
+| develop | 20 | 7 | 35597 | every block commits first time |
+| acceptance | 40 | 9 | 16231 | every block commits first time |
+| final-sweep | 5 | 1 | 5810 | every block commits first time |
+| develop | 21 | 8 | 44571 | a fix block commits |
+| acceptance | 41 | 10 | 24779 | a fix block commits |
+| final-sweep | 6 | 1 | 5717 | a fix block commits |
+| park | 18 | 1 | 10651 | acceptance commits a rejected block |
 
 ## develop · variant 1 · schema 1
 
@@ -123,7 +123,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -281,6 +281,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -688,7 +689,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -893,7 +894,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
@@ -1055,6 +1056,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -1326,7 +1328,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -1532,7 +1534,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-a, block-b
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
@@ -1612,7 +1614,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -1796,6 +1798,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -2098,7 +2101,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -2338,7 +2341,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-a
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
@@ -2417,7 +2420,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -2548,6 +2551,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -2804,7 +2808,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -3009,7 +3013,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
@@ -3144,6 +3148,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -3400,7 +3405,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -3608,7 +3613,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -3739,6 +3744,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -3995,7 +4001,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -4200,7 +4206,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
@@ -4335,6 +4341,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -4591,7 +4598,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -4799,7 +4806,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -4897,7 +4904,7 @@ PROCEDURE:
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
-   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here. A `## Sweep` heading with no search under it is no gap only when the tool prints no `error:` line for it and no name or phrase the round's hunks change has a line outside them that holds it.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
@@ -5036,7 +5043,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -5137,7 +5144,7 @@ PROCEDURE:
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
-   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here. A `## Sweep` heading with no search under it is no gap only when the tool prints no `error:` line for it and no name or phrase the round's hunks change has a line outside them that holds it.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
@@ -5421,7 +5428,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -5645,7 +5652,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -5776,6 +5783,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -6032,7 +6040,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -6176,6 +6184,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -6578,7 +6587,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -6807,7 +6816,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -6936,7 +6945,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
@@ -7071,6 +7080,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -7327,7 +7337,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
@@ -7475,6 +7485,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -7741,7 +7752,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -7977,7 +7988,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -8183,7 +8194,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -8390,7 +8401,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -8598,7 +8609,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -8743,6 +8754,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -9009,7 +9021,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -9118,7 +9130,7 @@ PROCEDURE:
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
-   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here. A `## Sweep` heading with no search under it is no gap only when the tool prints no `error:` line for it and no name or phrase the round's hunks change has a line outside them that holds it.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
@@ -9278,7 +9290,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -9436,6 +9448,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -9707,7 +9720,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -9912,7 +9925,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -10043,6 +10056,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -10299,7 +10313,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -10504,7 +10518,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -10710,7 +10724,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -10917,7 +10931,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -11125,7 +11139,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -11270,6 +11284,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -11536,7 +11551,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -11645,7 +11660,7 @@ PROCEDURE:
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
-   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here. A `## Sweep` heading with no search under it is no gap only when the tool prints no `error:` line for it and no name or phrase the round's hunks change has a line outside them that holds it.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
@@ -11801,7 +11816,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -11932,7 +11947,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
@@ -12154,6 +12169,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -12463,7 +12479,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -12757,7 +12773,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-c
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
@@ -12838,7 +12854,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
@@ -13087,6 +13103,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -13427,7 +13444,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -13762,7 +13779,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
@@ -13935,6 +13952,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -14244,7 +14262,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -14519,7 +14537,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
@@ -14735,6 +14753,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -15075,7 +15094,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -15400,7 +15419,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -15697,7 +15716,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -16032,7 +16051,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
@@ -16192,6 +16211,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -16507,7 +16527,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -16843,7 +16863,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c-plus-1
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
@@ -17065,6 +17085,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -17378,7 +17399,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c-plus-1   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -17676,7 +17697,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-c-plus-1
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
@@ -17756,7 +17777,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -18054,7 +18075,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
@@ -18276,6 +18297,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -18580,7 +18602,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -18705,7 +18727,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -18830,7 +18852,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -18955,7 +18977,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19080,7 +19102,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19205,7 +19227,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19330,7 +19352,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19459,7 +19481,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19584,7 +19606,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19713,7 +19735,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19838,7 +19860,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -19963,7 +19985,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -20092,7 +20114,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -20226,7 +20248,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -20721,7 +20743,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -20826,7 +20848,7 @@ PROCEDURE:
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
-   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here. A `## Sweep` heading with no search under it is no gap only when the tool prints no `error:` line for it and no name or phrase the round's hunks change has a line outside them that holds it.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
@@ -20986,7 +21008,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
@@ -21135,6 +21157,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -21401,7 +21424,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -21509,7 +21532,7 @@ PROCEDURE:
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
-   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here. A `## Sweep` heading with no search under it is no gap only when the tool prints no `error:` line for it and no name or phrase the round's hunks change has a line outside them that holds it.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
@@ -21670,7 +21693,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -21905,7 +21928,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -22143,7 +22166,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -22252,7 +22275,7 @@ PROCEDURE:
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
-   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here. A `## Sweep` heading with no search under it is no gap only when the tool prints no `error:` line for it and no name or phrase the round's hunks change has a line outside them that holds it.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
@@ -22408,7 +22431,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -22538,7 +22561,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -22650,7 +22673,7 @@ PROCEDURE:
    format and its Snapshot: line, and reruns each search of its `## Sweep` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts `error:` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
    there when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. An `uncovered:` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation, whatever its line names. Read against the change each hit marked `unaffected`, each hit the
-   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here.
+   tool prints as `left out:` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked `unaffected` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else", and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here. A `## Sweep` heading with no search under it is no gap only when the tool prints no `error:` line for it and no name or phrase the round's hunks change has a line outside them that holds it.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
@@ -22806,7 +22829,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
@@ -22935,7 +22958,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -23094,6 +23117,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -23506,7 +23530,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -23748,7 +23772,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
@@ -23911,6 +23935,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -24187,7 +24212,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -24430,7 +24455,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-a, block-b
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
@@ -24514,7 +24539,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
@@ -24737,6 +24762,7 @@ CHECKLIST:
    constant, field, message or rule phrase this round changed, when a line outside the round's hunks holds it, so a name the round only adds needs none. The risk tool prints an `uncovered:` line for each name shaped like a code name, such as PLUGIN_ROOT or installedSiblings, that the round's removed lines hold and its added lines do not, that a line outside the round's hunks holds and that no search covers. Such a name that the round removed or renamed needs a search for it with scope `.`, and one the round only stopped using needs none. The tool finds no other changed name, such as a name whose line the round changed in place, a changed message or rule phrase and a one-word name, so each of those needs a search the tool does not ask for. Search a changed or removed rule phrase, message or name by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds each sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing else".
+   A round with no changed name that a line outside the round's hunks holds leaves the `## Sweep` heading with no search under it. With `--base` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.
    Return review_needed=false only when the command's last line reads `low risk: yes`, and true otherwise.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
@@ -25051,7 +25077,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -25383,7 +25409,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 COMPLETED BLOCKS: block-c
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
@@ -25460,7 +25486,7 @@ GATES (the commands that define "it works"):
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
 Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
