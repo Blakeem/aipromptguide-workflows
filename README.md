@@ -166,6 +166,28 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-11-23
+
+- **Run worktrees sit in one folder outside your checkout.** With no `--dir`, `wt.mjs open` and `init` make
+  each worktree in `<root>/<project>/`. On Windows, `<root>` is `aipg-wt` at the drive or share root of your
+  main checkout. On other platforms it is `aipg-wt` in your home folder. `<project>` is the name of the
+  project's backlog folder. Set `AIPG_WT_ROOT` to an absolute path to use another root for every project.
+  The tools no longer write the repo's `info/exclude`.
+- **`close` and `clean` remove the folders they empty.** Once the last worktree of a project is gone, they
+  remove the project folder, and then an empty `aipg-wt` folder. They keep a folder that `AIPG_WT_ROOT` or
+  `--dir` names.
+- **The `worktreeDir` setting is retired.** `project-settings.mjs set --worktree-dir` exits 1, and a saved
+  value is ignored. `--dir` still names the parent folder of one worktree. `open` and `init` refuse a
+  `--dir` that ends in the worktree folder's own name, since the worktree would nest one level deeper.
+- **`open` and `init` refuse a root inside your checkout.** A checkout at a drive root or at your home
+  folder would hold its own `aipg-wt` folder. They exit 40 and name `AIPG_WT_ROOT`.
+- **`risk-check.mjs` accepts a sweep with no search.** With `--base`, a `## Sweep` heading with no search
+  passes when no name the round changed is used outside the round's changes.
+- **Develop's agents name their scratch files by block and round.** Every block of a run writes into one
+  scratch folder, so two blocks could write the same file name.
+- **investigate's `NEEDS-USER.md` headings carry the launch number.** A heading is `## launch <n> r<round>
+  <role>`, as in refine, so a relaunch that reruns a round adds a new heading.
+
 ### 2026-11-11
 
 - **Each launch writes its records in its own launch folder.** Refine, investigate's run phase, develop,
