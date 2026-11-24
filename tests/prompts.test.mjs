@@ -1,12 +1,13 @@
 // tests/snapshots/<name>.prompts.md — every distinct prompt variant each engine sends, kept in git so a
 // prompt edit shows in the diff under every role, mode and round it reaches. Regenerate with
-// `node tools/gen-prompts.mjs` after changing any prompt text.
+// `node tools/gen-prompts.mjs` after changing any prompt text. Each role's largest prompt also stays within
+// its budget in tests/prompt-budgets.json.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { section, ok, eq } from './harness.mjs';
 import { loadSpecs } from '../tools/gen-flows.mjs';
-import { collectCalls, renderSnapshot, snapshotPath } from '../tools/gen-prompts.mjs';
+import { BUDGET_PATH, budgetProblems, collectCalls, readBudgets, renderSnapshot, roleSizes, snapshotPath } from '../tools/gen-prompts.mjs';
 
 section('a prompt repeated per block is one variant once its per-block hash is masked');
 {
@@ -17,11 +18,47 @@ section('a prompt repeated per block is one variant once its per-block hash is m
 }
 
 section('every committed prompt snapshot matches what the engine sends today');
-for (const spec of await loadSpecs()) {
+const specs = await loadSpecs();
+const callsBySpec = new Map();
+for (const spec of specs) {
   let current = null;
   try { current = readFileSync(snapshotPath(spec.name), 'utf8'); } catch { current = null; }
-  const fresh = renderSnapshot(spec, await collectCalls(spec));
+  callsBySpec.set(spec.name, await collectCalls(spec));
+  const fresh = renderSnapshot(spec, callsBySpec.get(spec.name));
   ok(current === fresh, `${spec.name}: ${current === null ? 'missing' : current === fresh ? 'fresh' : 'STALE'} — run \`node tools/gen-prompts.mjs ${spec.name}\` and review the diff`);
+}
+
+section('each role\'s largest prompt stays within its budget in tests/prompt-budgets.json');
+{
+  const budgets = readBudgets();
+  for (const spec of specs) {
+    const problems = budgetProblems(spec.name, roleSizes(callsBySpec.get(spec.name)), budgets);
+    ok(problems.length === 0, `${spec.name}: ${problems.length ? problems.join(' | ') : 'within budget'} — review the growth, then set the budget in ${BUDGET_PATH} to the count \`node tools/gen-prompts.mjs ${spec.name}\` prints`);
+  }
+  const unknown = Object.keys(budgets).filter((name) => !specs.some((s) => s.name === name));
+  eq(unknown.join(), '', 'every budget names a spec that gen-prompts snapshots');
+}
+
+section('budgetProblems names a role over its budget, a role with none and a budget no role uses');
+{
+  const calls = [{ role: 'dev', prompt: 'x'.repeat(10) }, { role: 'dev', prompt: 'x'.repeat(12) }, { role: 'qa', prompt: 'x'.repeat(5) }];
+  const sizes = roleSizes(calls);
+  eq(JSON.stringify([...sizes]), JSON.stringify([['dev', 12], ['qa', 5]]), 'each role counts its largest prompt');
+  eq(budgetProblems('s', sizes, { s: { dev: 12, qa: 5 } }).length, 0, 'a count equal to its budget passes');
+  eq(JSON.stringify(budgetProblems('s', sizes, { s: { dev: 11, qa: 5, gone: 3 } })), JSON.stringify(['s dev: 12 chars, over its budget of 11 by 1', 's gone: a budget for a role no scenario of s sends']),
+    'a count over its budget and a budget for a role the spec no longer sends are each a problem');
+  eq(JSON.stringify(budgetProblems('s', sizes, { s: { dev: '12' } })), JSON.stringify(['s dev: 12 chars and no whole-number budget', 's qa: 5 chars and no whole-number budget']),
+    'a role with no budget, or a budget that is no whole number, is a problem');
+  eq(budgetProblems('s', sizes, {}).length, 2, 'a spec with no budgets names each role');
+  const dir = mkdtempSync(join(tmpdir(), 'aipg-prompt-budgets-'));
+  try {
+    writeFileSync(join(dir, 'bad.json'), '{ "develop": ');
+    let msg = '';
+    try { readBudgets(join(dir, 'bad.json')); } catch (e) { msg = e.message; }
+    ok(msg.startsWith(`cannot read the prompt budgets at ${join(dir, 'bad.json')}:`), `a budgets file that does not parse fails naming the file, got: ${msg}`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 section('an engine that throws a SyntaxError before its first call, or that no scenario drives to an agent call, throws instead of yielding an empty snapshot');

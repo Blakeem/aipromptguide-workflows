@@ -4,7 +4,9 @@
 // copy of every distinct prompt variant: same role, schema and text once the item id, every 8-hex-digit hash
 // and every number are masked, so a variant repeated per block or per round appears once. An edit meant for
 // one mode or round that also changes another then shows in the git diff under the variant it leaked into.
-// The suite fails while a snapshot is stale, the way it does for FLOW.md.
+// The suite fails while a snapshot is stale, the way it does for FLOW.md. Each run also prints the character count
+// of each role's largest prompt beside its budget in tests/prompt-budgets.json, and the suite fails while a count
+// exceeds its budget, so each growth of a prompt past its budget is a reviewed edit to that file.
 //
 //   node tools/gen-prompts.mjs [<name>...]           # write tests/snapshots/<name>.prompts.md
 //   node tools/gen-prompts.mjs [<name>...] --check   # write nothing; exit 1 naming stale snapshots
@@ -19,6 +21,39 @@ import { REPO_ROOT, readRoles, runTrace } from '../tests/harness.mjs';
 import { loadSpecs } from './gen-flows.mjs';
 
 export const snapshotPath = (name) => join(REPO_ROOT, 'tests', 'snapshots', `${name}.prompts.md`);
+// Hand-edited, unlike the generated snapshots, so it sits outside tests/snapshots/.
+export const BUDGET_PATH = join(REPO_ROOT, 'tests', 'prompt-budgets.json');
+
+/** The budgets file as `{ <spec name>: { <role>: <max chars> } }`. Throws naming the file when it does not parse. */
+export function readBudgets(path = BUDGET_PATH) {
+  try {
+    return JSON.parse(readFileSync(path, 'utf8'));
+  } catch (e) {
+    throw new Error(`cannot read the prompt budgets at ${path}: ${e.message}`);
+  }
+}
+
+/** The character count of each role's largest prompt, as a Map in the order each role first speaks. */
+export function roleSizes(calls) {
+  const sizes = new Map();
+  for (const c of calls) sizes.set(c.role, Math.max(sizes.get(c.role) ?? 0, c.prompt.length));
+  return sizes;
+}
+
+/** Each way a spec's role sizes break its budgets: a role over its budget, a role with none, a budget no role uses. */
+export function budgetProblems(name, sizes, budgets) {
+  const own = budgets?.[name] ?? {};
+  const problems = [];
+  for (const [role, chars] of sizes) {
+    const budget = own[role];
+    if (!Number.isInteger(budget)) problems.push(`${name} ${role}: ${chars} chars and no whole-number budget`);
+    else if (chars > budget) problems.push(`${name} ${role}: ${chars} chars, over its budget of ${budget} by ${chars - budget}`);
+  }
+  for (const role of Object.keys(own)) {
+    if (!sizes.has(role)) problems.push(`${name} ${role}: a budget for a role no scenario of ${name} sends`);
+  }
+  return problems;
+}
 
 /**
  * Every agent call across the spec's scenarios, in scenario order, tagged with its role. Throws when the engine
@@ -110,6 +145,7 @@ async function main(argv) {
     return 1;
   }
   const specs = await loadSpecs(names);
+  const budgets = dumpTo ? null : readBudgets();
 
   // Process
   const stale = [];
@@ -130,12 +166,16 @@ async function main(argv) {
     if (check) {
       if (current !== text) stale.push(rel);
       console.log(`${current === text ? 'fresh' : 'STALE'}    ${rel}`);
-      continue;
+    } else if (current === text) {
+      console.log(`unchanged ${rel}`);
+    } else {
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, text);
+      console.log(`wrote    ${rel}`);
     }
-    if (current === text) { console.log(`unchanged ${rel}`); continue; }
-    mkdirSync(dirname(path), { recursive: true });
-    writeFileSync(path, text);
-    console.log(`wrote    ${rel}`);
+    const sizes = roleSizes(calls);
+    for (const [role, chars] of sizes) console.log(`  ${role}: ${chars} chars, budget ${budgets?.[spec.name]?.[role] ?? 'none'}`);
+    for (const problem of budgetProblems(spec.name, sizes, budgets)) console.log(`  BUDGET ${problem}`);
   }
 
   // Output

@@ -1,0 +1,41 @@
+{
+  "audit-defects": {
+    "review": 5775,
+    "verify": 9775
+  },
+  "audit-enhancements": {
+    "find": 6684,
+    "verify": 9267
+  },
+  "brainstorm": {
+    "generate": 2182
+  },
+  "decide": {
+    "investigate i1": 5224,
+    "investigate i": 8010,
+    "decide": 8330,
+    "review": 8145
+  },
+  "develop": {
+    "develop": 48349,
+    "quality": 9704,
+    "acceptance": 25382,
+    "final-sweep": 5810,
+    "develop-closing": 35569,
+    "park": 11348
+  },
+  "docs": {
+    "gather": 2925,
+    "scrub": 1296,
+    "curate": 6869
+  },
+  "investigate": {
+    "criteria-critic": 1900,
+    "investigate": 10342,
+    "critique": 8184
+  },
+  "refine": {
+    "plan-critic": 12679,
+    "plan-editor": 6074
+  }
+}

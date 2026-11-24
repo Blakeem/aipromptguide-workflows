@@ -13,6 +13,10 @@ evidence, such as the instruction text you quote or the command you ran and its 
 4. What defect did you catch or nearly miss, and what would have caught it sooner?
 5. What worked well and should stay?
 6. What one change would most help your role?
+7. Which findings did your SELF-REVIEW step fix or decline in this round?
+   A develop developer lists each finding as
+   `<path>:<line> <tier> fixed|declined <a few words that name it>`, where `<tier>` is its SEVERITY tier,
+   and separates the findings with commas. Every other agent writes "none".
 
 ## Answer format
 
@@ -28,6 +32,7 @@ Q3: <answer>
 Q4: <answer>
 Q5: <answer>
 Q6: <answer>
+Q7: <answer>
 ```
 
 `<label>` is the answer file's name without `.md`. `<date>` is the output of the `date` command, run

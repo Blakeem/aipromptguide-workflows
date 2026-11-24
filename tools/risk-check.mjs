@@ -32,6 +32,12 @@ const ANSWER_LINE_RE = /^-[ \t]+([^:]+?)[ \t]*:[ \t]*(.*?)[ \t]*$/;
 const NO_RE = /^no\.?$|^no[ \t]*:[ \t]*\S/i;
 const YES_RE = /^yes[ \t]*:[ \t]*\S/i;
 const SEARCH_RE = /^search:[ \t]*(.*?)[ \t]*$/;
+const WORD_RE = /^word:[ \t]*(.*?)[ \t]*$/;
+// git grep -w bounds a word by the characters outside letters, digits and `_`, so a word: text holds only those.
+const WORD_TEXT_RE = /^[A-Za-z0-9_]+$/;
+// git's short form, a run of the symbols `/`, `!` and `^` that holds `!` or `^`, and the long `:(exclude)` form,
+// whose magic words may sit in any order.
+const EXCLUDE_SPEC_RE = /^:(?:[/!^]*[!^]|\([^)]*\bexclude\b[^)]*\))/;
 const SCOPE_RE = /^scope:[ \t]*(.*?)[ \t]*$/;
 const HIT_COUNT_RE = /^-[ \t]+(.+?)[ \t]+\((\d+) hits?\)[ \t]+(updated|unaffected)[ \t]*:[ \t]*(.*?)[ \t]*$/;
 const HIT_LINE_RE = /^-[ \t]+(.+?):(\d+)[ \t]+(updated|unaffected)[ \t]*:[ \t]*(.*?)[ \t]*$/;
@@ -65,9 +71,14 @@ export const FORMAT = `A risk file holds, in this order:
       source string escapes it. The scope names repo paths, \`.\` for the entire repo. Each hit the search
       finds takes one line, marked updated or unaffected with its reason. A search that finds no hit holds
       its search: and scope: lines and no hit line. The <n> hits form covers every hit in one generated
-      file the gate checks. A round whose changed names have no reader outside its hunks may leave the
-      ${SWEEP_HEADING} heading with no block. With --base the tool accepts that unless the round removed a name
-      shaped like a code name that a line outside its hunks holds, and it cannot see any other changed name.
+      file the gate checks. A \`word: <name>\` line may take the place of the search: line. Its <name> holds
+      only letters, digits and _, and it matches only as a whole word, so a longer name that holds it is no
+      hit. A scope may hold an exclude pathspec, such as \`:!<path>\`, that leaves out a generated file a
+      command of the gates or the conventions proves matches its source. Each file it leaves out takes, for
+      itself or for a folder holding it, the line \`- <path> (0 hits) unaffected: <that command>\`. A round
+      whose changed names have no reader outside its hunks may leave the ${SWEEP_HEADING} heading with no block.
+      With --base the tool accepts that unless the round removed a name shaped like a code name that a line
+      outside its hunks holds, and it cannot see any other changed name.
 A round that changed nothing holds the ${SNAPSHOT_LINE} line and the line \`${NO_CHANGES}\` alone.`;
 
 const USAGE = `usage: node tools/risk-check.mjs <risk file> --repo <repo> --snapshot <tree id> [--base <tree id>]
@@ -76,9 +87,10 @@ const USAGE = `usage: node tools/risk-check.mjs <risk file> --repo <repo> --snap
   once every answer parses.
   With --base, the round's diff runs from --base to --snapshot, and each name shaped like a code name, such as
   PLUGIN_ROOT or installedSiblings, that its removed lines hold and its added lines do not, that a line of the
-  --snapshot tree holds and that no search with that literal finds at each such line prints as an "uncovered:"
-  line. An "uncovered:" line is no problem and changes no exit code. Also with --base, a "## Sweep" heading with no
-  search passes when the round's diff holds no such name with a reader. The tool sees no other changed name.
+  --snapshot tree holds and that no search with that text finds, or leaves out through an exclude pathspec
+  of its scope and records on a 0-hit line, at each such line prints as an "uncovered:" line. An "uncovered:"
+  line is no problem and changes no exit code. Also with --base, a "## Sweep" heading with no search passes
+  when the round's diff holds no such name with a reader. The tool sees no other changed name.
 
 ${FORMAT}`;
 
@@ -203,13 +215,17 @@ function readAnswer(change, line, n, errors) {
 /** Records one line of the sweep section and returns the search block it belongs to. */
 function readSweepLine(searches, search, line, n, errors) {
   const searchMatch = line.match(SEARCH_RE);
-  if (searchMatch) {
-    if (!searchMatch[1]) errors.push(`line ${n} is a \`search:\` line with no text`);
-    const next = { literal: searchMatch[1], line: n, scope: null, hits: [] };
+  const wordMatch = searchMatch ? null : line.match(WORD_RE);
+  if (searchMatch || wordMatch) {
+    const kind = searchMatch ? 'search:' : 'word:';
+    const literal = (searchMatch ?? wordMatch)[1];
+    if (!literal) errors.push(`line ${n} is a \`${kind}\` line with no text`);
+    else if (wordMatch && !WORD_TEXT_RE.test(literal)) errors.push(`line ${n} is a \`word:\` line whose text "${literal.slice(0, 60)}" holds a character outside letters, digits and \`_\`. Use a \`search:\` line for it`);
+    const next = { literal, word: Boolean(wordMatch), line: n, scope: null, hits: [] };
     searches.push(next);
     return next;
   }
-  if (!search) { errors.push(`line ${n} comes before the first \`search:\` line of the sweep: "${line.slice(0, 80)}"`); return search; }
+  if (!search) { errors.push(`line ${n} comes before the first \`search:\` or \`word:\` line of the sweep: "${line.slice(0, 80)}"`); return search; }
   const scopeMatch = line.match(SCOPE_RE);
   if (scopeMatch) {
     if (search.scope) errors.push(`line ${n} is a second \`scope:\` line for the search on line ${search.line}`);
@@ -225,7 +241,7 @@ function readSweepLine(searches, search, line, n, errors) {
     errors.push(`line ${n} keeps \`${VERDICT_CHOICE}\` as printed, and a hit line takes one verdict`);
     return search;
   }
-  if (!hit) { errors.push(`line ${n} is no sweep line: a search block holds \`search:\`, \`scope:\` and hit lines ${HIT_SHAPE}, got "${line.slice(0, 80)}"`); return search; }
+  if (!hit) { errors.push(`line ${n} is no sweep line: a search block holds \`search:\` or \`word:\`, \`scope:\` and hit lines ${HIT_SHAPE}, got "${line.slice(0, 80)}"`); return search; }
   if (!search.scope) errors.push(`line ${n} lists a hit before the \`scope:\` line of the search on line ${search.line}`);
   if (!hit.reason) errors.push(`line ${n} marks a hit with no reason`);
   else if (hit.reason === REASON_PLACEHOLDER) errors.push(`line ${n} still holds the printed reason \`${REASON_PLACEHOLDER}\`, and the line takes the reason the verdict rests on`);
@@ -233,11 +249,18 @@ function readSweepLine(searches, search, line, n, errors) {
   return search;
 }
 
+/** Each of `files`, the paths the search's scope leaves out, that no 0-hit line of the search names, itself or by a folder. */
+function unrecordedFiles(search, files, top) {
+  const zeroPaths = search.hits.filter((h) => h.count === 0).map((h) => repoPath(h.path, top).replace(/\/+$/, ''));
+  return [...files].filter((file) => !zeroPaths.some((p) => file === p || file.startsWith(`${p}/`)));
+}
+
 /**
  * Each problem of the sweep against what its searches find now. `found(search)` returns the search's hits as
- * `{ path, line, text }`, and `scopeMatches(pathspec)` whether a pathspec names a file.
+ * `{ path, line, text }`, `scopeMatches(pathspec)` whether a pathspec names a file, and `excluded(search)` the
+ * paths the exclude pathspecs of its scope leave out.
  */
-export function sweepProblems(searches, { found, scopeMatches, top }) {
+export function sweepProblems(searches, { found, scopeMatches, top, excluded = () => new Set() }) {
   const errors = [];
   const leftOut = [];
   for (const s of searches.filter((x) => x.literal && x.scope)) {
@@ -268,6 +291,11 @@ export function sweepProblems(searches, { found, scopeMatches, top }) {
         `left out: the search on line ${s.line} ("${s.literal.slice(0, 60)}") finds ${h.path}:${h.line}: ${h.text.trim().slice(0, 120)}`,
         `- ${h.path}:${h.line} ${VERDICT_CHOICE}: ${REASON_PLACEHOLDER}`,
       ]);
+    }
+    const unrecorded = unrecordedFiles(s, excluded(s), top);
+    if (unrecorded.length) {
+      const others = unrecorded.length - 1;
+      errors.push(`line ${s.line}: the scope leaves out ${unrecorded[0]}${others ? ` and ${others} other file(s)` : ''}, and no \`- <path> (0 hits) unaffected: <command>\` line of the search names it or a folder holding it`);
     }
   }
   return { errors, leftOut };
@@ -306,13 +334,18 @@ function readersOf(rows, names) {
   return new Map([...readers].filter(([, held]) => held.length));
 }
 
-/** An `uncovered:` line for each name with a reader that no search with that literal finds at every reader. */
-function uncoveredLines(readers, searches, found) {
+/**
+ * An `uncovered:` line for each name with a reader that no search with that literal finds, or leaves out through
+ * an exclude pathspec of its scope, at every reader. `recorded(search)` returns the paths those pathspecs leave
+ * out that a 0-hit line of the search names.
+ */
+function uncoveredLines(readers, searches, found, recorded) {
   const lines = [];
   for (const [name, held] of readers) {
     const covers = (s) => {
       const hitKeys = new Set(found(s).map((h) => `${h.path}:${h.line}`));
-      return held.every((r) => hitKeys.has(`${r.path}:${r.line}`));
+      const leftOut = recorded(s);
+      return held.every((r) => hitKeys.has(`${r.path}:${r.line}`) || leftOut.has(r.path));
     };
     if (searches.some((s) => s.literal === name && covers(s))) continue;
     const others = held.length - 1;
@@ -323,15 +356,21 @@ function uncoveredLines(readers, searches, found) {
 
 /**
  * The report lines and exit code for a written file. `roundReaders()`, given only with --base, returns each
- * changed name's readers, and runs only for a file with no format error and a change section.
+ * changed name's readers, and runs only for a file with no format error and a change section. `excluded(search)`
+ * returns the set of paths the exclude pathspecs of the search's scope leave out.
  */
-export function checkText(text, { file, snapshot, found, scopeMatches, top, roundReaders = null }) {
+export function checkText(text, { file, snapshot, found, scopeMatches, top, roundReaders = null, excluded = () => new Set() }) {
   // Input
   const parsed = parseRiskFile(text);
   const foundBySearch = new Map();
   const foundOnce = (s) => {
     if (!foundBySearch.has(s)) foundBySearch.set(s, found(s));
     return foundBySearch.get(s);
+  };
+  const excludedBySearch = new Map();
+  const excludedOnce = (s) => {
+    if (!excludedBySearch.has(s)) excludedBySearch.set(s, excluded(s));
+    return excludedBySearch.get(s);
   };
 
   // Process
@@ -343,13 +382,17 @@ export function checkText(text, { file, snapshot, found, scopeMatches, top, roun
   const readers = checksNames ? roundReaders() : null;
   // A sweep with no search is right only when the round changed no name that a line outside its hunks holds.
   if (parsed.emptySweepLine && readers?.size !== 0) {
-    errors.push(`the \`${SWEEP_HEADING}\` section on line ${parsed.emptySweepLine} holds no \`search:\` line. A sweep with no search passes only with --base, when no changed name of the round has a reader outside its hunks`);
+    errors.push(`the \`${SWEEP_HEADING}\` section on line ${parsed.emptySweepLine} holds no \`search:\` or \`word:\` line. A sweep with no search passes only with --base, when no changed name of the round has a reader outside its hunks`);
   }
-  const sweep = sweepProblems(parsed.searches, { found: foundOnce, scopeMatches, top });
+  const sweep = sweepProblems(parsed.searches, { found: foundOnce, scopeMatches, top, excluded: excludedOnce });
   const errorLines = [...errors, ...sweep.errors].map((e) => `error: ${e}`);
   const problemCount = errorLines.length + sweep.leftOut.length;
   const problemLines = [...errorLines, ...sweep.leftOut.flat()];
-  const uncovered = readers ? uncoveredLines(readers, parsed.searches, foundOnce) : [];
+  const recorded = (s) => {
+    const unrecorded = new Set(unrecordedFiles(s, excludedOnce(s), top));
+    return new Set([...excludedOnce(s)].filter((path) => !unrecorded.has(path)));
+  };
+  const uncovered = readers ? uncoveredLines(readers, parsed.searches, foundOnce, recorded) : [];
 
   // Output
   // A file with a format error or another attempt's snapshot is rewritten, and only the run on a missing file showed the format.
@@ -376,7 +419,8 @@ const firstLine = (s) => String(s).split('\n')[0].trim();
 /** The search's hits in the working tree, untracked files included and ignored ones left out. */
 function grepHits(top, search) {
   const forms = searchForms(search.literal).flatMap((f) => ['-e', f]);
-  const r = git(top, ['grep', '-n', '-I', '-z', '--full-name', '--untracked', '-F', ...forms, '--', ...search.scope]);
+  const wordFlag = search.word ? ['-w'] : [];
+  const r = git(top, ['grep', '-n', '-I', '-z', '--full-name', '--untracked', '-F', ...wordFlag, ...forms, '--', ...search.scope]);
   // git grep sets its exit code by the hits alone and names a file it cannot read only on stderr.
   const failed = r.code > 1 || /^(?:error|fatal):/m.test(r.stderr);
   if (failed) throw new Error(`git grep failed for the search on line ${search.line}: ${firstLine(r.stderr) || `exit ${r.code}`}`);
@@ -406,10 +450,22 @@ function roundReaders(top, base, snapshot) {
   return readersOf(rows, names);
 }
 
-function scopeMatches(top, pathspec) {
-  const r = git(top, ['ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', pathspec]);
-  if (r.code !== 0) throw new Error(`git ls-files failed for the scope "${pathspec}": ${firstLine(r.stderr) || `exit ${r.code}`}`);
-  return r.stdout.length > 0;
+/** The repo paths the pathspecs name, tracked and untracked, with ignored files left out. */
+function listedPaths(top, pathspecs) {
+  const r = git(top, ['ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', ...pathspecs]);
+  if (r.code !== 0) throw new Error(`git ls-files failed for the scope "${pathspecs.join(' ')}": ${firstLine(r.stderr) || `exit ${r.code}`}`);
+  return r.stdout.split('\0').filter(Boolean);
+}
+
+const scopeMatches = (top, pathspec) => listedPaths(top, [pathspec]).length > 0;
+
+/** The paths the exclude pathspecs of a search's scope leave out of the files its other pathspecs name. */
+function excludedPaths(top, scope) {
+  const includes = scope.filter((spec) => !EXCLUDE_SPEC_RE.test(spec));
+  if (includes.length === scope.length) return new Set();
+  const named = listedPaths(top, includes);
+  const kept = new Set(listedPaths(top, scope));
+  return new Set(named.filter((path) => !kept.has(path)));
 }
 
 /** The --repo, --snapshot and optional --base values and the file path, or an error naming the bad argument. */
@@ -453,6 +509,7 @@ export function run(argv) {
     return checkText(readFileSync(file, 'utf8'), {
       file, snapshot, top, found: (search) => grepHits(top, search), scopeMatches: (pathspec) => scopeMatches(top, pathspec),
       roundReaders: base === null ? null : () => roundReaders(top, base, snapshot),
+      excluded: (search) => excludedPaths(top, search.scope),
     });
   } catch (err) {
     return { lines: [`risk-check: ${err.message}`], code: EXIT.usage };

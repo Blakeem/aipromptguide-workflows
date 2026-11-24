@@ -420,7 +420,10 @@ run's agent works in the `target.repo` its prompt names, which stands in for the
 6. (when prompt text changed) Run `node tools/gen-prompts.mjs` and read its snapshot diff for variants the
    change was not meant to reach. Then read each changed prompt in `tests/snapshots/<engine>.prompts.md` as
    the agent that receives it reads it, since a constant's new sentence sits beside text the edit did not
-   show. Output: the variants the change reached.
+   show. It prints each role's largest prompt size beside its budget in `tests/prompt-budgets.json`, and the
+   suite fails on a size over its budget. Raise a budget to the printed size only once the growth earns its
+   cost. Lower a budget to the printed size when its prompt shrank, since the suite never fails on a size
+   under its budget. Output: the variants the change reached, and each budget changed.
 7. (when an engine changed) Run `node tools/gen-flows.mjs`, adding a scenario in
    `tools/flows/<name>.flow.mjs` for a new agent, guard or terminal state (§7). Output: the updated
    `FLOW.md`.

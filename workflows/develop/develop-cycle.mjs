@@ -1174,6 +1174,8 @@ const SCHEMA_PROSE_HITS = `each sentence in the repo's prose that lists that age
 const SWEEP_SEARCH = 'by its old wording, and by its new wording too when other text must repeat it, each search holding the name, value or phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number or punctuation';
 // Acceptance reads every hit inside the round's own hunks, so only a hit outside them needs a sweep line.
 const SWEEP_NEED = "when a line outside the round's hunks holds it, so a name the round only adds needs none";
+// A generated file repeats each hit of its source, so a search may leave it out once a check proves the two agree.
+const GENERATED_EXCLUDE = 'an exclude pathspec, such as `. :!<path>`, that leaves out a generated file a command the gates or the conventions name proves matches its source';
 // The risk tool judges an empty sweep by the names its diff finds, so it cannot see a name changed in place.
 const SWEEP_EMPTY = `A round with no changed name that a line outside the round's hunks holds leaves the \`${SWEEP_HEADING}\` heading with no search under it. With \`--base\` the risk tool rejects an empty sweep only when the round's removed lines hold a name shaped like a code name that its added lines do not and that such a line holds. Every other changed name with such a line still takes a search the tool does not ask for.`;
 // The risk tool finds by diff only the names a round dropped, so every other changed name still takes the agent's own search.
@@ -1188,7 +1190,8 @@ const REVIEW_CLAIMS = `A review is another agent's claim. For each finding and g
 const FIX_DIRECTION = 'a fix direction you checked against the code it would change';
 
 // Shared by the blind reviewer and the developer's SELF-REVIEW, so both read a diff with one reach step and one checklist.
-const REACH = `REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+const REACH = `REACH: for every function, constant, field, string or rule the diff changes, and every file or folder
+name, or path, that the changed code writes, renames or moves, whose readers find it by that name, grep its callers
 and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
@@ -1291,7 +1294,9 @@ ${snapshotCommands(snapshotIndex(id, round))}
    names each problem in the file, such as a format error, a ${SNAPSHOT_LINE} line an interrupted attempt of this launch left, or a hit
    a search finds that the file leaves out. The command leaves an existing file in place, so Read it, then replace its entire content. Then run the command
    again until it prints ok. Add a sweep search for each function,
-   constant, field, message or rule phrase this round changed, ${SWEEP_NEED}. ${UNCOVERED_RULE} Search a changed or removed rule phrase, message or name ${SWEEP_SEARCH}. A
+   constant, field, message or rule phrase this round changed, ${SWEEP_NEED}. ${UNCOVERED_RULE} Search a changed or removed rule phrase, message or name ${SWEEP_SEARCH}. A search
+   for one code name may take the tool's \`word:\` form, which leaves out the longer names that hold it. A scope, \`.\`
+   included, may hold ${GENERATED_EXCLUDE}, and the risk file then names that command as the tool's format shows. A
    changed field, return value, file format or output that other code or prompts read needs a search that finds those readers. A
    change that adds, removes or renames a field of an agent's return schema also needs a search that finds ${SCHEMA_PROSE_HITS}.
    ${SWEEP_EMPTY}
@@ -1803,7 +1808,7 @@ const sweepCheck = (id, riskRounds, riskSnapshots, indexTree) => {
    \`${riskCheckCommand(file, riskSnapshots[latest], roundBase(latest, riskSnapshots, indexTree))}\`. This risk tool checks the file's
    format and its ${SNAPSHOT_LINE} line, and reruns each search of its \`${SWEEP_HEADING}\` section in the working tree, in
    its plain and source-escaped forms. Each line it prints that starts \`error:\` is a gap. Each function, constant, field, message or rule phrase that round's hunks change needs a line
-   there ${SWEEP_NEED}. ${UNCOVERED_RULE} An \`uncovered:\` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. Also search each changed or removed rule phrase, message or name ${SWEEP_SEARCH}, whatever its line names. Read against the change each hit marked \`unaffected\`, each hit the
+   there ${SWEEP_NEED}. ${UNCOVERED_RULE} An \`uncovered:\` line for a name that round removed or renamed is a gap, and one for a name it only stopped using is no gap. A scope may hold ${GENERATED_EXCLUDE}. Such an exclusion is no gap once the risk file names that command and the command passes when you run it, and an exclusion of any other file is a gap. Also search each changed or removed rule phrase, message or name ${SWEEP_SEARCH}, whatever its line names. Read against the change each hit marked \`unaffected\`, each hit the
    tool prints as \`left out:\` and each hit that search finds that the line leaves out. A changed name or phrase with no line, and a hit marked \`unaffected\` that disagrees with the change, are each a gap. A hit the line leaves out is a gap only when it needs a change the diff did not make or disagrees with the change. Name each left-out hit you judge unaffected, with its reason, in the risk-audit result of your review file, and count it as no gap. A round whose hunks add, remove or rename a field of an agent's return schema needs a line that lists ${SCHEMA_PROSE_HITS}, and a sentence a rerun of that search finds and the line leaves out is judged as any left-out hit is. A round whose file reads "No changes." has no section and no gap here. A \`${SWEEP_HEADING}\` heading with no search under it is no gap only when the tool prints no \`error:\` line for it and no name or phrase the round's hunks change has a line outside them that holds it.`;
 };
 const misclassifiedEffect = (round) => (round === CLOSING_ROUND

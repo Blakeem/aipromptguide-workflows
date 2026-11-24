@@ -146,7 +146,7 @@ section('each format error is named by its line');
   has(good.replace(/## Sweep[\s\S]*$/, ''), 'holds no `## Sweep` section', 'no sweep');
   eq(parseRiskFile(good.replace(/## Sweep[\s\S]*$/, '## Sweep\n')).emptySweepLine, 9, 'a sweep heading with no search is no format error, and the parse names its line');
   const emptyNoBase = check(repo, tree, good.replace(/## Sweep[\s\S]*$/, '## Sweep\n'));
-  ok(emptyNoBase.code === 1 && emptyNoBase.lines.some((l) => l.startsWith('error:') && l.includes('holds no `search:` line')), `an empty sweep without --base is an error: ${emptyNoBase.lines.join(' | ')}`);
+  ok(emptyNoBase.code === 1 && emptyNoBase.lines.some((l) => l.startsWith('error:') && l.includes('holds no `search:` or `word:` line')), `an empty sweep without --base is an error: ${emptyNoBase.lines.join(' | ')}`);
   ok(emptyNoBase.lines.includes(FORMAT), 'and it prints the format');
   has(`${good}\n## src/b.md:1\n${answers().join('\n')}\n`, 'after `## Sweep`', 'a change section after the sweep');
   has(good.replace('scope: src gen\n', ''), 'before the `scope:` line', 'a hit before its scope');
@@ -155,6 +155,10 @@ section('each format error is named by its line');
   has(good.replace('scope: src gen', 'scope: src gen\nscope: src'), 'is a second `scope:` line for the search on line 10', 'a second scope');
   has(good.replace('scope: src gen', 'scope:'), 'is a `scope:` line with no path', 'a scope with no path');
   has(good.replace('search: the old rule', 'search:'), 'is a `search:` line with no text', 'a search with no text');
+  has(good.replace('search: the old rule', 'word:'), 'is a `word:` line with no text', 'a word with no text');
+  has(good.replace('search: the old rule', 'word: old.rule'), 'is a `word:` line whose text "old.rule" holds a character outside letters, digits and `_`', 'a word text outside letters, digits and _');
+  has(good.replace('search: the old rule', 'word: the old rule'), 'holds a character outside letters, digits and `_`', 'a word text with a space');
+  has(good.replace('search: the old rule\n', ''), 'comes before the first `search:` or `word:` line of the sweep', 'a scope before any search');
   has(good.replace('- src/a.mjs:1 updated: the constant', '- src/a.mjs:1 fixed: the constant'), 'is no sweep line', 'a hit with an unknown mark');
   has(good.replace('- src/a.mjs:1 updated: the constant', '- src/a.mjs:1 updated:'), 'marks a hit with no reason', 'a hit with no reason');
   has(`${good}\nNo changes.\n`, 'stands alone', '`No changes.` beside sections');
@@ -297,7 +301,7 @@ section('with --base, a sweep heading with no search passes only when no changed
   eq(accepted.code, 0, 'and exits 0');
   const renamed = writeTree(repo, { 'src/lib.mjs': 'export function newHelperName(x) {\n  return x;\n}\n' });
   const refused = emptySweep(renamed);
-  ok(refused.code === 1 && refused.lines.some((l) => l.startsWith('error:') && l.includes('holds no `search:` line') && l.includes('only with --base')),
+  ok(refused.code === 1 && refused.lines.some((l) => l.startsWith('error:') && l.includes('holds no `search:` or `word:` line') && l.includes('only with --base')),
     `a renamed name with a reader outside the hunks keeps the error: ${refused.lines.join(' | ')}`);
   ok(refused.lines.some((l) => l.startsWith('uncovered: oldHelperName')) && refused.lines.includes(FORMAT), 'and the uncovered line and the format print beside it');
   const dropped = writeTree(repo, { 'src/lib.mjs': 'export function x() {}\n', 'src/use.mjs': 'x();\n' });
@@ -307,7 +311,7 @@ section('with --base, a sweep heading with no search passes only when no changed
     writeFileSync(path, [`Snapshot: ${addedOnly}`, '', '## src/test.mjs:1', ...answers(), '', '## Sweep', ''].join('\n'));
     return run([path, '--repo', repo, '--snapshot', addedOnly]);
   })();
-  ok(withoutBase.code === 1 && withoutBase.lines.some((l) => l.includes('holds no `search:` line')), 'without --base the same file is an error, since no diff shows the names');
+  ok(withoutBase.code === 1 && withoutBase.lines.some((l) => l.includes('holds no `search:` or `word:` line')), 'without --base the same file is an error, since no diff shows the names');
   const noHeading = (() => {
     const path = join(tmpDir(), 'risk-x-r3.md');
     writeFileSync(path, [`Snapshot: ${addedOnly}`, '', '## src/test.mjs:1', ...answers(), ''].join('\n'));
@@ -340,6 +344,73 @@ section('with --base, a shell $ name and a code name are one name, and a name wi
   const full = riskOf(fullTree);
   eq(full.lines.join('\n'), `ok: ${full.path}\nlow risk: yes`, `a round whose dropped names no line still holds prints ok and no uncovered line: ${full.lines.join(' | ')}`);
   eq(full.code, 0, 'and exits 0');
+}
+
+section('a word: search matches its name only as a whole word, and a longer name that holds it is no hit');
+{
+  const { repo, tree } = fixtureRepo({ 'src/w.mjs': 'removeWorktree();\nmoveWorktree();\nremoveWorktree(); moveWorktree();\nx.moveWorktree_2;\n' });
+  const listed = check(repo, tree, fileOf(tree, ['word: moveWorktree', 'scope: src', '- src/w.mjs:2 updated: the call', '- src/w.mjs:3 updated: the second call']));
+  eq(listed.lines.join('\n'), `ok: ${listed.path}\nlow risk: yes`, `the word finds the whole-word hits, a later one on a line that opens with a longer name included: ${listed.lines.join(' | ')}`);
+  const asSearch = check(repo, tree, fileOf(tree, ['search: moveWorktree', 'scope: src', '- src/w.mjs:2 updated: the call', '- src/w.mjs:3 updated: the second call']));
+  eq(JSON.stringify(asSearch.lines.filter((l) => l.startsWith('left out:')).map((l) => l.replace(/^.* finds /, '').replace(/:.*$/, ''))), JSON.stringify(['src/w.mjs', 'src/w.mjs']),
+    `the same text as a search: line still finds the prefix hits: ${asSearch.lines.join(' | ')}`);
+  ok(asSearch.lines.some((l) => l.includes('finds src/w.mjs:1:')) && asSearch.lines.some((l) => l.includes('finds src/w.mjs:4:')), 'at the longer names on lines 1 and 4');
+  const extra = check(repo, tree, fileOf(tree, ['word: moveWorktree', 'scope: src', '- src/w.mjs:1 updated: the call', '- src/w.mjs:2 updated: the call', '- src/w.mjs:3 updated: the second call']));
+  ok(extra.code === 1 && extra.lines.some((l) => l.includes('lists src/w.mjs:1, where the search on line 10 finds no hit')), `a listed longer-name line is no hit of the word: ${extra.lines.join(' | ')}`);
+
+  const { repo: baseRepo, tree: base } = fixtureRepo({ 'src/lib.mjs': 'export function moveWorktree() {}\n', 'src/use.mjs': 'moveWorktree();\nremoveWorktree();\n' });
+  const renamed = writeTree(baseRepo, { 'src/lib.mjs': 'export function shiftWorktree() {}\n' });
+  const path = join(tmpDir(), 'risk-x-r2.md');
+  writeFileSync(path, [`Snapshot: ${renamed}`, '', '## src/lib.mjs:1', ...answers(), '', '## Sweep', 'word: moveWorktree', 'scope: .', '- src/use.mjs:1 updated: the call', ''].join('\n'));
+  const covered = run([path, '--repo', baseRepo, '--snapshot', renamed, '--base', base]);
+  eq(covered.lines.join('\n'), `ok: ${path}\nlow risk: yes`, `a word: search for a removed name covers it, with no line for the longer name: ${covered.lines.join(' | ')}`);
+}
+
+section('a scope may leave out a generated file through an exclude pathspec that a 0-hit line records, and a reader it leaves out counts as covered');
+{
+  const { repo, tree } = fixtureRepo(FILES);
+  const KEPT = ['- src/a.mjs:1 updated: the constant', '- src/b.md:2 unaffected: prose example', '- gen (0 hits) unaffected: node gen.mjs --check proves it matches its source'];
+  const UNRECORDED = 'the scope leaves out gen/snap.md, and no `- <path> (0 hits) unaffected: <command>` line of the search names it or a folder holding it';
+  for (const scope of ['. :!gen', '. :(exclude)gen', ':^gen', '. :/!gen', '. :!/gen', '. :(top,exclude)gen']) {
+    const excluded = check(repo, tree, fileOf(tree, ['search: the old rule', `scope: ${scope}`, ...KEPT]));
+    eq(excluded.lines.join('\n'), `ok: ${excluded.path}\nlow risk: yes`, `scope "${scope}" leaves the generated file's hits out, and its path takes a 0-hit line: ${excluded.lines.join(' | ')}`);
+    const unrecorded = check(repo, tree, fileOf(tree, ['search: the old rule', `scope: ${scope}`, ...KEPT.slice(0, 2)]));
+    ok(unrecorded.code === 1 && unrecorded.lines.includes(`error: line 10: ${UNRECORDED}`), `scope "${scope}" reads as an exclude, so its left-out file needs the 0-hit line: ${unrecorded.lines.join(' | ')}`);
+  }
+  const counted = check(repo, tree, fileOf(tree, ['search: the old rule', 'scope: . :!gen', ...KEPT.slice(0, 2), '- gen/snap.md (3 hits) unaffected: generated']));
+  ok(counted.code === 1 && counted.lines.some((l) => l.includes('counts 3 hit(s) in gen/snap.md, and the search finds 0 there')), `a count of the hits the scope leaves out is an error: ${counted.lines.join(' | ')}`);
+  for (const zeroLine of [null, '- gen/sn (0 hits) unaffected: a prefix that is no folder', '- src (0 hits) unaffected: a folder the scope keeps']) {
+    const hits = zeroLine ? [...KEPT.slice(0, 2), zeroLine] : KEPT.slice(0, 2);
+    const unnamed = check(repo, tree, fileOf(tree, ['search: the old rule', 'scope: . :!gen', ...hits]));
+    ok(unnamed.code === 1 && unnamed.lines.includes(`error: line 10: ${UNRECORDED}`), `a left-out file that no 0-hit line names is an error (${zeroLine ?? 'no 0-hit line'}): ${unnamed.lines.join(' | ')}`);
+  }
+  const byFile = check(repo, tree, fileOf(tree, ['search: the old rule', 'scope: . :!gen/', ...KEPT.slice(0, 2), '- gen/snap.md (0 hits) unaffected: node gen.mjs --check']));
+  eq(byFile.code, 0, `a 0-hit line may name the left-out file itself: ${byFile.lines.join(' | ')}`);
+  const bySlash = check(repo, tree, fileOf(tree, ['search: the old rule', 'scope: . :!gen', ...KEPT.slice(0, 2), '- gen/ (0 hits) unaffected: node gen.mjs --check']));
+  eq(bySlash.code, 0, `a folder named with a trailing slash holds the file: ${bySlash.lines.join(' | ')}`);
+
+  const { repo: baseRepo, tree: base } = fixtureRepo({ 'src/lib.mjs': 'export const OLD_NAME = 1;\n', 'src/use.mjs': 'OLD_NAME;\n', 'gen/snap.md': 'OLD_NAME\n' });
+  const renamed = writeTree(baseRepo, { 'src/lib.mjs': 'export const NEW_NAME = 1;\n' });
+  const withScope = (scope, hits) => {
+    const path = join(tmpDir(), 'risk-x-r2.md');
+    writeFileSync(path, [`Snapshot: ${renamed}`, '', '## src/lib.mjs:1', ...answers(), '', '## Sweep', 'search: OLD_NAME', `scope: ${scope}`, ...hits, ''].join('\n'));
+    return { path, ...run([path, '--repo', baseRepo, '--snapshot', renamed, '--base', base]) };
+  };
+  const USE = '- src/use.mjs:1 updated: the reader';
+  const GEN = '- gen (0 hits) unaffected: node gen.mjs --check proves it matches its source';
+  const covered = withScope('. :!gen', [USE, GEN]);
+  eq(covered.lines.join('\n'), `ok: ${covered.path}\nlow risk: yes`, `a removed name whose only unfound reader the scope leaves out prints no uncovered line: ${covered.lines.join(' | ')}`);
+  const excludesOnly = withScope(':!gen', [USE, GEN]);
+  eq(excludesOnly.lines.join('\n'), `ok: ${excludesOnly.path}\nlow risk: yes`, `a scope of excludes alone reads as the entire repo less the excluded paths: ${excludesOnly.lines.join(' | ')}`);
+  const combined = withScope('. :/!gen', [USE, GEN]);
+  eq(combined.lines.join('\n'), `ok: ${combined.path}\nlow risk: yes`, `a combined short magic run such as ":/!" is an exclude too: ${combined.lines.join(' | ')}`);
+  const unrecorded = withScope('. :!gen', [USE]);
+  ok(unrecorded.code === 1 && unrecorded.lines.some((l) => l.startsWith("uncovered: OLD_NAME is held outside the round's hunks by gen/snap.md:1")),
+    `a reader the scope leaves out with no 0-hit line stays uncovered beside the error: ${unrecorded.lines.join(' | ')}`);
+  const narrow = withScope('src :!src/none', [USE]);
+  ok(narrow.lines.some((l) => l.startsWith("uncovered: OLD_NAME is held outside the round's hunks by gen/snap.md:1")),
+    `a reader outside the scope's other pathspecs stays uncovered, whatever the scope excludes: ${narrow.lines.join(' | ')}`);
+  ok(withScope('src', [USE]).lines.some((l) => l.startsWith('uncovered: OLD_NAME')), 'a scope that names no exclude leaves the generated reader uncovered');
 }
 
 section('helpers');

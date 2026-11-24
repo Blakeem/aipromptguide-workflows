@@ -219,8 +219,11 @@ if (has('a.txt') && has('b.txt')) { console.error('two files claim OWNER'); proc
 export const lockOf = (repo) => at(git(repo, ['rev-parse', '--absolute-git-dir']).stdout.trim(), 'aipg-land.lock');
 export const writeLock = (repo, owner) => writeFileSync(lockOf(repo), `${JSON.stringify(owner)}\n`);
 
-/** A pid that is certainly not running: a child that has already exited. */
-export const deadPid = () => Number(runCli(process.execPath, ['-e', 'process.stdout.write(String(process.pid))']).stdout.trim());
+/**
+ * A pid no process holds, where an exited child's pid can be reused mid-suite. It is the largest pid
+ * process.kill accepts, above Linux's 2^22 and macOS's 99999 ceilings and far above any pid Windows allocates.
+ */
+export const deadPid = () => 2 ** 31 - 1;
 
 export const spawnCli = (args) => new Promise((done) => {
   const child = spawn(process.execPath, args, { stdio: ['ignore', 'pipe', 'pipe'], env: fixtureEnv() });

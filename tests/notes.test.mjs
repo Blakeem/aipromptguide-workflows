@@ -92,8 +92,12 @@ section('develop refuses a notes folder inside its run-state, since the blind re
 section('survey.mjs reads the questions of EXIT-SURVEY.md');
 {
   const questions = parseQuestions(readFileSync(`${REPO_ROOT}/tools/EXIT-SURVEY.md`, 'utf8'));
-  eq([...questions.keys()].join(), '1,2,3,4,5,6', 'six numbered questions');
+  eq([...questions.keys()].join(), '1,2,3,4,5,6,7', 'seven numbered questions');
   ok(questions.get(1).startsWith('Which instruction was unclear'), 'question 1 is the unclear-instruction question');
+  ok(String(questions.get(7) ?? '').startsWith('Which findings did your SELF-REVIEW step fix or decline'), 'question 7 asks for the SELF-REVIEW findings');
+  const survey7 = renderSurvey(parseAnswers('Q7: tools/a.mjs:3 low fixed stale comment\n', 'develop-b-r1'), questions, 1);
+  ok(survey7.includes('## Q7. Which findings did your SELF-REVIEW step')
+    && survey7.includes('- **develop-b-r1**: tools/a.mjs:3 low fixed stale comment'), 'SURVEY.md gains a Q7 section that holds the SELF-REVIEW answer');
 }
 
 section('survey.mjs groups a folder\'s answers by question and counts the "none" answers');

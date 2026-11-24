@@ -877,7 +877,11 @@ of those takes a search the tool does not ask for. A changed or removed rule phr
 searched by its old wording, and by its new wording too when other text must repeat it, since a copy that
 still holds the old wording matches no search of the new one. Each such search holds the name, value or
 phrase alone, without neighbouring text that may differ between copies, such as a citation, a section number
-or punctuation, since a copy with other neighbouring text matches no search that holds it. A changed field,
+or punctuation, since a copy with other neighbouring text matches no search that holds it. A search for one
+code name may take the tool's `word:` form, which matches only the whole word, so the longer names that hold
+it are no hits. A scope may hold an exclude pathspec that leaves out a generated file a command of the gates
+or the conventions proves matches its source, and the risk file then names that command as the tool's format
+shows. A changed field,
 return value, file format or output that other code or prompts read needs a search that finds those readers. A
 change that adds, removes or renames a field of an agent's return schema also needs a search that finds each
 sentence in the repo's prose that lists that agent's return fields, such as "returns", "only" and "nothing
@@ -903,7 +907,9 @@ snapshot is already a missing file. It checks each answer in the risk file of ea
 blind review or last clean risk audit against that round's hunks. It also checks the sweep of the latest of
 those rounds. It runs `tools/risk-check.mjs` on that round's file with the tree id the round returned and
 `--base` by the developer's rule, and each error the tool prints is a gap. So is an `uncovered:` line for a
-name the round removed or renamed, and one for a name the round only stopped using is no gap. A `## Sweep`
+name the round removed or renamed, and one for a name the round only stopped using is no gap. A scope's
+exclude pathspec is no gap once the risk file names the command that proves the file it leaves out matches
+its source and that command passes, and an exclusion of any other file is a gap. A `## Sweep`
 heading with no search under it is no gap only when the tool prints no error for it and no name or phrase
 the round's hunks change has a line outside them that holds it. Each changed
 name or phrase in that round's hunks that a line outside them holds needs a line, and each hit marked

@@ -28,7 +28,7 @@ operator-invoked.
 | `trash.mjs`, `trash-windows.ps1` | Moves a file or directory to the operating system's trash, refuses with every file left in place, or reports unknown. **Operator-invoked or imported by another tool**, never handed to a run-time agent. Each path ends `trashed` (the trash location on stdout), `refused` (nothing moved) or `unknown` (the tool cannot confirm where the item is. It may be partly or wholly in the trash, and part of it may remain at its path). Exit 0 all trashed, 2 any refused and none unknown, 3 any unknown, 1 usage. On Windows a refusal whose helper report matches a measured cause names it beside the report: a tree that holds a path of 260 or more characters, with that length, which a volume with no 8.3 short names refuses (a veto that a volume with no Recycle Bin also gives names both readings), a process that holds the folder or a file in it, or a delete that a file held open without delete sharing or the folder's permissions deny. The exported `TrashError` carries that cause as `causeId`. For the long path cause `wt.mjs` first makes the move its row describes. For a refusal left after that, it names the action that clears the cause and says to run the same command again. Backends: on Windows it runs `trash-windows.ps1` (IFileOperation with a sink that vetoes any delete that would not recycle), on macOS it runs NSFileManager `trashItemAtURL` through osascript, and on Linux and WSL it implements freedesktop.org Trash 1.0 in Node. None copies across devices. `AIPG_TRASH_BACKEND=xdg` forces the Linux backend on any platform, so tests trash into a temporary `XDG_DATA_HOME`. `AIPG_TRASH_LIVE=1` adds the live test cases: they trash temp directories through the real backend. On Windows one sits at a path of MAX_PATH or more and one holds such a path, and each passes trashed or refused with the long path cause, one is held by a child process's working directory, and one checks that the helper refuses a path the shell parses as another item. The macOS backend has run only against fabricated output, since no Mac is available. |
 | `gen-flows.mjs` | Generates `workflows/<x>/FLOW.md` — the Mermaid flow map of an engine's complete agent flow. Runs each engine through `tests/harness.mjs` against a scenario table and draws what it **watched**, so a diagram can only ever show a path that really executes. |
 | `EXIT-SURVEY.md`, `survey.mjs` | The exit survey of a **live test of the workflow itself**, and the only copy of its questions. When an engine's `notes` arg is set, every agent prompt ends with an instruction to read `EXIT-SURVEY.md` and append the answers to `<notes.dir>/<label>.md`. The suite cannot test agents, so this is how prompt changes get tested. Agents read the survey at run time, so its answer format is a contract with `survey.mjs`. A question stays only while its answers prove useful: the maintainer reads each run's `SURVEY.md`, prunes a question whose answers stopped helping and replaces it with one about what the runs need now. `survey.mjs <dir>` reads every answer file in the folder and writes `<dir>/SURVEY.md`, the answers grouped by question and labelled by agent, with the "none" answers counted and left out. **Operator-invoked** after a notes run, as each workflow guide's args reference says. |
-| `gen-prompts.mjs` | Snapshots every distinct prompt variant each engine sends to `tests/snapshots/<name>.prompts.md`, from the same scenario tables. A prompt edit then shows in the git diff under every role, mode and round it reaches. It exits 1 and writes nothing for a spec whose engine throws a SyntaxError before its first agent call or whose scenarios make no agent call. `--dump <file>` writes every distinct call as JSON, to prove a refactor left the prompts byte-identical. |
+| `gen-prompts.mjs` | Snapshots every distinct prompt variant each engine sends to `tests/snapshots/<name>.prompts.md`, from the same scenario tables. A prompt edit then shows in the git diff under every role, mode and round it reaches. It exits 1 and writes nothing for a spec whose engine throws a SyntaxError before its first agent call or whose scenarios make no agent call. `--dump <file>` writes every distinct call as JSON, to prove a refactor left the prompts byte-identical. Every other run prints the character count of each role's largest prompt beside its budget in the hand-edited `tests/prompt-budgets.json`, and `tests/prompts.test.mjs` fails on a count over its budget, a role with no budget and a budget no role uses. |
 | `render-flows.mjs` | Lays every generated map out in **real Mermaid** (headless Chrome) and reports labels that overlap. Answers "is the picture legible", which `gen-flows.mjs` cannot. |
 | `flows/<name>.flow.mjs` | One scenario table per engine, or per kind of audit.mjs (`audit-defects`, `audit-enhancements`): the args + scripted agent replies that drive each distinct path. The only hand-written part of a flow map. |
 | `.cache/` | Gitignored. Downloaded Mermaid + rendered PNGs. Safe to delete. |
@@ -264,14 +264,20 @@ per change, each holding one `- <question>: <answer>` line for each of `RISK_KEY
 `Critical code`, `Assumptions`), where an answer is `no`, `no: <note>` or `yes: <evidence>`. Last comes a
 `## Sweep` section of search blocks. A block is `search: <text>`, `scope: <pathspec> ...` and one hit line
 per hit, `- <path>:<line> updated|unaffected: <reason>`, or `- <path> (<n> hits) updated|unaffected:
-<reason>` for every hit in one generated file. A round that changed nothing holds only the Snapshot line and
-`No changes.`. The tool reruns each search with `git grep -F --untracked` in the repo's working tree, for
-the text as written and as a `'`, `"` or backtick source string escapes it, since a plain grep misses
-`block\'s`. It reports as an error each format break, each skeleton slot left in place, a Snapshot line that
-differs from `--snapshot`, a scope that names no file, a listed hit the search does not find, a hit listed
-twice, a hit count that differs and a reason left as `<reason>`. It prints each hit the file leaves out as a
-`left out:` line with its text, and under it the sweep line `- <path>:<line> updated|unaffected: <reason>` to
-copy into the search block. A line copied as printed fails the check. Exit 0 prints `ok: <file>`, and exit 1
+<reason>` for every hit in one generated file. A `word: <name>` line may take the place of the `search:`
+line, where `<name>` holds only letters, digits and `_`. A scope may hold a git exclude pathspec, such as
+`:!<path>`, for a generated file, and each file it leaves out takes, for itself or a folder holding it,
+`- <path> (0 hits) unaffected: <reason>`, whose reason names the command that proves the file matches its
+source. A round that changed nothing holds only the Snapshot line and `No changes.`. The tool reruns each
+search with `git grep -F --untracked` in the repo's working tree, and a `word:` search with `-w` too, so a
+longer name that holds it is no hit. It greps for the text as written and as a `'`, `"` or backtick source
+string escapes it, since a plain grep misses `block\'s`. It reports as an error each format break, each
+skeleton slot left in place, a Snapshot line that differs from `--snapshot`, a scope that names no file, a
+listed hit the search does not find, a hit listed twice, a hit count that differs, a file an exclude pathspec
+leaves out that no 0-hit line names, itself or by a folder, and a reason left as `<reason>`. It prints each
+hit the file leaves out as a `left out:` line with its text, and under it the sweep line `- <path>:<line>
+updated|unaffected: <reason>` to copy into the search block. A line copied as printed fails the check. Exit 0
+prints `ok: <file>`, and exit 1
 prints the problem count and each problem, then `FORMAT` when a problem is a format error or a Snapshot line
 that differs. Both end `low risk: yes|no` once every answer parses, `yes` only when every answer is `no`.
 `--base` names the tree the round's diff starts from. Once the file has no format error and holds a change
@@ -280,7 +286,8 @@ lines that no added line holds and that is shaped like a code name. Such a token
 and `_`, starts with a letter or `_`, and holds an `_` between two letters or digits or a lowercase
 letter before an uppercase one, such as `PLUGIN_ROOT` or `installedSiblings`. A one-word name and an English
 word fall outside. A reader is a line of the `--snapshot` tree that holds the name as a whole word. A search
-covers a name when its text is the name and its rerun finds each reader. Each changed name with a reader and
+covers a name when its text is the name and its rerun finds each reader, or its scope leaves the reader's file
+out through an exclude pathspec and a 0-hit line records it. Each changed name with a reader and
 no covering search prints as `uncovered: <name> is held outside the round's hunks by <path>:<line> and <n>
 other line(s), ...` before the low-risk line. An `uncovered:` line is no problem, so it changes neither the
 exit code nor the `ok:` line, and the prompts say how an agent judges it. A `## Sweep` heading with no search
