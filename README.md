@@ -187,6 +187,33 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   scratch folder, so two blocks could write the same file name.
 - **investigate's `NEEDS-USER.md` headings carry the launch number.** A heading is `## launch <n> r<round>
   <role>`, as in refine, so a relaunch that reruns a round adds a new heading.
+- **`close` and `clean` trash a worktree whose paths are too long for the Recycle Bin.** When the trash
+  refuses a worktree for a path of 260 or more characters, they move it once with `git worktree move` to a
+  short folder such as `aipg-_000000` in the worktree root folder, and trash it there. A second refusal
+  exits 40 with the worktree at the short path. The same command run again makes no second move.
+- **A risk file search can match a whole word.** A `word: <name>` line takes the place of a `search:` line.
+  It leaves out each longer name that holds the name.
+- **A risk file search can leave out a generated file.** A `scope:` line takes an exclude pathspec such as
+  `:!<path>` for a file that a gate command proves matches its source. The risk file names that command on
+  a `(0 hits)` line for the file.
+- **Develop's REACH step covers file and folder names.** A review also greps the readers of each file name,
+  folder name or path that the changed code writes, renames or moves.
+- **Develop's copy limit leaves out a tool's own texts.** A tool's usage text, header comment, messages and
+  the text that documents the tool do not count as copies of a fact. A review reports two copies that
+  disagree.
+- **A review's suggested fix cannot change the plan without an amendment.** A developer applies a suggested
+  fix that changes what the plan block states only as a plan amendment.
+- **Acceptance has a default verification method.** For a feature block that names none, the method is the
+  gate and the tests the block adds or changes.
+- **The refine critic tests each requirement stated without exception.** It tries each value that the
+  named flag, setting or location accepts, and reports a contradiction only with the value that breaks the
+  requirement. It does the same for a check that the plan removes.
+- **Agents read a file before the first edit.** The prompts of develop, refine, decide, docs and
+  investigate say so, since the Edit tool refuses a file its agent has not read.
+- **The exit survey has a seventh question.** A develop developer lists each finding that its SELF-REVIEW
+  step fixed or declined. The survey still runs only when a launch sets `notes`.
+- **Each role's largest prompt has a size budget.** `tests/prompt-budgets.json` holds the budgets.
+  `gen-prompts.mjs` prints each size beside its budget, and the suite fails on a size over its budget.
 
 ### 2026-11-11
 
