@@ -191,7 +191,7 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   refuses a worktree for a path of 260 or more characters, they move it once with `git worktree move` to a
   short folder such as `aipg-_000000` in the worktree root folder, and trash it there. A second refusal
   exits 40 with the worktree at the short path. The same command run again makes no second move.
-- **A risk file search can match a whole word.** A `word: <name>` line takes the place of a `search:` line.
+- **A risk file search can match a name alone.** A `word: <name>` line takes the place of a `search:` line.
   It leaves out each longer name that holds the name.
 - **A risk file search can leave out a generated file.** A `scope:` line takes an exclude pathspec such as
   `:!<path>` for a file that a gate command proves matches its source. The risk file names that command on
