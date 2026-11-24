@@ -113,5 +113,5 @@ section("every prompt that writes a file says to Read a file an interrupted atte
   const { prompt } = await runEngine(ENGINE, { args: baseArgs, respond: { generate: GEN } });
   const sites = [["the generator's variation files", prompt('generate'), 1, 1]];
   pinWriteNotes(sites, REPLACE_NOTE);
-  pinFileWriteNote(sites);
+  pinFileWriteNote(sites, false);
 }

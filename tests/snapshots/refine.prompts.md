@@ -6,8 +6,8 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| plan-critic | 1 | 1 | 12679 | a clean first round |
-| plan-editor | 1 | 1 | 6074 | gaps folded, then a clean round |
+| plan-critic | 1 | 1 | 13066 | a clean first round |
+| plan-editor | 1 | 1 | 6194 | gaps folded, then a clean round |
 
 ## plan-critic · variant 1 · schema 1
 
@@ -32,7 +32,7 @@ PROCEDURE:
 2. Read the plan file and grep the repo, judging each todo block by THE DEFECT BAR, THE TWO KINDS OF PLAN
    TEXT, BLOCK METADATA, the SCOPE RULES and THE SEVERITY FLOOR below. Output: each gap and question,
    with its evidence.
-3. WRITE E:/flow/runs/flow-refine/launch-1/plan-critique-1.md (create E:/flow/runs/flow-refine/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Put EVERYTHING there VERBATIM, since it
+3. WRITE E:/flow/runs/flow-refine/launch-1/plan-critique-1.md (create E:/flow/runs/flow-refine/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read. Put EVERYTHING there VERBATIM, since it
    is your ONLY channel to the editor: a numbered GAPS section, then a QUESTIONS section, or in the
    converged round only what step 5 names. Per gap: the block id, which of the four classes it is, which
    kind of text it is in (REQUIREMENT TEXT or METHOD TEXT), its grade, its evidence with the plan line
@@ -56,6 +56,9 @@ names plan text that is wrong. Exactly four classes qualify:
   1. A CONTRADICTION: two statements in the plan that cannot both hold, or a plan statement the repo
      or a file the plan cites contradicts, such as a path, symbol, quoted text or current behavior that
      is not what the plan says.
+     For a requirement the plan states without exception, and for a check or mechanism the plan removes
+     with a stated reason, try each value that the flag, setting or location it names accepts, and report a
+     contradiction only with the value that breaks it.
   2. A WRONG PRESCRIPTION: built, written or run as the plan prescribes, the code crashes, loses or
      corrupts data, or gives wrong output on an input the repo or the plan accepts.
      Text the block tells the developer to write, such as an engine prompt sentence, a principle, a guide
@@ -272,7 +275,7 @@ PROCEDURE:
    landing at the top of a block BODY joins the preamble run and throws as an unrecognized key. Non-zero
    exit: FIX the file and re-run until it exits 0. Report plan_parses=false only if you could not.
 Do NOT modify the target repo. Do NOT stage or commit anything.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 Return via the schema.
 ~~~~
 

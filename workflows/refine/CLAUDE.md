@@ -97,6 +97,9 @@ Four things together — remove any one and the plan grows every round instead o
   output, so a sentence the repo contradicts is a wrong prescription. The critic confirms a prescribed
   command, flag or dependency behavior the repo does not already use the same way, against the
   dependency's docs or source or a probe in a temporary directory outside the repo and the stateDir.
+  For a requirement the plan states without exception, and for a check or mechanism the plan removes
+  with a stated reason, the critic tries each value that the flag, setting or location it names accepts,
+  and reports a contradiction only with the value that breaks it.
   What the plan does not say is never a gap: a missing step, test, wiring point, edge case, file or
   detail is the developer's call, so a lean block passes. A gap's change corrects or removes the wrong
   text and never adds a requirement, step, file, test or detail the plan does not already state. In

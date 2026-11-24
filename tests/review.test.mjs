@@ -933,5 +933,5 @@ section("every prompt that writes a file says when the file may already exist an
   ];
   pinWriteNotes(sites([1, 0, 1]));
   pinWriteNotes(sites([1, 1, 0]), LAUNCH_NOTE);
-  pinFileWriteNote(sites([1, 0, 1]));
+  pinFileWriteNote(sites([1, 0, 1]), false);
 }

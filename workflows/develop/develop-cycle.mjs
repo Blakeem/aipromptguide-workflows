@@ -834,7 +834,7 @@ const SWEEP_SCHEMA = {
 // Shared prompt fragments + decision matrix (developer-owned)
 // =============================================================================
 // Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
-const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
+const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.';
 // A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
 // Each launch passes the launch folder its args command reserves.
 const LAUNCH = `start the pre-launch command with run_in_background, end the turn, and call the Workflow tool in the turn its notification starts. That pre-launch command is node '${toolPath('plan-edit.mjs')}' args with --reserve '${STATE_DIR}' beside its other flags, and the launchDir it prints reaches the args with the rest of its object`;
@@ -1185,7 +1185,7 @@ const RISK_GAPS = `A gap for ${WRONG_RISK_ANSWER}, for ${SWEEP_GAP}, or for ${CH
 // A reviewer's finding, its suggested fix and a fix entry's **Fix:** line can each be wrong, so the developer
 // confirms each before it acts.
 const SUGGESTION_CHECK = "check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way.";
-const REVIEW_CLAIMS = `A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, ${SUGGESTION_CHECK} Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1.`;
+const REVIEW_CLAIMS = `A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, ${SUGGESTION_CHECK} Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1.`;
 // What every reviewer gives in place of a fix to apply, since the developer confirms it under REVIEW_CLAIMS.
 const FIX_DIRECTION = 'a fix direction you checked against the code it would change';
 
@@ -1196,7 +1196,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.`;
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.`;
 const CHECKLIST = `CHECKLIST:
   - build and tests: anything that breaks the build or tests;
   - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
@@ -2116,7 +2118,8 @@ const planAcceptance = (p, round, { earlierReviews, riskRounds, riskSnapshots, c
    stageable "done"); for gate=build-only just build green. ${ACC_SUITE_LINE} If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.`
     : `Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    ${ACC_SUITE_LINE} If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.`;
   return `

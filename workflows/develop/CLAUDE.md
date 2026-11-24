@@ -614,10 +614,12 @@ The roles:
   or escalates. It reads a suggested fix as a hint and checks it
   against the text it changes, the block's text, every sibling text that must agree with it and any
   command or behavior the repo does not already use, then builds the fix that closes the confirmed
-  cause. In a fix block, VERIFY-FIRST checks each entry's `**Fix:**` line the same way, and a line it
-  verifies is defective goes under the matrix's verified-plan-defect case (6a). HARDEN handles edge
-  cases, gives each expected failure a message that names its cause, logs where the repo logs, adds
-  a test for each risky path and cleans up the code its round added or changed, at every tier.
+  cause. It applies a suggested fix that changes what the block's text states, or adds an exception to
+  it, only under the matrix's verified-plan-defect case (6a), since a blind reviewer never reads the
+  plan. In a fix block, VERIFY-FIRST checks each entry's `**Fix:**` line the same way, and a line it
+  verifies is defective goes under that case. HARDEN handles edge cases, gives each expected failure a
+  message that names its cause, logs where the repo logs, adds a test for each risky path and cleans up
+  the code its round added or changed, at every tier.
   SIBLINGS is the sibling rule below. SELF-REVIEW applies the blind reviewer's severity scale, reach
   step and checklist to the code its round changed or read. Code that earlier rounds changed and
   that its round neither changed nor read is outside the self-review, since each earlier round's

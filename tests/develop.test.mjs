@@ -490,6 +490,8 @@ section('acceptance audits the risk file of each round since the block\'s last b
   'the sweep check of acceptance flags a missing line for the prose that lists the return fields of an agent whose schema changed');
   const REACH_SENTENCE = 'When a fact must be stated in more than one place, keep it in as few places as possible, at most one copy for users and one for agents, and update every copy in the same change.';
   ok(d1.includes(REACH_SENTENCE) && q1.includes(REACH_SENTENCE), 'the REACH step of the developer and the blind reviewer states a fact in as few places as possible');
+  const COPY_RULE = "A tool's own usage text, header comment and messages, and the text that documents that tool, count toward neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of one fact that disagree, as a finding.";
+  ok(d1.includes(COPY_RULE) && q1.includes(COPY_RULE), 'the REACH step exempts a tool\'s own texts from the copy limit and reports copies that disagree');
   // A rule that two prompts state renders from one constant.
   const SPEC_CASES = "the plan prescribes the code, this block's text excludes it, or another block of the plan owns it";
   ok(d1.includes(`whose reason is that ${SPEC_CASES}. Its entire line is`) && a3.includes(`declines a finding because ${SPEC_CASES}.`),
@@ -4687,7 +4689,7 @@ section('every develop prompt that writes a round file says to Read a file an ea
 section('the developer confirms each review finding, suggested fix and Fix line before it acts on one');
 // A reviewer and a fix entry each make claims another agent wrote, so the developer checks them against the code.
 {
-  const REVIEW_CLAIMS = "A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as \"CONTESTS DISMISSAL\" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1.";
+  const REVIEW_CLAIMS = "A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as \"CONTESTS DISMISSAL\" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1.";
   const rework = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, ONE_BLOCK);
   ok(flat(rework.prompt('develop block-a r2')).includes(REVIEW_CLAIMS), 'a round that answers a review confirms each finding and treats its fix as a hint');
   ok(!flat(rework.prompt('develop block-a r1')).includes("A review is another agent's claim."), 'round 1, which answers no review, carries no such rule');
@@ -5560,12 +5562,20 @@ section('a prompt drops the PULLED read when round 1 took no entry');
 
 section('the developer, acceptance and park prompts tell the agent to write and edit files with the Write or Edit tool, not a Bash command');
 {
-  const NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
+  const NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.';
   const r = await run({ develop: DEV_OK, quality: CLEAN, acceptance: ACC_FAIL }, { ...ONE_BLOCK, maxRounds: 1 });
   for (const label of ['develop block-a r1', 'acceptance block-a r1', 'park:block-a']) {
     ok(flat(r.prompt(label)).includes(NOTE), `the ${label.split(/[ :]/)[0]} prompt carries the file-writing rule`);
   }
   ok(flat(r.prompt('develop block-a r1')).split(NOTE).length === 2, 'the developer prompt states it once');
+}
+
+section('feature acceptance reruns the verification the block names, or the gate and the block\'s tests');
+{
+  const r = await run({ develop: DEV_OK, quality: CLEAN, acceptance: ACC_PASS }, ONE_BLOCK);
+  const acc = flat(r.prompt('acceptance block-a r1'));
+  ok(acc.includes('Re-run the verification method the block names to confirm the feature behaves as specified. When the block names none, that method is the gate and the tests the block adds or changes.')
+    && !acc.includes("the plan's configured verification method"), 'a block that names no method still has one to rerun');
 }
 
 section('a fix block whose entries continue no parked work skips the park-continuation text, and every other block keeps it');

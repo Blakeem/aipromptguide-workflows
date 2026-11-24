@@ -278,7 +278,7 @@ ${CONVENTION_FILES.map((p) => `  - ${p}`).join('\n')}
 const REPLACE_NOTE = 'The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content.';
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 // Agents that edited files through a Bash command or a script it carried lost backslashes, in single quotes too.
-const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
+const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.';
 // A launch inside a user turn relays that turn's message to every agent (root CLAUDE.md, "Launch from a notification turn").
 // A relaunch reserves a new launch folder. A replay keeps its launch's folder, so its pre-launch command reserves none.
 // A relaunch parses the plan first, as guide §0 step 5 does, so a plan that fails the parse costs no agent.
@@ -342,6 +342,9 @@ names plan text that is wrong. Exactly four classes qualify:
   1. A CONTRADICTION: two statements in the plan that cannot both hold, or a plan statement the repo
      or a file the plan cites contradicts, such as a path, symbol, quoted text or current behavior that
      is not what the plan says.
+     For a requirement the plan states without exception, and for a check or mechanism the plan removes
+     with a stated reason, try each value that the flag, setting or location it names accepts, and report a
+     contradiction only with the value that breaks it.
   2. A WRONG PRESCRIPTION: built, written or run as the plan prescribes, the code crashes, loses or
      corrupts data, or gives wrong output on an input the repo or the plan accepts.
      Text the block tells the developer to write, such as an engine prompt sentence, a principle, a guide

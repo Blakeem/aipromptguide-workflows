@@ -111,7 +111,7 @@ flowchart TD
 | throw: Invalid args.launchDir | args.launchDir is not a launch-&lt;n&gt; folder directly inside the stateDir | throw (line 193) |
 | throw: Missing args.blockTool | blockTool is missing or blank | throw (line 202) |
 | throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 232) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 526) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 529) |
 
 ## Coverage
 

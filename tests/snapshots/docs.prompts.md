@@ -6,13 +6,13 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| gather | 1 | 1 | 1978 | two sources, one round |
-| gather | 2 | 1 | 1978 | two sources, one round |
-| scrub | 1 | 1 | 1296 | two sources, one round |
-| curate | 1 | 1 | 6230 | two sources, one round |
-| gather | 3 | 1 | 2925 | gap-fill round |
-| curate | 2 | 1 | 6869 | gap-fill round |
-| gather | 4 | 1 | 1966 | a repo source skips the scrubber |
+| gather | 1 | 1 | 2098 | two sources, one round |
+| gather | 2 | 1 | 2098 | two sources, one round |
+| scrub | 1 | 1 | 1416 | two sources, one round |
+| curate | 1 | 1 | 6350 | two sources, one round |
+| gather | 3 | 1 | 3045 | gap-fill round |
+| curate | 2 | 1 | 6989 | gap-fill round |
+| gather | 4 | 1 | 2086 | a repo source skips the scrubber |
 
 ## gather · variant 1 · schema 1
 
@@ -41,7 +41,7 @@ PROCEDURE:
 2. Copy what you keep VERBATIM into E:/flow/runs/flow/docs/api-reference/ (create it): one kebab-case .md file per
    page/topic, each with its source header. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace it only when it
    starts with a source header. Otherwise leave it and write under another name.
-   A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+   A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 Return files_written + skipped via the schema.
 ~~~~
 
@@ -103,7 +103,7 @@ PROCEDURE:
 2. Copy what you keep VERBATIM into E:/flow/runs/flow/docs/release-notes/ (create it): one kebab-case .md file per
    page/topic, each with its source header. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace it only when it
    starts with a source header. Otherwise leave it and write under another name.
-   A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+   A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 Return files_written + skipped via the schema.
 ~~~~
 
@@ -145,7 +145,7 @@ Return files_written + skipped via the schema.
 ~~~~text
 
 You are a DOC SCRUBBER cleaning freshly captured docs for a coding LLM. Edit every .md file in
-E:/flow/runs/flow/docs/api-reference/ IN PLACE. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+E:/flow/runs/flow/docs/api-reference/ IN PLACE. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 VERBATIM RULE: doc content is COPIED, SPLIT, and DELETED — never rewritten, paraphrased, or summarized.
 Converting HTML to clean markdown is fine (keep headings, tables, and code blocks whole); changing the
 words is not. Brevity comes from leaving irrelevant content OUT, never from compressing what you keep.
@@ -221,7 +221,7 @@ JOBS (in order):
 4. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
-5. INDEX — write E:/flow/runs/flow/docs/INDEX.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. It holds one line per file (path — what it covers — when to read it), then a
+5. INDEX — write E:/flow/runs/flow/docs/INDEX.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read. It holds one line per file (path — what it covers — when to read it), then a
    "Coverage notes" section holding the inconsistencies (with citations) and one entry per open gap, in
    this format (the gap-fill gatherer reads the entry as its directive, so name the source precisely):
 ### [gap-r1-<n>] <short title>
@@ -364,7 +364,7 @@ feedback/share/"was this helpful" widgets, marketing blocks, broken image/link r
 duplicated headings, excess blank lines. Fix mangled markdown FORMATTING (tables, code fences) without
 touching the words. Keep every source header intact. Unsure whether something is doc content → KEEP it;
 the curator judges relevance.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 Return files_written + skipped via the schema, summed over every gap, and missing_entries.
 ~~~~
 
@@ -448,7 +448,7 @@ JOBS (in order):
 4. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
-5. INDEX — write E:/flow/runs/flow/docs/INDEX.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. It holds one line per file (path — what it covers — when to read it), then a
+5. INDEX — write E:/flow/runs/flow/docs/INDEX.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read. It holds one line per file (path — what it covers — when to read it), then a
    "Coverage notes" section holding the inconsistencies (with citations) and one entry per open gap, in
    this format (the gap-fill gatherer reads the entry as its directive, so name the source precisely):
 ### [gap-r2-<n>] <short title>
@@ -586,7 +586,7 @@ PROCEDURE:
 2. Copy what you keep VERBATIM into E:/flow/runs/flow/docs/sdk-readme/ (create it): one kebab-case .md file per
    page/topic, each with its source header. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace it only when it
    starts with a source header. Otherwise leave it and write under another name.
-   A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+   A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 Return files_written + skipped via the schema.
 ~~~~
 

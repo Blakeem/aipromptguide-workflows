@@ -130,7 +130,10 @@ capture files. Each engine's test counts both notes in each such prompt through 
 write site needs a row there.
 In every engine but develop, `WROTE_NOTE` is followed by `FILE_WRITE_NOTE`, which tells the agent to
 write file content, and any script that edits a file, with the Write or Edit tool.
-`pinFileWriteNote` counts it in the same rows.
+In each engine whose agents edit a file they did not write, it also tells the agent to Read a file
+before its first Edit. Audit's and brainstorm's agents only write their own files, so their note omits that.
+`pinFileWriteNote` counts it in the same rows, and its `readFirst` argument says which form an engine
+carries.
 Docs' scrubber carries `FILE_WRITE_NOTE` without `WROTE_NOTE`, so docs' test gives it its own row.
 
 **Prose-sniffing for control flow.** `status = haltReason.includes('needs user') ? … : …` silently
@@ -199,8 +202,10 @@ against (halt); an unreachable feature does not (flag).
   or local paths. A user's own rules reach agents through that user's CLAUDE.md.
 - **A fact lives in as few places as possible.** Keep it in at most one copy for users (a README) and
   one for agents (a CLAUDE.md or the prompt constant that renders it), and point every other place to
-  one of those. A rule that two prompts share lives in one constant that both render, as
-  `DOC_REGRESSION` and `SPEC_CASES` do in `develop-cycle.mjs`.
+  one of those. A tool's own usage text, header comment and messages, and the text that documents that
+  tool, count toward neither limit. Copies of one fact that disagree are a defect. A rule that two
+  prompts share lives in one constant that both render, as `DOC_REGRESSION` and `SPEC_CASES` do in
+  `develop-cycle.mjs`.
 
 ---
 
@@ -257,7 +262,10 @@ against (halt); an unreachable feature does not (flag).
   or renames reads it defensively, such as `String(out.nextStep ?? '')`, so the old code fails that one
   assertion early and visibly instead of throwing and hiding every assertion after it. An absence
   assertion on new behavior, such as a new prompt that must not name some file, passes on the old code by
-  construction. Prove it against a mutant that adds what it forbids.
+  construction. Prove it against a mutant that adds what it forbids. An assertion the old code passes
+  because it never did the thing, such as the absence of a folder the old code never made, is proven against
+  a mutant of the new code that removes the behavior under test. A test's setup creates each folder it
+  writes into, since the old code may not create it and a throw there hides every assertion after it.
 - **The red-run recipe.** Export the code under test at its old version into a NEW, empty scratch folder
   outside the repo. `checkout-index` never overwrites a file that exists, so a reused folder holds stale
   code and the run passes silently. Export the staged version with
@@ -266,10 +274,11 @@ against (halt); an unreachable feature does not (flag).
   `git -C <repo> archive HEAD | tar -x -C <scratch>` only when your own change is staged. In a later round of
   one develop block, export the tree the round's prompt passes to the risk tool as `--base` with
   `git -C <repo> archive <tree id> | tar -x -C <scratch>`. That tree is the earlier round's snapshot, or the
-  index tree when that round returned none, which lacks the earlier rounds' work. Copy the new test files
-  over the export and run `node <scratch>/tests/run.mjs <filter>`. For an absence assertion, also copy the
-  changed code files over the export and apply the mutant to those copies. Never swap files in the working
-  tree for a red run.
+  index tree when that round returned none, which lacks the earlier rounds' work. A test of code that an
+  earlier round of the same block added passes on a snapshot export that holds that code, so prove it
+  against a mutant of the export's copy of that code. Copy the new test files over the export and run
+  `node <scratch>/tests/run.mjs <filter>`. For a mutant of the new code, also copy the changed code files
+  over the export and apply the mutant to those copies. Never swap files in the working tree for a red run.
 - **Edit engine template text with the Edit tool or a script file written by the Write tool**, never
   through a Bash command, as `FILE_WRITE_NOTE` in develop-cycle.mjs tells agents. Agents that edited files
   through a Bash command or a script it carried lost backslashes, in single quotes too, so the exact-match

@@ -7,20 +7,20 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | criteria-critic | 1 | 1 | 1900 | refine the criteria |
-| investigate | 1 | 1 | 8481 | exhaustion agreed |
-| critique | 1 | 1 | 7876 | exhaustion agreed |
-| critique | 2 | 1 | 7889 | no solution verified |
-| investigate | 2 | 1 | 9598 | exhaustion contested |
-| investigate | 3 | 1 | 9963 | exhaustion contested |
-| critique | 3 | 1 | 8184 | saturation agreed |
-| critique | 4 | 1 | 5976 | stalled |
-| investigate | 4 | 1 | 10342 | resumed quiet first round |
-| critique | 5 | 1 | 6216 | resumed quiet first round |
-| investigate | 5 | 1 | 9367 | quiet rounds |
-| investigate | 6 | 1 | 9732 | quiet rounds |
-| critique | 6 | 1 | 7308 | quiet rounds |
-| critique | 7 | 1 | 8116 | resumed search |
-| critique | 8 | 1 | 5963 | investigator escalates |
+| investigate | 1 | 1 | 8601 | exhaustion agreed |
+| critique | 1 | 1 | 7996 | exhaustion agreed |
+| critique | 2 | 1 | 8009 | no solution verified |
+| investigate | 2 | 1 | 9718 | exhaustion contested |
+| investigate | 3 | 1 | 10083 | exhaustion contested |
+| critique | 3 | 1 | 8304 | saturation agreed |
+| critique | 4 | 1 | 6096 | stalled |
+| investigate | 4 | 1 | 10462 | resumed quiet first round |
+| critique | 5 | 1 | 6336 | resumed quiet first round |
+| investigate | 5 | 1 | 9487 | quiet rounds |
+| investigate | 6 | 1 | 9852 | quiet rounds |
+| critique | 6 | 1 | 7428 | quiet rounds |
+| critique | 7 | 1 | 8236 | resumed search |
+| critique | 8 | 1 | 6083 | investigator escalates |
 
 ## criteria-critic · variant 1 · schema 1
 
@@ -232,7 +232,7 @@ PROCEDURE:
    anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## launch 1 r1 investigator`, and
    set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -377,7 +377,7 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
@@ -525,7 +525,7 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
@@ -705,7 +705,7 @@ PROCEDURE:
    anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## launch 1 r2 investigator`, and
    set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -885,7 +885,7 @@ PROCEDURE:
    anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## launch 1 r5 investigator`, and
    set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -1033,7 +1033,7 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
@@ -1163,7 +1163,7 @@ CHECK:
 5. No termination was claimed this round: leave agree and contests_claim false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/launch-1/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
-WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.
@@ -1351,7 +1351,7 @@ PROCEDURE:
    anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## launch 1 r3 investigator`, and
    set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -1480,7 +1480,7 @@ CHECK:
 5. No termination was claimed this round: leave agree and contests_claim false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/launch-1/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
-WRITE E:/flow/runs/flow/launch-1/acceptance-review-r3.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r3.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.
@@ -1658,7 +1658,7 @@ PROCEDURE:
    anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## launch 1 r3 investigator`, and
    set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -1836,7 +1836,7 @@ PROCEDURE:
    anything) Append a full entry to E:/flow/runs/flow/NEEDS-USER.md that opens with the line `## launch 1 r5 investigator`, and
    set needs_user=true. Output: the appended entry.
 Do NOT modify any repo, stage, or commit.
-A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -1975,7 +1975,7 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/launch-1/acceptance-review-r5.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r5.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
@@ -2125,7 +2125,7 @@ CHECK:
    made, so it is a defect too. This does NOT change agree.
    Write each correction and each defect in your review file, and count the defects in
    determination_defects.
-WRITE E:/flow/runs/flow/launch-1/acceptance-review-r3.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r3.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds. Then each correction you made to E:/flow/runs/flow/launch-1/DETERMINATION.md and each defect left in it.
@@ -2255,7 +2255,7 @@ CHECK:
 5. No termination was claimed this round: leave agree and contests_claim false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/launch-1/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
-WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Per option, write which criteria hold and which
+WRITE E:/flow/runs/flow/launch-1/acceptance-review-r1.md (create E:/flow/runs/flow/launch-1/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your rulings on the new ledger lines and FLAG lines, and your
 near-miss corrections. Then your verdict on any termination claim: the avenue still open WITH its
 citation, or that the claim holds.

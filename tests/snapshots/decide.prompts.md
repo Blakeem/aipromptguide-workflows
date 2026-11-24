@@ -6,16 +6,16 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| investigate i1 | 1 | 1 | 5224 | every challenger contributes |
-| investigate i | 1 | 1 | 7906 | every challenger contributes |
-| investigate i | 2 | 1 | 7958 | every challenger contributes |
-| investigate i | 3 | 1 | 8010 | every challenger contributes |
-| decide | 1 | 1 | 8330 | every challenger contributes |
-| review | 1 | 1 | 8145 | every challenger contributes |
-| decide | 2 | 1 | 8226 | a challenger contributes nothing |
-| review | 2 | 1 | 8041 | a challenger contributes nothing |
-| decide | 3 | 1 | 8174 | one investigator |
-| review | 3 | 1 | 7983 | one investigator |
+| investigate i1 | 1 | 1 | 5344 | every challenger contributes |
+| investigate i | 1 | 1 | 8026 | every challenger contributes |
+| investigate i | 2 | 1 | 8078 | every challenger contributes |
+| investigate i | 3 | 1 | 8130 | every challenger contributes |
+| decide | 1 | 1 | 8450 | every challenger contributes |
+| review | 1 | 1 | 8265 | every challenger contributes |
+| decide | 2 | 1 | 8346 | a challenger contributes nothing |
+| review | 2 | 1 | 8161 | a challenger contributes nothing |
+| decide | 3 | 1 | 8294 | one investigator |
+| review | 3 | 1 | 8103 | one investigator |
 
 ## investigate i1 · variant 1 · schema 1
 
@@ -59,7 +59,7 @@ PROCEDURE:
    `## Given options`, each entry there is an option of E:/flow/runs/flow/launch-1/investigations/i1.md under its own id, ahead of the
    options you find, and is judged like the rest.
 2. Judge each option against every non-negotiable and weighted criterion of the rubric.
-WRITE E:/flow/runs/flow/launch-1/investigations/i1.md (create E:/flow/runs/flow/launch-1/investigations/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/investigations/i1.md (create E:/flow/runs/flow/launch-1/investigations/ if needed). The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 It holds these sections, in this order:
 - `## Options`: every option you weighed, each under a run-wide id (O1, O2 and so on) with a description
   of what would be built or done, its pros and its cons. Each pro and con names the non-negotiable or
@@ -159,7 +159,7 @@ PROCEDURE:
    improve or verify as a DEFECT contribution. Never build a contribution on a part a recorded defect
    names unless that contribution fixes it. Never repeat a contribution an earlier file holds, and never
    edit an earlier file.
-WRITE E:/flow/runs/flow/launch-1/investigations/i2.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/investigations/i2.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 It holds these sections, in this order:
 - `## Contributions`: each under an id C2.1, C2.2 and so on, with its kind, the option id it targets
   or, for a new option, the next free option id, the option ids under `also fits`, if any, what changes
@@ -269,7 +269,7 @@ PROCEDURE:
    improve or verify as a DEFECT contribution. Never build a contribution on a part a recorded defect
    names unless that contribution fixes it. Never repeat a contribution an earlier file holds, and never
    edit an earlier file.
-WRITE E:/flow/runs/flow/launch-1/investigations/i3.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/investigations/i3.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 It holds these sections, in this order:
 - `## Contributions`: each under an id C3.1, C3.2 and so on, with its kind, the option id it targets
   or, for a new option, the next free option id, the option ids under `also fits`, if any, what changes
@@ -380,7 +380,7 @@ PROCEDURE:
    improve or verify as a DEFECT contribution. Never build a contribution on a part a recorded defect
    names unless that contribution fixes it. Never repeat a contribution an earlier file holds, and never
    edit an earlier file.
-WRITE E:/flow/runs/flow/launch-1/investigations/i4.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/investigations/i4.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 It holds these sections, in this order:
 - `## Contributions`: each under an id C4.1, C4.2 and so on, with its kind, the option id it targets
   or, for a new option, the next free option id, the option ids under `also fits`, if any, what changes
@@ -488,7 +488,7 @@ PROCEDURE:
    it DOMINANT when rank 1 is at least as good as rank 2 on every criterion, ROBUST when the smallest swap
    is larger than the uncertainty of the input it moves, FRAGILE when it is not. When one option ranks
    alone, say so and grade it DOMINANT.
-WRITE E:/flow/runs/flow/launch-1/decision.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/decision.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 It holds these sections, in this order:
 - `## Ranking`: every option that passes every non-negotiable, best first, one line each with its rank,
   title, total, `combines with` (the ranks it genuinely composes with) and `excludes` (the ranks it is
@@ -652,7 +652,7 @@ PROCEDURE:
    it DOMINANT when rank 1 is at least as good as rank 2 on every criterion, ROBUST when the smallest swap
    is larger than the uncertainty of the input it moves, FRAGILE when it is not. When one option ranks
    alone, say so and grade it DOMINANT.
-WRITE E:/flow/runs/flow/launch-1/review.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/review.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 It holds these sections, in this order:
 - `## Defects`: each defect step 1 showed, with the option id, its failure and the fix it would take
   when one is within reach, or `None.`
@@ -802,7 +802,7 @@ PROCEDURE:
    it DOMINANT when rank 1 is at least as good as rank 2 on every criterion, ROBUST when the smallest swap
    is larger than the uncertainty of the input it moves, FRAGILE when it is not. When one option ranks
    alone, say so and grade it DOMINANT.
-WRITE E:/flow/runs/flow/launch-1/decision.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/decision.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 It holds these sections, in this order:
 - `## Ranking`: every option that passes every non-negotiable, best first, one line each with its rank,
   title, total, `combines with` (the ranks it genuinely composes with) and `excludes` (the ranks it is
@@ -964,7 +964,7 @@ PROCEDURE:
    it DOMINANT when rank 1 is at least as good as rank 2 on every criterion, ROBUST when the smallest swap
    is larger than the uncertainty of the input it moves, FRAGILE when it is not. When one option ranks
    alone, say so and grade it DOMINANT.
-WRITE E:/flow/runs/flow/launch-1/review.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/review.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 It holds these sections, in this order:
 - `## Defects`: each defect step 1 showed, with the option id, its failure and the fix it would take
   when one is within reach, or `None.`
@@ -1113,7 +1113,7 @@ PROCEDURE:
    it DOMINANT when rank 1 is at least as good as rank 2 on every criterion, ROBUST when the smallest swap
    is larger than the uncertainty of the input it moves, FRAGILE when it is not. When one option ranks
    alone, say so and grade it DOMINANT.
-WRITE E:/flow/runs/flow/launch-1/decision.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/decision.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 It holds these sections, in this order:
 - `## Ranking`: every option that passes every non-negotiable, best first, one line each with its rank,
   title, total, `combines with` (the ranks it genuinely composes with) and `excludes` (the ranks it is
@@ -1274,7 +1274,7 @@ PROCEDURE:
    it DOMINANT when rank 1 is at least as good as rank 2 on every criterion, ROBUST when the smallest swap
    is larger than the uncertainty of the input it moves, FRAGILE when it is not. When one option ranks
    alone, say so and grade it DOMINANT.
-WRITE E:/flow/runs/flow/launch-1/review.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+WRITE E:/flow/runs/flow/launch-1/review.md. The file exists before you write it only when an interrupted attempt of this launch left it, which a replay meets, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 It holds these sections, in this order:
 - `## Defects`: each defect step 1 showed, with the option id, its failure and the fix it would take
   when one is within reach, or `None.`

@@ -11,31 +11,31 @@
     "generate": 2182
   },
   "decide": {
-    "investigate i1": 5224,
-    "investigate i": 8010,
-    "decide": 8330,
-    "review": 8145
+    "investigate i1": 5344,
+    "investigate i": 8130,
+    "decide": 8450,
+    "review": 8265
   },
   "develop": {
-    "develop": 48349,
-    "quality": 9704,
-    "acceptance": 25382,
-    "final-sweep": 5810,
-    "develop-closing": 35569,
-    "park": 11348
+    "develop": 48813,
+    "quality": 9863,
+    "acceptance": 25502,
+    "final-sweep": 5930,
+    "develop-closing": 36033,
+    "park": 11468
   },
   "docs": {
-    "gather": 2925,
-    "scrub": 1296,
-    "curate": 6869
+    "gather": 3045,
+    "scrub": 1416,
+    "curate": 6989
   },
   "investigate": {
     "criteria-critic": 1900,
-    "investigate": 10342,
-    "critique": 8184
+    "investigate": 10462,
+    "critique": 8304
   },
   "refine": {
-    "plan-critic": 12679,
-    "plan-editor": 6074
+    "plan-critic": 13066,
+    "plan-editor": 6194
   }
 }

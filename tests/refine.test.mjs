@@ -247,6 +247,8 @@ section('the critic judges only whether the plan\'s text is correct, and a lean 
     'evidence may be a plan line, a cited file\'s line, a dependency doc or a probe output');
   ok(p.includes('a plan statement the repo or a file the plan cites contradicts'),
     'a contradiction class admits a plan statement that a cited file contradicts');
+  ok(p.includes('For a requirement the plan states without exception, and for a check or mechanism the plan removes with a stated reason, try each value that the flag, setting or location it names accepts, and report a contradiction only with the value that breaks it.'),
+    'the critic runs an absolute requirement and a removed check against each value its flag, setting or location accepts');
   ok(p.includes('SCOPE RULE 2 - a DEPENDENCY-ORDERING ERROR (class 4) whose fix splits, merges, adds or reorders blocks is reported as a QUESTION'),
     'only an ordering error becomes a structural question');
   ok(p.includes('which of the four classes it is') && p.includes('The one change may touch several lines of one block, such as a Files line, a Docs bullet and a criterion, and still names no alternatives. It names every plan line the change makes stale.'),

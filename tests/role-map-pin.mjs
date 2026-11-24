@@ -104,15 +104,19 @@ const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it fir
 const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 
 const FILE_WRITE_NOTE = 'Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.';
+const READ_FIRST_NOTE = 'Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.';
 
 /**
  * Pins the file-write warning at each write site, which is each place a prompt carries the rejected-write note.
  * @param {Array<[string, string, number, number]>} sites  the rows given to pinWriteNotes
+ * @param {boolean} readFirst  whether the engine's agents edit a file they did not write, so its note carries the Read-first sentence
  */
-export function pinFileWriteNote(sites) {
+export function pinFileWriteNote(sites, readFirst = true) {
   const times = (text, needle) => text.split(needle).length - 1;
   for (const [where, text, , wrotes] of sites) {
     eq(times(text, FILE_WRITE_NOTE), wrotes, `${where}: the prompt tells the agent to write file content with the Write or Edit tool`);
+    eq(times(text, `${FILE_WRITE_NOTE} ${READ_FIRST_NOTE}`), readFirst ? wrotes : 0,
+      `${where}: the note ${readFirst ? 'tells' : 'does not tell'} the agent to Read a file before its first Edit`);
   }
 }
 

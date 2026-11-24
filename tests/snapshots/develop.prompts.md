@@ -6,101 +6,101 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 35489 | every block accepts first time |
-| quality | 1 | 1 | 8757 | every block accepts first time |
-| acceptance | 1 | 1 | 14317 | every block accepts first time |
-| develop | 2 | 1 | 35914 | every block accepts first time |
-| acceptance | 2 | 2 | 14598 | every block accepts first time |
-| final-sweep | 1 | 1 | 5498 | every block accepts first time |
-| develop | 3 | 2 | 39082 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 3 | 15818 | a feature block accepts under the proactive policy |
-| final-sweep | 2 | 1 | 5489 | a feature block accepts under the proactive policy |
-| develop | 4 | 3 | 33746 | quality flags the first round |
-| acceptance | 4 | 1 | 14325 | quality flags the first round |
-| develop | 5 | 3 | 34116 | quality flags the first round |
-| acceptance | 5 | 2 | 14606 | quality flags the first round |
-| develop | 6 | 3 | 33742 | acceptance finds gaps, then passes |
-| acceptance | 6 | 1 | 14323 | acceptance finds gaps, then passes |
-| develop | 7 | 3 | 34112 | acceptance finds gaps, then passes |
-| acceptance | 7 | 2 | 14604 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 19690 | a later round is judged low risk |
-| acceptance | 9 | 2 | 19971 | a later round is judged low risk |
-| quality | 2 | 1 | 9704 | the developer declines a finding |
-| acceptance | 10 | 1 | 16185 | the developer declines a finding |
-| develop | 8 | 3 | 32550 | the gate never goes green |
-| develop-closing | 1 | 1 | 34172 | the gate never goes green |
-| quality | 3 | 1 | 8817 | the gate never goes green |
-| acceptance | 11 | 4 | 17596 | the gate never goes green |
-| park | 1 | 1 | 10884 | the gate never goes green |
-| develop | 9 | 3 | 32975 | the gate never goes green |
-| develop-closing | 2 | 1 | 34542 | the gate never goes green |
-| acceptance | 12 | 5 | 17877 | the gate never goes green |
-| acceptance | 13 | 1 | 14387 | a parked block, and the run carries on |
-| acceptance | 14 | 1 | 14451 | a parked block, and the run carries on |
-| acceptance | 15 | 1 | 14515 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 35199 | a parked block, and the run carries on |
-| acceptance | 16 | 4 | 23223 | a parked block, and the run carries on |
-| develop | 10 | 1 | 35471 | an ordered run stops at a parked block |
-| acceptance | 17 | 1 | 14311 | an ordered run stops at a parked block |
-| develop | 11 | 3 | 33724 | an ordered run stops at a parked block |
-| acceptance | 18 | 1 | 14317 | an ordered run stops at a parked block |
-| acceptance | 19 | 1 | 14381 | an ordered run stops at a parked block |
-| acceptance | 20 | 1 | 14445 | an ordered run stops at a parked block |
-| acceptance | 21 | 1 | 14509 | an ordered run stops at a parked block |
-| develop-closing | 4 | 1 | 35181 | an ordered run stops at a parked block |
-| acceptance | 22 | 4 | 23217 | an ordered run stops at a parked block |
-| park | 2 | 1 | 10896 | an ordered run stops at a parked block |
-| develop | 12 | 4 | 44857 | a fix block closes its issues |
-| acceptance | 23 | 6 | 22929 | a fix block closes its issues |
-| final-sweep | 3 | 1 | 5489 | a fix block closes its issues |
-| develop | 13 | 5 | 48349 | a fix block closes its issues under the proactive policy |
-| acceptance | 24 | 7 | 24454 | a fix block closes its issues under the proactive policy |
-| develop | 14 | 4 | 38679 | a fix block that continues no park closes its issues |
-| acceptance | 25 | 6 | 19985 | a fix block that continues no park closes its issues |
-| develop | 15 | 5 | 45012 | a proactive fix block that continues no park closes its issues and a pulled entry |
-| acceptance | 26 | 7 | 23529 | a proactive fix block that continues no park closes its issues and a pulled entry |
-| acceptance | 27 | 7 | 20269 | a proactive fix block that continues no park and pulled nothing closes its issues |
-| acceptance | 28 | 7 | 24468 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 16 | 6 | 38585 | a proactive fix block starts round 2 from the statuses it last reported |
-| acceptance | 29 | 7 | 24276 | a proactive fix block starts round 2 from the statuses it last reported |
-| develop | 17 | 4 | 45246 | a pass of two fix blocks closes its issues |
-| acceptance | 30 | 6 | 23214 | a pass of two fix blocks closes its issues |
-| final-sweep | 4 | 1 | 5519 | a pass of two fix blocks closes its issues |
-| acceptance | 31 | 6 | 22928 | every issue is already fixed |
-| develop | 18 | 4 | 44839 | an ordered run stops on a fix block that closes nothing |
-| park | 3 | 1 | 11208 | passed with a regression, not staged |
-| park | 4 | 1 | 10645 | acceptance stages a rejected block |
-| park | 5 | 1 | 11052 | the quality reviewer fails a block without its file |
-| park | 6 | 1 | 11052 | acceptance fails a block without its file |
-| park | 7 | 1 | 10981 | the developer staged its own work |
-| park | 8 | 1 | 11051 | the index changed outside acceptance |
-| park | 9 | 1 | 11348 | developer never got its block |
-| park | 10 | 1 | 10619 | acceptance never got its block |
-| park | 11 | 1 | 11221 | the developer dies |
-| park | 12 | 1 | 10601 | the quality reviewer dies |
-| park | 13 | 1 | 10979 | the acceptance verifier dies |
-| park | 14 | 1 | 10743 | developer escalates |
-| park | 15 | 1 | 10733 | developer escalates in an ordered run |
-| acceptance | 32 | 6 | 25382 | log line cap before the sweep |
-| acceptance | 33 | 4 | 22967 | a closing acceptance lands the block |
-| develop-closing | 5 | 1 | 35569 | a closing acceptance lands the block |
-| acceptance | 34 | 5 | 23248 | a closing acceptance lands the block |
-| acceptance | 35 | 4 | 17668 | a closing pass gets a blind review |
-| acceptance | 36 | 5 | 17949 | a closing pass gets a blind review |
-| acceptance | 37 | 4 | 23260 | a closing acceptance finds a blocking gap |
-| park | 16 | 1 | 11034 | a closing acceptance finds a blocking gap |
-| acceptance | 38 | 5 | 23541 | a closing acceptance finds a blocking gap |
-| park | 17 | 1 | 11034 | a closing acceptance finds a blocking gap |
-| develop | 19 | 7 | 35660 | every block commits first time |
-| quality | 4 | 1 | 8710 | every block commits first time |
-| acceptance | 39 | 8 | 15950 | every block commits first time |
-| develop | 20 | 7 | 36085 | every block commits first time |
-| acceptance | 40 | 9 | 16231 | every block commits first time |
-| final-sweep | 5 | 1 | 5810 | every block commits first time |
-| develop | 21 | 8 | 45059 | a fix block commits |
-| acceptance | 41 | 10 | 24779 | a fix block commits |
-| final-sweep | 6 | 1 | 5717 | a fix block commits |
-| park | 18 | 1 | 10651 | acceptance commits a rejected block |
+| develop | 1 | 1 | 35768 | every block accepts first time |
+| quality | 1 | 1 | 8916 | every block accepts first time |
+| acceptance | 1 | 1 | 14530 | every block accepts first time |
+| develop | 2 | 1 | 36193 | every block accepts first time |
+| acceptance | 2 | 2 | 14718 | every block accepts first time |
+| final-sweep | 1 | 1 | 5618 | every block accepts first time |
+| develop | 3 | 2 | 39361 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 3 | 16031 | a feature block accepts under the proactive policy |
+| final-sweep | 2 | 1 | 5609 | a feature block accepts under the proactive policy |
+| develop | 4 | 3 | 34210 | quality flags the first round |
+| acceptance | 4 | 1 | 14538 | quality flags the first round |
+| develop | 5 | 3 | 34580 | quality flags the first round |
+| acceptance | 5 | 2 | 14726 | quality flags the first round |
+| develop | 6 | 3 | 34206 | acceptance finds gaps, then passes |
+| acceptance | 6 | 1 | 14536 | acceptance finds gaps, then passes |
+| develop | 7 | 3 | 34576 | acceptance finds gaps, then passes |
+| acceptance | 7 | 2 | 14724 | acceptance finds gaps, then passes |
+| acceptance | 8 | 1 | 19903 | a later round is judged low risk |
+| acceptance | 9 | 2 | 20091 | a later round is judged low risk |
+| quality | 2 | 1 | 9863 | the developer declines a finding |
+| acceptance | 10 | 1 | 16398 | the developer declines a finding |
+| develop | 8 | 3 | 32829 | the gate never goes green |
+| develop-closing | 1 | 1 | 34451 | the gate never goes green |
+| quality | 3 | 1 | 8976 | the gate never goes green |
+| acceptance | 11 | 4 | 17809 | the gate never goes green |
+| park | 1 | 1 | 11004 | the gate never goes green |
+| develop | 9 | 3 | 33254 | the gate never goes green |
+| develop-closing | 2 | 1 | 34821 | the gate never goes green |
+| acceptance | 12 | 5 | 17997 | the gate never goes green |
+| acceptance | 13 | 1 | 14600 | a parked block, and the run carries on |
+| acceptance | 14 | 1 | 14664 | a parked block, and the run carries on |
+| acceptance | 15 | 1 | 14728 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 35663 | a parked block, and the run carries on |
+| acceptance | 16 | 4 | 23436 | a parked block, and the run carries on |
+| develop | 10 | 1 | 35750 | an ordered run stops at a parked block |
+| acceptance | 17 | 1 | 14524 | an ordered run stops at a parked block |
+| develop | 11 | 3 | 34188 | an ordered run stops at a parked block |
+| acceptance | 18 | 1 | 14530 | an ordered run stops at a parked block |
+| acceptance | 19 | 1 | 14594 | an ordered run stops at a parked block |
+| acceptance | 20 | 1 | 14658 | an ordered run stops at a parked block |
+| acceptance | 21 | 1 | 14722 | an ordered run stops at a parked block |
+| develop-closing | 4 | 1 | 35645 | an ordered run stops at a parked block |
+| acceptance | 22 | 4 | 23430 | an ordered run stops at a parked block |
+| park | 2 | 1 | 11016 | an ordered run stops at a parked block |
+| develop | 12 | 4 | 45321 | a fix block closes its issues |
+| acceptance | 23 | 6 | 23049 | a fix block closes its issues |
+| final-sweep | 3 | 1 | 5609 | a fix block closes its issues |
+| develop | 13 | 5 | 48813 | a fix block closes its issues under the proactive policy |
+| acceptance | 24 | 7 | 24574 | a fix block closes its issues under the proactive policy |
+| develop | 14 | 4 | 38958 | a fix block that continues no park closes its issues |
+| acceptance | 25 | 6 | 20105 | a fix block that continues no park closes its issues |
+| develop | 15 | 5 | 45476 | a proactive fix block that continues no park closes its issues and a pulled entry |
+| acceptance | 26 | 7 | 23649 | a proactive fix block that continues no park closes its issues and a pulled entry |
+| acceptance | 27 | 7 | 20389 | a proactive fix block that continues no park and pulled nothing closes its issues |
+| acceptance | 28 | 7 | 24588 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 16 | 6 | 39049 | a proactive fix block starts round 2 from the statuses it last reported |
+| acceptance | 29 | 7 | 24396 | a proactive fix block starts round 2 from the statuses it last reported |
+| develop | 17 | 4 | 45710 | a pass of two fix blocks closes its issues |
+| acceptance | 30 | 6 | 23334 | a pass of two fix blocks closes its issues |
+| final-sweep | 4 | 1 | 5639 | a pass of two fix blocks closes its issues |
+| acceptance | 31 | 6 | 23048 | every issue is already fixed |
+| develop | 18 | 4 | 45303 | an ordered run stops on a fix block that closes nothing |
+| park | 3 | 1 | 11328 | passed with a regression, not staged |
+| park | 4 | 1 | 10765 | acceptance stages a rejected block |
+| park | 5 | 1 | 11172 | the quality reviewer fails a block without its file |
+| park | 6 | 1 | 11172 | acceptance fails a block without its file |
+| park | 7 | 1 | 11101 | the developer staged its own work |
+| park | 8 | 1 | 11171 | the index changed outside acceptance |
+| park | 9 | 1 | 11468 | developer never got its block |
+| park | 10 | 1 | 10739 | acceptance never got its block |
+| park | 11 | 1 | 11341 | the developer dies |
+| park | 12 | 1 | 10721 | the quality reviewer dies |
+| park | 13 | 1 | 11099 | the acceptance verifier dies |
+| park | 14 | 1 | 10863 | developer escalates |
+| park | 15 | 1 | 10853 | developer escalates in an ordered run |
+| acceptance | 32 | 6 | 25502 | log line cap before the sweep |
+| acceptance | 33 | 4 | 23180 | a closing acceptance lands the block |
+| develop-closing | 5 | 1 | 36033 | a closing acceptance lands the block |
+| acceptance | 34 | 5 | 23368 | a closing acceptance lands the block |
+| acceptance | 35 | 4 | 17881 | a closing pass gets a blind review |
+| acceptance | 36 | 5 | 18069 | a closing pass gets a blind review |
+| acceptance | 37 | 4 | 23473 | a closing acceptance finds a blocking gap |
+| park | 16 | 1 | 11154 | a closing acceptance finds a blocking gap |
+| acceptance | 38 | 5 | 23661 | a closing acceptance finds a blocking gap |
+| park | 17 | 1 | 11154 | a closing acceptance finds a blocking gap |
+| develop | 19 | 7 | 35939 | every block commits first time |
+| quality | 4 | 1 | 8869 | every block commits first time |
+| acceptance | 39 | 8 | 16163 | every block commits first time |
+| develop | 20 | 7 | 36364 | every block commits first time |
+| acceptance | 40 | 9 | 16351 | every block commits first time |
+| final-sweep | 5 | 1 | 5930 | every block commits first time |
+| develop | 21 | 8 | 45523 | a fix block commits |
+| acceptance | 41 | 10 | 24899 | a fix block commits |
+| final-sweep | 6 | 1 | 5837 | a fix block commits |
+| park | 18 | 1 | 10771 | acceptance commits a rejected block |
 
 ## develop · variant 1 · schema 1
 
@@ -124,7 +124,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
@@ -245,7 +245,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -600,7 +602,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -694,7 +698,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -768,7 +772,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -899,7 +904,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -1024,7 +1029,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -1336,7 +1343,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -1542,7 +1549,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 COMPLETED BLOCKS: block-a, block-b
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
 only if it exists. A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing.
@@ -1622,7 +1629,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
@@ -1769,7 +1776,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -2112,7 +2121,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -2202,7 +2211,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -2352,7 +2362,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 COMPLETED BLOCKS: block-a
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
 only if it exists. A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing.
@@ -2431,7 +2441,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 A prior review flagged issues in E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
@@ -2473,7 +2483,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/launch-1/gate/quality-review-block-a-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
-   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
+   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
@@ -2525,7 +2535,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -2822,7 +2834,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -2896,7 +2908,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -3027,7 +3040,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -3070,7 +3083,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/launch-1/gate/quality-review-block-b-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
-   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
+   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
    Then RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
    scoped to this block (use the block's `test_selector:` line when it has one, else the test gate):
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
@@ -3125,7 +3138,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -3422,7 +3437,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -3630,7 +3645,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 A prior review flagged issues in E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
@@ -3672,7 +3687,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
-   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
+   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
@@ -3724,7 +3739,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -4021,7 +4038,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -4095,7 +4112,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -4226,7 +4244,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -4269,7 +4287,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
-   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
+   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
    Then RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
    scoped to this block (use the block's `test_selector:` line when it has one, else the test gate):
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
@@ -4324,7 +4342,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -4621,7 +4641,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -4829,7 +4849,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -4903,7 +4923,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -5066,7 +5087,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -5358,7 +5379,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -5452,7 +5475,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -5545,7 +5568,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -5676,7 +5700,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
@@ -5770,7 +5794,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -6067,7 +6093,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
@@ -6174,7 +6200,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -6523,7 +6551,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -6618,7 +6648,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -6699,7 +6729,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r6-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r6-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -6847,7 +6878,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -6976,7 +7007,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -7074,7 +7105,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -7371,7 +7404,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -7482,7 +7515,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -7789,7 +7824,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -8025,7 +8060,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -8100,7 +8135,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r3-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r3-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -8231,7 +8267,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -8307,7 +8343,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r4-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r4-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -8438,7 +8475,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -8515,7 +8552,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r5-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r5-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -8646,7 +8684,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
@@ -8691,7 +8729,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/launch-1/acceptance-review-block-a-r5.md. Every finding and gap in it, and each failure
    the gate run below shows, is your work list. Route each item through the DECISION
-   MATRIX below. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. Where the matrix says FIX, answer the RISK QUESTIONS in CLASSIFY below
+   MATRIX below. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. Where the matrix says FIX, answer the RISK QUESTIONS in CLASSIFY below
    for that fix before you write any code for it. When the fix is not low risk, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
    After that line, add the line "**Parked with:** block block-a. Hold this entry until that block is done or skip.", since the engine parks the block with the code the entry names when its closing
@@ -8754,7 +8792,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -9061,7 +9101,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -9146,7 +9186,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r6-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r6-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -9330,7 +9371,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
@@ -9451,7 +9492,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -9763,7 +9806,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -9837,7 +9880,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -9968,7 +10012,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 A prior review flagged issues in E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
@@ -10010,7 +10054,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/launch-1/acceptance-review-block-a-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
-   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
+   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
@@ -10062,7 +10106,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -10359,7 +10405,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -10433,7 +10479,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -10564,7 +10611,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -10639,7 +10686,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r3-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r3-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -10770,7 +10818,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -10846,7 +10894,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r4-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r4-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -10977,7 +11026,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -11054,7 +11103,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r5-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r5-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -11185,7 +11235,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
@@ -11230,7 +11280,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/launch-1/acceptance-review-block-a-r5.md. Every finding and gap in it, and each failure
    the gate run below shows, is your work list. Route each item through the DECISION
-   MATRIX below. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. Where the matrix says FIX, answer the RISK QUESTIONS in CLASSIFY below
+   MATRIX below. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. Where the matrix says FIX, answer the RISK QUESTIONS in CLASSIFY below
    for that fix before you write any code for it. When the fix is not low risk, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
    After that line, add the line "**Parked with:** block block-a. Hold this entry until that block is done or skip.", since the engine parks the block with the code the entry names when its closing
@@ -11293,7 +11343,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -11600,7 +11652,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -11685,7 +11737,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r6-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r6-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -11865,7 +11918,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -11996,7 +12049,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -12040,7 +12093,7 @@ An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished w
 branch's work, which step b restored or the accepted baseline already holds, or on the accepted baseline
 when it carries no "- branch:" line, close the gaps its **What:** lists and meet every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
 prints a block), and, for a feature or section block, the reachability of its work from real entry points.
-Those gaps are copied from a review. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap you refute gets its DISMISSED line under
+Those gaps are copied from a review. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap you refute gets its DISMISSED line under
 rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire
 restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line
 and the origin criteria hold, never STALE.
@@ -12181,7 +12234,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -12531,7 +12586,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -12825,7 +12880,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 COMPLETED BLOCKS: block-c
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
 only if it exists. A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing.
@@ -12906,7 +12961,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -12950,7 +13005,7 @@ An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished w
 branch's work, which step b restored or the accepted baseline already holds, or on the accepted baseline
 when it carries no "- branch:" line, close the gaps its **What:** lists and meet every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
 prints a block), and, for a feature or section block, the reachability of its work from real entry points.
-Those gaps are copied from a review. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap you refute gets its DISMISSED line under
+Those gaps are copied from a review. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap you refute gets its DISMISSED line under
 rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire
 restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line
 and the origin criteria hold, never STALE.
@@ -13118,7 +13173,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -13499,7 +13556,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -13834,7 +13891,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -13970,7 +14027,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -14320,7 +14379,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -14595,7 +14654,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -14616,7 +14675,7 @@ An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished w
 branch's work, or on the accepted baseline
 when it carries no "- branch:" line, close the gaps its **What:** lists and meet every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
 prints a block), and, for a feature or section block, the reachability of its work from real entry points.
-Those gaps are copied from a review. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap you refute gets its DISMISSED line under
+Those gaps are copied from a review. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap you refute gets its DISMISSED line under
 rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire
 restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line
 and the origin criteria hold, never STALE.
@@ -14774,7 +14833,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -15155,7 +15216,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -15480,7 +15541,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -15777,7 +15838,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -16112,7 +16173,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -16173,7 +16234,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: READ E:/flow/runs/flow/launch-1/acceptance-review-block-c-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
-   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
+   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since the blind review its verdict triggers judges the entire block diff.
    FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
    entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line or a line that starts with "**Parked with:**", anything else but a closed entry) UNTOUCHED and record it
    SKIPPED: that triage is the user's call, or the other block's. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
@@ -16235,7 +16296,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -16591,7 +16654,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -16927,7 +16990,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c-plus-1
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -16971,7 +17034,7 @@ An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished w
 branch's work, which step b restored or the accepted baseline already holds, or on the accepted baseline
 when it carries no "- branch:" line, close the gaps its **What:** lists and meet every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
 prints a block), and, for a feature or section block, the reachability of its work from real entry points.
-Those gaps are copied from a review. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap you refute gets its DISMISSED line under
+Those gaps are copied from a review. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap you refute gets its DISMISSED line under
 rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire
 restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line
 and the origin criteria hold, never STALE.
@@ -17112,7 +17175,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -17466,7 +17531,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c-plus-1   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -17764,7 +17829,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 COMPLETED BLOCKS: block-c-plus-1
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
 only if it exists. A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing.
@@ -17844,7 +17909,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -18142,7 +18207,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -18186,7 +18251,7 @@ An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished w
 branch's work, which step b restored or the accepted baseline already holds, or on the accepted baseline
 when it carries no "- branch:" line, close the gaps its **What:** lists and meet every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
 prints a block), and, for a feature or section block, the reachability of its work from real entry points.
-Those gaps are copied from a review. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap you refute gets its DISMISSED line under
+Those gaps are copied from a review. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap you refute gets its DISMISSED line under
 rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire
 restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line
 and the origin criteria hold, never STALE.
@@ -18327,7 +18392,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -18672,7 +18739,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -18797,7 +18864,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -18922,7 +18989,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19047,7 +19114,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19172,7 +19239,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19297,7 +19364,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19422,7 +19489,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19551,7 +19618,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19676,7 +19743,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19805,7 +19872,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -19930,7 +19997,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -20055,7 +20122,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -20184,7 +20251,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -20318,7 +20385,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -20813,7 +20880,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -20894,7 +20961,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -21078,7 +21146,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -21124,7 +21192,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/launch-1/acceptance-review-block-b-r1.md. Every finding and gap in it, and each failure
    the gate run below shows, is your work list. Route each item through the DECISION
-   MATRIX below. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. Where the matrix says FIX, answer the RISK QUESTIONS in CLASSIFY below
+   MATRIX below. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. Where the matrix says FIX, answer the RISK QUESTIONS in CLASSIFY below
    for that fix before you write any code for it. When the fix is not low risk, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
    After that line, add the line "**Parked with:** block block-b. Hold this entry until that block is done or skip.", since the engine parks the block with the code the entry names when its closing
@@ -21190,7 +21258,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -21497,7 +21567,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -21766,7 +21836,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -21848,7 +21918,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -22001,7 +22072,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -22239,7 +22310,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -22324,7 +22395,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -22504,7 +22576,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -22634,7 +22706,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -22902,7 +22974,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
@@ -23031,7 +23103,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
@@ -23153,7 +23225,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -23513,7 +23587,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -23607,7 +23683,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -23681,7 +23757,8 @@ PROCEDURE:
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
-   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   Re-run the verification method the block names to confirm the feature behaves as specified. When the
+   block names none, that method is the gate and the tests the block adds or changes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
    Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.log, replacing that log's earlier content. When two gate commands this step names are the same command, run it once, and that run and its build log serve both. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs through the shell tool's own background option, never with a shell `&`, since a job started with `&` may stop when its tool call returns. It writes the same log, and once the command exits, its exit code to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.exit, which you delete before you start it. Wait for it with one bounded loop in the foreground that checks every 10 seconds whether that exit-code file exists and stops when it does or after 9 minutes, so it ends inside the shell tool's timeout. Run that loop again until the file exists, then read the exit code and the end of the log once.
@@ -23849,7 +23926,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -23975,7 +24052,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -24292,7 +24371,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -24535,7 +24614,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 COMPLETED BLOCKS: block-a, block-b
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
 only if it exists. A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing.
@@ -24619,7 +24698,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
@@ -24664,7 +24743,7 @@ An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished w
 branch's work, which step b restored or the accepted baseline already holds, or on the accepted baseline
 when it carries no "- branch:" line, close the gaps its **What:** lists and meet every acceptance criterion of each block its "- origin:" line names (`node 'E:/flow/tools/plan-block.mjs' '<plan file>' '<block id>'`
 prints a block), and, for a feature or section block, the reachability of its work from real entry points.
-Those gaps are copied from a review. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap you refute gets its DISMISSED line under
+Those gaps are copied from a review. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A suggested fix that changes what the block's text states, or adds an exception to it, is applied only under the DECISION MATRIX's rule 6a, since a blind reviewer never reads the plan. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap you refute gets its DISMISSED line under
 rule 1. A gap for a wrong risk answer, for a sweep line that is missing, leaves out a hit the change left wrong, or disagrees with the change, or for a path that changed after its round's snapshot, takes no fix and no log, since this block's first blind review judges the entire
 restored work. Report the entry FIXED once every other listed gap is closed or declined by a DISMISSED line
 and the origin criteria hold, never STALE.
@@ -24805,7 +24884,9 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff. When a fact must be stated in more than one place, keep it in as few
 places as possible, at most one copy for users and one for agents, and update every copy in the same change.
-A review reports a copy beyond those, or a copy the diff leaves out of date, as a finding.
+A tool's own usage text, header comment and messages, and the text that documents that tool, count toward
+neither limit. A review reports a copy beyond those, a copy the diff leaves out of date, or two copies of
+one fact that disagree, as a finding.
 
 CHECKLIST:
   - build and tests: anything that breaks the build or tests;
@@ -25160,7 +25241,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. A round with no blind review has no blind review file. Ignore a round file of this block that this prompt does not name, whichever round or launch wrote it. This launch writes its round files in E:/flow/runs/flow/launch-1/, where a file exists before its writer runs only when an interrupted attempt of this launch left it.
 Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
@@ -25492,7 +25573,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 COMPLETED BLOCKS: block-c
 Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
 only if it exists. A line that starts with "RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and settles nothing. An amendment whose heading starts with "## RETIRED launch <n>: " is retired. Launch <n>'s re-check found that it no longer applies, so it is no longer in force and excuses nothing.
@@ -25569,7 +25650,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need. Prefer targeted grep over broad reads. Do not restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/ or E:/flow/runs/flow/launch-1/gate/. Every block of the run writes into that folder, so start the name of each scratch file you name yourself with your block id and round, such as `<block id>-r<round>-<name>`, with `park-<block id>-` when you park a block, or with `sweep-` when you are the final sweep.
-Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks.
+Write file content, and any script that edits a file, with the Write or Edit tool, since text sent through a Bash command can lose backslashes and alter backticks. Read a file with the Read tool before your first Edit of it, since the Edit tool refuses a file its agent has not read.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
     in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
