@@ -30,19 +30,24 @@
 // for its main worktree. A derived `<root>` inside one of the repo's checkouts, such as a checkout at the home folder,
 // exits 40 and names `AIPG_WT_ROOT`. `<project>` is the name `project-settings.mjs backlog` gives the repo's backlog folder. `--dir` names another parent
 // folder instead, which the tool neither adds a project folder to nor removes. Once `clean` or `close` has trashed and
-// pruned a worktree that sat directly in the project folder, it removes that folder when it holds no entry, and then a
-// derived worktree root folder when it holds no entry (see `removeEmptyFolders`). AIPG_WT_ROOT_RULE=home forces the
-// home folder rule on any platform, so tests derive the worktree root folder inside a temporary home folder.
+// pruned a worktree that sat directly in the project folder, or at a short path a long path move gave it directly in
+// the worktree root folder, it removes the project folder when it holds no entry, and then a derived worktree root
+// folder when it holds no entry (see `removeEmptyFolders`). AIPG_WT_ROOT_RULE=home forces the home folder rule on any
+// platform, so tests derive the worktree root folder inside a temporary home folder.
 //
-// "after it has landed" is a precondition `clean` enforces. `clean` moves the worktree folder to the
-// operating system's trash through tools/trash.mjs and then runs `git worktree prune`. It never runs
-// `git worktree remove`, which deletes the folder and every ignored file in it. It refuses with exit 40
-// and changes nothing when the worktree is the repo's main worktree, is locked, has a folder at its path
-// whose `.git` file does not point at its git directory, holds modified, staged or untracked files, has
-// a merge, cherry-pick, revert, rebase, am or bisect in progress, has submodule git directories in its
-// git directory, or holds the working directory of the process that runs it or the `--repo` path (see
-// `checkRemovable`). A rebase or bisect detaches HEAD, so `clean` finds that worktree by the branch the
-// operation records, as git does (see `worktreesForClean`).
+// "after it has landed" is a precondition `clean` enforces. `clean` moves the worktree folder to the operating system's
+// trash through tools/trash.mjs and then runs `git worktree prune`. It never runs `git worktree remove`, which deletes
+// the folder and every ignored file in it. When the trash refuses the folder for a path too long for the volume's
+// Recycle Bin, `clean` and `close` move the worktree once with `git worktree move` to a shorter path, a folder named
+// `aipg-_` and six characters in the worktree root folder, or in the worktree's own parent folder when `open` would
+// refuse that root or it lies under another path root, and trash it there. A refusal there exits 40 with the worktree
+// at that path, and the same command run again trashes it there with no second move (see `trashWorktree`). `clean`
+// refuses with exit 40 and changes nothing when the worktree is the repo's main worktree, is locked, has a folder at
+// its path whose `.git` file does not point at its git directory, holds modified, staged or untracked files, has a
+// merge, cherry-pick, revert, rebase, am or bisect in progress, has submodule git directories in its git directory, or
+// holds the working directory of the process that runs it or the `--repo` path (see `checkRemovable`). A rebase or
+// bisect detaches HEAD, so `clean` finds that worktree by the branch the operation records, as git does (see
+// `worktreesForClean`).
 // `clean --batch`, which also removes the shared hook, is refused while any chain worktree of that batch
 // is still registered (see `cleanBatch`).
 //
@@ -122,7 +127,9 @@
 //       hook self-test failed or never exercised, provision red, a worktree being cleaned that is the
 //       main worktree, is locked, has another folder at its path or holds unlanded work, an unfinished
 //       operation, submodule git directories, the caller's working directory or the --repo path, a trash
-//       move that was refused or could not be confirmed, a --state-dir scratch path that cannot be read, a
+//       move that was refused or could not be confirmed, a `git worktree move` after a long path refusal that
+//       failed, whose destination folder cannot be created or read, or that put the worktree inside a folder
+//       another process made at its destination, a --state-dir scratch path that cannot be read, a
 //       worktree still registered after the prune, a batch cleaned while its chains are still registered, an
 //       empty index over a dirty tree, unaccepted work left beside a committed accept, a sync git refused up
 //       front, a command killed for flooding its output buffer, an init, prep or open whose worktree git
@@ -151,7 +158,7 @@
 import { execFileSync } from 'node:child_process';
 import { chmodSync, closeSync, lstatSync, mkdirSync, openSync, readdirSync, readFileSync, realpathSync, rmdirSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { basename, dirname, isAbsolute, join, resolve, win32 } from 'node:path';
+import { basename, dirname, isAbsolute, join, posix, resolve, win32 } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { projectName, repoKey } from './project-settings.mjs';
 import { REFUSAL_CAUSES, TrashError, foldsCase, isWithin, realpathLoose, trash } from './trash.mjs';
@@ -499,11 +506,34 @@ export function worktreeRoot(repo, env = process.env, platform = process.platfor
 const projectFolder = (repo, root) => join(root.dir, projectName(repoKey(realpathSync.native(gitCommonDir(repo))), FOLDS_CASE));
 
 /**
+ * The checkout of `repo` that holds the worktree root folder `root` when this tool derived it, or null. That
+ * checkout's git status and every tool that walks it would read the run worktrees, so `open` and `init` refuse it.
+ */
+const rootHolder = (repo, root) => (root.derived
+  ? listWorktrees(repo).find((e) => !e.bare && isWithin(realpathLoose(root.dir), realpathLoose(e.path), FOLDS_CASE)) ?? null
+  : null);
+
+/**
+ * Whether the paths `a` and `b` share a path root, such as a drive or a UNC share on Windows, since `git worktree
+ * move` only renames a folder. It reads the path strings alone, so a caller passes real paths. `platform` lets a test
+ * prove a second root without a second volume.
+ */
+export function sharesPathRoot(a, b, platform = process.platform) {
+  // Input
+  const paths = platform === 'win32' ? win32 : posix;
+  const rootA = paths.parse(paths.resolve(a)).root;
+  const rootB = paths.parse(paths.resolve(b)).root;
+
+  // Output
+  return foldsCase(platform) ? rootA.toLowerCase() === rootB.toLowerCase() : rootA === rootB;
+}
+
+/**
  * `{ dir, root }`: the folder that holds the worktree folder `folder` that init or open creates, and the worktree root
  * folder `worktreeRoot` gives when `dir` is the project folder in it. `root` is null for a `--dir`, which names the
  * parent folder, so a `--dir` that ends in `folder` would nest the worktree one level deeper and is refused. A derived
- * worktree root folder inside one of the repo's checkouts, such as a checkout at the home folder, is refused too, since
- * that checkout's git status and every tool that walks it would read the run worktrees.
+ * worktree root folder inside one of the repo's checkouts, such as a checkout at the home folder, is refused too (see
+ * `rootHolder`).
  */
 function worktreeParent(repo, opt, folder) {
   // Input
@@ -520,7 +550,7 @@ function worktreeParent(repo, opt, folder) {
     return { dir, root };
   }
   root = worktreeRoot(repo);
-  if (root.derived) holder = listWorktrees(repo).find((e) => !e.bare && isWithin(realpathLoose(root.dir), realpathLoose(e.path), FOLDS_CASE));
+  holder = rootHolder(repo, root);
   if (holder) {
     throw unsafe(`the worktree root folder ${root.dir} lies inside the checkout ${holder.path}, so that checkout's git status would list the run worktrees, and no branch or worktree was made. Set ${WT_ROOT_ENV} to the absolute path of a folder outside it.`);
   }
@@ -563,14 +593,18 @@ function removeIfEmpty(folder) {
 
 /**
  * Removes the project folder of `repo` when it holds no entry, and then the worktree root folder when it holds no entry
- * and this tool derived it. `removed` is the path of the worktree a removal just pruned, and one that sat in any other
- * folder, such as a `--dir`, leaves every folder in place. A verb that finds no worktree left passes none, so it
- * finishes the removal an earlier stop left. A failure prints one stderr line and leaves the exit code as it was.
+ * and this tool derived it. `removed` is the path of the worktree a removal just pruned. One that sat in the project
+ * folder counts, and so does a `shortName` folder in the worktree root folder, where the move of `trashWorktree` puts
+ * it. One that sat in any other folder, such as a `--dir`, leaves every folder in place. A verb that finds no worktree
+ * left passes none, so it finishes the removal an earlier stop left. A failure prints one stderr line and leaves the
+ * exit code as it was.
  */
 function removeEmptyFolders(repo, removed = null) {
   // Input
   let root = null;
   let project = '';
+  let sat = '';
+  let counts = false;
   try {
     root = worktreeRoot(repo);
     project = projectFolder(repo, root);
@@ -580,7 +614,9 @@ function removeEmptyFolders(repo, removed = null) {
   }
 
   // Process
-  if (removed !== null && caseKey(realpathLoose(dirname(removed))) !== caseKey(realpathLoose(project))) return;
+  sat = removed === null ? '' : caseKey(realpathLoose(dirname(removed)));
+  counts = !sat || sat === caseKey(realpathLoose(project)) || (sat === caseKey(realpathLoose(root.dir)) && isShortName(basename(removed)));
+  if (!counts) return;
   if (!removeIfEmpty(project) || !root.derived) return;
   removeIfEmpty(root.dir);
 }
@@ -1244,7 +1280,9 @@ function ignoredFileCount(path) {
 
 /** The action that clears each measured cause of a refused trash move, keyed by the TrashError's `causeId`. */
 const TRASH_CLEARING = {
-  [REFUSAL_CAUSES.longPath]: (repo, path) => `A shorter --dir given to open or init keeps later worktrees short. To clear the cause, move this worktree to a shorter path with git -C ${shellQuote(repo)} worktree move ${shellQuote(path)} <shorter path>`,
+  // `trashWorktree` has already moved the worktree to a short path, or found none shorter, so a deep folder in it is
+  // what is left to move.
+  [REFUSAL_CAUSES.longPath]: (_, path) => `A shorter --dir given to open or init keeps later worktrees short. To clear the cause, move the deepest ignored folder in ${shellQuote(path)}, such as a dependency folder, to a shorter path and trash it there with node ${shellQuote(TRASH_SCRIPT)} <shorter path>`,
   [REFUSAL_CAUSES.held]: () => 'The holder may be a process whose working directory is inside the folder, such as a test runner or a dev server. To clear the cause, end the holding process',
   [REFUSAL_CAUSES.denied]: () => 'To clear the cause, end the process that holds the file open, or restore the right to delete the folder and its files',
 };
@@ -1256,6 +1294,19 @@ const SCRATCH_CLEARING = {
 };
 const SCRATCH_DIR = 'scratch';
 const SCRATCH_DONE = 'every step before the scratch trash is done';
+// NAME_RE starts every name with a letter or digit, so no folder `open` or `init` makes starts with this prefix.
+const SHORT_NAME_PREFIX = 'aipg-_';
+// Fixed length, so a worktree that `trashWorktree` already moved finds no shorter path and is never moved twice.
+const SHORT_ID_LENGTH = 6;
+const shortName = (n) => `${SHORT_NAME_PREFIX}${n.toString(36).padStart(SHORT_ID_LENGTH, '0')}`;
+const isShortName = (name) => foldName(name).startsWith(SHORT_NAME_PREFIX);
+
+/** The exit-40 error for `err`, which `trash` threw, with the text `refusal(reason, causeId)` or `unconfirmed(reason)` gives. */
+function trashFailure(err, refusal, unconfirmed) {
+  const state = err instanceof TrashError ? err.state : 'unknown';
+  const reason = err instanceof TrashError ? err.reason : err.message;
+  return unsafe(state === 'refused' ? refusal(reason, err.causeId) : unconfirmed(reason));
+}
 
 /**
  * Moves `path` to the trash and returns the outcome, or exits 40 with the text `refusal(reason, causeId)` gives for a
@@ -1265,21 +1316,128 @@ function trashOrExit(path, refusal, unconfirmed) {
   try {
     return trash(path);
   } catch (err) {
-    const state = err instanceof TrashError ? err.state : 'unknown';
-    const reason = err instanceof TrashError ? err.reason : err.message;
-    throw unsafe(state === 'refused' ? refusal(reason, err.causeId) : unconfirmed(reason));
+    throw trashFailure(err, refusal, unconfirmed);
   }
 }
 
+/** The sentence that names removing the worktree folder another way as the user's decision, since it deletes the folder permanently. */
+const permanentRemoval = (repo) => `If the cause cannot be cleared, removing the folder another way deletes it permanently and is the user's decision, and once the user has removed it, run ${pruneCommand(repo)}, then run this command again.`;
+
 /**
- * A refused move left every file in place and an unknown one may have moved part of it, so neither may prune.
- * A refusal ends on the clearing action and the rerun. It names another removal only as the user's decision, since
- * one deletes the folder permanently.
+ * The texts of a refused and an unknown trash move of the worktree at `path`. A refused move left every file in place
+ * and an unknown one may have moved part of it, so neither may prune. A refusal ends on the clearing action and the rerun.
  */
+const worktreeRefusal = (repo, path) => (reason, causeId) => `the trash refused the worktree at ${path} (${reason}), so it stays registered and intact and nothing was pruned. ${permanentRemoval(repo)} ${(TRASH_CLEARING[causeId] ?? CLEAR_NAMED_CAUSE)(repo, path)}, then run this command again.`;
+const worktreeUnconfirmed = (path) => (reason) => `the trash could not confirm where the worktree at ${path} went (${reason}), so nothing was pruned. Check the trash for it, then run this command again.`;
+
+/** Moves the worktree folder at `path` to the trash and returns the outcome, or exits 40 as `worktreeRefusal` says. */
 function moveToTrash(repo, path) {
-  return trashOrExit(path,
-    (reason, causeId) => `the trash refused the worktree at ${path} (${reason}), so it stays registered and intact and nothing was pruned. If the cause cannot be cleared, removing the folder another way deletes it permanently and is the user's decision, and once the user has removed it, run ${pruneCommand(repo)}, then run this command again. ${(TRASH_CLEARING[causeId] ?? CLEAR_NAMED_CAUSE)(repo, path)}, then run this command again.`,
-    (reason) => `the trash could not confirm where the worktree at ${path} went (${reason}), so nothing was pruned. Check the trash for it, then run this command again.`);
+  return trashOrExit(path, worktreeRefusal(repo, path), worktreeUnconfirmed(path));
+}
+
+/** Whether `err` is the trash's refusal of a tree that holds a path too long for the volume's Recycle Bin. */
+const isLongPathRefusal = (err) => err instanceof TrashError && err.state === 'refused' && err.causeId === REFUSAL_CAUSES.longPath;
+
+/**
+ * `{ path, create }` for the move `trashWorktree` makes of the worktree at `path`, or null when the destination is no
+ * shorter. The destination's parent folder is the worktree root folder `open` uses, when `open` would not refuse it and
+ * it shares the worktree's path root, else the worktree's own parent folder. The destination's name is the first
+ * `shortName` that no entry of that parent folder holds. `create` is the worktree root folder the move creates first, or null.
+ */
+function shortDestination(repo, path) {
+  // Input
+  const real = realpathLoose(path);
+  let root = null;
+  let parent = dirname(path);
+  let taken = null;
+  let n = 0;
+  let destination = '';
+  try {
+    root = worktreeRoot(repo);
+  } catch (err) {
+    if (err.exitCode === undefined) throw err;
+  }
+
+  // Process
+  // Real paths, since a link may reach another volume from a folder on this one, and the move uses the link's target.
+  if (root && !rootHolder(repo, root) && sharesPathRoot(realpathLoose(root.dir), real)) parent = root.dir;
+  else root = null;
+  // `git worktree move` records the real path, so a destination built through a link would look shorter on every rerun.
+  parent = realpathLoose(parent);
+  try {
+    taken = new Set(pathExists(parent) ? readdirSync(parent).map(foldName) : []);
+  } catch (err) {
+    throw unsafe(`the trash refused the worktree at ${path} for a path too long for its Recycle Bin, and reading the folder ${parent} to move it to a shorter path failed (${err.message}), so it stays registered and intact and nothing was pruned. To clear the cause, act on that error, then run this command again.`);
+  }
+  while (taken.has(foldName(shortName(n)))) n++;
+  destination = join(parent, shortName(n));
+
+  // Output
+  if (destination.length >= real.length) return null;
+  return { path: destination, create: root && !pathExists(root.dir) ? root : null };
+}
+
+/**
+ * Moves the worktree at `path` to `destination` from `shortDestination` with `git worktree move`, which keeps its
+ * registration and branch, or exits 40 with it registered and intact at `path`. A derived worktree root folder created
+ * for a failed move is removed again when it is empty. `git worktree move` moves a worktree into a destination folder
+ * that exists, so a folder another process made there after `shortDestination` read its parent exits 40 too.
+ */
+export function moveWorktree(repo, path, destination) {
+  // Input
+  const refused = `the trash refused the worktree at ${path} for a path too long for its Recycle Bin`;
+  const kept = `so it stays registered and intact at ${path} and nothing was pruned`;
+  const created = destination.create;
+  const landed = caseKey(realpathLoose(destination.path));
+  let moved = null;
+
+  // Process
+  if (created) {
+    try {
+      mkdirSync(created.dir, { recursive: true });
+    } catch (err) {
+      throw unsafe(`${refused}, and creating the worktree root folder ${created.dir} to move it to a shorter path failed (${err.message}), ${kept}. To clear the cause, act on that error, then run this command again.`);
+    }
+  }
+  moved = git(repo, ['worktree', 'move', path, destination.path]);
+  if (moved.code !== 0) {
+    if (created?.derived) removeIfEmpty(created.dir);
+    throw unsafe(`${refused}, and git worktree move to ${destination.path} failed: ${gitError(moved)}, ${kept}. ${permanentRemoval(repo)} To clear the cause, act on git's reason, then run this command again.`);
+  }
+  if (!listWorktrees(repo).some((e) => caseKey(realpathLoose(e.path)) === landed)) {
+    throw unsafe(`${refused}, and git worktree move put it inside ${destination.path}, a folder another process made after this command chose that path, so it is registered at ${join(destination.path, basename(path))} and nothing was trashed or pruned. To clear the cause, run this command again, which moves it to a free short path.`);
+  }
+
+  // Output
+  process.stderr.write(`moved the worktree from ${path} to ${destination.path}, since the trash refused it for a path too long for its Recycle Bin\n`);
+}
+
+/**
+ * Moves the worktree folder at `path` to the trash and returns `{ moved, at, created }`: the outcome, the path the
+ * folder left, and the worktree root folder created for a move or null. A refusal for a path too long for the Recycle
+ * Bin moves the worktree once to a shorter path (see `shortDestination`) and trashes it there. Any other refusal, an
+ * unknown outcome, or no shorter path exits 40 as `moveToTrash` does.
+ */
+function trashWorktree(repo, path) {
+  // Input
+  const refusal = worktreeRefusal(repo, path);
+  const unconfirmed = worktreeUnconfirmed(path);
+  let first = null;
+  let destination = null;
+
+  // Process
+  try {
+    return { moved: trash(path), at: path, created: null };
+  } catch (err) {
+    first = err;
+  }
+  if (!isLongPathRefusal(first)) throw trashFailure(first, refusal, unconfirmed);
+  destination = shortDestination(repo, path);
+  if (!destination) throw trashFailure(first, refusal, unconfirmed);
+  moveWorktree(repo, path, destination);
+
+  // Output
+  return { moved: moveToTrash(repo, destination.path), at: destination.path, created: destination.create };
 }
 
 /**
@@ -1390,7 +1548,8 @@ function checkRemovable(repo, entry, mainPath, { discard = false, unlandedAdvice
  * passes with `opts`. `git worktree remove` is never run, since it deletes the folder and its ignored files
  * permanently. A folder already gone is pruned. A discard lists on stderr the work it trashed, the
  * operation whose state the prune deletes, and the detached HEAD of a rebase or bisect. Last, `removeEmptyFolders`
- * removes the folders the worktree leaves empty.
+ * removes the folders the worktree leaves empty, judged by the folder it sat in before any move of `trashWorktree`,
+ * and a derived worktree root folder created for that move is removed when it is empty.
  */
 function removeWorktree(repo, entry, mainPath, opts = {}) {
   // Input
@@ -1403,7 +1562,7 @@ function removeWorktree(repo, entry, mainPath, opts = {}) {
   const recovery = detachedAt ? `. Its detached HEAD was ${detachedAt}. To recover a commit made during it before git gc expires it, run git -C ${shellQuote(repo)} branch <name> ${detachedAt}` : '';
   let ignored = null;
   let ignoredText = '';
-  let moved = null;
+  let trashed = { moved: null, at: path, created: null };
 
   // Process
   if (present) {
@@ -1411,8 +1570,8 @@ function removeWorktree(repo, entry, mainPath, opts = {}) {
     ignoredText = ignored === null
       ? `an uncounted number of ignored files, whose names pass the ${LISTING_MAX_BUFFER / MIB} MiB listing cap`
       : `${ignored} ignored file${ignored === 1 ? '' : 's'}`;
-    moved = moveToTrash(repo, path);
-    process.stderr.write(`${movedText(path, moved)}, with ${ignoredText}\n`);
+    trashed = trashWorktree(repo, path);
+    process.stderr.write(`${movedText(trashed.at, trashed.moved)}, with ${ignoredText}\n`);
     if (work) process.stderr.write(`discarded the uncommitted work it held: ${work}\n`);
     if (operation) process.stderr.write(`discarded ${operation[1]} in progress, whose state (${operation[0]}) the prune deletes${recovery}\n`);
   } else {
@@ -1421,10 +1580,11 @@ function removeWorktree(repo, entry, mainPath, opts = {}) {
   mustGit(repo, ['worktree', 'prune'], 'git worktree prune');
 
   // Output
-  if (listWorktrees(repo).some((e) => e.path === path)) {
-    throw unsafe(`${path} is still registered after "git worktree prune". Check its entry in git -C ${shellQuote(repo)} worktree list --porcelain, then run this command again.`);
+  if (listWorktrees(repo).some((e) => caseKey(realpathLoose(e.path)) === caseKey(realpathLoose(trashed.at)))) {
+    throw unsafe(`${trashed.at} is still registered after "git worktree prune". Check its entry in git -C ${shellQuote(repo)} worktree list --porcelain, then run this command again.`);
   }
   removeEmptyFolders(repo, path);
+  if (trashed.created?.derived) removeIfEmpty(trashed.created.dir);
 }
 
 function cleanChain(repo, key) {
@@ -1970,12 +2130,15 @@ function deleteIfMerged(repo, branch, into) {
 /**
  * Exit 40 for a worktree `open` made that a switch or a detached HEAD took off `aipg/<name>`, found by its folder
  * name, or null. prep names a chain's folder the same way, so a chain branch of key `name` makes the folder ambiguous.
+ * A folder the long path move of `trashWorktree` renamed to a `shortName` is found by its directory under
+ * `<git-common-dir>/worktrees`, since `git worktree move` keeps the name `open` gave that directory.
  */
 function strayRefusal(targets, entries, name, exists) {
   // Input
   const branch = singleBranch(name);
   const folder = foldName(chainDir(name));
-  const stray = entries.find((e) => !e.main && !chainParts(e.branch) && foldName(basename(e.path)) === folder && pathExists(e.path)) ?? null;
+  const openedName = (e) => (isShortName(basename(e.path)) && e.gitDir ? basename(e.gitDir) : basename(e.path));
+  const stray = entries.find((e) => !e.main && !chainParts(e.branch) && foldName(openedName(e)) === folder && pathExists(e.path)) ?? null;
   let chains = [];
 
   // Process

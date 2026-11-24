@@ -25,6 +25,8 @@ function refuseAsWindows(path, outcome, longestPath) {
   throw new TrashError(verdict.state, path, verdict.reason, verdict.causeId);
 }
 
+let refusedOnce = false;
+
 const OUTCOMES = {
   // The folder leaves its path before the outcome is lost, so a prune after it would drop the registration.
   unknown(path) {
@@ -34,10 +36,21 @@ const OUTCOMES = {
   // The Windows backend's refusal of each measured cause, which a test can reach only on a volume with no 8.3 short
   // names, under a process that holds the folder or under permissions that deny the delete.
   longPath: (path) => refuseAsWindows(path, { Veto: 'a second item or a per-item fallback' }, 286),
+  // The long path refusal of a worktree that another process locks first, so the `git worktree move` after it fails.
+  longPathLocked(path) {
+    execFileSync('git', ['-C', path, 'worktree', 'lock', '--reason', 'trash-stub', path], { stdio: 'pipe' });
+    return OUTCOMES.longPath(path);
+  },
   held: (path) => refuseAsWindows(path, { PerformHr: '0x80270027', DeleteHr: '0x80270027' }, 0),
   denied: (path) => refuseAsWindows(path, { PerformHr: '0x80270021', DeleteHr: '0x80270021' }, 0),
   // A success report for a folder that never moved, which `git worktree prune` keeps registered.
   unmoved: (path) => ({ state: 'trashed', target: path, location: `${path}.nowhere`, verified: true }),
+  // The long path refusal of the first path a wt child trashes, then the unmoved success report for every later one.
+  longPathThenUnmoved(path) {
+    if (refusedOnce) return OUTCOMES.unmoved(path);
+    refusedOnce = true;
+    return OUTCOMES.longPath(path);
+  },
   // The folder moves to the trash, then the index of the repo named by AIPG_TRASH_STUB_REPO is emptied, as a user
   // unstaging the work would between close's staging and its branch delete.
   unstage(path) {

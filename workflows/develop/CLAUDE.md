@@ -384,9 +384,11 @@ reason the code shows.
      in the run's summary, since no reviewer read the fix.
    - `40`: follow its one-line reason and run close again. When the reason names the user's
      uncommitted changes at paths the landing writes, ask the user to commit them or set them aside,
-     since that work is theirs. When the trash refused the run worktree or the run's `scratch/` folder,
-     clear the cause the refusal names with the action it names, such as a `git worktree move` to a
-     shorter path or ending the process that holds the folder, and run the same close again. A close run
+     since that work is theirs. A close moves a run worktree that the trash refuses for a path too long
+     for its Recycle Bin to a shorter path once, and trashes it there. When the trash refused the run
+     worktree or the run's `scratch/` folder, clear the cause the refusal names with the action it
+     names, such as moving a deep ignored folder out of the worktree or ending the process that holds
+     the folder, and run the same close again. A close run
      again after its landing runs no second gate, unless in stage delivery the user's branch moved since or
      the user's checkout no longer holds the run's work staged. Removing the folder another way deletes it
      permanently, so only the user decides that. To drop a run instead, run

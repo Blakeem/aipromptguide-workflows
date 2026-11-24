@@ -78,9 +78,12 @@ the trash location and the number of ignored files.
 A rebase or bisect detaches HEAD. So `clean` finds that worktree by the branch the operation records,
 as git does, and `clean --batch` counts it as a chain still registered.
 
-The trash can also refuse the move or fail to confirm it. Either case is exit 40 and prunes nothing.
-A refusal names its cause and the action that clears it. On Windows, a tree that holds a path too
-long for the volume's Recycle Bin clears with `git worktree move` to a shorter path, and a shorter
+The trash can also refuse the move or fail to confirm it. On Windows, when the trash refuses a tree
+that holds a path too long for the volume's Recycle Bin, `clean` and `close` move the worktree once
+with `git worktree move` to a shorter path and trash it there. Any other refusal, an unknown outcome,
+a worktree with no shorter path, a failed move or a refusal at the shorter path is exit 40 and prunes
+nothing. A refusal names its cause and the action that clears it. A tree still too long at the shorter
+path clears when a deep ignored folder, such as a dependency folder, moves out of it, and a shorter
 `--dir` to `open` or `init` keeps later worktrees short. A folder that a process holds, such as the
 working directory of a test runner or a dev server, clears when that process ends. A delete denied by
 a file held open without delete sharing, or by the folder's permissions, clears when the process that

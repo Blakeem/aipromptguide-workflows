@@ -232,12 +232,12 @@ await withFixture(({ root, repo }) => {
   const mainAt = sha(repo, 'refs/heads/main');
 
   const refused = wtStubbed(TRASH_STUB, ['close', '--repo', repo, '--name', 'feat', '--into', 'main', '--stage', '--gate', gateCmd(root, 'green', GATE_GREEN)],
-    { AIPG_TRASH_STUB: 'longPath' });
+    { AIPG_TRASH_STUB: 'held' });
   eq(refused.code, 40, `close --stage whose trash refuses exits 40 (${firstLine(refused.stderr)})`);
   eq(stagedNames(repo), 's.txt', '...after staging the change on main');
   ok(worktreePaths(repo).includes(norm(feat)), '...with the worktree still registered');
 
-  // A pnpm junction left pointing at the folder's old path after a `git worktree move` fails a gate this way.
+  // A pnpm junction left pointing at the folder's old path after close's `git worktree move` fails a gate this way.
   const red = gateCmd(root, 'red', 'process.exit(1);\n');
   const again = closeTo(repo, 'feat', red, ['--stage']);
   eq(again.code, 0, `close --stage run again with a failing gate exits 0 (${firstLine(again.stderr)})`);
@@ -254,7 +254,7 @@ await withFixture(({ root, repo }) => {
   stage(feat, 's.txt', 'accepted\n');
 
   const refused = wtStubbed(TRASH_STUB, ['close', '--repo', repo, '--name', 'feat', '--into', 'main', '--stage', '--gate', gateCmd(root, 'green', GATE_GREEN)],
-    { AIPG_TRASH_STUB: 'longPath' });
+    { AIPG_TRASH_STUB: 'held' });
   eq(refused.code, 40, `close --stage whose trash refuses exits 40 (${firstLine(refused.stderr)})`);
   eq(git(repo, ['reset', '-q']).code, 0, 'the user unstages the work on main');
 
@@ -270,7 +270,7 @@ await withFixture(({ root, repo }) => {
   stage(feat, 's.txt', 'accepted\n');
 
   const refused = wtStubbed(TRASH_STUB, ['close', '--repo', repo, '--name', 'feat', '--into', 'main', '--stage', '--gate', gateCmd(root, 'green', GATE_GREEN)],
-    { AIPG_TRASH_STUB: 'longPath' });
+    { AIPG_TRASH_STUB: 'held' });
   eq(refused.code, 40, `close --stage whose trash refuses exits 40 (${firstLine(refused.stderr)})`);
   writeFileSync(at(repo, 'o.txt'), 'the user\'s other commit\n');
   eq(git(repo, ['add', '--', 'o.txt']).code, 0, 'the user adds an unrelated file on main');

@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import { section, ok, eq } from './harness.mjs';
 import { shellQuote } from '../tools/wt.mjs';
 import { foldsCase } from '../tools/trash.mjs';
-import { DATA_HOME, TRASH_STUB, wtStubbed, at, git, norm, firstLine, Q, rx, readOr, worktreePaths, sha, withFixture, trashedName, trashedAt, commitFile, gateCmd, GATE_GREEN, openIn, closeIn, discardIn, opened, ledgerGate, ledgerRuns, unchanged, hookIn, hasGit } from './wt-helpers.mjs';
+import { DATA_HOME, TRASH_STUB, WT_ROOT, wtStubbed, at, git, norm, firstLine, Q, rx, readOr, worktreePaths, sha, withFixture, trashedName, trashedAt, commitFile, gateCmd, GATE_GREEN, openIn, closeIn, discardIn, opened, ledgerGate, ledgerRuns, unchanged, hookIn, hasGit } from './wt-helpers.mjs';
 
 if (!hasGit) {
   console.log('  ! SKIPPED — git is not on PATH, and every check in this file drives a real repo');
@@ -85,7 +85,7 @@ await withFixture(({ root, repo }) => {
   eq(sha(repo, 'refs/heads/aipg/lost'), lostTip, '...and keeps the branch');
 });
 
-section('a close whose trash refuses names the action that clears each measured cause, and a close after the worktree move it names finishes');
+section('a close whose trash refuses names the action that clears each measured cause, and the same close run again once the cause is cleared finishes');
 await withFixture(({ root, repo }) => {
   const ledger = join(root, 'gate-runs.txt');
   const gate = ledgerGate(root, ledger);
@@ -116,17 +116,16 @@ await withFixture(({ root, repo }) => {
   const deep = opened(repo, 'deep');
   commitFile(deep, 'd.txt', 'deep\n');
   const deepRun = closeRefused('deep', 'longPath');
-  const move = /git -C (.+?) worktree move (.+?) <shorter path>, then run this command again\.$/m.exec(deepRun.stderr);
-  eq(deepRun.code, 40, `a trash refused for a long path exits 40 (${firstLine(deepRun.stderr)})`);
+  const clearing = / To clear the cause, move the deepest ignored folder in (.+?), such as a dependency folder, to a shorter path and trash it there with node .+ <shorter path>, then run this command again\.$/m.exec(deepRun.stderr);
+  const shorter = join(root, WT_ROOT, 'aipg-_000000');
+  eq(deepRun.code, 40, `a trash refused for a long path at the first path and the short one exits 40 (${firstLine(deepRun.stderr)})`);
   ok(/too long for this volume's Recycle Bin.*A shorter --dir given to open or init keeps later worktrees short\./.test(deepRun.stderr), `...naming the cause and --dir: ${firstLine(deepRun.stderr)}`);
-  eq(norm(unquoted(move?.[2] ?? '')), norm(deep), '...and ending on the worktree move of this worktree and the rerun');
+  eq(norm(unquoted(clearing?.[1] ?? '')), norm(shorter), '...and ending on the clearing action in the worktree at its short path and the rerun');
   ok(permanent.test(deepRun.stderr) && !/by hand/.test(deepRun.stderr), '...and calling another removal permanent and the user\'s decision, never a step');
-  const shorter = join(root, 'mv');
-  eq(git(repo, ['worktree', 'move', deep, shorter]).code, 0, 'the worktree moves to a shorter path');
   const finished = closeIn(repo, 'deep', 'main', gate);
-  eq(finished.code, 0, `the same close run again exits 0 (${firstLine(finished.stderr)})`);
+  eq(finished.code, 0, `the same close run again once the cause is cleared exits 0 (${firstLine(finished.stderr)})`);
   eq(ledgerRuns(ledger).length, 3, '...running no second gate for it');
-  ok(trashedName(root, shorter) !== '', '...moving the worktree from its new path to the trash');
+  ok(trashedName(root, shorter) !== '', '...moving the worktree from its short path to the trash');
   eq(sha(repo, 'refs/heads/aipg/deep'), '', '...and deleting aipg/deep');
 });
 
